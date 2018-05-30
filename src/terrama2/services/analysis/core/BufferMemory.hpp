@@ -131,7 +131,7 @@ namespace terrama2
           \param geometry The geometry.
           \return A smart pointer to a memory dataset with the buffers created from the given geometries.
         */
-        std::shared_ptr<te::gm::Geometry> createBuffer(Buffer buffer, std::shared_ptr<te::gm::Geometry> geometry);
+        TMANALYSISEXPORT std::shared_ptr<te::gm::Geometry> createBuffer(Buffer buffer, std::shared_ptr<te::gm::Geometry> geometry);
 
         /*!
           \brief Creates a buffer for each given geometry with the given distance.
@@ -141,10 +141,10 @@ namespace terrama2
           \param buffer Aggregation buffer configuration.
           \return A smart pointer to a memory dataset with the buffers created from the given geometries.
         */
-        std::shared_ptr<te::mem::DataSet> createAggregationBuffer(std::vector<uint32_t>& indexes,
-                                                                  std::shared_ptr<ContextDataSeries> contextDataSeries,
-                                                                  Buffer buffer, StatisticOperation aggregationStatisticOperation,
-                                                                  const std::string& attribute);
+        TMANALYSISEXPORT std::shared_ptr<te::mem::DataSet> createAggregationBuffer( std::shared_ptr<ContextDataSeries> contextDataSeries,
+                                                                                    Buffer buffer,
+                                                                                    StatisticOperation aggregationStatisticOperation,
+                                                                                    const std::string& attribute);
 
       } // end namespace core
     }   // end namespace analysis

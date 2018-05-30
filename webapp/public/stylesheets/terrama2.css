@@ -724,3 +724,17 @@ table.dataTable tbody th, table.dataTable tbody td { padding-left: 12px !importa
     margin-top: 45px;
   }
 }
+
+.status-change-button > .fa {
+  font-size: 30px;
+  cursor: pointer;
+}
+
+.status-change-button > .fa-toggle-on { color: green; }
+
+.status-change-button > .fa-toggle-off { color: red; }
+
+.status-change-disabled {
+  color: gray !important;
+  cursor: auto !important;
+}

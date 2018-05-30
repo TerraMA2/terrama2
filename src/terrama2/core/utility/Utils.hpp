@@ -79,41 +79,41 @@ namespace terrama2
 
       \return A complete path to the file or directory if it is found, otherwise returns an empty string.
      */
-    std::string FindInTerraMA2Path(const std::string& fileName);
+    TECOREEXPORT std::string FindInTerraMA2Path(const std::string& fileName);
 
     /*! \brief Initializes the terralib and load the plugins. */
-    void initializeTerralib();
+    TECOREEXPORT void initializeTerralib();
 
     /*! \brief Finalizes the terralib. */
-    void finalizeTerralib();
+    TECOREEXPORT void finalizeTerralib();
 
     /*!
       \brief Initializes terrama2 logger module.
       \param pathFile A string value defining where is to open/save log file.
     */
-    void initializeLogger(const std::string& pathFile);
+    TECOREEXPORT void initializeLogger(const std::string& pathFile);
 
     /*!
       \brief It disables the global TerraMA2 logger module.
 
       It may be useful during tests execution to do not display status message in data stream.
     */
-    void disableLogger();
+    TECOREEXPORT void disableLogger();
 
     /*!
       \brief It enables the global TerraMA2 logger module.
 
       \note It just enable logging core application. It is not guaranteed that TerraMA2 logger has been initialized to display output in console and file.
     */
-    void enableLogger();
+    TECOREEXPORT void enableLogger();
 
-    DataSeriesType dataSeriesTypeFromString(const std::string& type);
+    TECOREEXPORT DataSeriesType dataSeriesTypeFromString(const std::string& type);
 
-    DataSeriesTemporality dataSeriesTemporalityFromString(const std::string& temporality);
+    TECOREEXPORT DataSeriesTemporality dataSeriesTemporalityFromString(const std::string& temporality);
 
-    bool isValidColumn(size_t value);
+    TECOREEXPORT bool isValidColumn(size_t value);
 
-    std::string getProperty(DataSetPtr dataSet, DataSeriesPtr dataSeries, std::string tag, bool logErrors = true);
+    TECOREEXPORT std::string getProperty(DataSetPtr dataSet, DataSeriesPtr dataSeries, std::string tag, bool logErrors = true);
 
     /*!
       \brief Remove complex characters from the string
@@ -125,29 +125,29 @@ namespace terrama2
 
       Spaces are replaced by "_".
     */
-    std::string simplifyString(std::string text);
+    TECOREEXPORT std::string simplifyString(std::string text);
 
-    std::string readFileContents(const std::string& absoluteFilePath);
+    TECOREEXPORT std::string readFileContents(const std::string& absoluteFilePath);
 
     /*!
       \brief Returns the value for the "is_temporal" property of the given dataset.
     */
-    bool isTemporal(terrama2::core::DataSetPtr dataset);
+    TECOREEXPORT bool isTemporal(terrama2::core::DataSetPtr dataset);
 
     /*!
       \brief Returns the value for the time interval property of a temporal dataset.
     */
-    std::string getTimeInterval(terrama2::core::DataSetPtr dataset);
+    TECOREEXPORT std::string getTimeInterval(terrama2::core::DataSetPtr dataset);
 
 
-    size_t propertyPosition(const te::da::DataSet* dataSet, const std::string& propertyName);
+    TECOREEXPORT size_t propertyPosition(const te::da::DataSet* dataSet, const std::string& propertyName);
 
     /*!
      * \brief Returns a valid name for te::da::DataSet properties name
      * \param text The base name to process
      * \return A valid name for te::da::DataSet properties name
      */
-    std::string createValidPropertyName(const std::string& oldName);
+    TECOREEXPORT std::string createValidPropertyName(const std::string& oldName);
 
     /*!
      * \brief Split a string based in a delimiter and returns the partis in a vector.
@@ -156,7 +156,7 @@ namespace terrama2
      * \param delim The delimiter character
      * \return A vector with the splitted parts of the text.
      */
-    std::vector<std::string> splitString(const std::string& text, char delim);
+    TECOREEXPORT std::vector<std::string> splitString(const std::string& text, char delim);
 
     /*!
      * \brief Get all the dates avaible from a dataset column, the returned vector do not has duplicated dates and
@@ -165,31 +165,40 @@ namespace terrama2
      * \param datetimeColumnName
      * \return A vector with dates, with no duplicated dates
      */
-    std::vector<std::shared_ptr<te::dt::DateTime> > getAllDates(te::da::DataSet* teDataset,
+
+    TECOREEXPORT std::vector<std::shared_ptr<te::dt::TimeInstantTZ> > getAllDates(te::da::DataSet* teDataset,
                                                                 const std::string& datetimeColumnName);
 
     //! Recover complete mask, folder plus file mask
-    std::string getMask(DataSetPtr dataset);
+    TECOREEXPORT std::string getMask(DataSetPtr dataset);
 
     //! Recover table name of the DCP postions table_name
-    std::string getDCPPositionsTableName(DataSeriesPtr dataSeries);
+    TECOREEXPORT std::string getDCPPositionsTableName(DataSeriesPtr dataSeries);
 
     //! Returns the file mask .
-    std::string getFileMask(DataSetPtr dataSet);
+    TECOREEXPORT std::string getFileMask(DataSetPtr dataSet);
 
     //! Returns the folder mask .
-    std::string getFolderMask(DataSetPtr dataSet);
+    TECOREEXPORT std::string getFolderMask(DataSetPtr dataSet);
 
     //! Return the te::da::DataSetType and te::da::DataSet of the DCP positions table
-    std::pair<std::shared_ptr<te::da::DataSetType>, std::shared_ptr<te::da::DataSet> >
+    TECOREEXPORT std::pair<std::shared_ptr<te::da::DataSetType>, std::shared_ptr<te::da::DataSet> >
     getDCPPositionsTable(std::shared_ptr<te::da::DataSource> datasource, const std::string& dataSetName);
+
+    /*!
+      \brief Erase content from previous execution
+
+      This method will erase from a postgres table the results with date: startTime
+      It is used for reprocessing historical data.
+    */
+    TECOREEXPORT void erasePreviousResult(DataManagerPtr dataManager, DataSeriesId dataSeriesId, std::shared_ptr<te::dt::TimeInstantTZ> startTime);
   } // end namespace core
 }   // end namespace terrama2
 
 
 namespace std
 {
-    template<> struct hash<terrama2::core::Filter>
+    template<> struct TECOREEXPORT hash<terrama2::core::Filter>
     {
         size_t operator()(terrama2::core::Filter const& filter) const;
     };

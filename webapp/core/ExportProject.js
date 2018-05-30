@@ -28,7 +28,8 @@ var ExportProject = function(json){
     Analysis: [],
     Views: [],
     Alerts: [],
-    Legends: []
+    Legends: [],
+    Interpolators: []
   };
 
   var _emitError = function(err) {
@@ -170,6 +171,13 @@ var ExportProject = function(json){
         if(countObjectProperties(rawAnalysis.schedule) > 0)
           rawAnalysis.schedule.scheduleType = rawAnalysis.schedule_type;
 
+        if (rawAnalysis.schedule.reprocessing_historical_data && (rawAnalysis.schedule.reprocessing_historical_data.start_date || rawAnalysis.schedule.reprocessing_historical_data.end_date) ){
+          rawAnalysis.schedule.historical = {};
+          rawAnalysis.schedule.historical.startDate = rawAnalysis.schedule.reprocessing_historical_data.start_date;
+          rawAnalysis.schedule.historical.endDate = rawAnalysis.schedule.reprocessing_historical_data.end_date;
+          delete rawAnalysis.schedule.reprocessing_historical_data;
+        }
+
         output.Analysis.push(rawAnalysis);
       });
     }));
@@ -205,6 +213,17 @@ var ExportProject = function(json){
     promises.push(DataManager.listLegends({project_id: target.id}).then(function(legends) {
       legends.forEach(function(legend) {
         output.Legends.push(addID(legend));
+      });
+    }));
+
+    promises.push(DataManager.listInterpolators({project_id: target.id}).then(function(interpolators){
+      interpolators.forEach(function(interpolator){
+        var interpolatorToAdd = addID(interpolator);
+
+        if(countObjectProperties(interpolatorToAdd.schedule) > 0)
+          interpolatorToAdd.schedule.scheduleType = interpolatorToAdd.schedule_type;
+
+        output.Interpolators.push(interpolatorToAdd);
       });
     }));
   } // end if projects
@@ -355,6 +374,33 @@ var ExportProject = function(json){
             output.Alerts.push(alertToAdd);
 
             return getDataSeries(alert.data_series_id);
+          } else {
+            return Promise.resolve();
+          }
+        })
+      );
+    }
+  }
+
+  if (json.Interpolators) {
+    for (var i = 0, interpolatorsLength = json.Interpolators.length; i < interpolatorsLength; i++){
+      promises.push(
+        DataManager.getInterpolator({id: json.Interpolators[i].id}).then(function(interpolator){
+          if (!isInArray(interpolator.id, output.Interpolators)){
+            var rawInterpolator = interpolator.rawObject();
+            rawInterpolator.$id = rawInterpolator.id;
+            delete rawInterpolator.id;
+            rawInterpolator.project_id = null;
+            rawInterpolator.service_instance_id = null;
+
+            if(countObjectProperties(rawInterpolator.schedule) > 0)
+            rawInterpolator.schedule.scheduleType = rawInterpolator.schedule_type;
+
+            output.Interpolators.push(rawInterpolator);
+            
+            var interpolatorsDataseriesListPromises = [getDataSeries(rawInterpolator.data_series_output)];
+
+            return Promise.all(interpolatorsDataseriesListPromises).catch(_emitError);
           } else {
             return Promise.resolve();
           }

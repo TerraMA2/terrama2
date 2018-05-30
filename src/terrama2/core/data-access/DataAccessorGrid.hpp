@@ -48,7 +48,7 @@ namespace terrama2
       This could be a GeoTiff, Ascii-Grid, Grads, WCS or similar data.
 
     */
-    class DataAccessorGrid : public virtual DataAccessor
+    class TMCOREEXPORT DataAccessorGrid : public virtual DataAccessor
     {
       public:
         //! Default constructor

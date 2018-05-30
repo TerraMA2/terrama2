@@ -27,13 +27,18 @@
   \author Jano Simas
 */
 
+// TerraMa2
+#include "../Config.hpp"
+
+// TerraLib
 #include <terralib/geometry/Geometry.h>
 #include <terralib/geometry/Coord2D.h>
-
-#include <boost/dynamic_bitset.hpp>
-
 #include <terralib/raster/Raster.h>
 
+// Boost
+#include <boost/dynamic_bitset.hpp>
+
+// STL
 #include <memory>
 
 #ifndef __TERRAMA2_CORE_UTILS_BITSET_INTERSECTION_HPP__
@@ -61,7 +66,7 @@ namespace terrama2 {
 
       \sa terrama2::core::geoToGrid
     */
-    class BitsetIntersection
+    class TMCOREEXPORT BitsetIntersection
     {
       public:
         /*!

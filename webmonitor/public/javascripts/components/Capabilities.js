@@ -42,17 +42,21 @@ define(
      * Method to get Layers from map capabilities
      */
     var getMapCapabilitiesLayers = function(capabilities) {
-      var layers = capabilities.Capability[0].Layer[0];
       var capabilitiesList = [];
 
-      if(layers.Layer !== undefined) {
-        for(var i = 0, layersLength = layers.Layer.length; i < layersLength; i++) {
-          if(layers.Layer[i].hasOwnProperty('Layer')) {
-            for(var j = 0, subLayersLength = layers.Layer[i].Layer.length; j < subLayersLength; j++) {
-              capabilitiesList.push(getDateExtentFromLayer(layers.Layer[i].Layer[j]));
+      if(capabilities.Capability && capabilities.Capability[0] && capabilities.Capability[0].Layer && capabilities.Capability[0].Layer[0]) {
+        var layers = capabilities.Capability[0].Layer[0];
+        
+
+        if(layers.Layer !== undefined) {
+          for(var i = 0, layersLength = layers.Layer.length; i < layersLength; i++) {
+            if(layers.Layer[i].hasOwnProperty('Layer')) {
+              for(var j = 0, subLayersLength = layers.Layer[i].Layer.length; j < subLayersLength; j++) {
+                capabilitiesList.push(getDateExtentFromLayer(layers.Layer[i].Layer[j]));
+              }
+            } else {
+              capabilitiesList.push(getDateExtentFromLayer(layers.Layer[i]));
             }
-          } else {
-            capabilitiesList.push(getDateExtentFromLayer(layers.Layer[i]));
           }
         }
       }

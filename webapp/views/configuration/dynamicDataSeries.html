@@ -34,10 +34,15 @@
     dataSeriesType: 'dynamic',
     collectors: {[collectors|json|safe]},
     analysis: {[analysis|json|safe]},
+    interpolators: {[interpolators|json|safe]},
     projects: {[projects|json|safe]},
     link: function(object) {
       return "{[ BASE_URL ]}configuration/dynamic/dataseries/"+ object.id +"?type=dynamic#/wizard";
     },
+    statusChangeLink: function(object) {
+      return "{[ BASE_URL ]}api/DataSeries/dynamic/changeStatus/" + object.id;
+    },
+    servicesInstances: {},
     iconFn: function(object) {
       switch(object.data_series_semantics.data_series_type_name) {
         case globals.enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
@@ -46,6 +51,8 @@
         case globals.enums.DataSeriesType.GRID:
           if (object.isAnalysis){
             return "{[ BASE_URL ]}images/analysis/grid/grid_analysis.png";
+          } else if (object.isInterpolator) {
+            return "{[ BASE_URL ]}images/interpolation/grid/grid.png";
           } else {
             return "{[ BASE_URL ]}images/dynamic-data-series/grid/grid.png";
           }
@@ -81,7 +88,7 @@
           <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
         </div>
 
-        <terrama2-table fields="fields" model="model" link="link" icon-properties="iconProperties" 
+        <terrama2-table fields="fields" model="model" link="link" status-change-link="statusChangeLink" services-instances="servicesInstances" icon-properties="iconProperties" 
                         link-to-add="linkToAdd" icon="iconFn" remove="remove(object)" 
                         extra="extra" order-by="'name'"></terrama2-table>
       </div>

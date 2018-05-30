@@ -32,15 +32,17 @@
 #define __TERRAMA2_CORE_TIMER_HPP__
 
 // TerraMA2
+#include "../Config.hpp"
 #include "../Typedef.hpp"
 #include "../data-model/Schedule.hpp"
 
-//Qt
+// Qt
 #include <QTimer>
 
-//terralib
+// Terralib
 #include <terralib/datatype/TimeInstantTZ.h>
 
+// STL
 #include <memory>
 
 namespace terrama2
@@ -52,12 +54,12 @@ namespace terrama2
 
       This class when created starts a timer based on the Schedule that will emit a timeoutSignal.
     */
-    class Timer : public QTimer
+    class TMCOREEXPORT Timer : public QTimer
     {
       Q_OBJECT
 
     public:
-      Timer(const Schedule& dataSchedule, ProcessId processId, std::shared_ptr< te::dt::TimeInstantTZ > lastEmit);
+      Timer(ProcessPtr process, std::shared_ptr< te::dt::TimeInstantTZ > lastEmit);
 
       virtual ~Timer();
       Timer(const Timer& other) = delete;
@@ -65,11 +67,11 @@ namespace terrama2
       Timer& operator=(const Timer& other) = delete;
       Timer& operator=(Timer&& other) = delete;
 
-      ProcessId processId() const;
+      ProcessPtr process() const;
 
     signals:
 
-        void timeoutSignal(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) const;
+        void timeoutSignal(ProcessPtr process, std::shared_ptr<te::dt::TimeInstantTZ> startTime);
 
     private slots:
 

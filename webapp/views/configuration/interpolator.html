@@ -1,0 +1,58 @@
+{% extends "../base/layout.html" %}
+{% set tabActive = "dynamic-data" %}
+
+{% block ngApp %} ng-app="terrama2.interpolator.controllers.interpolatorregisterupdate" {% endblock %}
+
+{% block title %} TerraMA² {{ i18n.__('Interpolator Registration') }} {% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{[ BASE_URL ]}externals/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
+<link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/angular-wizard/dist/angular-wizard.min.css">
+<link rel="stylesheet" href="{[ BASE_URL ]}externals/angular-ui-select/dist/select.min.css" />
+{% endblock %}
+
+
+{% block javascripts %}
+<!-- Angular -->
+<script type="text/javascript" src="{[ BASE_URL ]}externals/angular-wizard/dist/angular-wizard.js"></script>
+
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/moment.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/locale/pt-br.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/locale/es.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/locale/fr.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/angular-eonasdan-datetimepicker/dist/angular-eonasdan-datetimepicker.min.js"></script>
+
+<!-- Angular ui router -->
+<script type="text/javascript" src="{[ BASE_URL ]}externals/angular-ui-router/release/angular-ui-router.min.js"></script>
+<script src="{[ BASE_URL ]}externals/angular-ui-select/dist/select.min.js"></script>
+
+<script>
+  var configuration = {
+    input_ds: {[ input_ds|json|safe ]},
+    interpolator: {[ interpolator|json|safe ]}
+  }
+</script>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="col-md-12">
+  <div class="box box-default">
+    <div class="box-header with-border">
+      <h3 class="box-title">Interpolation register</h3>
+      <a href="{[ BASE_URL ]}helper/add_dynamic_data_interpolation.html" target="_blank" style="color: #97a0b3; float: right;">
+          <button type="button" class="btn btn-box-tool terrama2-circle-button" style="margin-right: 15px;" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-question"></i></button>
+        </a>
+    </div>
+
+    <!-- /.box-header -->
+    <div style="display: block;" class="box-body" ui-view>
+
+    </div>
+    <!-- /.box body -->
+  </div>
+</div> <!-- end col md 12 -->
+{% endblock %}

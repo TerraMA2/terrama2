@@ -99,6 +99,22 @@ module.exports = function(sequelize, DataTypes) {
             }
           });
 
+          DataSeries.hasMany(models.Interpolator, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "data_series_input",
+              allowNull: false
+            }
+          });
+
+          DataSeries.hasMany(models.Interpolator, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "data_series_output",
+              allowNull: false
+            }
+          });
+
           DataSeries.hasOne(models.View, {
             onDelete: "CASCADE",
             foreignKey: {

@@ -153,10 +153,10 @@
           var options = {transaction: t};
           return DataManager.getAnalysis({id: analysisResultObject.process_id}, options)
             .then(function(analysis){
-              var analysisDatasetOutput = analysis.dataset_output;
+              var analysisDataSeries = analysis.dataSeries.id;
               var restritions = {
                 data_ids: {
-                  $contains: [analysisDatasetOutput]
+                  $contains: [analysisDataSeries]
                 }
               };
               //return the process are conditioned by the analysis
@@ -260,6 +260,7 @@
                   .then(function(instanceServiceResponse){
                     var objectToRun = {
                       ids: [analysisResult.id],
+                      object: analysisResult,
                       instance: instanceServiceResponse,
                     };
                     return objectToRun;
@@ -272,6 +273,7 @@
                       .then(function(instanceServiceResponse){
                         var objectToRun = {
                           ids: [viewResult.id],
+                          object: viewResult,
                           instance: instanceServiceResponse,
                         };
                         return objectToRun;
@@ -280,10 +282,11 @@
                   .catch(function(err){
                     return DataManager.getAlert({automatic_schedule_id: automaticSchedule.id}, options)
                       .then(function(alertResult){
-                        return DataManager.getServiceInstance({id: alertResult.instance_id}, options)
+                        return DataManager.getServiceInstance({id: alertResult.service_instance_id}, options)
                           .then(function(instanceServiceResponse){
                             var objectToRun = {
                               ids: [alertResult.id],
+                              object: alertResult,
                               instance: instanceServiceResponse
                             };
                             return objectToRun;

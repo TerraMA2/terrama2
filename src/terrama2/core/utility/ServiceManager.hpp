@@ -25,6 +25,7 @@
 #ifndef __TERRAMA2_CORE_SERVICE_MANAGER_HPP__
 #define __TERRAMA2_CORE_SERVICE_MANAGER_HPP__
 
+// TerraMa2
 #include "../Typedef.hpp"
 #include "ProcessLogger.hpp"
 
@@ -50,7 +51,7 @@ namespace terrama2
       When the listening port is altered, the ServiceManager will send a signal to notify the TcpManager.
 
     */
-    class ServiceManager : public QObject, public te::common::Singleton<ServiceManager>
+    class TMCOREEXPORT ServiceManager : public QObject, public te::common::Singleton<ServiceManager>
     {
         Q_OBJECT
 
@@ -67,6 +68,9 @@ namespace terrama2
         void setInstanceId(ServiceInstanceId instanceId);
         //! Return the unique identification of the instance.
         virtual ServiceInstanceId instanceId() const;
+
+        void setWebAppId(const std::string& webAppId);
+        virtual const std::string& webAppId() const;
 
         //! Set the type of the service running in this instance.
         void setServiceType(const std::string& serviceType);
@@ -144,6 +148,7 @@ namespace terrama2
         std::weak_ptr<terrama2::core::Service> service_;
 
         std::string instanceName_;
+        std::string webAppId_;
         ServiceInstanceId instanceId_ = 0;
         std::string serviceType_;
         int listeningPort_ = 0;

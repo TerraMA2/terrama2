@@ -65,7 +65,7 @@ namespace terrama2
 
                 \return A double value with the result.
               */
-              double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
+              TMANALYSISEXPORT double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
                                   const std::string& dataSeriesName,
                                   const std::string& dateFilterBegin,
                                   const std::string& dateFilterEnd,
@@ -82,7 +82,7 @@ namespace terrama2
 
                 \return A double value with the result.
               */
-              double sum(const std::string& dataSeriesName,
+              TMANALYSISEXPORT double sum(const std::string& dataSeriesName,
                          const std::string& dateFilterBegin,
                          const std::string& dateFilterEnd,
                          const size_t band = 0);
@@ -98,7 +98,7 @@ namespace terrama2
 
                 \return A double value with the result.
               */
-              double mean(const std::string& dataSeriesName, const std::string& dateFilterBegin,
+              TMANALYSISEXPORT double mean(const std::string& dataSeriesName, const std::string& dateFilterBegin,
                           const std::string& dateFilterEnd,
                           const size_t band = 0);
 
@@ -113,7 +113,7 @@ namespace terrama2
 
                 \return A double value with the result.
               */
-              double min(const std::string& dataSeriesName, const std::string& dateFilterBegin,
+              TMANALYSISEXPORT double min(const std::string& dataSeriesName, const std::string& dateFilterBegin,
                          const std::string& dateFilterEnd, const size_t band = 0);
 
               /*!
@@ -127,7 +127,7 @@ namespace terrama2
 
                 \return A double value with the result.
               */
-              double max(const std::string& dataSeriesName, const std::string& dateFilterBegin,
+              TMANALYSISEXPORT double max(const std::string& dataSeriesName, const std::string& dateFilterBegin,
                          const std::string& dateFilterEnd, const size_t band = 0);
 
               /*!
@@ -141,7 +141,7 @@ namespace terrama2
 
                 \return A double value with the result.
               */
-              double median(const std::string& dataSeriesName, const std::string& dateFilterBegin,
+              TMANALYSISEXPORT double median(const std::string& dataSeriesName, const std::string& dateFilterBegin,
                             const std::string& dateFilterEnd, const size_t band = 0);
 
               /*!
@@ -155,7 +155,7 @@ namespace terrama2
 
                 \return A double value with the result.
               */
-              double standardDeviation(const std::string& dataSeriesName, const std::string& dateFilterBegin,
+              TMANALYSISEXPORT double standardDeviation(const std::string& dataSeriesName, const std::string& dateFilterBegin,
                                        const std::string& dateFilterEnd, const size_t band = 0);
 
               /*!
@@ -169,7 +169,7 @@ namespace terrama2
 
                 \return A double value with the result.
               */
-              double variance(const std::string& dataSeriesName, const std::string& dateFilterBegin,
+              TMANALYSISEXPORT double variance(const std::string& dataSeriesName, const std::string& dateFilterBegin,
                               const std::string& dateFilterEnd, const size_t band = 0);
 
             } // end namespace interval

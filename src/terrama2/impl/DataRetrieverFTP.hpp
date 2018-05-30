@@ -36,6 +36,7 @@
 #include <cassert>
 
 // TerraMA2
+#include "Config.hpp"
 #include "../core/utility/Raii.hpp"
 #include "../core/utility/CurlWrapperFtp.hpp"
 #include "../core/data-access/DataRetriever.hpp"
@@ -58,7 +59,7 @@ namespace terrama2
        * \warning The DataRetrieverFTP class only performs the download of files, but does not
        * perform the removal of the files after downloading.
     */
-    class DataRetrieverFTP: public DataRetriever
+    class TMIMPLEXPORT DataRetrieverFTP: public DataRetriever
     {
       public:
         /*!

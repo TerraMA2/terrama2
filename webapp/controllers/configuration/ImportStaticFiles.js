@@ -96,12 +96,12 @@ var ImportStaticFiles = function(app) {
                   } else if(shpName !== null) {
                     if(shpCount === 1) {
                       if(request.body.semantics === 'STATIC_DATA-postgis') {
-                        memberExportation.getPgConnectionString(request.body.dataProviderId).then(function(connectionString) {
+                        memberExportation.getPsqlString(request.body.dataProviderId).then(function(connectionString) {
                           memberExportation.tableExists(request.body.tableName, request.body.dataProviderId).then(function(resultTable) {
                             if(resultTable.rowCount > 0 && resultTable.rows[0].table_name == request.body.tableName) {
                               return sendResponse("Table already exists!", folderPath);
                             } else {
-                              memberExec(memberExportation.ogr2ogr() + " -f \"PostgreSQL\" -a_srs \"EPSG:" + request.body.srid + "\" \"" + connectionString + "\" \"" + shpName + "\" -nln " + request.body.tableName + " -nlt GEOMETRY -lco ENCODING=" + request.body.encoding, function(commandErr, commandOut, commandCode) {
+                              memberExec(connectionString.exportPassword + memberExportation.shp2pgsql() + " -I -s " + request.body.srid + " -W \"" + request.body.encoding + "\" " + shpName + " " + request.body.tableName + " | " + connectionString.connectionString, function(commandErr, commandOut, commandCode) {
                                 if(commandErr)
                                   return sendResponse(commandErr.toString(), folderPath);
 

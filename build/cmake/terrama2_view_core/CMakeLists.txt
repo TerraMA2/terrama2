@@ -24,9 +24,9 @@
 #  Author: Vinicius Campanha
 #
 
-#if(WIN32)
-#  add_definitions(-DTMA_CORE_DLL)
-#endif()
+if (WIN32)
+  add_definitions(-DTMVIEWDLL)
+endif()
 
 file(GLOB_RECURSE TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/view/*.cpp)
 file(GLOB_RECURSE TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/view/*.hpp)
@@ -52,7 +52,6 @@ qt5_use_modules(terrama2_view_core Core)
 target_link_libraries(terrama2_view_core terrama2_core
                                         terrama2_impl
                                         terralib_mod_maptools
-                                        terralib_mod_qt_widgets
                                         terralib_mod_ws_core
                                         terralib_mod_ws_ogc_wms_client)
 

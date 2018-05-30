@@ -80,7 +80,6 @@ void addInput(std::shared_ptr<terrama2::services::collector::core::DataManager> 
   dataSet->id = 1;
   dataSet->active = true;
   dataSet->format.emplace("ctl_filename", "/grads/racc.ctl");
-  dataSet->format.emplace("folder", "hidro");
   dataSet->format.emplace("srid", "4326");
   dataSet->format.emplace("timezone", "UTC+00");
   dataSet->format.emplace("data_type", "INT16");
@@ -139,10 +138,9 @@ void addOutput(std::shared_ptr<terrama2::services::collector::core::DataManager>
   dataManager->add(outputDataSeriesPtr);
 }
 
-void addCollector(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManager)
+terrama2::services::collector::core::CollectorPtr addCollector(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManager)
 {
-  terrama2::services::collector::core::Collector* collector(new terrama2::services::collector::core::Collector());
-  terrama2::services::collector::core::CollectorPtr collectorPtr(collector);
+  auto collector = std::make_shared<terrama2::services::collector::core::Collector>();
   collector->id = 1;
   collector->projectId = 1;
   collector->serviceInstanceId = 1;
@@ -157,21 +155,23 @@ void addCollector(std::shared_ptr<terrama2::services::collector::core::DataManag
   collector->outputDataSeries = 2;
   collector->inputOutputMap.emplace(1, 2);
 
-  dataManager->add(collectorPtr);
+  dataManager->add(collector);
+
+  return collector;
 }
 size_t write_file_names(void* ptr, size_t size, size_t nmemb, void* data)
 {
   size_t sizeRead = size * nmemb;
 
-  std::string* block = (std::string*) data;
-  block->append((char*)ptr, sizeRead);
+  std::string* block = static_cast<std::string*>(data);
+  block->append(static_cast<char*>(ptr), sizeRead);
 
   return sizeRead;
 }
 
 size_t write_response(void* ptr, size_t size, size_t nmemb, void* data)
 {
-  FILE* writehere = (FILE*)data;
+  FILE* writehere = static_cast<FILE*>(data);
   return fwrite(ptr, size, nmemb, writehere);
 }
 
@@ -212,7 +212,7 @@ void IntRasterTs::CollectAndCropRaster()
   auto dataManager = std::make_shared<terrama2::services::collector::core::DataManager>();
   addInput(dataManager);
   addOutput(dataManager);
-  addCollector(dataManager);
+  auto collector = addCollector(dataManager);
 
   terrama2::services::collector::core::Service service(dataManager);
 
@@ -247,7 +247,7 @@ void IntRasterTs::CollectAndCropRaster()
   service.setLogger(logger);
   service.start();
 
-  service.addToQueue(1, terrama2::core::TimeUtils::nowUTC());
+  service.addToQueue(collector, terrama2::core::TimeUtils::nowUTC());
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));

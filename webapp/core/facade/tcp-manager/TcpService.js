@@ -46,6 +46,7 @@ var Application = require("./../../Application");
  * @type {Object}
  */
 var webapp = Application.get("metadata");
+var versionData = require("../../../../share/terrama2/version.json");
 
 /**
  * It handles TCP service manipulation. Use  it to be pipe between front-end and back-end application
@@ -604,10 +605,11 @@ TcpService.prototype.log = function(json) {
         DataManager.listAnalysis(),
         DataManager.listCollectors(),
         DataManager.listViews(),
-        DataManager.listAlerts()
+        DataManager.listAlerts(),
+        DataManager.listInterpolators()
       ])
       // spreading promiser result into services, analysisList, collectors and views variables
-      .spread(function(services, analysisList, collectors, views, alerts) {
+      .spread(function(services, analysisList, collectors, views, alerts, interpolators) {
         var obj = {
           begin: begin,
           end: end
@@ -631,6 +633,9 @@ TcpService.prototype.log = function(json) {
               break;
             case ServiceType.ALERT:
               obj.process_ids = alerts.map(function(elm) { return elm.id; });
+              break;
+            case ServiceType.INTERPOLATION:
+              obj.process_ids = interpolators.map(function(elm) { return elm.id; });
               break;
             default:
               throw new Error("Invalid service type");
@@ -726,6 +731,7 @@ function onStatusReceived(service, response) {
       online: Object.keys(response).length > 0,
       start_time: response.start_time,
       terrama2_version: response.terrama2_version,
+      web_version: versionData.major + "." + versionData.minor + "." + versionData.patch + "-" + versionData.tag,
       logger_online: response.logger_online,
       maps_server_connection: response.maps_server_connection
     });
@@ -755,12 +761,12 @@ function onProcessValidated(service, response) {
  * @param {string} response - Response version
  */
 function onServiceVersionReceived(service, response) {
-  var version = webapp.version;
+  var version = versionData.major + "." + versionData.minor + "." + versionData.patch + "-" + versionData.tag;//webapp.version;
   tcpService.emit("serviceVersion", {
     service: service.id,
-    response: response.replace("TerraMA2", ""),
-    current: version,
-    match: response.endsWith(version)
+    response: response.replace("TerraMA2", "").toLowerCase(),
+    current: version.toLowerCase(),
+    match: response.toLowerCase().endsWith(version.toLowerCase())
   });
 }
 
@@ -867,7 +873,7 @@ function onLogReceived(service, response) {
                 resp.log.forEach(function(logMessage){
                   if (logMessage.status === StatusLog.DONE){
                     var link = createGeoserverLink(regView);
-                    var description = "Layer link: " + regView.layers[0].name;
+                    var description = "Layer link: " + (regView.layers.length > 0 ? regView.layers[0].name : "");
                     logMessage.messages.push({link: link, type: MessageType.LINK_MESSAGE, description: description});
                   }
                 });
@@ -949,7 +955,7 @@ function onError(service, err) {
  * @returns link - link to server layer
  */
 function createGeoserverLink(registeredView){
-  var layerName = registeredView.layers[0].name;
+  var layerName = (registeredView.layers.length > 0 ? registeredView.layers[0].name : "");
   var workspace = registeredView.workspace;
   var protocol = registeredView.uri.split('//')[0];
   var baseLink = registeredView.uri.split("@")[1];

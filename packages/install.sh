@@ -42,7 +42,7 @@ function valid()
   if [ $1 -ne 0 ]; then
     echo $2
     echo ""
-    exit
+    exit 1
   fi
 }
 
@@ -132,15 +132,15 @@ else
 fi
 
 #
-# TerraLib version 5.2.1
+# TerraLib
 #
-sudo dpkg -i terralib-5.2.4.deb
-terralib_test=`dpkg -s terralib-5.2.4 | grep Status`
+sudo dpkg -i terralib-5.3.1.deb
+terralib_test=`dpkg -s terralib-5.3.1 | grep Status`
 
 if [ "$terralib_test" != "Status: install ok installed" ]; then
   sudo apt-get install -y -f
-  sudo dpkg -i terralib-5.2.4.deb
-  valid $? "Error: could not install terralib! Please, install readline: sudo dpkg -i terralib-5.2.4.deb"
+  sudo dpkg -i terralib-5.3.1.deb
+  valid $? "Error: could not install terralib! Please, install readline: sudo dpkg -i terralib-5.3.1.deb"
   echo "terralib installed!"
 else
   echo "terralib already installed!"

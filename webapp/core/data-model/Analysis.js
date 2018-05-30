@@ -6,7 +6,6 @@ var Schedule = require("./Schedule");
 var AutomaticSchedule = require("./AutomaticSchedule");
 var AnalysisOutputGrid = require("./AnalysisOutputGrid");
 var AnalysisDataSeries = require("./AnalysisDataSeries");
-var ReprocessingHistoricalData = require("./ReprocessingHistoricalData");
 var Utils = require("./../Utils");
 
 var isObject = Utils.isObject;
@@ -111,17 +110,6 @@ var Analysis = module.exports = function(params) {
   } else {
     this.setAnalysisOutputGrid(params.outputGrid || {});
   }
-
-  /**
-   * @type {ReprocessingHistoricalData}
-   */
-  this.historicalData = null;
-
-  if (params.ReprocessingHistoricalDatum) {
-    this.setHistoricalData(params.ReprocessingHistoricalDatum);
-  } else {
-    this.setHistoricalData(params.historicalData || params.historical);
-  }
 };
 
 Analysis.prototype = Object.create(BaseClass.prototype);
@@ -152,23 +140,6 @@ Analysis.prototype.setAnalysisOutputGrid = function(outputGrid) {
     }
   }
   this.outputGrid = output;
-};
-
-/**
- * It creates and sets a ReprocessingHistoricalData to historicalData
- *
- * @param {Object | ReprocessingHistoricalData}
- */
-Analysis.prototype.setHistoricalData = function(historicalData) {
-  if (historicalData instanceof BaseClass) {
-    this.historicalData = historicalData;
-  } else {
-    if (historicalData && !Utils.isEmpty(historicalData)) {
-      this.historicalData = new ReprocessingHistoricalData(historicalData);
-    } else {
-      this.historicalData = {};
-    }
-  }
 };
 
 Analysis.prototype.setDataSeries = function(dataSeries) {
@@ -231,7 +202,6 @@ Analysis.prototype.getOutputDataSeries = function() {
 
 Analysis.prototype.toObject = function() {
   var outputDataSeriesList = this.getOutputDataSeries();
-  var historicalData = this.historicalData instanceof BaseClass ? this.historicalData.toObject() : this.historicalData;
 
   return Object.assign(BaseClass.prototype.toObject.call(this), {
     id: this.id,
@@ -250,7 +220,6 @@ Analysis.prototype.toObject = function() {
     automatic_schedule: this.automaticSchedule instanceof BaseClass ? this.automaticSchedule.toObject() : this.automaticSchedule,
     service_instance_id: this.instance_id,
     output_grid: this.outputGrid instanceof BaseClass ? this.outputGrid.toObject() : this.outputGrid,
-    reprocessing_historical_data: Utils.isEmpty(historicalData) ? null : historicalData,
     schedule_type: this.scheduleType
   });
 };
@@ -266,9 +235,6 @@ Analysis.prototype.rawObject = function() {
   });
   var obj = this.toObject();
 
-  var historicalData = this.historicalData instanceof BaseClass ? this.historicalData.rawObject() : this.historicalData;
-
-  obj.reprocessing_historical_data = historicalData;
   obj.automatic_schedule = this.automaticSchedule instanceof BaseClass ? this.automaticSchedule.rawObject() : this.automaticSchedule;
   obj.schedule = this.schedule instanceof BaseClass ? this.schedule.rawObject() : this.schedule;
   obj.dataSeries = this.dataSeries instanceof BaseClass ? this.dataSeries.rawObject() : this.dataSeries;

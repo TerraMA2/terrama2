@@ -40,12 +40,30 @@
 
 //terrama2
 #include "../Typedef.hpp"
+#include "../Shared.hpp"
 
 
 namespace terrama2
 {
   namespace core
   {
+    /*!
+      \brief Defines the date filter for reprocessing of historical data
+
+      ## JSon ##
+
+      {
+        "class" : "ReprocessingHistoricalData",
+        "start_date" : STRING,
+        "end_date" : STRING
+      }
+    */
+    struct ReprocessingHistoricalData
+    {
+      std::shared_ptr<te::dt::TimeInstantTZ> startDate = nullptr; //!< Initial date of interest.
+      std::shared_ptr<te::dt::TimeInstantTZ> endDate = nullptr; //!< Final date of interest.
+    };
+
     /*!
       \brief Schedule information for processes.
 
@@ -76,6 +94,7 @@ namespace terrama2
           "schedule_retry_unit" : STRING::UNIT,
           "schedule_timeout" : INT,
           "schedule_timeout_unit" : STRING::UNIT
+          "reprocessing_historical_data", : ReprocessingHistoricalData
         }
       \endcode
 
@@ -85,7 +104,7 @@ namespace terrama2
       //! Default constructor.
       Schedule() {}
 
-      ScheduleId id = 0; //!< Schedule identifier.
+      ScheduleId id = terrama2::core::InvalidId(); //!< Schedule identifier.
 
       uint32_t frequency = 0; //!< The value for time frequency. Ex: From 5 to 5 minutes.
       std::string frequencyUnit; //!< Unit of the time frequency (years, months, days, minutes, hours or seconds)
@@ -101,7 +120,9 @@ namespace terrama2
       uint32_t scheduleTimeout = 0; //!< The time limit to retry. Ex: Stop retrys after 1 hour.
       std::string scheduleTimeoutUnit; //!< Unit of the schedule timeout. (years, months, days, minutes, hours or seconds)
 
-      inline bool valid() const { return id; } 
+      ReprocessingHistoricalDataPtr reprocessingHistoricalData; //!< Date filter for reprocessing of historical data.
+
+      inline bool valid() const { return id; }
       inline bool operator==(const Schedule& rhs) { return id == rhs.id; }
     };
   } // end namespace core

@@ -72,7 +72,7 @@ If you want to build yourself TerraMA² then you need to install some third-part
 
 - **Qt (Mandatory):** Make sure you have an installed Qt version 5.2.1 or later. Linux users may use any package manager to perform an easy installation. Mac OS X can use package managers such as Homebrew (http://brew.sh) or MacPorts (http://www.macports.org) in order to have an easy installation. If you prefer to install from source, download it from: http://qt-project.org/downloads.
 
-- **TerraLib (Mandatory):** TerraMA² is built on top of TerraLib, a free and open source library for building GIS enabled applications. Make sure to have at least TerraLib version 5.1.0. You can download it from: http://www.dpi.inpe.br/terralib5.
+- **TerraLib (Mandatory):** TerraMA² is built on top of TerraLib, a free and open source library for building GIS enabled applications. Make sure to have at least TerraLib version 5.3.1. You can download it from: http://www.dpi.inpe.br/terralib5.
 
 - **libCURL (Mandatory):** libcurl is a multiprotocol file transfer library. Make sure you have at least version 7.42.1 in your system. You can download it from: http://curl.haxx.se/libcurl.
 
@@ -119,21 +119,26 @@ In the above output the "* master" means that the current branch is master.
 We have the following branches:
 - **master:** This is the branch where the development team is working to add new features to future versions of TerraMA². It may be unstable although the codebase is subject to automatic tests (regression and unittests). We don't recommend to generate production versions of TerraMA² from this branch. Use it for testing new features and get involved with TerraMA² development.
 
-- **b-4.0.0-alpha:** This will be the first branch in TerraMA²'s codebase for the generation 4.
-- **b-4.0.0-alpha2:** Minimal working version with web user interface. Services: Collector and Analysis.
-- **b-4.0.0-alpha3:** Analysis of monitored objects and grid.
-- **b-4.0.0-alpha4:** Views service and web-monitoring module
-- **b-4.0.0-alpha5:** General review of the interface and analysis
-- **b-4.0.0-alpha6:** Review of grid operators and Monitored Object forecast operators
-- **b-4.0.0-alpha7:** Analysis validation and filter by static data (Preparing to Beta release)
-- **b-4.0.0-beta1:** GDAL driver for raster and Generic CSV driver for occurrences and DCP
-- **b-4.0.0-beta2:** Alert service
-- **b-4.0.0-beta3:** Improvements to WebMonitor
-- **b-4.0.0-rc1:** Analysis DCP and improvements to WebMonitor
-- **b-4.0.0-rc2:** Analysis DCP and lots of minor improvements
-- **b-4.0.0-rc3:** Stabilization, DCP analysis view, general improvments
-- **b-4.0.0-rc4:** Improvements for final release
-- **b-4.0.0:** Final release for TerraMA² 4.0.0
+- **b4.0.0-alpha:** This will be the first branch in TerraMA²'s codebase for the generation 4.
+- **b4.0.0-alpha2:** Minimal working version with web user interface. Services: Collector and Analysis.
+- **b4.0.0-alpha3:** Analysis of monitored objects and grid.
+- **b4.0.0-alpha4:** Views service and web-monitoring module
+- **b4.0.0-alpha5:** General review of the interface and analysis
+- **b4.0.0-alpha6:** Review of grid operators and Monitored Object forecast operators
+- **b4.0.0-alpha7:** Analysis validation and filter by static data (Preparing to Beta release)
+- **b4.0.0-beta1:** GDAL driver for raster and Generic CSV driver for occurrences and DCP
+- **b4.0.0-beta2:** Alert service
+- **b4.0.0-beta3:** Improvements to WebMonitor
+- **b4.0.0-release-candidate-1:** Analysis DCP and improvements to WebMonitor
+- **b4.0.0-release-candidate-2:** Analysis DCP and lots of minor improvements
+- **b4.0.0-release-candidate-3:** Stabilization, DCP analysis view, general improvments
+- **b4.0.0-release-candidate-4:** Improvements for final release
+- **b4.0.0:** Final release for TerraMA² 4.0.0
+  - **b4.0.1:** Bug fixes
+  - **b4.0.2:** Auto update database, terralib 5.3 and bugfixes
+  - **b4.0.3:** Major stability fixes
+  - **b4.0.4:** Interpolation service
+  - **b4.0.5:** Analysis improvements
 
 For a more complete releases info, check: https://github.com/TerraMA2/terrama2/releases
 
@@ -142,27 +147,19 @@ To switch to one of the branches listed above, use the checkout command and crea
 $ git checkout -b <local_branch_name> <remote_branch_name without this part "remotes/">
 ```
 
-In order to switch to branch *b-4.0.0-alpha* you can use the following command:
+In order to switch to branch *b-4.0.3* you can use the following command:
 ```
-$ git checkout -b b-4.0.0-alpha* origin/b-4.0.0-alpha*
+$ git checkout -b b-4.0.3 origin/b-4.0.3*
 ```
 
 
 ## Tags
 
-Also there are tags which usually are originated from a release branch. For instance, tag *t-4.0.0-alpha1* will be originated from branch *b-4.0.0-alpha*.
+Also there are tags which usually are originated from a release branch. For instance, tag *v4.0.3* will be originated from branch *b-4.0.3*.
 
 To check all tags available, use:
 ```
 $ git tag -l           (list all tag names)
-```
-```
-  t-4.0.0-alpha1
-  t-4.0.0-alpha2
-  t-4.0.0-beta1
-  t-4.0.0-rc1
-  t-4.0.0
-  ...
 ```
 
 If you want to checkout a specific version given by a tag and create a local branch to work on you can use the following git command:
@@ -170,11 +167,10 @@ If you want to checkout a specific version given by a tag and create a local bra
 $ git checkout -b <local_branch_tag_name> <one_of_tag_name_listed>
 ```
 
-For instance, to checkout *t-4.0.0-alpha1* you can enter the following command:
+For instance, to checkout *v4.0.3* you can enter the following command:
 ```
-$ git checkout -b t-4.0.0-alpha1  t-4.0.0-alpha1
+$ git checkout -b v4.0.3  v4.0.3
 ```
-
 
 ## Build Instructions
 
@@ -186,9 +182,11 @@ Until now its build has been tested on:
 
 After choosing the right branch or tag to work on, if you want to build TerraMA² and generate packages, first take a look at the sections below and read the right tips for automatically building in your platform:
 
-- **[LINUX:](https://github.com/TerraMA2/terrama2/blob/master/LINUX.md)** Contains instructions about how to build and generate TerraMA² package on Linux.
+- **[LINUX:](LINUX.md)** Contains instructions about how to build and generate TerraMA² package on Linux.
 
-- **[MAC:](https://github.com/TerraMA2/terrama2/blob/master/MAC.md)** Contains instructions about how to build and generate TerraMA² package on Mac OS.
+- **[MAC:](MAC.md)** Contains instructions about how to build and generate TerraMA² package on Mac OS.
+
+- **[WINDOWS:](WINDOWS.md)** Contains instructions about how to build and generate TerraMA² package on Windows.
 
 
 ## Reporting Bugs

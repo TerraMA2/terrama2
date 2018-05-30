@@ -47,6 +47,7 @@
 #include <terralib/memory/DataSetItem.h>
 #include <terralib/geometry/GeometryProperty.h>
 #include <terralib/core/uri/URI.h>
+#include <terralib/datatype/SimpleData.h>
 
 //Boost
 #include <boost/algorithm/string.hpp>

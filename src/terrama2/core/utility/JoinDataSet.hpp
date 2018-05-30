@@ -30,10 +30,14 @@
 #ifndef __TERRAMA2_CORE_UTILITY_JOIN_DATASET_HPP__
 #define __TERRAMA2_CORE_UTILITY_JOIN_DATASET_HPP__
 
+// TerraMa2
+#include "../Config.hpp"
+
 // Terralib
 #include <terralib/dataaccess/dataset/DataSet.h>
 #include <terralib/dataaccess/dataset/DataSetType.h>
 
+// STL
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -50,7 +54,7 @@ namespace terrama2
       \warning If ds2Attribute isn't unique one value will be used to join, the other occurrences will be inaccessible.
 
     */
-    class JoinDataSet : public te::da::DataSet
+    class TMCOREEXPORT JoinDataSet : public te::da::DataSet
     {
     public:
       JoinDataSet(std::unique_ptr<te::da::DataSetType> ds1Type,
@@ -86,8 +90,9 @@ namespace terrama2
       virtual bool isBeforeBegin() const override { return ds1_->isBeforeBegin(); }
       virtual bool isAtEnd() const override { return ds1_->isAtEnd(); }
       virtual bool isAfterEnd() const override { return ds1_->isAfterEnd(); }
+      virtual bool isPositionValid() const override { return ds1_->isPositionValid(); }
 
-      virtual std::auto_ptr<te::gm::Envelope> getExtent(std::size_t i) override;
+      virtual std::unique_ptr<te::gm::Envelope> getExtent(std::size_t i) override;
       virtual char getChar(std::size_t i) const override;
       virtual unsigned char getUChar(std::size_t i) const override;
       virtual boost::int16_t getInt16(std::size_t i) const override;
@@ -98,11 +103,11 @@ namespace terrama2
       virtual double getDouble(std::size_t i) const override;
       virtual std::string getNumeric(std::size_t i) const override;
       virtual std::string getString(std::size_t i) const override;
-      virtual std::auto_ptr<te::dt::ByteArray> getByteArray(std::size_t i) const override;
-      virtual std::auto_ptr<te::gm::Geometry> getGeometry(std::size_t i) const override;
-      virtual std::auto_ptr<te::rst::Raster> getRaster(std::size_t i) const override;
-      virtual std::auto_ptr<te::dt::DateTime> getDateTime(std::size_t i) const override;
-      virtual std::auto_ptr<te::dt::Array> getArray(std::size_t i) const override;
+      virtual std::unique_ptr<te::dt::ByteArray> getByteArray(std::size_t i) const override;
+      virtual std::unique_ptr<te::gm::Geometry> getGeometry(std::size_t i) const override;
+      virtual std::unique_ptr<te::rst::Raster> getRaster(std::size_t i) const override;
+      virtual std::unique_ptr<te::dt::DateTime> getDateTime(std::size_t i) const override;
+      virtual std::unique_ptr<te::dt::Array> getArray(std::size_t i) const override;
       virtual bool isNull(std::size_t i) const override;
 
       virtual char getChar(const std::string& name) const override;
@@ -115,11 +120,11 @@ namespace terrama2
       virtual double getDouble(const std::string& name) const override;
       virtual std::string getNumeric(const std::string& name) const override;
       virtual std::string getString(const std::string& name) const override;
-      virtual std::auto_ptr<te::dt::ByteArray> getByteArray(const std::string& name) const override;
-      virtual std::auto_ptr<te::gm::Geometry> getGeometry(const std::string& name) const override;
-      virtual std::auto_ptr<te::rst::Raster> getRaster(const std::string& name) const override;
-      virtual std::auto_ptr<te::dt::DateTime> getDateTime(const std::string& name) const override;
-      virtual std::auto_ptr<te::dt::Array> getArray(const std::string& name) const override;
+      virtual std::unique_ptr<te::dt::ByteArray> getByteArray(const std::string& name) const override;
+      virtual std::unique_ptr<te::gm::Geometry> getGeometry(const std::string& name) const override;
+      virtual std::unique_ptr<te::rst::Raster> getRaster(const std::string& name) const override;
+      virtual std::unique_ptr<te::dt::DateTime> getDateTime(const std::string& name) const override;
+      virtual std::unique_ptr<te::dt::Array> getArray(const std::string& name) const override;
       virtual bool isNull(const std::string& name) const override;
 
     private:

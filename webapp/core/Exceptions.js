@@ -393,3 +393,16 @@ errors.GetObjectsError = function (message) {
   this.name = 'GetObjectsError';
 };
 util.inherits(errors.GetObjectsError, errors.BaseError);
+
+/**
+ * Thrown when Interpolator object has inconsistent data.
+ *
+ * @param {string} message Error message
+ *
+ * @extends BaseError
+ */
+errors.InterpolatorError = function(message) {
+  errors.BaseError.apply(this, arguments);
+  this.name = 'InterpolatorError';
+};
+util.inherits(errors.InterpolatorError, errors.BaseError);

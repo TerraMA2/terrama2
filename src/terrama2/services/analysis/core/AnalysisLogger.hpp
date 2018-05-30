@@ -30,6 +30,8 @@
 #ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_ANALYSISLOG_HPP__
 #define __TERRAMA2_SERVICES_ANALYSIS_CORE_ANALYSISLOG_HPP__
 
+// TerraMa2
+#include "Config.hpp"
 #include "Typedef.hpp"
 #include "../../../core/utility/ProcessLogger.hpp"
 
@@ -45,7 +47,7 @@ namespace terrama2
          * \brief The AnalysisLogger class is responsible for uses the Process Logger to
          * log the processes in the Analysis Service.
          */
-        class AnalysisLogger : public terrama2::core::ProcessLogger
+        class TMANALYSISEXPORT AnalysisLogger : public terrama2::core::ProcessLogger
         {
         public:
 

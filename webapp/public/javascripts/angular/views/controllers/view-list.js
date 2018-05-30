@@ -14,7 +14,7 @@ define([], function() {
    * @param {Object} Socket - TerraMA² Socket io module
    * @param {Service} Service - TerraMA² Service object
    */
-  function ViewList($scope, i18n, ViewService, $log, MessageBoxService, $window, $q, Socket, Service, $timeout) {
+  function ViewList($scope, i18n, ViewService, $log, MessageBoxService, $window, $q, Socket, Service, $timeout, DataSeriesSemanticsService) {
     /**
      * View List controller
      * @type {ViewList}
@@ -115,7 +115,10 @@ define([], function() {
           targetMethod = MessageBoxService.danger;
         }
       }
-      targetMethod.call(MessageBoxService, i18n.__("View"), errorMessage);
+
+      if(targetMethod && targetMethod.call)
+        targetMethod.call(MessageBoxService, i18n.__("View"), errorMessage);
+
       delete serviceCache[response.service];
     });
 
@@ -137,18 +140,27 @@ define([], function() {
     Socket.on('statusResponse', function(response) {
       if(response.checking === undefined || (!response.checking && response.status == 400)) {
         if(response.online) {
-          Socket.emit('run', serviceCache[response.service].process_ids);
-          delete $scope.disabledButtons[serviceCache[response.service].service_id];
-          delete serviceCache[response.service];
-        } 
-        else {
-          delete $scope.disabledButtons[serviceCache[response.service].service_id];
+          if(serviceCache[response.service]) {
+            Socket.emit('run', serviceCache[response.service].process_ids);
+            delete $scope.disabledButtons[serviceCache[response.service].service_id];
+            delete serviceCache[response.service];
+          }
+
+          self.servicesInstances[response.service] = true;
+        } else {
+          if(serviceCache[response.service])
+            delete $scope.disabledButtons[serviceCache[response.service].service_id];
+
+          self.servicesInstances[response.service] = false;
         }
+        console.log(self.servicesInstances);
       }
     });
 
+    self.servicesInstances = {};
+
     // Initializing async modules
-    $q.all([ViewService.init()])
+    $q.all([ViewService.init(), DataSeriesSemanticsService.init()])
       .then(function() {
         //Dont show views created by alerts
         var viewRestriction = {
@@ -156,6 +168,12 @@ define([], function() {
         }
         // Setting loaded views into model
         self.model = ViewService.list(viewRestriction);
+
+        self.model.forEach(function(instance) {
+          console.log(instance);
+          Socket.emit("status", { service: instance.service_instance_id });
+          self.servicesInstances[instance.service_instance_id] = false;
+        });
 
         /**
          * A URL to insert a new view
@@ -171,6 +189,10 @@ define([], function() {
          */
         self.link = function(object) {
           return BASE_URL + "configuration/views/edit/" + object.id;
+        };
+
+        self.statusChangeLink = function(object) {
+          return BASE_URL + "api/View/changeStatus/" + object.id;
         };
 
         /**
@@ -190,32 +212,23 @@ define([], function() {
          * @returns {string}
          */
         self.icon = function(object) {
-          switch(object.dataSeries.semantics){
-            case "OCCURRENCE-postgis":
-            case "OCCURRENCE-wfp":
-            case "OCCURRENCE-lightning":
-            case "Occurrence-generic":
+          const semantics = DataSeriesSemanticsService.get(object.dataSeries.semantics);
+          switch (semantics.data_series_type_name){
+            case "OCCURRENCE":
               return BASE_URL + "images/view/dynamic_data_series/occurrence/large_occurrence_view.png";
               break;
-            case "STATIC_DATA-postgis":
-            case "STATIC_DATA-ogr":
+            case "GEOMETRIC_OBJECT":
+            case "STATIC_DATA":
               return BASE_URL + "images/view/static_data_series/vetor/large_vector_view.png";
               break;
-            case "GRID-static_gdal":
+            case "GRID":
               return BASE_URL + "images/view/static_data_series/grid/large_grid_view.png";
               break;
-            case "DCP-inpe":
-            case "DCP-toa5":
-            case "DCP-postgis":
-            case "DCP-generic":
+            case "DCP":
               return BASE_URL + "images/view/dynamic_data_series/dcp/large_dcp_view.png";
               break;
-            case "ANALYSIS_MONITORED_OBJECT-postgis":
+            case "ANALYSIS_MONITORED_OBJECT":
               return BASE_URL + "images/view/analysis/large_analysis_view.png";
-              break;
-            case "GRID-gdal":
-            case "GRID-grads":
-              return BASE_URL + "images/view/dynamic_data_series/grid/large_grid_view.png";
               break;
             default:
               return BASE_URL + "images/view/dynamic_data_series/grid/large_grid_view.png";
@@ -313,7 +326,7 @@ define([], function() {
       });
   }
 
-  ViewList.$inject = ["$scope", "i18n", "ViewService", "$log", "MessageBoxService", "$window", "$q", "Socket", "Service", "$timeout"];
+  ViewList.$inject = ["$scope", "i18n", "ViewService", "$log", "MessageBoxService", "$window", "$q", "Socket", "Service", "$timeout", "DataSeriesSemanticsService"];
 
   return ViewList;
 });

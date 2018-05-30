@@ -1,13 +1,13 @@
 
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 
 <head>
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="generator" content="HelpNDoc Personal Edition 5.0.0.182">
+  <meta name="generator" content="HelpNDoc Standard Edition 5.4.2.416">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="favicon.ico"/>
 
@@ -48,7 +48,7 @@
   <link href="css/effects.min.css" rel="stylesheet" />
   <link href="css/theme-light-blue.min.css" rel="stylesheet" />
   <link href="css/print.min.css" rel="stylesheet" media="print" />
-  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded #main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
+  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded div#main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
 
   <!-- Content style -->
   <link href="css/hnd.content.css" rel="stylesheet" />
@@ -87,21 +87,21 @@
       
 	  
         <li role="presentation" class="tab active">
-            <a href="#contents" aria-controls="contents" role="tab" data-toggle="tab">
+            <a href="#contents" id="tab-contents" aria-controls="contents" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-list"></i>
                 Contents
             </a>
         </li>
       
         <li role="presentation" class="tab">
-            <a href="#index" aria-controls="index" role="tab" data-toggle="tab">
+            <a href="#index" id="tab-index" aria-controls="index" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-asterisk"></i>
                 Index
             </a>
         </li>
       
         <li role="presentation" class="tab">
-            <a href="#search" aria-controls="search" role="tab" data-toggle="tab">
+            <a href="#search" id="tab-search" aria-controls="search" role="tab" data-toggle="tab">
                 <i class="glyphicon glyphicon-search"></i>
                 Search
             </a>
@@ -171,7 +171,7 @@
                         <li><a href="administration_module.html">M&oacute;dulo de Administra&ccedil;&atilde;o</a></li><li><a href="projects.html">Projetos</a></li><li><a href="analysis.html">An&aacute;lises</a></li>
                     </ol>
                     <div class="nav-arrows">
-                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="analysis.html" title="An&aacute;lises" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="analysis.html" title="An&aacute;lises" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="ObjetoMonitorado.html" title="Objeto Monitorado" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
+                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="analysis.html" title="An&aacute;lises" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="analysis.html" title="An&aacute;lises" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="add_analysis_monitored_obj.html" title="Objeto Monitorado" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
                     </div>
                 </div> 
             
@@ -184,21 +184,20 @@
                 
 <p></p>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
-<p class="rvps45"><span class="rvts16">Para adicionar uma nova análise no projeto ativo selecione “</span><span class="rvts17">Análises</span><span class="rvts16">” no menu de opções e na área de trabalho correspondente clique no botão “ </span><span class="rvts33">+</span><span class="rvts17"> </span><span class="rvts16">“ para adicionar. Após editar todos os campos necessários e o modelo de análise utilize o botão </span><span class="rvts17">“Salvar”</span><span class="rvts16"> ou </span><span class="rvts17">“Salvar e Executar” </span><span class="rvts16">para salvar e executar a análise. Não é permitido nomes de análises em duplicidade. Botão </span><span class="rvts17">“Cancelar”</span><span class="rvts16"> volta à tela anterior sem salvar a análise. A Figura 3.5 mostra a área de trabalho do menu “</span><span class="rvts17">Análises”</span><span class="rvts16">. Note que cada tipo de análise tem um ícone associado. Nesta área é possível selecionar uma análise para fazer alguma edição, criar uma nova ou ainda remover uma análise. Veja a seguir as opções de manipulação.</span></p>
+<p class="rvps50"><span class="rvts16">Para adicionar uma nova análise no projeto ativo selecione “</span><span class="rvts17">Análises</span><span class="rvts16">” no menu de opções e na área de trabalho correspondente clique no botão “ </span><span class="rvts36">+</span><span class="rvts17"> </span><span class="rvts16">“ para adicionar. Após editar todos os campos necessários e o modelo de análise utilize o botão </span><span class="rvts17">“Salvar”</span><span class="rvts16"> ou </span><span class="rvts17">“Salvar e Executar” </span><span class="rvts16">para salvar e executar a análise. Não é permitido nomes de análises em duplicidade. Botão </span><span class="rvts17">“Cancelar”</span><span class="rvts16"> volta à tela anterior sem salvar a análise. A Figura 3.5 mostra a área de trabalho do menu “</span><span class="rvts17">Análises”</span><span class="rvts16">. Note que cada tipo de análise tem um ícone associado. Nesta área é possível selecionar uma análise para fazer alguma edição, criar uma nova ou ainda remover uma análise. Veja a seguir as opções de manipulação.</span></p>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
 <p class="rvps3"><img alt="" style="padding : 1px;" src="lib/Fig3_5_web.png"></p>
-<p class="rvps3"><span class="rvts19">Figura 3.5 - </span><span class="rvts20">Módulo de Administração: Lista de análises disponíveis na área de trabalho.</span></p>
+<p class="rvps3"><span class="rvts18">Figura 3.5 - </span><span class="rvts19">Módulo de Administração: Lista de análises disponíveis na área de trabalho.</span></p>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
-<p class="rvps2"><span class="rvts46">* Como há diferença consideráveis no preenchimento para cada tipo de análise, os procedimentos estão divididos em:</span></p>
-<p class="rvps34"><span class="rvts45"><br/></span></p>
+<p class="rvps2"><span class="rvts20">* Como há diferença consideráveis no preenchimento para cada tipo de análise, os procedimentos estão divididos em:</span></p>
+<p class="rvps38"><span class="rvts11"><br/></span></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: circle;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: square;">
-<li style="margin-left: 0px" class="rvps35"><a class="rvts44" href="ObjetoMonitorado.html">Análise baseada em Objetos Monitorados</a><span class="rvts43">. &nbsp;</span><img alt="" style="padding : 1px;" src="lib/An_ObjMon_28x26.png"></li>
-<li style="margin-left: 0px" class="rvps35"><a class="rvts44" href="Grade.html">Análise baseada em Grades</a><span class="rvts43">. &nbsp;</span><img alt="" style="padding : 1px;" src="lib/An_Grades_28x28.png"></li>
-<li style="margin-left: 0px" class="rvps35"><a class="rvts44" href="PCD.html">Análise baseada em PCD´s</a><span class="rvts43">. &nbsp;</span><img alt="" style="padding : 1px;" src="lib/An_PCD_14x22.png"></li>
+<li style="margin-left: 0px" class="rvps39"><a class="rvts47" href="add_analysis_monitored_obj.html">Análise baseada em Objetos Monitorados</a><span class="rvts46">. &nbsp;</span><img alt="" style="padding : 1px;" src="lib/An_ObjMon_28x26.png"></li>
+<li style="margin-left: 0px" class="rvps39"><a class="rvts47" href="add_analysis_grid.html">Análise baseada em Grades</a><span class="rvts46">. &nbsp;</span><img alt="" style="padding : 1px;" src="lib/An_Grades_28x28.png"></li>
+<li style="margin-left: 0px" class="rvps39"><a class="rvts47" href="add_analysis_dcp.html">Análise baseada em PCD´s</a><span class="rvts46">. &nbsp;</span><img alt="" style="padding : 1px;" src="lib/An_PCD_14x22.png"></li>
 </ul></ul></ul>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
 <p></p>
-<p class="rvps5" style="clear: both;"><span class="rvts14">Created with the Personal Edition of HelpNDoc: </span><a class="rvts15" href="https://www.helpndoc.com/feature-tour/create-help-files-for-the-qt-help-framework">Produce online help for Qt applications</a></p>
 
             </div>
             
@@ -206,19 +205,35 @@
         </div>  <!-- /#topic-content -->
     </article>
 
-    <footer>
-        
-    </footer>
+    <footer></footer>
 
   </div>  <!-- /#main -->
 
   <div class="mask" data-toggle="sm-nav-expanded"></div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="hndModal" tabindex="-1" role="dialog" aria-labelledby="hndModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="hndModalLabel"></h4>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary modal-btn-close" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Scripts -->
   <script src="vendors/jquery-1.11.3/jquery.min.js"></script>
   <script src="vendors/bootstrap-3.3.6/js/bootstrap.min.js"></script>
   <script src="vendors/fastclick-1.0.6/fastclick.min.js"></script>
   <script src="vendors/markjs-8.8.3/jquery.mark.min.js"></script>
+  <script src="vendors/uri-1.18.9/uri.min.js"></script>
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
   <script src="vendors/bootstrap-3.3.6/js/ie10-viewport-bug-workaround.js"></script>
   
@@ -244,10 +259,16 @@
       var app = new Hnd.App();
       // Update translations
       hnd_ut(app);
+	  // Custom JS
+	  
       // Boot the app
       app.Boot();
     });
   </script>
 
-  
+
+
+</body>
+
+</html>
 

@@ -94,6 +94,26 @@
         "name": "Hour",
         "description": "Retrieves a string representation of hour",
         "code": "\"h\""
+      },
+      {
+        "name": "Day",
+        "description": "Retrieves a string representation of day",
+        "code": "\"d\""
+      },
+      {
+        "name": "Day (Extended)",
+        "description": "Retrieves a string representation of day, extended to 0h",
+        "code": "\"d+\""
+      },
+      {
+        "name": "Week",
+        "description": "Retrieves a string representation of week",
+        "code": "\"w\""
+      },
+      {
+        "name": "Week (Extended)",
+        "description": "Retrieves a string representation of week, extended to 0h",
+        "code": "\"w+\""
       }
     ]
   }

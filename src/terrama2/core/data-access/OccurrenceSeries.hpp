@@ -43,7 +43,7 @@ namespace terrama2
       \class OccurrenceSeries
       \brief A OccurrenceSeries represents a set of Occurrences of a phenomena.
     */
-    class OccurrenceSeries : public SeriesAggregation
+    class TMCOREEXPORT OccurrenceSeries : public SeriesAggregation
     {
       public:
         //! Add a group of DataSet data to the OccurrenceSeries.

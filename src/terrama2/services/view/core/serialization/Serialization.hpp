@@ -31,6 +31,7 @@
 #define __TERRAMA2_SERVICES_VIEW_CORE_SE_SERIALIZATION_HPP__
 
 //TerraMA2
+#include "../Config.hpp"
 #include "../View.hpp"
 
 // Terralib
@@ -47,7 +48,7 @@ namespace terrama2
     {
       namespace core
       {
-          class Serialization
+          class TMVIEWEXPORT Serialization
           {
             public:
               /*!
@@ -62,8 +63,9 @@ namespace terrama2
                */
               static std::unique_ptr<te::se::Style> readVectorialStyleXML(const std::string path);
 
-              static void writeCoverageStyleGeoserverXML(const View::Legend legend,
-                                                         const std::string path);
+              static void writeCoverageStyleGeoserverXML(const View::Legend& legend,
+                                                         const std::string& path,
+                                                         const bool useDummy = true);
 
           };
       } // end namespace core

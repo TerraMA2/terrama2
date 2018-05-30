@@ -45,11 +45,11 @@ namespace terrama2
       \brief DataAccessor for DCP DataSeries in a PostGIS database.
 
     */
-    class DataAccessorDcpPostGIS : public DataAccessorDcp, public DataAccessorPostGIS
+    class TMIMPLEXPORT DataAccessorDcpPostGIS : public DataAccessorDcp, public DataAccessorPostGIS
     {
     public:
       DataAccessorDcpPostGIS(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);
-      virtual ~DataAccessorDcpPostGIS() {}
+      virtual ~DataAccessorDcpPostGIS() = default;
 
       static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries);
       static DataAccessorType dataAccessorType(){ return "DCP-postgis"; }

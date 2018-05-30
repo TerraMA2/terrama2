@@ -47,7 +47,7 @@ namespace terrama2
 {
   namespace core
   {
-    class ProcessLogger : public QObject
+    class TMCOREEXPORT ProcessLogger : public QObject
     {
         Q_OBJECT
 
@@ -58,7 +58,7 @@ namespace terrama2
 
           \brief Possible status of manipulate data.
         */
-        enum Status
+        enum class Status
         {
           ERROR         = 1,  /*!< Error during process */
           START         = 2,  /*!< The process started */
@@ -66,7 +66,7 @@ namespace terrama2
           DONE          = 4,  /*!< Process finished */
           ON_QUEUE      = 5,  /*!< When the process is added to the waiting queue */
           INTERRUPTED   = 6,  /*!< When the process was interrupted and could not be finished */
-          NOT_EXECUTED  = 7,   /*!< When the process was in queue but hasn't been executed */
+          NOT_EXECUTED  = 7,  /*!< When the process was in queue but hasn't been executed */
           WARNING       = 8   /*!< The process was executed but the user should be notified */
         };
 
@@ -75,7 +75,7 @@ namespace terrama2
 
           \brief Possible status of logged messages.
         */
-        enum MessageType
+        enum class MessageType
         {
           ERROR_MESSAGE     = 1,
           INFO_MESSAGE      = 2,

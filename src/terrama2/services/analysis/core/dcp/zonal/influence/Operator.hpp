@@ -61,7 +61,7 @@ namespace terrama2
                \param attributeList List of attributes that contain the DCP ID to be used.
                \return The list with identifiers of DCPs that influence the given data series.
                */
-              std::vector< std::string > byAttribute(const std::string& dataSeriesName, std::vector<std::string> attributeList);
+              TMANALYSISEXPORT std::vector< std::string > byAttribute(const std::string& dataSeriesName, std::vector<std::string> attributeList);
 
 
               /*
@@ -73,7 +73,7 @@ namespace terrama2
                \param attributeList List of attributes that contain the DCP ID to be used.
                \return The list with the alias of DCPs that influence the given data series.
                */
-              std::vector< std::string > byRule(const std::string& dataSeriesName, const terrama2::services::analysis::core::Buffer& buffer, bool isActive = false);
+              TMANALYSISEXPORT std::vector< std::string > byRule(const std::string& dataSeriesName, const terrama2::services::analysis::core::Buffer& buffer, bool isActive = false);
 
             } // end namespace influence
           }   // end namespace zonal

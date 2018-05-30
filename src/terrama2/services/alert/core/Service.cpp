@@ -48,11 +48,10 @@
 #include "../../../core/utility/DataStoragerFactory.hpp"
 #include "../../../core/utility/ServiceManager.hpp"
 
-terrama2::services::alert::core::Service::Service(std::weak_ptr<terrama2::services::alert::core::DataManager> dataManager)
-  : dataManager_(dataManager)
+terrama2::services::alert::core::Service::Service(std::weak_ptr<terrama2::core::DataManager> dataManager)
+ : terrama2::core::Service(dataManager)
 {
   connectDataManager();
-
   connect(&alertExecutor_, &AlertExecutor::alertFinished, this, &Service::alertFinished);
 }
 
@@ -61,7 +60,8 @@ void terrama2::services::alert::core::Service::prepareTask(const terrama2::core:
 {
   try
   {
-    taskQueue_.emplace(std::bind(&core::AlertExecutor::runAlert, std::ref(alertExecutor_), executionPackage, std::dynamic_pointer_cast<terrama2::services::alert::core::AlertLogger>(logger_), dataManager_, serverMap_));
+    auto dataManager = std::static_pointer_cast<terrama2::services::alert::core::DataManager>(dataManager_.lock());
+    taskQueue_.emplace(std::bind(&core::AlertExecutor::runAlert, std::ref(alertExecutor_), executionPackage, std::static_pointer_cast<terrama2::services::alert::core::AlertLogger>(logger_), dataManager, serverMap_));
   }
   catch(const std::exception& e)
   {
@@ -69,57 +69,9 @@ void terrama2::services::alert::core::Service::prepareTask(const terrama2::core:
   }
 }
 
-void terrama2::services::alert::core::Service::addToQueue(AlertId alertId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
-{
-  try
-  {
-    std::lock_guard<std::mutex> lock(mutex_);
-    TERRAMA2_LOG_DEBUG() << tr("Alert added to queue.");
-
-    auto datamanager = dataManager_.lock();
-    auto alert = datamanager->findAlert(alertId);
-
-    const auto& serviceManager = terrama2::core::ServiceManager::getInstance();
-    auto serviceInstanceId = serviceManager.instanceId();
-
-    // Check if this alert should be executed in this instance
-    if(alert->serviceInstanceId != serviceInstanceId)
-      return;
-
-    RegisterId registerId = logger_->start(alertId);
-
-    terrama2::core::ExecutionPackage executionPackage;
-    executionPackage.processId = alertId;
-    executionPackage.executionDate = startTime;
-    executionPackage.registerId = registerId;
-
-    // if this alert id is already being processed put it on the wait queue.
-    auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), alertId);
-    if(pqIt == processingQueue_.end())
-    {
-      processQueue_.push_back(executionPackage);
-      processingQueue_.push_back(alertId);
-
-      //wake loop thread
-      mainLoopCondition_.notify_one();
-    }
-    else
-    {
-      waitQueue_[alertId].push(executionPackage);
-      logger_->result(AlertLogger::ON_QUEUE, nullptr, executionPackage.registerId);
-      TERRAMA2_LOG_INFO() << tr("Alert %1 added to wait queue.").arg(alertId);
-    }
-  }
-  catch(...)
-  {
-    // exception guard, slots should never emit exceptions.
-    TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
-  }
-}
-
 void terrama2::services::alert::core::Service::connectDataManager()
 {
-  auto dataManager = dataManager_.lock();
+  auto dataManager = std::static_pointer_cast<terrama2::services::alert::core::DataManager>(dataManager_.lock());
   connect(dataManager.get(), &terrama2::services::alert::core::DataManager::alertAdded, this,
           &terrama2::services::alert::core::Service::addProcessToSchedule);
   connect(dataManager.get(), &terrama2::services::alert::core::DataManager::alertRemoved, this,
@@ -127,7 +79,6 @@ void terrama2::services::alert::core::Service::connectDataManager()
   connect(dataManager.get(), &terrama2::services::alert::core::DataManager::alertUpdated, this,
           &terrama2::services::alert::core::Service::updateAlert);
 }
-
 
 void terrama2::services::alert::core::Service::removeAlert(AlertId alertId) noexcept
 {
@@ -200,4 +151,10 @@ void terrama2::services::alert::core::Service::alertFinished(AlertId alertId,
 {
   notifyWaitQueue(alertId);
   sendProcessFinishedSignal(alertId, executionDate, success, jsonAnswer);
+}
+
+terrama2::core::ProcessPtr terrama2::services::alert::core::Service::getProcess(ProcessId processId)
+{
+  auto dataManager = std::static_pointer_cast<terrama2::services::alert::core::DataManager>(dataManager_.lock());
+  return dataManager->findAlert(processId);
 }

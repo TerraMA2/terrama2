@@ -45,7 +45,7 @@ namespace terrama2
       \brief DataAccessor for the INPE's Wildiland Fire Program - www.inpe.br/queimadas
 
     */
-    class DataAccessorOccurrenceWfp : public DataAccessorOccurrence, public DataAccessorFile
+    class TMIMPLEXPORT DataAccessorOccurrenceWfp : public DataAccessorOccurrence, public DataAccessorFile
     {
       public:
         DataAccessorOccurrenceWfp(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics = true);
@@ -66,7 +66,10 @@ namespace terrama2
         virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter>, const std::shared_ptr<te::da::DataSetType>&) const override;
 
         // WFP file may have delayed data that should not be filtered
-        virtual bool isValidTimestamp(std::shared_ptr<te::mem::DataSet> /*dataSet*/, const Filter& /*filter*/, size_t /*dateColumn*/) const override { return true; }
+        virtual bool isValidTimestamp(std::shared_ptr<SynchronizedDataSet> /*dataSet*/,
+                                      size_t /*index*/,
+                                      const Filter& /*filter*/,
+                                      size_t /*dateColumn*/) const override {return true;}
 
       private:
         //! Name of column with latitude information

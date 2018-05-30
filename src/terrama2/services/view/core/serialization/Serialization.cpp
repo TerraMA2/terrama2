@@ -47,7 +47,7 @@ void terrama2::services::view::core::Serialization::writeVectorialStyleGeoserver
                                                                                     const std::string path)
 {
 
-  std::auto_ptr<te::xml::AbstractWriter> writer(te::xml::AbstractWriterFactory::make());
+  std::unique_ptr<te::xml::AbstractWriter> writer(te::xml::AbstractWriterFactory::make());
 
   writer->setURI(path);
   writer->writeStartDocument("UTF-8", "no");
@@ -56,10 +56,11 @@ void terrama2::services::view::core::Serialization::writeVectorialStyleGeoserver
 
   writer->writeAttribute("xmlns", "http://www.opengis.net/sld");
   writer->writeAttribute("xmlns:ogc", "http://www.opengis.net/ogc");
+  writer->writeAttribute("xmlns:se", "http://www.opengis.net/se");
   writer->writeAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-  writer->writeAttribute("version", style->getVersion());
+  writer->writeAttribute("version", "1.1.0");
   writer->writeAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
-  writer->writeAttribute("xsi:schemaLocation", "http://www.opengis.net/sld http://schemas.opengis.net/sld/1.1.0/StyledLayerDescriptor.xsd");
+  writer->writeAttribute("xsi:schemaLocation", "http://www.opengis.net/sld StyledLayerDescriptor.xsd");
   writer->writeAttribute("xmlns:se", "http://www.opengis.net/se");
 
   writer->writeStartElement("NamedLayer");
@@ -83,7 +84,7 @@ terrama2::services::view::core::Serialization::readVectorialStyleXML(const std::
 {
   std::unique_ptr<te::se::Style> style;
 
-  std::auto_ptr<te::xml::Reader> reader(te::xml::ReaderFactory::make());
+  std::unique_ptr<te::xml::Reader> reader(te::xml::ReaderFactory::make());
   reader->setValidationScheme(false);
 
   reader->read(path);
@@ -230,8 +231,9 @@ void writeColorMapEntry(te::xml::AbstractWriter* writer,
   writeColorMapEntry(writer, rule.color, rule.value, rule.title, rule.opacity);
 }
 
-void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverXML(const View::Legend legend,
-                                                                                   const std::string path)
+void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverXML(const View::Legend& legend,
+                                                                                   const std::string& path,
+                                                                                   const bool useDummy)
 {
   std::unique_ptr<te::xml::AbstractWriter> writer(te::xml::AbstractWriterFactory::make());
 
@@ -285,7 +287,7 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
   ++band_number;
 
   // Dont create default value for RAMP type
-  if(legend.classify != View::Legend::ClassifyType::RAMP)
+  if(legend.classify != View::Legend::ClassifyType::RAMP && useDummy)
   {
     // default color
     writer->writeStartElement("RasterSymbolizer");
@@ -302,26 +304,27 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
     if (it != legend.metadata.end())
     {
       /*
-       * #FIXME: Temporary Solution. The GeoServer Styling does not provide a handy way to work both
-       * default value (whatever value not mapped) and dummy data (No data in Raster - Transparent).
-       * The last implementation tried to use Ramp generation to affect all elements before proceed. But it does
-       * not work for Dummy data values that are transparent. In order to skip it, we must define intervals
-       * to do not let GeoServer perform color composition. First of all, looking for dummy data.
-       * If found, just generate three extra map entries. These entries must contain same values of default
-       * rule.
-       *
-       *  - Entry 1 (-2)
-       *  - Entry 2 (-.00000001)
-       *  - Dummy Entry
-       *  - Entry 3 (+.00000001)
-       *  ...
-       *
-       * The first one value must be "dummy - 2". The second one and the last one value
-       * must be nearest zero negative and positive respectively. These values are important to keep GeoServer Color Composition works properly.
-       *
-       * Note that this approach does not generate GeoServer Legends.
+      * #FIXME: Temporary Solution. The GeoServer Styling does not provide a handy way to work both
+      * default value (whatever value not mapped) and dummy data (No data in Raster - Transparent).
+      * The last implementation tried to use Ramp generation to affect all elements before proceed. But it does
+      * not work for Dummy data values that are transparent. In order to skip it, we must define intervals
+      * to do not let GeoServer perform color composition. First of all, looking for dummy data.
+      * If found, just generate three extra map entries. These entries must contain same values of default
+      * rule.
+      *
+      *  - Entry 1 (-2)
+      *  - Entry 2 (-.00000001)
+      *  - Dummy Entry
+      *  - Entry 3 (+.00000001)
+      *  ...
+      *
+      * The first one value must be "dummy - 2". The second one and the last one value
+      * must be nearest zero negative and positive respectively. These values are important to keep GeoServer Color Composition works properly.
+      *
+      * Note that this approach does not generate GeoServer Legends.
       */
 
+      
       const double dummy = std::stod(it->second);
 
       writeColorMapEntry(writer.get(), defaultRule.color, toString(dummy - 2), defaultRule.title, defaultRule.opacity);
@@ -331,6 +334,7 @@ void terrama2::services::view::core::Serialization::writeCoverageStyleGeoserverX
       writeColorMapEntry(writer.get(), defaultRule.color, it->second, "Dummy[No Data]", "0");
       // Continue gradient scale factor for other valeus
       writeColorMapEntry(writer.get(), defaultRule.color, toString(dummy + 0.00000001), defaultRule.title, defaultRule.opacity);
+      
     } // endif it != legend.metadata.end()
     else
     {

@@ -1,5 +1,6 @@
-# @author Jean Souza [jean.souza@funcate.org.br]
+#!/bin/python
 
+# @author Jean Souza [jean.souza@funcate.org.br]
 from bs4 import BeautifulSoup
 
 soup = BeautifulSoup("{HTML_CODE}", "html.parser")

@@ -31,6 +31,7 @@
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_TXT_FILE_HPP__
 
 //TerraMA2
+#include "Config.hpp"
 #include "DataAccessorFile.hpp"
 
 namespace terrama2
@@ -43,7 +44,7 @@ namespace terrama2
       \brief Base class for DataAccessor classes that access a text file.
 
     */
-    class DataAccessorCSV : public virtual DataAccessorFile
+    class TMIMPLEXPORT DataAccessorCSV : public virtual DataAccessorFile
     {
       public:
         DataAccessorCSV(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)

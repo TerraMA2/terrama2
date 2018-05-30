@@ -31,18 +31,17 @@
 #ifndef __TERRAMA2_SERVICES_ALERT_CORE_NOTIFIER_HPP__
 #define __TERRAMA2_SERVICES_ALERT_CORE_NOTIFIER_HPP__
 
-
 // TerraMA2
+#include "Config.hpp"
 #include "Shared.hpp"
 #include "Alert.hpp"
 
+// TerraLib
 #include <terralib/core/uri/URI.h>
 
 // STL
 #include <map>
 #include <vector>
-
-
 
 namespace terrama2
 {
@@ -52,7 +51,7 @@ namespace terrama2
     {
       namespace core
       {
-        class Notifier
+        class TMALERTCOREEXPORT Notifier
         {
         public:
           Notifier(const std::map<std::string, std::string>& serverMap, ReportPtr report)

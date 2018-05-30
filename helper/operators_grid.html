@@ -1,0 +1,543 @@
+
+
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="generator" content="HelpNDoc Standard Edition 5.4.2.416">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="favicon.ico"/>
+
+  <title>Operadores sobre Grades</title>
+  <meta name="description" content="" /> 
+  <meta name="keywords" content="Utilit&aacute;rios para operadores com dados matriciais">
+
+
+
+  <!-- Twitter Card data -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Operadores sobre Grades">
+  <meta name="twitter:description" content="">
+
+  <!-- Open Graph data -->
+  <meta property="og:title" content="Operadores sobre Grades" />
+  <meta property="og:type" content="article" />
+  <meta property="og:description" content="" />
+  <meta property="og:site_name" content="Plataforma de Monitoramento Ambiental TerraMA&sup2;" /> 
+
+  <!-- Bootstrap core CSS -->
+  <link href="vendors/bootstrap-3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+  <link href="vendors/bootstrap-3.3.6/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+      <script src="vendors/html5shiv-3.7.2/html5shiv.min.js"></script>
+      <script src="vendors/respond-1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+  <!-- JsTree styles -->
+  <link href="vendors/jstree-3.3.2/themes/default/style.min.css" rel="stylesheet"/>
+
+  <!-- Hnd styles -->
+  <link href="css/layout.min.css" rel="stylesheet" />
+  <link href="css/effects.min.css" rel="stylesheet" />
+  <link href="css/theme-light-blue.min.css" rel="stylesheet" />
+  <link href="css/print.min.css" rel="stylesheet" media="print" />
+  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded div#main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
+
+  <!-- Content style -->
+  <link href="css/hnd.content.css" rel="stylesheet" />
+
+  
+
+
+
+</head>
+
+<body class="md-nav-expanded">
+
+
+
+  <div id="skip-link">
+    <a href="#main-content" class="element-invisible">Skip to main content</a>
+  </div>
+
+  <header class="headroom">
+    <button class="hnd-toggle btn btn-default">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>        
+    </button>
+    <h1>Plataforma de Monitoramento Ambiental TerraMA&sup2;</h1>
+    
+  </header>
+
+  <nav class="md-nav-expanded">
+    <!-- Nav tabs -->
+    <ul class="tab-tabs nav nav-tabs" role="tablist">
+      <li id="nav-close"> 
+        <button class="hnd-toggle btn btn-default">
+          <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+        </button>
+      </li>
+      
+	  
+        <li role="presentation" class="tab active">
+            <a href="#contents" id="tab-contents" aria-controls="contents" role="tab" data-toggle="tab">
+                <i class="glyphicon glyphicon-list"></i>
+                Contents
+            </a>
+        </li>
+      
+        <li role="presentation" class="tab">
+            <a href="#index" id="tab-index" aria-controls="index" role="tab" data-toggle="tab">
+                <i class="glyphicon glyphicon-asterisk"></i>
+                Index
+            </a>
+        </li>
+      
+        <li role="presentation" class="tab">
+            <a href="#search" id="tab-search" aria-controls="search" role="tab" data-toggle="tab">
+                <i class="glyphicon glyphicon-search"></i>
+                Search
+            </a>
+        </li>
+      
+    </ul>  <!-- /Nav tabs -->
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+	  
+      <div role="tabpanel" class="tab-pane active" id="contents">
+        <div id="toc" class="tree-container unselectable"
+            data-url="_toc.json"
+            data-openlvl="1"
+        >
+            
+        </div>
+      </div>  <!-- /contents-->
+      
+      <div role="tabpanel" class="tab-pane" id="index">
+        <div id="keywords" class="tree-container unselectable"
+            data-url="_keywords.json"
+            data-openlvl="1"
+        >
+            
+        </div>
+      </div>  <!-- /index-->
+      
+      <div role="tabpanel" class="tab-pane" id="search">
+        <div class="search-content">
+          <div class="search-input">
+            <form id="search-form">
+              <div class="form-group">
+                <div class="input-group">
+                  <input type="text" class="form-control" id="input-search" name="input-search" placeholder="Search..." />
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                      <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </form>
+          </div>  <!-- /search-input -->
+          <div class="search-result">
+            <div id="search-info"></div>
+            <div class="tree-container unselectable" id="search-tree"></div>
+          </div>  <!-- /search-result -->
+        </div>  <!-- /search-content -->
+      </div>  <!-- /search-->
+      
+    </div>  <!-- /Tab panes -->
+
+  </nav>
+
+  <div id="main">
+
+    <article>
+        <div id="topic-content" class="container-fluid" 
+		  data-hnd-id="operators_grid"
+		  data-hnd-context="40"
+		  data-hnd-title="Operadores sobre Grades"
+		>
+            
+                <div class="navigation">
+                    <ol class="breadcrumb">
+                        <li><a href="administration_module.html">M&oacute;dulo de Administra&ccedil;&atilde;o</a></li><li><a href="projects.html">Projetos</a></li><li><a href="analysis.html">An&aacute;lises</a></li><li><a href="operators.html">Operadores</a></li>
+                    </ol>
+                    <div class="nav-arrows">
+                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="operators.html" title="Operadores" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="operators_monitored_obj.html" title="Operadores sobre Objetos Monitorados" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="operators_dcp.html" title="Operadores sobre PCD" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
+                    </div>
+                </div> 
+            
+
+            <a id="main-content"></a>
+
+            <h2>Operadores sobre Grades</h2>
+
+            <div class="main-content">
+                
+<p></p>
+<p class="rvps21"><a class="rvts33" href="operators.html#lista_op_grades">Lista de Operadores sobre Grades</a><span class="rvts32"> &nbsp;</span><img alt="" style="vertical-align: middle; padding : 1px;" src="lib/lista.jpg"></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps9"><span class="rvts16">Os operadores espaciais disponíveis para serem utilizados com os dados matriciais são utilizados para dados dinâmicos matriciais de observação ou previsão, assim como para dados estáticos matriciais. A Figura 3.28 mostra que há um grupo de operadores que operam sobre um dado estático matricial ou um conjunto de dados matriciais dinâmicos para a grades de observação ou camadas de previsões mais recente, um grupo de operadores históricos com dados dinâmicos de observações e outro grupo de operadores sobre dados dinâmicos de previsão.</span></p>
+<p class="rvps87"><img alt="" style="padding : 1px;" src="lib/Fig3_28_web.png"></p>
+<p class="rvps23"><span class="rvts18">Figura 3.28– </span><span class="rvts19">Análise com base em dados matriciais: Operações sobre grades/camadas estáticas ou dinâmicas.</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;">
+<li class="rvps18"><a name="op_grid_util"></a>
+<span class="rvts0"><span class="rvts89">Utilitários para operadores com dados matriciais</span></span><span class="rvts0"><span class="rvts28"> </span></span><img alt="" style="padding : 1px;" src="lib/An_OB_util_24x24.png"></li>
+</ul></ul></ul>
+<p class="rvps9"><span class="rvts16">Estes utilitários são os mesmos apresentados na análise baseada em objeto monitorado, portanto, maiores detalhes veja o </span><a class="rvts26" href="operators_monitored_obj.html#util_obj_monitor">item correspondente.</a></p>
+<h6 class="rvps76"><a name="op_grid_util_dist"></a>
+<span class="rvts0"><span class="rvts37">I.1- Unidade de distância</span></span></h6>
+<p class="rvps9"><span class="rvts16">Para operadores que utilizam unidades de distância devem usar as letras entre aspas duplas ( “&lt;unidade&gt;” ). As seguintes opções estão disponíveis:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps11"><span class="rvts16">“cm”: centímetros</span></li>
+<li class="rvps11"><span class="rvts16">“m” : metros</span></li>
+<li class="rvps11"><span class="rvts16">“km”: quilômetros</span></li>
+</ul>
+<h6 class="rvps76"><a name="op_grid_tempo"></a>
+<span class="rvts0"><span class="rvts37">I.2- Unidade de tempo</span></span></h6>
+<p class="rvps9"><span class="rvts16">Para operadores que utilizam unidades de tempo devem usar as letras imediatamente após o valor numérico (sem espaço entre o número e a letra), ambos entre aspas dupla ( “&lt;num&gt;&lt;unidade&gt;” ). As seguintes opções estão disponíveis:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps11"><span class="rvts16">sec: segundo</span></li>
+<li class="rvps11"><span class="rvts16">min: minuto</span></li>
+<li class="rvps11"><span class="rvts16">h: hora</span></li>
+<li class="rvps11"><span class="rvts16">d: dia</span></li>
+<li class="rvps11"><span class="rvts16">w: semana</span></li>
+</ul>
+<h6 class="rvps76"><a name="op_grid__get_date"></a>
+<span class="rvts0"><span class="rvts37">I.3- Utilitário “ Get analysis date”</span></span></h6>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps11"><span class="rvts17">get_analysis_date()</span><span class="rvts16"> &nbsp;: &nbsp;retorna a data/hora de execução da análise, podendo ser um reprocessamento de dado histórico ou valor atual.</span></li>
+</ul>
+<p class="rvps11"><span class="rvts16"><br/></span></p>
+<p class="rvps21"><a class="rvts33" href="operators.html#lista_op_grades">Lista de Operadores sobre Grades</a><span class="rvts32"> &nbsp;</span><img alt="" style="vertical-align: middle; padding : 1px;" src="lib/lista.jpg"></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;">
+<li class="rvps18"><a name="op_grid_atual"></a>
+<span class="rvts0"><span class="rvts89">Operador Matriz Atual &nbsp;</span></span><img alt="" style="padding : 1px;" src="lib/An_matriz_amostra_24x24.png"></li>
+</ul></ul></ul>
+<p class="rvps9"><span class="rvts16">Operador matriz atual é utilizado para obter os valores dos “pixels” de uma dado matricial, dinâmico ou estático.</span></p>
+<h6 class="rvps76"><a name="op_grid_atual_sample"></a>
+<span class="rvts0"><span class="rvts37">II.1- Amostra</span></span></h6>
+<p class="rvps9"><span class="rvts16">Retorna os valores da grade mais recente em relação a hora atual no caso de uma série de dados históricos de observação ou da camada mais recente de previsão. Para dados matriciais estático retorna os valores da grade própria grade.</span></p>
+<p class="rvps72"><span class="rvts49">SINTAXE GERAL:</span></p>
+<p class="rvps87"><span class="rvts16">grid.sample("&lt;dynamic_data_grid&gt;", [&lt;band&gt;]) &nbsp;&nbsp;&nbsp;</span></p>
+<p class="rvps72"><span class="rvts16">onde:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps11"><span class="rvts17">dynamic_data_grid</span><span class="rvts16"> : String com o nome da série de dados dinâmicos matriciais ou dados estáticos matriciais.</span></li>
+<li class="rvps11"><span class="rvts17">band</span><span class="rvts16"> : [Opcional] Banda da grade utilizada. Se não informado será considerado a primeira banda (0).</span></li>
+</ul>
+<p class="rvps74"><span class="rvts79">Exemplo</span><span class="rvts80">:&nbsp;&nbsp;&nbsp; </span><span class="rvts81">x = </span><span class="rvts62">grid.sample</span><span class="rvts81">("hidroestimador")&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; # </span><span class="rvts84">matriz dinâmica</span></p>
+<p class="rvps74"><span class="rvts81">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; y = </span><span class="rvts62">grid.sample</span><span class="rvts81">("declividade")&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; # </span><span class="rvts84">matriz estática</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<p class="rvps21"><a class="rvts33" href="operators.html#lista_op_grades">Lista de Operadores sobre Grades</a><span class="rvts32"> &nbsp;</span><img alt="" style="vertical-align: middle; padding : 1px;" src="lib/lista.jpg"></p>
+<h4 class="rvps18"><a name="op_grid_history"></a>
+<span class="rvts0"><span class="rvts89">Operadores Históricos de Observação</span></span><span class="rvts0"><span class="rvts28"> </span></span><img alt="" style="padding : 1px;" src="lib/An_matriz_history_26x26.png"></h4>
+<p class="rvps9"><span class="rvts16">Operadores históricos de observação são operadores utilizados para obter estatísticas sobre os pontos da grade, produzindo um novo valor da grade de saída.</span></p>
+<p class="rvps9"><span class="rvts16">A Figura 3.29 ilustra um conjunto de dados matriciais dinâmicos coletados sistematicamente que são utilizados para obter um novo valor em cada ponto da grade a partir de um operador escolhido pelo usuário, como por exemplo calcular o mínimo, máximo, média, etc.</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<p class="rvps87"><img alt="" style="padding : 1px;" src="lib/Fig3_29_web.png"></p>
+<p class="rvps23"><span class="rvts18">Figura 3.29 – &nbsp;</span><span class="rvts19">Análise com base em dados matriciais: Uso de operadores sobre grades dinâmicas de observação.</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<p class="rvps9"><span class="rvts16">Estes operadores são divididos em dois tipos: </span><span class="rvts17">Histórico</span><span class="rvts16"> e </span><span class="rvts17">Histórico por Intervalo</span><span class="rvts16">. A descrição de cada tipo a seguir.</span></p>
+<h6 class="rvps76"><a name="op_grid_history_histo"></a>
+<span class="rvts0"><span class="rvts37">III.1- Histórico</span></span></h6>
+<p class="rvps9"><span class="rvts16">Grupo de operadores que retornam valores em cada ponto da grade sobre dados matriciais históricos no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps72"><span class="rvts49">SINTAXE GERAL:</span></p>
+<p class="rvps27"><span class="rvts16">grid.history.&lt;operator&gt;("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", </span><span class="rvts62">[&lt;band&gt;]</span><span class="rvts16">) &nbsp;&nbsp;</span></p>
+<p class="rvps72"><span class="rvts16">onde:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps11"><span class="rvts17">operator</span><span class="rvts16"> :</span><span class="rvts17"> </span><span class="rvts16">min, max, mean, sum, median, standard_deviation, variance;</span></li>
+<li class="rvps11"><span class="rvts17">dynamic_data_grid</span><span class="rvts16"> : String com o nome da série de dados matriciais .</span></li>
+<li class="rvps11"><span class="rvts17">time </span><span class="rvts16">: String com o intervalo de tempo, a partir da hora atual. Ver utilitário &nbsp;Unidades de tempo.</span></li>
+<li class="rvps11"><span class="rvts17">band</span><span class="rvts16"> : [Opcional] Banda da grade utilizada. Se não informado será considerado a primeira banda (0).</span></li>
+</ul>
+<p class="rvps9"><span class="rvts16">Segue a descrição de cada operador.</span></p>
+<p class="rvps85"><span class="rvts68">Histórico : </span><span class="rvts39">Mínimo</span></p>
+<p class="rvps9"><span class="rvts16">Retorna os menores valores em cada ponto da grade sobre dados matriciais históricos no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps87"><span class="rvts62">grid.history.min(“&lt;dynamic_data_grid&gt;”, “&lt;time&gt;”, [&lt;band&gt;])</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo</span><span class="rvts80">:&nbsp;&nbsp;&nbsp; </span><span class="rvts81">x = grid.history.min("chuva", "1d", 0)</span></p>
+<p class="rvps85"><span class="rvts68">Histórico : </span><span class="rvts39">Máximo</span></p>
+<p class="rvps9"><span class="rvts16">Retorna os maiores valores em cada ponto da grade sobre dados matriciais históricos no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps87"><span class="rvts62">grid.history.max(“&lt;dynamic_data_grid&gt;”, “&lt;time&gt;”, [&lt;band&gt;])</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo</span><span class="rvts80">:&nbsp;&nbsp;&nbsp; </span><span class="rvts81">x = grid.history.max("chuva", "1d", 0)</span></p>
+<p class="rvps85"><span class="rvts68">Histórico : </span><span class="rvts39">Média</span></p>
+<p class="rvps9"><span class="rvts16">Retorna as médias dos em cada ponto da grade sobre dados matriciais históricos no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps87"><span class="rvts62">grid.history.mean(“&lt;dynamic_data_grid&gt;”, “&lt;time&gt;”, [&lt;band&gt;])</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo</span><span class="rvts80">:&nbsp;&nbsp;&nbsp; x = </span><span class="rvts81">grid.history.mean("chuva", "1d", 0)</span></p>
+<p class="rvps85"><span class="rvts68">Histórico : </span><span class="rvts39">Soma</span></p>
+<p class="rvps9"><span class="rvts16">Retorna as somas em cada ponto da grade sobre dados matriciais históricos no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps87"><span class="rvts62">grid.history.sum(“&lt;dynamic_data_grid&gt;”, “&lt;time&gt;”, [&lt;band&gt;])</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo</span><span class="rvts80">:&nbsp;&nbsp;&nbsp; x = </span><span class="rvts81">grid.history.sum("chuva", "1d", 0)</span></p>
+<p class="rvps85"><span class="rvts68">Histórico : </span><span class="rvts39">Mediana</span></p>
+<p class="rvps9"><span class="rvts16">Retorna as medianas em cada ponto da grade sobre dados matriciais históricos no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps87"><span class="rvts62">grid.history.median(“&lt;dynamic_data_grid&gt;”, “&lt;time&gt;”, [&lt;band&gt;])</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo</span><span class="rvts80">:&nbsp;&nbsp;&nbsp; x = </span><span class="rvts81">grid.history.median("chuva", "1d", 0)</span></p>
+<p class="rvps85"><span class="rvts68">Histórico : </span><span class="rvts39">Desvio Padrão</span></p>
+<p class="rvps9"><span class="rvts16">Retorna os desvios padrões em cada ponto da grade sobre dados matriciais históricos no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps87"><span class="rvts62">grid.history.standard_deviation(“&lt;dynamic_data_grid&gt;”, “&lt;time&gt;”, [&lt;band&gt;])</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo</span><span class="rvts80">:&nbsp;&nbsp;&nbsp; x = </span><span class="rvts81">grid.history.standard_deviation("chuva", "1d", 0)</span></p>
+<p class="rvps85"><span class="rvts68">Histórico : </span><span class="rvts39">Variância</span></p>
+<p class="rvps9"><span class="rvts16">Retorna as variâncias em cada ponto da grade sobre dados matriciais históricos no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps87"><span class="rvts62">grid.history.variance(“&lt;dynamic_data_grid&gt;”, “&lt;time&gt;”, [&lt;band&gt;])</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo</span><span class="rvts80">:&nbsp;&nbsp;&nbsp; </span><span class="rvts81">x = grid.history.standard_deviation("chuva", "24h", 0)</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<h6 class="rvps76"><a name="op_grid_history_hist_interval"></a>
+<span class="rvts0"><span class="rvts37">III.2- Histórico por intervalo</span></span></h6>
+<p class="rvps9"><span class="rvts16">Grupo de operadores que retornam os valores em cada ponto da grade sobre dados matriciais históricos no intervalo de tempo inicial e final informado no passado em relação a data/hora atual</span><span class="rvts17">.</span></p>
+<p class="rvps72"><span class="rvts49">SINTAXE GERAL:</span></p>
+<p class="rvps27"><span class="rvts16">grid.history.interval.&lt;operator&gt;("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", </span><span class="rvts62">[&lt;band&gt;]</span><span class="rvts16">) &nbsp;&nbsp;</span></p>
+<p class="rvps72"><span class="rvts16">onde:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps11"><span class="rvts17">operator</span><span class="rvts16"> :</span><span class="rvts17"> </span><span class="rvts16">min, max, mean, median, sum, standard_deviation, variance;</span></li>
+<li class="rvps11"><span class="rvts17">dynamic_data_grid</span><span class="rvts16"> : String com o nome da série de dados matriciais;</span></li>
+<li class="rvps11"><span class="rvts17">time_begin </span><span class="rvts16">: String inicial (mais antigo) do intervalo de tempo para filtrar as grades. Este valor será aberto (&lt; tempo mais antigo) no tempo informado;</span></li>
+<li class="rvps11"><span class="rvts17">time_end</span><span class="rvts16"> : String final (mais recente) do intervalo de tempo para filtrar as grades. Este valor será fechado ( &lt;= tempo mais recente) no tempo informado;</span></li>
+<li class="rvps11"><span class="rvts17">band</span><span class="rvts16"> : [Opcional] Banda da grade a ser utilizada. Se não informado será considerado a primeira banda (0);</span></li>
+</ul>
+<p class="rvps9"><span class="rvts16">Segue a descrição de cada operador.</span></p>
+<p class="rvps85"><span class="rvts68">Histórico por intervalo : </span><span class="rvts39">Mínimo</span></p>
+<p class="rvps9"><span class="rvts16">Retorna os menores valores em cada ponto da grade sobre dados matriciais históricos no intervalo de tempo inicial e final informado no passado em relação a data/hora atual.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps20"><span class="rvts62">grid.history.interval.min("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", [&lt;band&gt;])</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo:&nbsp;&nbsp;&nbsp; x = </span><span class="rvts81">grid.history.interval.min("chuva", "10d", “5d”, 0)</span></p>
+<p class="rvps105"><span class="rvts62"><br/></span></p>
+<p class="rvps10"><span class="rvts68">Histórico por intervalo : </span><span class="rvts39">Máximo</span></p>
+<p class="rvps9"><span class="rvts16">Retorna os maiores valores em cada ponto da grade sobre dados matriciais históricos no intervalo de tempo inicial e final informado no passado em relação a data/hora atual.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps20"><span class="rvts62">grid.history.interval.max("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", [&lt;band&gt;])</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo:&nbsp;&nbsp;&nbsp; x = </span><span class="rvts81">grid.history.interval.max("chuva", "10d", “5d”, 0)</span></p>
+<p class="rvps105"><span class="rvts62"><br/></span></p>
+<p class="rvps85"><span class="rvts68">Histórico por intervalo : </span><span class="rvts39">Média</span></p>
+<p class="rvps9"><span class="rvts16">Retorna as médias dos valores em cada ponto da grade sobre dados matriciais históricos no intervalo de tempo inicial e final informado no passado em relação a data/hora atual.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps20"><span class="rvts62">grid.history.interval.mean("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", [&lt;band&gt;])</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo:&nbsp;&nbsp;&nbsp; x = </span><span class="rvts81">grid.history.interval.mean("chuva", "10d", “5d”, 0)</span></p>
+<p class="rvps105"><span class="rvts62"><br/></span></p>
+<p class="rvps85"><span class="rvts68">Histórico por intervalo : </span><span class="rvts39">Mediana</span></p>
+<p class="rvps9"><span class="rvts16">Retorna as medianas dos valores em cada ponto da grade sobre dados matriciais históricos no intervalo de tempo inicial e final informado no passado em relação a data/hora atual.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps20"><span class="rvts62">grid.history.interval.median("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", [&lt;band&gt;])</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo:&nbsp;&nbsp;&nbsp; x = </span><span class="rvts81">grid.history.interval.median("chuva", "10d", “5d”, 0)</span></p>
+<p class="rvps85"><span class="rvts68">Histórico por intervalo : </span><span class="rvts39">Soma</span></p>
+<p class="rvps9"><span class="rvts16">Retorna as somas dos valores em cada ponto da grade sobre dados matriciais históricos no intervalo de tempo inicial e final informado no passado em relação a data/hora atual.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps20"><span class="rvts62">grid.history.interval.sum("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", [&lt;band&gt;])</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo:&nbsp;&nbsp;&nbsp; x = </span><span class="rvts81">grid.history.interval.sum("chuva", "10d", “5d”, 0)</span></p>
+<p class="rvps85"><span class="rvts68">Histórico por intervalo : </span><span class="rvts39">Desvio padrão</span></p>
+<p class="rvps9"><span class="rvts16">Retorna os desvios padrões dos valores em cada ponto da grade sobre dados matriciais históricos no intervalo de tempo inicial e final informado no passado em relação a data/hora atual.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps20"><span class="rvts62">grid.history.interval.standard_deviation("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", [&lt;band&gt;])</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo:&nbsp;&nbsp;&nbsp; x = </span><span class="rvts81">grid.history.interval.standard_deviation("chuva", "10d", “5d”, 0)</span></p>
+<p class="rvps85"><span class="rvts68">Histórico por intervalo : </span><span class="rvts39">Variância</span></p>
+<p class="rvps9"><span class="rvts16">Retorna as variâncias dos valores em cada ponto da grade sobre dados matriciais históricos no intervalo de tempo inicial e final informado no passado em relação a data/hora atual.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps20"><span class="rvts62">grid.history.interval.variance("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", [&lt;band&gt;])</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo:&nbsp;&nbsp;&nbsp; x = </span><span class="rvts81">grid.history.interval.variance("chuva", "10d", “5d”, 0)</span></p>
+<p class="rvps74"><span class="rvts81"><br/></span></p>
+<p class="rvps21"><a class="rvts33" href="operators.html#lista_op_grades">Lista de Operadores sobre Grades</a><span class="rvts32"> &nbsp;</span><img alt="" style="vertical-align: middle; padding : 1px;" src="lib/lista.jpg"></p>
+<p class="rvps104"><span class="rvts16"><br/></span></p>
+<h4 class="rvps18"><a name="op_grid_forecast"></a>
+<span class="rvts0"><span class="rvts89">Operadores de Previsão</span></span><span class="rvts0"><span class="rvts28"> </span></span><img alt="" style="padding : 1px;" src="lib/An_matriz_forecast_26x26.png"></h4>
+<p class="rvps9"><span class="rvts16">Operadores de previsão são operadores utilizados para obter estatísticas sobre os pontos da grade, produzindo um novo valor da grade de saída.</span></p>
+<p class="rvps9"><span class="rvts16">A Figura 3.30 ilustra um conjunto de camadas de um dado matricial dinâmico coletado sistematicamente para serem utilizados para obter um novo valor em cada ponto da grade a partir de um operador escolhido pelo usuário, como por exemplo calcular o mínimo, máximo, média, etc.</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<p class="rvps26"><img alt="" style="padding : 1px;" src="lib/Fig3_30_web.png"></p>
+<p class="rvps23"><span class="rvts18">Figura 3.30 – </span><span class="rvts19">(a) Exemplo dos pontos de uma grade.</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<p class="rvps28"><span class="rvts17">OBS: </span><span class="rvts16">As camadas de um dado de previsão numérica de tempo produzida pelo CPTEC-INPE são atualizadas duas vezes ao dia, a zero horas e do meio dia.</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<p class="rvps9"><span class="rvts16">Estes operadores são divididos em dois tipos: </span><span class="rvts17">Previsão </span><span class="rvts16">e </span><span class="rvts17">Previsão por Intervalo</span><span class="rvts16">. A descrição de cada tipo a seguir.</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;">
+<li class="rvps76"><a name="op_grid_forecast_fore"></a>
+<span class="rvts0"><span class="rvts37">IV.1- Previsão</span></span></li>
+</ul></ul></ul></ul></ul>
+<p class="rvps9"><span class="rvts16">Grupo de operadores que consideram os valores dos “pixels” dos dados matriciais de previsão no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps72"><span class="rvts49">SINTAXE GERAL:</span></p>
+<p class="rvps27"><span class="rvts16">grid.forecast.&lt;operator&gt;("&lt;dynamic_data_grid&gt;", "&lt;time&gt;") &nbsp;&nbsp;</span></p>
+<p class="rvps72"><span class="rvts16">onde:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps11"><span class="rvts17">operator</span><span class="rvts16"> :</span><span class="rvts17"> </span><span class="rvts16">min, max, mean, median, sum, standard_deviation, variance;</span></li>
+<li class="rvps11"><span class="rvts17">dynamic_data_grid</span><span class="rvts16"> : String com o nome da série de dados matriciais .</span></li>
+<li class="rvps11"><span class="rvts17">time </span><span class="rvts16">: String com o intervalo de tempo, a partir da hora atual. Ver utilitário &nbsp;Unidades de tempo.</span></li>
+</ul>
+<p class="rvps9"><span class="rvts16">Segue a descrição de cada operador.</span></p>
+<p class="rvps85"><span class="rvts68">Previsão : </span><span class="rvts39">Mínimo</span></p>
+<p class="rvps9"><span class="rvts16">Retorna os menores valores dos “pixels” de todos os dados matriciais de previsão no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps87"><span class="rvts62">grid.forecast.min(“&lt;dynamic_data_grid&gt;”, “&lt;time&gt;”)</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo</span><span class="rvts80">:&nbsp;&nbsp;&nbsp; </span><span class="rvts81">x = grid.forecast.min("precipitacao", "1d")</span></p>
+<p class="rvps85"><span class="rvts68">Previsão : </span><span class="rvts39">Máximo</span></p>
+<p class="rvps9"><span class="rvts16">Retorna os maiores valores dos “pixels” de todos os dados matriciais de previsão no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps87"><span class="rvts62">grid.forecast.max(“&lt;dynamic_data_grid&gt;”, “&lt;time&gt;”)</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo</span><span class="rvts80">:&nbsp;&nbsp;&nbsp; </span><span class="rvts81">x = grid.forecast.max("precipitacao", "1d")</span></p>
+<p class="rvps85"><span class="rvts68">Previsão : </span><span class="rvts39">Média</span></p>
+<p class="rvps9"><span class="rvts16">Retorna as médias dos “pixels” de todos os dados matriciais de previsão no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps87"><span class="rvts62">grid.forecast.mean(“&lt;dynamic_data_grid&gt;”, “&lt;time&gt;”)</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo</span><span class="rvts80">:&nbsp;&nbsp;&nbsp; x = </span><span class="rvts81">grid.forecast.mean("precipitacao", "1d")</span></p>
+<p class="rvps85"><span class="rvts68">Previsão : </span><span class="rvts39">Soma</span></p>
+<p class="rvps9"><span class="rvts16">Retorna as somas dos “pixels” de todos os dados matriciais de previsão no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps87"><span class="rvts62">grid.forecast.sum(“&lt;dynamic_data_grid&gt;”, “&lt;time&gt;”)</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo</span><span class="rvts80">:&nbsp;&nbsp;&nbsp; x = </span><span class="rvts81">grid.forecast.sum("precipitacao", "1d")</span></p>
+<p class="rvps85"><span class="rvts68">Previsão : </span><span class="rvts39">Mediana</span></p>
+<p class="rvps9"><span class="rvts16">Retorna as medianas dos “pixels” de todos os dados matriciais de previsão no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps87"><span class="rvts62">grid.forecast.median(“&lt;dynamic_data_grid&gt;”, “&lt;time&gt;”)</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo</span><span class="rvts80">:&nbsp;&nbsp;&nbsp; x = </span><span class="rvts81">grid.forecast.median("precipitacao", "1d")</span></p>
+<p class="rvps85"><span class="rvts68">Previsão : </span><span class="rvts39">Desvio Padrão</span></p>
+<p class="rvps9"><span class="rvts16">Retorna os desvios padrões dos “pixels” de todos os dados matriciais de previsão no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps87"><span class="rvts62">grid.forecast.standard_deviation(“&lt;dynamic_data_grid&gt;”, “&lt;time&gt;”)</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo</span><span class="rvts80">:&nbsp;&nbsp;&nbsp; x = </span><span class="rvts81">grid.forecast.standard_deviation("precipitacao", "1d")</span></p>
+<p class="rvps85"><span class="rvts68">Previsão : </span><span class="rvts39">Variância</span></p>
+<p class="rvps9"><span class="rvts16">Retorna as variâncias dos “pixels” de todos os dados matriciais de previsão no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps87"><span class="rvts62">grid.forecast.variance(“&lt;dynamic_data_grid&gt;”, “&lt;time&gt;”)</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo</span><span class="rvts80">:&nbsp;&nbsp;&nbsp; </span><span class="rvts81">x = grid.forecast.standard_deviation("precipitacao", "24h")</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<h6 class="rvps76"><a name="op_grid_forecast_interval"></a>
+<span class="rvts0"><span class="rvts37">IV.2- Previsão por intervalo</span></span></h6>
+<p class="rvps9"><span class="rvts16">Grupo de operadores que consideram os valores dos “pixels” dos dados matriciais de previsão no intervalo de tempo inicial e final informado no futuro em relação a data/hora atual.</span></p>
+<p class="rvps72"><span class="rvts49">SINTAXE GERAL:</span></p>
+<p class="rvps27"><span class="rvts16">grid.forecast.interval.&lt;operator&gt;("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;") &nbsp;&nbsp;</span></p>
+<p class="rvps72"><span class="rvts16">onde:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
+<li class="rvps11"><span class="rvts17">operator</span><span class="rvts16"> :</span><span class="rvts17"> </span><span class="rvts16">min, max, mean, median, sum, standard_deviation, variance;</span></li>
+<li class="rvps11"><span class="rvts17">dynamic_data_grid</span><span class="rvts16"> : String com o nome da série de dados matriciais de previsão;</span></li>
+<li class="rvps11"><span class="rvts17">time_begin </span><span class="rvts16">: String inicial (mais próximo da hora atual) do intervalo de tempo para filtrar as camadas de previsão. Este valor será fechado (&lt;= tempo mais próximo) no tempo informado;</span></li>
+<li class="rvps11"><span class="rvts17">time_end</span><span class="rvts16"> : String final (mais recente) do intervalo de tempo para filtrar as camadas de previsão. Este valor será aberto ( &lt; tempo mais distante) no tempo informado;</span></li>
+</ul>
+<p class="rvps9"><span class="rvts16">Segue a descrição de cada operador.</span></p>
+<p class="rvps85"><span class="rvts68">Previsão por intervalo : </span><span class="rvts39">Mínimo</span></p>
+<p class="rvps9"><span class="rvts16">Retorna os menores valores dos “pixels” de todos os dados matriciais de previsão no intervalo de tempo inicial e final informado no futuro em relação a data/hora atual.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps20"><span class="rvts62">grid.forecast.interval.min("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;")</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo:&nbsp;&nbsp;&nbsp; x = </span><span class="rvts81">grid.forecast.interval.min("precipitacao", "10d", “5d”)</span></p>
+<p class="rvps105"><span class="rvts62"><br/></span></p>
+<p class="rvps10"><span class="rvts68">Previsão por intervalo : </span><span class="rvts39">Máximo</span></p>
+<p class="rvps9"><span class="rvts16">Retorna os maiores valores dos “pixels” de todos os dados matriciais de previsão no intervalo de tempo inicial e final informado no futuro em relação a data/hora atual.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps20"><span class="rvts62">grid.forecast.interval.max("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;")</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo:&nbsp;&nbsp;&nbsp; x = </span><span class="rvts81">grid.forecast.interval.max("precipitacao", "10d", “5d”)</span></p>
+<p class="rvps105"><span class="rvts62"><br/></span></p>
+<p class="rvps85"><span class="rvts68">Previsão por intervalo : </span><span class="rvts39">Média</span></p>
+<p class="rvps9"><span class="rvts16">Retorna as médias dos “pixels” de todos os dados matriciais de previsão no intervalo de tempo inicial e final informado no futuro em relação a data/hora atual.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps20"><span class="rvts62">grid.forecast.interval.mean("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;")</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo:&nbsp;&nbsp;&nbsp; x = </span><span class="rvts81">grid.forecast.interval.mean("precipitacao", "10d", “5d”)</span></p>
+<p class="rvps105"><span class="rvts62"><br/></span></p>
+<p class="rvps85"><span class="rvts68">Previsão por intervalo : </span><span class="rvts39">Mediana</span></p>
+<p class="rvps9"><span class="rvts16">Retorna as medianas dos “pixels” de todos os dados matriciais de previsão no intervalo de tempo inicial e final informado no futuro em relação a data/hora atual.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps20"><span class="rvts62">grid.forecast.interval.median("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;")</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo:&nbsp;&nbsp;&nbsp; x = </span><span class="rvts81">grid.forecast.interval.median("precipitacao", "10d", “5d”)</span></p>
+<p class="rvps85"><span class="rvts68">Previsão por intervalo : </span><span class="rvts39">Soma</span></p>
+<p class="rvps9"><span class="rvts16">Retorna as somas dos “pixels” de todos os dados matriciais de previsão no intervalo de tempo inicial e final informado no futuro em relação a data/hora atual.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps20"><span class="rvts62">grid.forecast.interval.sum("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;")</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo:&nbsp;&nbsp;&nbsp; x = </span><span class="rvts81">grid.forecast.interval.sum("precipitacao", "10d", “5d”)</span></p>
+<p class="rvps85"><span class="rvts68">Previsão por intervalo : </span><span class="rvts39">Desvio padrão</span></p>
+<p class="rvps9"><span class="rvts16">Retorna os desvios padrões dos “pixels” de todos os dados matriciais de previsão no intervalo de tempo inicial e final informado no futuro em relação a data/hora atual.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps20"><span class="rvts62">grid.forecast.interval.standard_deviation("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;")</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo:&nbsp;&nbsp;&nbsp; x = </span><span class="rvts81">grid.forecast.interval.standard_deviation("precipitacao", "10d", “5d”)</span></p>
+<p class="rvps85"><span class="rvts68">Previsão por intervalo : </span><span class="rvts39">Variância</span></p>
+<p class="rvps9"><span class="rvts16">Retorna as variâncias dos “pixels” de todos os dados matriciais de previsão no intervalo de tempo inicial e final informado no futuro em relação a data/hora atual.</span></p>
+<p class="rvps72"><span class="rvts49">Sintaxe:</span></p>
+<p class="rvps20"><span class="rvts62">grid.forecast.interval.variance("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;")</span></p>
+<p class="rvps74"><span class="rvts79">Exemplo:&nbsp;&nbsp;&nbsp; x = </span><span class="rvts81">grid.forecast.interval.variance("precipitacao", "10d", “5d”)</span></p>
+<p class="rvps2"><span class="rvts13"><br/></span></p>
+<p class="rvps21"><a class="rvts33" href="operators.html#lista_op_grades">Lista de Operadores sobre Grades</a><span class="rvts32"> &nbsp;</span><img alt="" style="vertical-align: middle; padding : 1px;" src="lib/lista.jpg"></p>
+<p></p>
+
+            </div>
+            
+            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2017 by INPE. All Rights Reserved.</div></div>
+        </div>  <!-- /#topic-content -->
+    </article>
+
+    <footer></footer>
+
+  </div>  <!-- /#main -->
+
+  <div class="mask" data-toggle="sm-nav-expanded"></div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="hndModal" tabindex="-1" role="dialog" aria-labelledby="hndModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="hndModalLabel"></h4>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary modal-btn-close" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="vendors/jquery-1.11.3/jquery.min.js"></script>
+  <script src="vendors/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+  <script src="vendors/fastclick-1.0.6/fastclick.min.js"></script>
+  <script src="vendors/markjs-8.8.3/jquery.mark.min.js"></script>
+  <script src="vendors/uri-1.18.9/uri.min.js"></script>
+  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+  <script src="vendors/bootstrap-3.3.6/js/ie10-viewport-bug-workaround.js"></script>
+  
+  <!-- Headroom -->
+  <script src="vendors/headroom-0.9.3/headroom.min.js"></script>
+  <script src="vendors/headroom-0.9.3/jquery.headroom.min.js"></script>
+
+  <!-- JsTree -->
+  <script src="vendors/jstree-3.3.2/jstree.min.js"></script>
+
+  <!-- HelpNDoc scripts -->
+  <script src="_translations.js"></script>
+  <script src="js/hndsd.min.js"></script>
+  <script src="js/hndse.min.js"></script>
+  <script src="js/app.min.js"></script>
+
+  <!-- Scripts -->
+  <script>
+    $(function() {
+      // Instanciate FastClick
+      Origami.fastclick(document.body);
+      // Create the app
+      var app = new Hnd.App();
+      // Update translations
+      hnd_ut(app);
+	  // Custom JS
+	  
+      // Boot the app
+      app.Boot();
+    });
+  </script>
+
+
+
+</body>
+
+</html>
+

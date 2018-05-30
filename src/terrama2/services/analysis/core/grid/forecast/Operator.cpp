@@ -121,12 +121,15 @@ double terrama2::services::analysis::core::grid::forecast::operatorImpl(terrama2
     auto timePassed = currentTimestamp.utc_time() - rasterTimestamp.utc_time();
     double secondsPassed = timePassed.total_seconds();
 
-    int bandBegin, bandEnd;
+    size_t bandBegin, bandEnd;
     std::tie(bandBegin, bandEnd) = terrama2::services::analysis::core::getBandInterval(dataset, secondsPassed, dateFilterBegin, dateFilterEnd);
 
     // - the band 0 is always blank
     // - The begining should be before the end
-    if(bandBegin == 0 || bandBegin > bandEnd)
+    if(bandBegin <= 0
+      || bandBegin > bandEnd
+      || bandBegin > raster->getNumberOfBands()
+      || bandEnd > raster->getNumberOfBands())
     {
       QString errMsg{QObject::tr("Invalid value of band index.")};
       throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
@@ -151,7 +154,7 @@ double terrama2::services::analysis::core::grid::forecast::operatorImpl(terrama2
 
     auto interpolator = context->getInterpolator(raster);
 
-    for(int band = bandBegin; band <= bandEnd; ++band)
+    for(size_t band = bandBegin; band <= bandEnd; ++band)
     {
       double value = terrama2::services::analysis::core::grid::getValue(raster, interpolator, column, row, band);
       samples.push_back(value);

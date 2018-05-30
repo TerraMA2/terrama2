@@ -21,7 +21,7 @@
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/dataaccess/datasource/ScopedTransaction.h>
 
-int main(int argc, char* argv[])
+int main(int, char**)
 {
   terrama2::core::TerraMA2Init terramaRaii("example", 0);
 

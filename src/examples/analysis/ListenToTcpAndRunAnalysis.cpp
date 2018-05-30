@@ -54,7 +54,15 @@
 #include <QtTest/QTest>
 
 
-#include <Python.h>
+// Hide the definition of _DEBUG during the inclusion of Python.h 
+// to make sure that links with python release version.
+#ifdef _DEBUG
+  #undef _DEBUG
+  #include <Python.h>
+  #define _DEBUG
+#else
+  #include <Python.h>
+#endif
 
 // Boost
 #include <boost/exception/diagnostic_information.hpp>
@@ -234,7 +242,7 @@ add_value("min", x))z";
 
 
 
-    service.addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2008-07-21T09:30:00-03", terrama2::core::TimeUtils::webgui_timefacet));
+    service.addToQueue(analysis, terrama2::core::TimeUtils::stringToTimestamp("2008-07-21T09:30:00-03", terrama2::core::TimeUtils::webgui_timefacet));
 
 
     QTimer timer;

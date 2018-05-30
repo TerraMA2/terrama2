@@ -30,7 +30,7 @@ define(
         var layerName = layerObject.name;
         var layerType = layerObject.parent;
 
-        if(layerType !== "template" && layerType !== "custom" && (layerObject && layerObject.parent != "analysis" && layerObject.dataSeriesTypeName != "GRID")) {
+        if(layerType !== "template" && layerType !== "custom" && (layerObject && layerObject.dataSeriesTypeName != "GRID")) {
           $('#attributes-table-select > select').append($('<option></option>').attr('value', layerId).text(layerName));
           if(!showButton) showButton = true;
         }
@@ -50,6 +50,15 @@ define(
 
         var startDate = layerData.dateInfo.startFilterDate;
         var endDate = layerData.dateInfo.endFilterDate;
+        var analysisTime = null;
+
+        if(
+          layerData.dateInfo.dates && 
+          layerData.dateInfo.dates.length > 0 && 
+          !isNaN(layerData.dateInfo.initialDateIndex) && 
+          layerData.dateInfo.dates[layerData.dateInfo.initialDateIndex]
+        )
+          analysisTime = layerData.dateInfo.dates[layerData.dateInfo.initialDateIndex];
 
         if(layerData !== null && layerData.id !== undefined && layerData.uriGeoServer !== undefined) {
           $.get(BASE_URL + 'get-columns', {
@@ -100,6 +109,7 @@ define(
                   data.geoserverUri = layerData.uriGeoServer;
                   data.timeStart = startDate;
                   data.timeEnd = endDate;
+                  data.analysisTime = analysisTime;
                 };
 
                 tableOptions.columns = columnsArray;

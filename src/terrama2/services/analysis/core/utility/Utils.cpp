@@ -338,62 +338,6 @@ double terrama2::services::analysis::core::getOperationResult(OperatorCache& cac
   }
 }
 
-
-void terrama2::services::analysis::core::erasePreviousResult(DataManagerPtr dataManager, DataSeriesId dataSeriesId, std::shared_ptr<te::dt::TimeInstantTZ> startTime)
-{
-  auto outputDataSeries = dataManager->findDataSeries(dataSeriesId);
-  if(!outputDataSeries)
-  {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Invalid output data series for analysis.");
-    return;
-  }
-  auto outputDataProvider = dataManager->findDataProvider(outputDataSeries->dataProviderId);
-  if(!outputDataProvider)
-  {
-    TERRAMA2_LOG_ERROR() << QObject::tr("Invalid output data provider for analysis.");
-    return;
-  }
-
-  if(outputDataProvider->dataProviderType == "POSTGIS")
-  {
-    auto dataset = outputDataSeries->datasetList[0];
-    std::string tableName;
-
-    try
-    {
-      tableName = dataset->format.at("table_name");
-    }
-    catch(...)
-    {
-      QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataset->id);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw terrama2::core::UndefinedTagException() << ErrorDescription(errMsg);
-    }
-
-    std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("POSTGIS", outputDataProvider->uri));
-
-    // RAII for open/closing the datasource
-    terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource> > openClose(datasource);
-
-    if(!datasource->isOpened())
-    {
-      QString errMsg = QObject::tr("DataProvider could not be opened.");
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw Exception() << ErrorDescription(errMsg);
-    }
-
-    // get a transactor to interact to the data source
-    std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
-
-    auto dataSetNames = transactor->getDataSetNames();
-
-    if(std::find(dataSetNames.cbegin(), dataSetNames.cend(), tableName) != dataSetNames.cend() ||
-       std::find(dataSetNames.cbegin(), dataSetNames.cend(), "public."+tableName) != dataSetNames.cend())
-      transactor->execute("delete from " + tableName + " where execution_date = '" + startTime->toString() + "'");
-  }
-
-}
-
 std::pair<size_t, size_t> terrama2::services::analysis::core::getBandInterval(terrama2::core::DataSetPtr dataset, double secondsPassed, std::string dateDiscardBefore, std::string dateDiscardAfter)
 {
   auto intervalStr = terrama2::core::getTimeInterval(dataset);

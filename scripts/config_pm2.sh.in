@@ -1,7 +1,16 @@
+#!/bin/bash
 
 #
 # Install and configure pm2
 #
+
+function valid()
+{
+  if [ $1 -ne 0 ]; then
+    printf "$2\n"
+    exit 1
+  fi
+}
 
 # Check if pm2 is already installed
 npm list pm2 -g
@@ -20,6 +29,7 @@ fi
 # Add webapp to pm2 startup
 (
   cd @TERRAMA2_DESTINATION@webapp
+  pm2 delete webapp
 
   pm2 start npm --name webapp -- start
   valid $? "Error executing webapp."
@@ -30,6 +40,8 @@ fi
 # Add webmonitor to pm2 startup
 (
   cd @TERRAMA2_DESTINATION@webmonitor
+  pm2 delete webmonitor
+
   pm2 start npm --name webmonitor -- start
   valid $? "Error executing webmonitor."
   pm2 save

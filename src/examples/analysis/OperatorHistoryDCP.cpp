@@ -170,7 +170,7 @@ add_value("history_standard_deviation",x))z";
   dataManager->add(analysis);
 
 
-  service.addToQueue(analysis->id, terrama2::core::TimeUtils::stringToTimestamp("2008-07-21T10:00:00-03", terrama2::core::TimeUtils::webgui_timefacet));
+  service.addToQueue(analysis, terrama2::core::TimeUtils::stringToTimestamp("2008-07-21T10:00:00-03", terrama2::core::TimeUtils::webgui_timefacet));
 
   QTimer timer;
   QObject::connect(&timer, SIGNAL(timeout()), QCoreApplication::instance(), SLOT(quit()));
@@ -179,4 +179,3 @@ add_value("history_standard_deviation",x))z";
 
   return 0;
 }
-

@@ -43,7 +43,7 @@ namespace terrama2
       \brief DataAccessor class for static data accessed via OGR driver.
 
     */
-    class DataAccessorWildFireEvent : public DataAccessorGeometricObjectOGR
+    class TMIMPLEXPORT DataAccessorWildFireEvent : public DataAccessorGeometricObjectOGR
     {
       public:
 
@@ -56,27 +56,7 @@ namespace terrama2
         }
         static DataAccessorType dataAccessorType(){ return "GEOMETRIC_OBJECT-wfe"; }
 
-        virtual void adapt(DataSetPtr dataset, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
-        virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
-
-        virtual std::string retrieveData(const DataRetrieverPtr dataRetriever,
-                                         DataSetPtr dataSet,
-                                         const Filter& filter,
-                                         std::shared_ptr<FileRemover> remover) const override;
-
-        virtual void retrieveDataCallback (const DataRetrieverPtr dataRetriever,
-                                           DataSetPtr dataset,
-                                           const Filter& filter,
-                                           std::shared_ptr<FileRemover> remover,
-                                           std::function<void(const std::string& /*uri*/)> processFile) const override;
-      private:
-        /*!
-          \brief Convert number to TimeInstantTZ.
-
-          \note Format recognized: YYYYMMDD"
-
-        */
-        te::dt::AbstractData* numberToTimestamp(te::da::DataSet* dataset, const std::vector<std::size_t>& indexes, int /*dstType*/, const std::string& timezone) const;
+        virtual bool isValidColumn(const std::string columnName) const override;
     };
   }
 }

@@ -11,8 +11,7 @@ angular.module(moduleName, [])
       templateUrl: BASE_URL + 'javascripts/angular/data-series/templates/schedule.html',
       scope: {
         model: '=model',
-        options: '=?options',
-        historical: '=?historical'
+        options: '=?options'
       },
       controller: ['$scope', 'i18n', function($scope, i18n) {
         $scope.i18n = i18n;
@@ -72,6 +71,11 @@ angular.module(moduleName, [])
               $scope.model.frequency_start_time = new moment(scheduleObject.frequency_start_time, "HH:mm:ss");
             }
             $scope.model.scheduleHandler = scheduleObject.frequency_unit;
+            if (scheduleObject.reprocessing_historical_data){
+              $scope.model.historical = {};
+              $scope.model.historical.startDate = scheduleObject.reprocessing_historical_data.start_date;
+              $scope.model.historical.endDate = scheduleObject.reprocessing_historical_data.end_date;
+            }
           }
 
           $scope.onScheduleChange($scope.model.scheduleHandler);
@@ -79,9 +83,9 @@ angular.module(moduleName, [])
 
         $scope.onScheduleTypeChange = function(){
           $scope.onScheduleChange("");
-          if ($scope.historical){
-            $scope.historical.startDate = null;
-            $scope.historical.endDate = null;
+          if ($scope.model.historical){
+            $scope.model.historical.startDate = null;
+            $scope.model.historical.endDate = null;
           }
           $scope.model.scheduleHandler = "";
         }

@@ -24,10 +24,6 @@
 #  Author: Gilberto Ribeiro de Queiroz
 #
 
-#if(WIN32)
-#  add_definitions(-DTMA_CORE_DLL)
-#endif()
-
 file(GLOB TERRAMA2_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/*.cpp)
 file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/*.hpp)
 
@@ -255,7 +251,11 @@ target_link_libraries(terrama2_analysis_core  terrama2_core
                                               terralib_mod_rp
                                               ${PYTHON_LIBRARIES}
                                               ${Boost_PYTHON_LIBRARY})
-
+if(WIN32)
+  # Add compile definitions to terrama2_analysis_core target
+  # The PRIVATE adds the property just to this target
+  target_compile_definitions(terrama2_analysis_core PRIVATE -DTMANALYSISDLL)
+endif()
 
 PYTHON_ADD_MODULE(terrama2 ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/python/PythonInterpreter.cpp)
 

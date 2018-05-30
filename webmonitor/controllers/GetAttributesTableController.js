@@ -21,14 +21,15 @@ var GetAttributesTableController = function(app) {
   // Url template for the GeoServer 'GetFeature' request
   var memberGetFeatureTemplateURL = "/wfs?service=wfs&version=2.0.0&request=GetFeature&outputFormat=application/json&typeNames={{LAYER_NAME}}&propertyName={{PROPERTIES}}&sortBy={{SORT}}&startIndex={{START_INDEX}}&count={{COUNT}}";
   // Url template for the GeoServer 'GetLegendGraphic' request
-  var memberGetLegendGraphicTemplateURL = "/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&legend_options=forceLabels:on&LAYER={{LAYER_NAME}}";
+  var memberGetLegendGraphicTemplateURL = "/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&legend_options=forceLabels:on&LAYER={{LAYER_NAME}}&STYLE={{STYLE_NAME}}";
   // Object responsible for keeping the current layer data
   var memberCurrentLayer = {
     id: null,
     numberOfFeatures: 0,
     search: "",
     timeStart: null,
-    timeEnd: null
+    timeEnd: null,
+    analysisTime: null
   };
 
   /**
@@ -118,13 +119,15 @@ var GetAttributesTableController = function(app) {
       if(search !== "") {
         search = search.substring(0, search.length - 4) + ")";
 
-        if(request.body.timeStart !== undefined && request.body.timeEnd !== undefined && request.body.timeStart !== null && request.body.timeEnd !== null && request.body.timeStart !== "" && request.body.timeEnd !== "" && (dateTimeField !== null || dateField !== null)) {
+        if(request.body.timeStart && request.body.timeEnd && (dateTimeField || dateField)) {
           search += " and (" + (dateTimeField !== null ? dateTimeField : dateField) + " between '" + request.body.timeStart + "' and '" + request.body.timeEnd + "')";
         }
 
         url += search;
-      } else if(request.body.timeStart !== undefined && request.body.timeEnd !== undefined && request.body.timeStart !== null && request.body.timeEnd !== null && request.body.timeStart !== "" && request.body.timeEnd !== "" && (dateTimeField !== null || dateField !== null)) {
+      } else if(request.body.timeStart && request.body.timeEnd && (dateTimeField || dateField)) {
         url += "&cql_filter=(" + (dateTimeField !== null ? dateTimeField : dateField) + " between '" + request.body.timeStart + "' and '" + request.body.timeEnd + "')";
+      } else if(request.body.analysisTime) {
+        url += "&cql_filter=(execution_date='" + request.body.analysisTime + "')";
       }
 
       memberHttp.get(url, function(resp) {
@@ -152,12 +155,20 @@ var GetAttributesTableController = function(app) {
             body = {};
           }
 
-          if(memberCurrentLayer.id !== request.body.layer || memberCurrentLayer.search !== request.body['search[value]'] || parseInt(memberCurrentLayer.numberOfFeatures) < parseInt(body.totalFeatures) || memberCurrentLayer.timeStart !== request.body.timeStart || memberCurrentLayer.timeEnd !== request.body.timeEnd) {
+          if(
+            memberCurrentLayer.id !== request.body.layer || 
+            memberCurrentLayer.search !== request.body['search[value]'] || 
+            parseInt(memberCurrentLayer.numberOfFeatures) < parseInt(body.totalFeatures) || 
+            memberCurrentLayer.timeStart !== request.body.timeStart || 
+            memberCurrentLayer.timeEnd !== request.body.timeEnd || 
+            memberCurrentLayer.analysisTime !== request.body.analysisTime
+          ) {
             memberCurrentLayer.id = request.body.layer;
             memberCurrentLayer.numberOfFeatures = body.totalFeatures;
             memberCurrentLayer.search = request.body['search[value]'];
             memberCurrentLayer.timeStart = request.body.timeStart;
             memberCurrentLayer.timeEnd = request.body.timeEnd;
+            memberCurrentLayer.analysisTime = request.body.analysisTime;
           }
 
           // JSON response
@@ -208,10 +219,24 @@ var GetAttributesTableController = function(app) {
    * @inner
    */
   var getLegend = function(request, response) {
-    memberHttp.get(request.query.geoserverUri + memberGetLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer), function(resp) {
-      resp.pipe(response, {
-        end: true
-      });
+    memberHttp.get(request.query.geoserverUri + memberGetLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer).replace('{{STYLE_NAME}}', request.query.layer+'_style'), function(resp) {
+      if(resp.headers['content-type'].startsWith('image')) {
+        resp.pipe(response, {
+          end: true
+        });
+      } else {
+        memberHttp.get(request.query.geoserverUri + memberGetLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer).replace('{{STYLE_NAME}}', request.query.layer+'_style_legend'), function(resp) {
+          if(resp.headers['content-type'].startsWith('image')) {
+            resp.pipe(response, {
+              end: true
+            });
+          } else {
+            console.error('Error retriving legend.');  
+          }
+        }).on("error", function(e) {
+          console.error(e.message);
+        });
+      }
     }).on("error", function(e) {
       console.error(e.message);
     });
