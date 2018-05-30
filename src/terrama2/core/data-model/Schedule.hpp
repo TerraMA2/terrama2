@@ -104,7 +104,7 @@ namespace terrama2
       //! Default constructor.
       Schedule() {}
 
-      ScheduleId id = 0; //!< Schedule identifier.
+      ScheduleId id = terrama2::core::InvalidId(); //!< Schedule identifier.
 
       uint32_t frequency = 0; //!< The value for time frequency. Ex: From 5 to 5 minutes.
       std::string frequencyUnit; //!< Unit of the time frequency (years, months, days, minutes, hours or seconds)

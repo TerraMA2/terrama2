@@ -448,7 +448,8 @@ TcpManager.prototype.initialize = function(client) {
         .then(function(targetProcess) {
           if (targetProcess){
             // if the finished process is from collector or analysis run conditioned process
-            if (response.automatic
+            // response.automatic default true
+            if (response.automatic !== false
                 && (targetProcess.serviceType == ServiceType.COLLECTOR
                     || targetProcess.serviceType == ServiceType.ANALYSIS
                     || targetProcess.serviceType == ServiceType.INTERPOLATION)){

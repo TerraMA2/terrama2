@@ -1,5 +1,4 @@
 #!/bin/bash
-clear
 
 echo "* --------------------------- *"
 echo "* TerraMa2 Release Package *"
@@ -9,7 +8,7 @@ echo ""
 #
 # Set global session variables:
 #
-export TM_INSTALL=/opt/terrama2/4.0.4
+export TM_INSTALL=/opt/terrama2/4.0.6
 export TL_PATH=/opt/terralib/5.3.1
 export TM_OUT_DIR=`pwd`/../../../build-package
 export CODEBASE=`pwd`/../..
@@ -47,7 +46,6 @@ echo ""
 
 LD_LIBRARY_PATH=`pwd`/bin make package -j 8
 
-clear
 echo "* ---------- *"
 echo "* Finished ! *"
 echo "* ---------- *"

@@ -128,15 +128,22 @@ var Service = module.exports = function(serviceInstance) {
     tempBuffer = _createBufferFrom(tempBuffer, byteArray);
 
     let completeMessage = true;
+    // process all messages in the buffer
+    // or until we get a incomplete message
     while(tempBuffer && completeMessage) {
       try  {
         let bom = tempBuffer.toString('utf-8', 0, beginOfMessage.length);
         while(tempBuffer.length > beginOfMessage.length && bom !== beginOfMessage) {
+          // remove any garbage left in the buffer until a valid message
+          // obs: should never happen
           tempBuffer = new Buffer.from(tempBuffer.slice(1));
           bom = tempBuffer.toString('utf-8', 0, beginOfMessage.length);
         }
         
         if(bom !== beginOfMessage) {
+          // no begin of message header:
+          //  - clear the buffer
+          //  - wait for a new message
           tempBuffer = undefined;
           throw new Error("Invalid message (BOM)");
         }
@@ -153,23 +160,26 @@ var Service = module.exports = function(serviceInstance) {
 
         const eom = tempBuffer.toString('ascii', expectedLength + beginOfMessage.length, expectedLength+headerSize);
         if(eom !== endOfMessage) {
+          // we should have a complete message and and end of message mark
+          // if we arrived here we got an ill-formed message
+          // clear the buffer and raise an error
           tempBuffer = undefined;
           throw new Error("Invalid message (EOM)");
         }
 
-        // hold extra data for next message
+        // if we got many messages at once
+        // hold the buffer we the extra messages for processing
         if(tempBuffer.length > expectedLength+headerSize) {
           extraData = new Buffer.from(tempBuffer.slice(expectedLength + headerSize));
         } else {
           extraData = undefined;
         }
         
-        // free any extra byte from the message
+        // get only the first message for processing
         tempBuffer = new Buffer.from(tempBuffer.slice(beginOfMessage.length, expectedLength+beginOfMessage.length));
-        
         const parsed = parseByteArray(tempBuffer);
 
-        // we got the message, empty buffer.
+        // get next message in the buffer for processing
         tempBuffer = extraData;
 
         switch(parsed.signal) {

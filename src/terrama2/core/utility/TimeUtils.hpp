@@ -89,6 +89,8 @@ namespace terrama2
        */
       TMCOREEXPORT double convertTimeString(const std::string& time, std::string unitName, const std::string& defaultUnit = "");
 
+      std::unique_ptr<te::dt::TimeInstantTZ> timeFromStringInterval(std::shared_ptr<te::dt::TimeInstantTZ> baseTime, std::string timeString);
+
       /*!
         \brief Converts a date string to TimeInstantTZ object.
 

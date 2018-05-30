@@ -34,9 +34,7 @@
 
 export UBUNTUVERSION=`lsb_release -rs`
 # terrama2 version
-export TMVERSION=4.0.4
-# terralib version
-export TLVERSION=5.3.1
+export TMVERSION=4.0.6
 export DEBNAME=terrama2-vmime-${TMVERSION}
 export DEBVERSION=0.9.2
 export DEBARC=amd64
@@ -52,7 +50,7 @@ function valid()
 {
   if [ $1 -ne 0 ]; then
     printf "\n$2\n\n"
-    exit
+    exit 1
   fi
 }
 
@@ -138,7 +136,7 @@ cat > debian/rules <<EOF
 	dh \$@
 override_dh_auto_configure:
 	mkdir -p debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty
-        cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING="Release" -DCMAKE_PREFIX_PATH:PATH="/opt/terralib/${TLVERSION}/3rdparty" -DVMIME_HAVE_MESSAGING_PROTO_SENDMAIL:BOOL=false -DVMIME_BUILD_SAMPLES:BOOL=false -DCMAKE_INSTALL_PREFIX:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty" -DCMAKE_INSTALL_RPATH:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty/lib"
+        cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING="Release" -DVMIME_HAVE_MESSAGING_PROTO_SENDMAIL:BOOL=false -DVMIME_BUILD_SAMPLES:BOOL=false -DCMAKE_INSTALL_PREFIX:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty" -DCMAKE_INSTALL_RPATH:PATH="`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty/lib"
 override_dh_auto_build:
 	PREFIX=`pwd`/debian/${DEBNAME}/opt/terrama2/${TMVERSION}/3rdparty make -j 4
 override_dh_auto_test:

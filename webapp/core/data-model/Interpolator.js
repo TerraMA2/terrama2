@@ -51,11 +51,6 @@
      */
     this.data_series_output = params.data_series_output;
     /**
-     * @name Interpolator#schedule_type
-     * @type {number}
-     */
-    this.schedule_type = params.schedule_type;
-    /**
      * @name Interpolator#bounding_rect
      * @type {string}
      */
@@ -115,12 +110,12 @@
     if (metadata instanceof Array) {
       // array of sequelize model
       metadata.forEach(function(element) {
-        meta[element.key] = Number(element.value);
+        meta[element.key] = String(element.value);
       });
     } else {
       for(var key in metadata) {
         if (metadata.hasOwnProperty(key)) {
-          meta[key] = Number(metadata[key]);
+          meta[key] = String(metadata[key]);
         }
       }
     }
@@ -190,9 +185,11 @@
       resolution_y: Number(this.resolution_y),
       service_instance_id: this.service_instance_id,
       srid: this.srid,
-      number_of_neighbors: this.metadata.number_of_neighbors,
-      power_factor: this.metadata.power_factor,
-      filter: ""
+      number_of_neighbors: Number(this.metadata.number_of_neighbors),
+      power_factor: Number(this.metadata.power_factor),
+      metadata: this.metadata,
+      filter: {},
+      schedule: this.schedule instanceof AbstractClass ? this.schedule.rawObject() : this.schedule
     });
   };
   module.exports = Interpolator;

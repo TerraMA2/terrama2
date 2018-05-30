@@ -136,7 +136,8 @@ void terrama2::services::analysis::core::Service::connectDataManager()
 void terrama2::services::analysis::core::Service::start(size_t threadNumber)
 {
   terrama2::core::Service::start(threadNumber);
-  threadPool_.reset(new ThreadPool(processingThreadPool_.size()));
+  threadNumber = std::ceil(verifyNumberOfThreads(threadNumber)/2);
+  threadPool_.reset(new ThreadPool(threadNumber));
 }
 
 void terrama2::services::analysis::core::Service::erasePreviousResult(terrama2::core::ProcessPtr process, std::shared_ptr<te::dt::TimeInstantTZ> timestamp) const

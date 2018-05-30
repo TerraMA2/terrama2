@@ -193,7 +193,6 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
   }
 }
 
-
 void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadState* state, terrama2::services::analysis::core::GridContextPtr context, std::vector<uint32_t> rows)
 {
   GILLock lock;

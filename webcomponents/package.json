@@ -1,12 +1,12 @@
 {
   "name": "TerraMA2WebComponents",
-  "version": "4.0.4-release",
+  "version": "4.0.6-release",
   "private": true,
   "scripts": {
     "grunt": "grunt"
   },
   "devDependencies": {
-    "grunt": "^1.0.1",
+    "grunt": "^1.0.2",
     "grunt-banner": "^0.6.0",
     "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-cssmin": "^1.0.1",
