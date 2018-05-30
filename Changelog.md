@@ -1,3 +1,14 @@
+# 4.0.6
+
+# New Features:
+
+
+# Enhancements:
+
+# Bugfix:
+- Alert from DCP analysis
+
+
 # 4.0.5
 
 # New Features:
