@@ -52,7 +52,7 @@
           <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-click="openImportParametersModal()">{{ i18n.__('Import CSV') }}</button>
         </div>
 
-        <terrama2-dcp-importer></terrama2-dcp-importer>
+        <terrama2-dcp-importer semantics="dataSeries.semantics"></terrama2-dcp-importer>
         <div id="includeDcpTable" ng-include=""></div>
 
       </div>

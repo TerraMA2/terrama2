@@ -36,6 +36,8 @@ function makeMetadata(identifier, metadata) {
 }
 
 module.exports = function(app) {
+  const Application = require('./../../core/Application');
+
   return {
     get: function(request, response) {
       var semanticsName = request.params.name;
@@ -44,6 +46,8 @@ module.exports = function(app) {
 
       var queryParams = {};
       var filterByTemporality = semanticsType ? true : false;
+
+      Application.load();
 
       // get just one semantics
       if (semanticsName) {
@@ -78,7 +82,7 @@ module.exports = function(app) {
             else
               dataSeriesSemanticsList.push(semantics);
           });
-          
+
           return response.json(dataSeriesSemanticsList);
         }).catch(function(err) {
           return Utils.handleRequestError(response, err, 400);

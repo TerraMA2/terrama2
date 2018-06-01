@@ -11,6 +11,7 @@ define([], () => {
        */
       $scope.extraOptions = {
         scrollable: true,
+        checkBoxes: true,
         enableSearch: false,
       };
 
@@ -26,6 +27,24 @@ define([], () => {
       this.parseForm($scope.form);
 
       // Set values
+      this.configureWatcher();
+    }
+
+    init(model) {
+      if (!model)
+        return;
+
+      model.forEach(state => {
+        this.$scope.selectedOptions.push(state);
+      });
+    }
+
+    configureWatcher() {
+      this.$scope.$watch('selectedOptions', (newValue, oldValue) => {
+        const keyName = this.$scope.form.key[0];
+
+        this.$scope.model[keyName] = newValue;
+      }, true);
     }
 
     parseForm(form) {

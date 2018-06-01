@@ -192,7 +192,7 @@ define([], function() {
       return {
         restrict: 'EA',
         templateUrl: 'modals.html',
-        controller: ['$scope', '$timeout', 'FileDialog', 'i18n', 'MessageBoxService', 'UniqueNumber', function($scope, $timeout, FileDialog, i18n, MessageBoxService, UniqueNumber) {
+        controller: ['$scope', '$timeout', 'FileDialog', 'i18n', 'MessageBoxService', 'UniqueNumber', 'CemadenService', function($scope, $timeout, FileDialog, i18n, MessageBoxService, UniqueNumber, CemadenService) {
           $scope.csvImport = {};
           $scope.importationFields = {};
 
@@ -205,13 +205,80 @@ define([], function() {
             return $scope.dataSeries.semantics.metadata.schema.properties[item.key] === undefined || $scope.dataSeries.semantics.metadata.schema.properties[item.key].defaultForImport === undefined;
           };
 
+          function isCemadenType() {
+            return $scope.dataSeries.semantics.driver === 'DCP-json_cemaden';
+          }
+
           $scope.openImportParametersModal = function() {
             $('#importParametersModal').modal('show');
           };
 
           $scope.selectFileToImport = function() {
             $('#importParametersModal').modal('hide');
-            
+
+            $scope.isChecking.value = false;
+
+            if (isCemadenType()) {
+              return CemadenService.listDCP($scope.model.state.map(state => state.id))
+                .then(dcps => {
+
+                  if (dcps.length === 0) {
+                    throw new Error("No dcp found");
+                  }
+
+                  const keys = Object.keys(dcps[0]);
+
+                  $scope.setTableFields(keys);
+
+                  let dcpsOutput = [];
+                  let dcpsObjectTemp = {};
+
+                  dcps.forEach(dcp => {
+                    const uniqueId = UniqueNumber();
+                    for(let key of keys) {
+                      const alias = dcp.alias;
+
+                      // const value = alias;
+                      const value = dcp[key];
+                      let type = 'string';
+
+                      if (angular.isNumber(value)) {
+                        type = 'number';
+                      }
+
+                      const fakeField = {
+                        type,
+                        title: key,
+                        allowEmptyValue: false
+                      };
+                      $scope.dataSeries.semantics.metadata.schema.properties[key] = fakeField;
+
+                      dcp = $scope.setHtmlItems(dcp, key, alias, uniqueId, type);
+                    }
+
+                    dcp._id = uniqueId;
+
+                    dcpsObjectTemp[dcp.alias] = Object.assign({}, dcp);
+
+                    let dcpCopy = Object.assign({}, dcp);
+                    dcpCopy.removeButton = $scope.getRemoveButton(dcp.alias);
+
+                    dcpsOutput.push(dcpCopy);
+                  });
+
+                  // executeImportation({}, {data: dcps});
+                  $scope.dcpsObject = angular.merge($scope.dcpsObject, dcpsObjectTemp);
+
+                  $scope.storageDcps(dcpsOutput)
+                  $scope.addDcpsStorager(dcpsOutput);
+
+                  $scope.forms.parametersForm.$setPristine();
+                  $scope.isChecking.value = false;
+
+                  $scope.createDataTable();
+                });
+            }
+
             FileDialog.openFile(function(err, input) {
               if(err) {
                 $scope.isChecking.value = false;
@@ -292,7 +359,7 @@ define([], function() {
                     metadata.defaultValue = $scope.importationFields[type][key + 'Default'];
                   } else {
                     MessageBoxService.danger(
-                      i18n.__("DCP Import Error"), 
+                      i18n.__("DCP Import Error"),
                       i18n.__("Invalid configuration for the field") + " '" + $scope.dataSeries.semantics.metadata.schema.properties[key].title + "'"
                     );
                     $('#importDCPItemsModal').modal('hide');
@@ -382,23 +449,25 @@ define([], function() {
               var uniqueId = UniqueNumber();
               var alias = null;
 
-              var aliasValidateImportResult = validateImportValue('alias', null, $scope.dataSeries.semantics.metadata.schema.properties.alias.title, $scope.dataSeries.semantics.metadata.schema.properties.alias.type, pattern, metadata, data.data[i], null, (i + (data.hasHeader ? 2 : 1)));
+              if ($scope.dataSeries.semantics.driver !== 'DCP-json_cemaden') {
+                var aliasValidateImportResult = validateImportValue('alias', null, $scope.dataSeries.semantics.metadata.schema.properties.alias.title, $scope.dataSeries.semantics.metadata.schema.properties.alias.type, pattern, metadata, data.data[i], null, (i + (data.hasHeader ? 2 : 1)));
 
-              if(aliasValidateImportResult.error !== null) {
-                MessageBoxService.danger(aliasValidateImportResult.error.title, aliasValidateImportResult.error.message);
-                $scope.isChecking.value = false;
-                return;
-              } else
-                alias = (typeof aliasValidateImportResult.value === "string" ? aliasValidateImportResult.value.trim() : aliasValidateImportResult.value);
+                if(aliasValidateImportResult.error !== null) {
+                  MessageBoxService.danger(aliasValidateImportResult.error.title, aliasValidateImportResult.error.message);
+                  $scope.isChecking.value = false;
+                  return;
+                } else
+                  alias = (typeof aliasValidateImportResult.value === "string" ? aliasValidateImportResult.value.trim() : aliasValidateImportResult.value);
 
-              if(!$scope.isAliasValid(alias, $scope.dcpsObject) || !$scope.isAliasValid(alias, dcpsObjectTemp)) {
-                if($scope.duplicatedAliasCounter[alias] === undefined)
-                  $scope.duplicatedAliasCounter[alias] = 0;
-                
-                alias = alias + "_" + (++$scope.duplicatedAliasCounter[alias]).toString();
+                if(!$scope.isAliasValid(alias, $scope.dcpsObject) || !$scope.isAliasValid(alias, dcpsObjectTemp)) {
+                  if($scope.duplicatedAliasCounter[alias] === undefined)
+                    $scope.duplicatedAliasCounter[alias] = 0;
 
-                if(!warnDuplicatedAlias)
-                  warnDuplicatedAlias = true;
+                  alias = alias + "_" + (++$scope.duplicatedAliasCounter[alias]).toString();
+
+                  if(!warnDuplicatedAlias)
+                    warnDuplicatedAlias = true;
+                }
               }
 
               if(dcp.active === undefined)
@@ -406,7 +475,12 @@ define([], function() {
 
               for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
                 var value = null;
+                console.log($scope.dataSeries.semantics);
                 var key = $scope.dataSeries.semantics.metadata.form[j].key;
+
+                if (key instanceof Array)
+                  key = key[0];
+
                 var titleMap = $scope.dataSeries.semantics.metadata.form[j].titleMap;
                 var title = $scope.dataSeries.semantics.metadata.schema.properties[key].title;
                 var type = $scope.dataSeries.semantics.metadata.schema.properties[key].type;
@@ -458,7 +532,7 @@ define([], function() {
                 dcps = [];
               }
             }
-            
+
             $scope.dcpsObject = angular.merge($scope.dcpsObject, dcpsObjectTemp);
 
             if(registersCount > 0) {
@@ -478,7 +552,7 @@ define([], function() {
         }]
       };
     })
-    
+
     .directive('terrama2ShapefileImporter', function() {
       return {
         restrict: 'EA',
@@ -522,12 +596,12 @@ define([], function() {
                     dataProviderId: $scope.dataSeries.data_provider_id
                   }
                 });
-  
+
                 file.upload.then(function(response) {
                   $timeout(function () {
                     if(!$("#shapefile-import-loader").hasClass("hidden"))
                       $("#shapefile-import-loader").addClass("hidden");
-  
+
                     if(response.data.error) $scope.shpImport.error = i18n.__(response.data.error);
                     else $scope.shpImport.success = true;
                   });
@@ -554,7 +628,7 @@ define([], function() {
               } else {
                 performUpload();
               }
-            }   
+            }
           };
 
           $scope.clearShapefileImportError = function() {
@@ -567,7 +641,7 @@ define([], function() {
         }]
       };
     })
-    
+
     .directive('terrama2GeotiffImporter', function() {
       return {
         restrict: 'EA',
@@ -617,7 +691,7 @@ define([], function() {
                 if(response.status > 0)
                   $scope.geotiffImport.error = response.status + ': ' + response.data;
               });
-            }   
+            }
           };
 
           $scope.clearGeotiffImportError = function() {

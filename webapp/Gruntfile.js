@@ -31,13 +31,14 @@ module.exports = function(grunt) {
         options: {
           baseUrl: SCRIPTS_PATH,
           optimize: 'none',
-          out: function(text, sourceMapText) {
-            var UglifyJS = require('uglify-es'),
-                uglified = UglifyJS.minify(text);
+          out: DEST_PATH + "terrama2-webapp.min.js",
+          // out: function(text, sourceMapText) {
+          //   var UglifyJS = require('uglify-es'),
+          //       uglified = UglifyJS.minify(text, { sourceMap: { content: sourceMapText, url: "http://localhost:36000/dist/terrama2-webapp.min.js.map" } });
 
-            grunt.file.write(DEST_PATH + "terrama2-webapp.min.js", text);
-            // grunt.file.write(DEST_PATH + "terrama2-webapp.min.js", uglified.code);
-          },
+          //   grunt.file.write(DEST_PATH + "terrama2-webapp.min.js", uglified.code);
+          //   grunt.file.write(DEST_PATH + "terrama2-webapp.min.js.map", uglified.map);
+          // },
           preserveLicenseComments: false,
           generateSourceMaps: true,
           paths: {
