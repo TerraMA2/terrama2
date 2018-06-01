@@ -210,7 +210,10 @@ define([], function() {
           }
 
           $scope.openImportParametersModal = function() {
-            $('#importParametersModal').modal('show');
+            if (!isCemadenType())
+              $('#importParametersModal').modal('show');
+            else
+              $scope.selectFileToImport();
           };
 
           $scope.selectFileToImport = function() {
@@ -251,7 +254,12 @@ define([], function() {
                         title: key,
                         allowEmptyValue: false
                       };
+
+                      const fakeFormField = {
+                        key
+                      };
                       $scope.dataSeries.semantics.metadata.schema.properties[key] = fakeField;
+                      $scope.dataSeries.semantics.metadata.form.push(fakeFormField);
 
                       dcp = $scope.setHtmlItems(dcp, key, alias, uniqueId, type);
                     }
@@ -264,9 +272,10 @@ define([], function() {
                     dcpCopy.removeButton = $scope.getRemoveButton(dcp.alias);
 
                     dcpsOutput.push(dcpCopy);
+
+                    // $scope.inputDataSets.push(dcp);
                   });
 
-                  // executeImportation({}, {data: dcps});
                   $scope.dcpsObject = angular.merge($scope.dcpsObject, dcpsObjectTemp);
 
                   $scope.storageDcps(dcpsOutput)
@@ -275,7 +284,15 @@ define([], function() {
                   $scope.forms.parametersForm.$setPristine();
                   $scope.isChecking.value = false;
 
-                  $scope.createDataTable();
+                  $('#importDCPItemsModal').modal('show');
+
+                  /*
+                    This statement is important due datatables is performing html changes. In this way,
+                    we should wait for angular digest cycle in order to work properly.
+
+                    Execute Create Table
+                  */
+                  $timeout(() => $scope.createDataTable());
                 });
             }
 

@@ -11,7 +11,7 @@ define([], () => {
        */
       $scope.extraOptions = {
         scrollable: true,
-        checkBoxes: true,
+        // checkBoxes: true,
         enableSearch: false,
       };
 

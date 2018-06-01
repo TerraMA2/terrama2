@@ -673,7 +673,7 @@ define([], function() {
         };
 
         $scope.form = formTranslatorResult.display;
-        $scope.model.state = [];
+        // $scope.model.state = [{id: "AC", name: "Acre"}];
 
         $scope.$broadcast('schemaFormRedraw');
 
