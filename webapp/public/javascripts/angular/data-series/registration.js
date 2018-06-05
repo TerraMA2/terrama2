@@ -1756,7 +1756,9 @@ define([], function() {
             var format_ = {};
             for(var key in dSetObject) {
               if(dSetObject.hasOwnProperty(key) && key.toLowerCase() !== "id" && key.substr(key.length - 5) != "_html" && key.substr(key.length - 8) != "_pattern" && key.substr(key.length - 9) != "_titleMap" && key != "removeButton" && key != "oldAlias" && key != "newAlias")
-                format_[key] = dSetObject[key].toString();
+                var value = dSetObject[key];
+
+                format_[key] = value !== null ? value.toString() : value;
                 if(key.startsWith("output_")) {
                   format_[key.replace("output_", "")] = dSetObject[key];
                 }
@@ -1917,8 +1919,14 @@ define([], function() {
             for(var dcpKey in $scope.dcpsObject) {
               var format = {};
               for(var key in $scope.dcpsObject[dcpKey]) {
-                if($scope.dcpsObject[dcpKey].hasOwnProperty(key) && key.substr(key.length - 5) != "_html" && key.substr(key.length - 8) != "_pattern" && key.substr(key.length - 9) != "_titleMap" && key != "removeButton" && key != "oldAlias" && key != "newAlias" && key != "latitude" && key != "longitude" && key != "active")
-                  format[key] = $scope.dcpsObject[dcpKey][key].toString();
+                if($scope.dcpsObject[dcpKey].hasOwnProperty(key) && key.substr(key.length - 5) != "_html" && key.substr(key.length - 8) != "_pattern" && key.substr(key.length - 9) != "_titleMap" && key != "removeButton" && key != "oldAlias" && key != "newAlias" && key != "latitude" && key != "longitude" && key != "active") {
+                  var value = $scope.dcpsObject[dcpKey][key];
+
+                  if (value !== null)
+                    format[key] = value.toString();
+                  else
+                    format[key] = null;
+                }
               }
               angular.merge(format, semantics.metadata.metadata);
               if (semantics.custom_format){
@@ -2167,7 +2175,8 @@ define([], function() {
       };
     })
   }
-    RegisterDataSeries.$inject = ["$scope", "$http", "i18n", "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsService", "DataProviderService", "DataSeriesService", "Service", "$timeout", "WizardHandler", "UniqueNumber", "FilterForm", "MessageBoxService", "$q", "GeoLibs", "$compile", "DateParser", "FormTranslator", "Socket"];
 
-    return { "RegisterDataSeries": RegisterDataSeries};
+  RegisterDataSeries.$inject = ["$scope", "$http", "i18n", "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsService", "DataProviderService", "DataSeriesService", "Service", "$timeout", "WizardHandler", "UniqueNumber", "FilterForm", "MessageBoxService", "$q", "GeoLibs", "$compile", "DateParser", "FormTranslator", "Socket"];
+
+  return { "RegisterDataSeries": RegisterDataSeries};
 })

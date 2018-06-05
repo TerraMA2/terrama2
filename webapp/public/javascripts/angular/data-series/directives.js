@@ -219,7 +219,7 @@ define([], function() {
           $scope.selectFileToImport = function() {
             $('#importParametersModal').modal('hide');
 
-            $scope.isChecking.value = false;
+            $scope.isChecking.value = true;
 
             if (isCemadenType()) {
               return CemadenService.listDCP($scope.model.state.map(state => state.id))
