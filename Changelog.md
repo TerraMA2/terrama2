@@ -2,12 +2,12 @@
 
 # New Features:
 
-
 # Enhancements:
 
 # Bugfix:
+- Missing check for fields names in generic CSV dataseries
+- Fix ConvertAll with wrong conversion type
 - Alert from DCP analysis
-
 
 # 4.0.5
 
