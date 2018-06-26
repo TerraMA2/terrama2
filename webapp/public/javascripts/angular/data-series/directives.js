@@ -205,12 +205,8 @@ define([], function() {
             return $scope.dataSeries.semantics.metadata.schema.properties[item.key] === undefined || $scope.dataSeries.semantics.metadata.schema.properties[item.key].defaultForImport === undefined;
           };
 
-          function isCemadenType() {
-            return $scope.dataSeries.semantics.driver === 'DCP-json_cemaden';
-          }
-
           $scope.openImportParametersModal = function() {
-            if (!isCemadenType())
+            if (!$scope.isCemadenType())
               $('#importParametersModal').modal('show');
             else
               $scope.selectFileToImport();
@@ -221,7 +217,7 @@ define([], function() {
 
             $scope.isChecking.value = true;
 
-            if (isCemadenType()) {
+            if ($scope.isCemadenType()) {
               return CemadenService.listDCP($scope.model.state.map(state => state.id))
                 .then(dcps => {
 

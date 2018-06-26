@@ -6,6 +6,23 @@ define([], function() {
 
     var srids = [];
 
+    /**
+     * Retrieves properties from object excluding provided keys.
+     *
+     * @param {Object} obj
+     * @param {string[]} keys
+     * @returns A new object without provided keys
+     */
+    function rejectKeys(obj, keys) {
+      if (!keys instanceof Array)
+        throw new Error("Keys must be an array");
+
+      return Object.keys(obj)
+        .filter(key => !keys.includes(key))//keys.some(elm => elm === key))
+        .map(key => Object.assign({}, {[key]: obj[key]}))
+        .reduce((res, o) => Object.assign(res, o), {});
+    }
+
     $http.get(BASE_URL + "configuration/get-srids").then(function(sridsResult) {
       srids = sridsResult.data.srids;
     });
@@ -337,6 +354,15 @@ define([], function() {
         }
       }
 
+      /**
+       * Checks if Data series semantics is Cemaden
+       */
+      function isCemadenType() {
+        return $scope.dataSeries.semantics.driver === 'DCP-json_cemaden';
+      }
+
+      $scope.isCemadenType = isCemadenType;
+
       $scope.createDataTable = function() {
         if($scope.dcpTable !== undefined)
           $scope.dcpTable.destroy();
@@ -542,128 +568,6 @@ define([], function() {
 
 	      $scope.tableFieldsDataTable.push('');
 
-        // fill out
-        if ($scope.isUpdating) {
-          $scope.wizard.parameters.disabled = false;
-          $scope.wizard.parameters.error = false;
-          $scope.wizard.general.error = false;
-          if ($scope.semantics === globals.enums.DataSeriesType.DCP) {
-            // TODO: prepare format as dcp item
-            $scope.dcpsObject = {};
-            $scope.editedDcps = [];
-            $scope.removedDcps = [];
-            $scope.duplicatedAliasCounter = {};
-
-            var dcps = [];
-            var registersCount = 0;
-
-            for(var i = 0, dataSetsLength = inputDataSeries.dataSets.length; i < dataSetsLength; i++) {
-              if(inputDataSeries.dataSets[i].position) {
-                var lat;
-                var long;
-                if(inputDataSeries.dataSets[i].position.type) {
-                  // geojson
-                  long = inputDataSeries.dataSets[i].position.coordinates[0];
-                  lat = inputDataSeries.dataSets[i].position.coordinates[1];
-                } else {
-                  var first = inputDataSeries.dataSets[i].position.indexOf("(");
-                  var firstSpace = inputDataSeries.dataSets[i].position.indexOf(" ", first);
-                  lat = parseInt(inputDataSeries.dataSets[i].position.slice(first+1, firstSpace));
-
-                  var last = inputDataSeries.dataSets[i].position.indexOf(")", firstSpace);
-                  long = inputDataSeries.dataSets[i].position.slice(firstSpace + 1, last);
-
-                }
-                inputDataSeries.dataSets[i].format["latitude"] = lat;
-                inputDataSeries.dataSets[i].format["longitude"] = long;
-              }
-              angular.merge(inputDataSeries.dataSets[i].format, {active: inputDataSeries.dataSets[i].active});
-
-              var dcp = $scope.prepareFormatToForm(inputDataSeries.dataSets[i].format);
-
-              for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
-                var key = $scope.dataSeries.semantics.metadata.form[j].key;
-                var titleMap = $scope.dataSeries.semantics.metadata.form[j].titleMap;
-                var title = $scope.dataSeries.semantics.metadata.schema.properties[key].title;
-                var type = $scope.dataSeries.semantics.metadata.schema.properties[key].type;
-                var pattern = $scope.dataSeries.semantics.metadata.schema.properties[key].pattern;
-
-                dcp[key + '_pattern'] = pattern;
-                dcp[key + '_titleMap'] = titleMap;
-
-                if(dcp[key + '_titleMap'] !== undefined)
-                  type = $scope.dataSeries.semantics.metadata.form[j].type;
-
-                dcp = $scope.setHtmlItems(dcp, key, dcp.alias, dcp._id, type);
-              }
-
-              $scope.dcpsObject[dcp.alias] = dcp;
-
-              var dcpCopy = Object.assign({}, dcp);
-              dcpCopy.removeButton = $scope.getRemoveButton(dcp.alias);
-
-              dcps.push(dcpCopy);
-
-              registersCount++;
-
-              if(registersCount >= 1000) {
-                $scope.storageDcps(dcps);
-                $scope.addDcpsStorager(dcps);
-
-                registersCount = 0;
-                dcps = [];
-              }
-
-	            if(inputDataSeries.data_series_semantics.custom_format) {
-                $scope.csvFormatData.fields = JSON.parse(inputDataSeries.dataSets[i].format.fields)
-                $scope.csvFormatData.header_size = parseInt(inputDataSeries.dataSets[i].format.header_size);
-                $scope.csvFormatData.default_type = inputDataSeries.dataSets[i].format.default_type;
-                $scope.csvFormatData.convert_all = (inputDataSeries.dataSets[i].format.convert_all == "true");
-                $scope.csvFormatData.properties_names_line = parseInt(inputDataSeries.dataSets[i].format.properties_names_line);
-              }
-            }
-
-            if(registersCount > 0) {
-              $scope.storageDcps(dcps);
-              $scope.addDcpsStorager(dcps);
-            }
-          } else {
-	          var dataSetFormat = inputDataSeries.dataSets[0].format;
-            $scope.model = $scope.prepareFormatToForm(inputDataSeries.dataSets[0].format);
-	          if(inputDataSeries.data_series_semantics.custom_format) {
-              $scope.csvFormatData.fields = JSON.parse(dataSetFormat.fields)
-              $scope.csvFormatData.header_size = parseInt(dataSetFormat.header_size);
-              $scope.csvFormatData.default_type = dataSetFormat.default_type;
-              $scope.csvFormatData.convert_all = (dataSetFormat.convert_all == "true");
-              $scope.csvFormatData.properties_names_line = parseInt(dataSetFormat.properties_names_line);
-            }
-            $scope.model.temporal = ($scope.model.temporal == 'true' || $scope.model.temporal == true ? true : false);
-
-            if(typeof $scope.model.timezone === "number") {
-              $scope.model.timezone = $scope.model.timezone.toString();
-            }
-          }
-
-          if($scope.hasCollector) {
-            $scope.wizard.store.message = i18n.__("Remove store configuration");
-            $scope.wizard.store.disabled = false;
-            $scope.wizard.store.error = false;
-            $scope.advanced.store.disabled = false;
-          }
-          if(Object.keys($scope.intersection).length > 0) {
-            $scope.wizard.intersection.message = i18n.__("Remove intersection configuration");
-            $scope.wizard.intersection.disabled = false;
-            $scope.advanced.intersection.disabled = false;
-          }
-        } else {
-          $scope.dcpsObject = {};
-          $scope.editedDcps = [];
-          $scope.removedDcps = [];
-          $scope.duplicatedAliasCounter = {};
-          $scope.model = {};
-          $scope.$broadcast("resetStoragerDataSets");
-        }
-
         var formTranslatorResult = FormTranslator(dataSeriesSemantics.metadata.schema.properties, dataSeriesSemantics.metadata.form, dataSeriesSemantics.metadata.schema.required);
 
         $scope.schema = {
@@ -680,6 +584,175 @@ define([], function() {
         _processParameters();
 
         $timeout(function() {
+
+          // fill out
+          if ($scope.isUpdating) {
+            $scope.wizard.parameters.disabled = false;
+            $scope.wizard.parameters.error = false;
+            $scope.wizard.general.error = false;
+            if ($scope.semantics === globals.enums.DataSeriesType.DCP) {
+              // TODO: prepare format as dcp item
+              $scope.dcpsObject = {};
+              $scope.editedDcps = [];
+              $scope.removedDcps = [];
+              $scope.duplicatedAliasCounter = {};
+
+              var dcps = [];
+              var registersCount = 0;
+
+              if (isCemadenType())
+                $scope.dataSeries.semantics.metadata.form = [];
+
+              for(var i = 0, dataSetsLength = inputDataSeries.dataSets.length; i < dataSetsLength; i++) {
+                if(inputDataSeries.dataSets[i].position) {
+                  var lat;
+                  var long;
+                  if(inputDataSeries.dataSets[i].position.type) {
+                    // geojson
+                    long = inputDataSeries.dataSets[i].position.coordinates[0];
+                    lat = inputDataSeries.dataSets[i].position.coordinates[1];
+                  } else {
+                    var first = inputDataSeries.dataSets[i].position.indexOf("(");
+                    var firstSpace = inputDataSeries.dataSets[i].position.indexOf(" ", first);
+                    lat = parseInt(inputDataSeries.dataSets[i].position.slice(first+1, firstSpace));
+
+                    var last = inputDataSeries.dataSets[i].position.indexOf(")", firstSpace);
+                    long = inputDataSeries.dataSets[i].position.slice(firstSpace + 1, last);
+
+                  }
+                  inputDataSeries.dataSets[i].format["latitude"] = lat;
+                  inputDataSeries.dataSets[i].format["longitude"] = long;
+                }
+
+                // Exclude properties for Cemaden
+                if (isCemadenType()) {
+                  var defaultKeys = Object.keys($scope.dataSeries.semantics.metadata.metadata);
+                  defaultKeys.push('_id');
+                  defaultKeys.push('latitude');
+                  defaultKeys.push('longitude');
+                  inputDataSeries.dataSets[i].format.lat = inputDataSeries.dataSets[i].format.latitude;
+                  inputDataSeries.dataSets[i].format.long = inputDataSeries.dataSets[i].format.longitude;
+                  inputDataSeries.dataSets[i].format = rejectKeys(inputDataSeries.dataSets[i].format, defaultKeys);
+
+                  const dcpKeys = Object.keys(inputDataSeries.dataSets[0].format);
+
+                  for(let key of dcpKeys) {
+                    const value = inputDataSeries.dataSets[i].format[key];
+                    let type = 'string';
+
+                    if (angular.isNumber(value)) {
+                      type = 'number';
+                    }
+
+                    const fakeField = {
+                      type,
+                      title: key,
+                      allowEmptyValue: false
+                    };
+
+                    const fakeFormField = {
+                      key
+                    };
+                    $scope.dataSeries.semantics.metadata.schema.properties[key] = fakeField;
+                    $scope.dataSeries.semantics.metadata.form.push(fakeFormField);
+                  }
+                } else {
+                  angular.merge(inputDataSeries.dataSets[i].format, {active: inputDataSeries.dataSets[i].active});
+                }
+
+                var dcp = $scope.prepareFormatToForm(inputDataSeries.dataSets[i].format);
+
+                for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
+                  var key = $scope.dataSeries.semantics.metadata.form[j].key;
+                  var titleMap = $scope.dataSeries.semantics.metadata.form[j].titleMap;
+                  var title = $scope.dataSeries.semantics.metadata.schema.properties[key].title;
+                  var type = $scope.dataSeries.semantics.metadata.schema.properties[key].type;
+                  var pattern = $scope.dataSeries.semantics.metadata.schema.properties[key].pattern;
+
+                  dcp[key + '_pattern'] = pattern;
+                  dcp[key + '_titleMap'] = titleMap;
+
+                  if(dcp[key + '_titleMap'] !== undefined)
+                    type = $scope.dataSeries.semantics.metadata.form[j].type;
+
+                  dcp = $scope.setHtmlItems(dcp, key, dcp.alias, dcp._id, type);
+                }
+
+                $scope.dcpsObject[dcp.alias] = dcp;
+
+                var dcpCopy = Object.assign({}, dcp);
+                dcpCopy.removeButton = $scope.getRemoveButton(dcp.alias);
+
+                dcps.push(dcpCopy);
+
+                registersCount++;
+
+                if(registersCount >= 1000) {
+                  $scope.storageDcps(dcps);
+                  $scope.addDcpsStorager(dcps);
+
+                  registersCount = 0;
+                  dcps = [];
+                }
+
+                if(inputDataSeries.data_series_semantics.custom_format) {
+                  $scope.csvFormatData.fields = JSON.parse(inputDataSeries.dataSets[i].format.fields)
+                  $scope.csvFormatData.header_size = parseInt(inputDataSeries.dataSets[i].format.header_size);
+                  $scope.csvFormatData.default_type = inputDataSeries.dataSets[i].format.default_type;
+                  $scope.csvFormatData.convert_all = (inputDataSeries.dataSets[i].format.convert_all == "true");
+                  $scope.csvFormatData.properties_names_line = parseInt(inputDataSeries.dataSets[i].format.properties_names_line);
+                }
+              } // end for
+
+              // Set table keys
+              if (isCemadenType()) {
+                var keys = Object.keys(inputDataSeries.dataSets[0].format);
+
+                $scope.setTableFields(keys);
+              }
+
+              if(registersCount > 0) {
+                $scope.storageDcps(dcps);
+                $scope.addDcpsStorager(dcps);
+              }
+            } else {
+              var dataSetFormat = inputDataSeries.dataSets[0].format;
+              $scope.model = $scope.prepareFormatToForm(inputDataSeries.dataSets[0].format);
+              if(inputDataSeries.data_series_semantics.custom_format) {
+                $scope.csvFormatData.fields = JSON.parse(dataSetFormat.fields)
+                $scope.csvFormatData.header_size = parseInt(dataSetFormat.header_size);
+                $scope.csvFormatData.default_type = dataSetFormat.default_type;
+                $scope.csvFormatData.convert_all = (dataSetFormat.convert_all == "true");
+                $scope.csvFormatData.properties_names_line = parseInt(dataSetFormat.properties_names_line);
+              }
+              $scope.model.temporal = ($scope.model.temporal == 'true' || $scope.model.temporal == true ? true : false);
+
+              if(typeof $scope.model.timezone === "number") {
+                $scope.model.timezone = $scope.model.timezone.toString();
+              }
+            }
+
+            if($scope.hasCollector) {
+              $scope.wizard.store.message = i18n.__("Remove store configuration");
+              $scope.wizard.store.disabled = false;
+              $scope.wizard.store.error = false;
+              $scope.advanced.store.disabled = false;
+            }
+            if(Object.keys($scope.intersection).length > 0) {
+              $scope.wizard.intersection.message = i18n.__("Remove intersection configuration");
+              $scope.wizard.intersection.disabled = false;
+              $scope.advanced.intersection.disabled = false;
+            }
+          } else {
+            $scope.dcpsObject = {};
+            $scope.editedDcps = [];
+            $scope.removedDcps = [];
+            $scope.duplicatedAliasCounter = {};
+            $scope.model = {};
+            $scope.$broadcast("resetStoragerDataSets");
+          }
+
+
           if($scope.tableFields.length > 0  && $scope.dataSeries.semantics.driver !== 'DCP-json_cemaden')
             $scope.createDataTable();
 
