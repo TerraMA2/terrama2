@@ -201,7 +201,6 @@ fi
 #
 # Finished!
 #
-clear
 echo ""
 echo "****************************************"
 echo "* TerraMA2 Installer for Mac OS Sierra *"

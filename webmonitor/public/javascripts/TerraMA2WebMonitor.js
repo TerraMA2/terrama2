@@ -145,13 +145,13 @@ define(
         }
 
       });
-      
+
       $('#terrama2-layerexplorer').on('click', 'li.layer', function() {
         var layerId = this.getAttribute('data-layerid');
         var layerObject = Layers.getLayerById(layerId);
         if(!layerObject)
           return;
-        
+
         if(layerObject.status == LayerStatusEnum.NEW || layerObject.status == LayerStatusEnum.ALERT)
           Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.ONLINE);
       });
@@ -551,6 +551,7 @@ define(
               title: "",
               width: 400,
               height: 380,
+              maxWidth: 600,
               modal: false,
               resizable: true,
               draggable: true,
@@ -561,6 +562,7 @@ define(
                 at: 'top+75'
               },
               open: function() {
+                $(this).parent().find('.ui-dialog-content').css('white-space', 'normal');
                 $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
                 $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', 'center');
                 $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '20px');

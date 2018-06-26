@@ -1,18 +1,35 @@
+# 4.0.6
+
+# New Features:
+
+# Enhancements:
+
+# Bugfix:
+- Missing check for fields names in generic CSV dataseries
+- Fix ConvertAll with wrong conversion type
+
 # 4.0.5
 
 # New Features:
 - Monitored object analysis operators for counting pixels by value or range of values
-- Use geometry as filter in MO analysis (instead of a combination of bounding box and RTree)
 - Time parameters in analysis can have a '+' modifier, this will make the data range be expanded to 00:00h of the start date
 - Interpolate historical data
+- Docker:
+  - development environment
+  - package generation
+
 
 # Enhancements:
+- Use geometry as filter in MO analysis (instead of a combination of bounding box and RTree)
 - Use Yarn instead of npm for web dependencies
 - Smaller storage of log messages
+- Allow temporal geotiff
 
 # Bugfix:
 - Improved limit of threads
 - Fix legend for for raster views
+- Fix automatic schedule
+- Fix monitored analysis style - Sometimes it wasn't generated at the first execution.
 
 # 4.0.4
 

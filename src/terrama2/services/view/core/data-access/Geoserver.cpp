@@ -1207,7 +1207,13 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string&
   // Register style
   cURLwrapper.post(uriPost, style, contentType);
 
-  if(cURLwrapper.responseCode() == 403)
+  ////////////////////////////////////
+  // for some unknown reason resgistering a new style with
+  // the POST method creates an empty style.
+  // Because of that we after registering the new style
+  // we update with a PUT.
+  ////////////////////////////////////
+
   {
     te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/styles/" + validName +"?raw=true");
 
@@ -1226,12 +1232,6 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string&
       TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
       throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
     }
-  }
-  else if(cURLwrapper.responseCode() != 201)
-  {
-    QString errMsg = QObject::tr(cURLwrapper.response().c_str());
-    TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
-    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
   }
 }
 
