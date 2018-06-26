@@ -270,24 +270,37 @@ QJsonObject terrama2::core::DataAccessorCSV::getFieldObj(const QJsonArray& array
     return QJsonObject();
 }
 
-void terrama2::core::DataAccessorCSV::addPropertyAsDefaultType(te::dt::Property* property, std::shared_ptr<te::da::DataSetTypeConverter> converter, size_t i, DataSetPtr dataSet) const
+void terrama2::core::DataAccessorCSV::addPropertyAsDefaultType(te::dt::Property* property, std::shared_ptr<te::da::DataSetTypeConverter> converter, size_t pos, DataSetPtr dataSet) const
 {
   std::string alias = createValidPropertyName(property->getName());
 
   std::string defaultType = getProperty(dataSet, dataSeries_, JSON_DEFAULT_TYPE.toStdString());
+  auto type = dataTypes.at(defaultType);
 
-  if(dataTypes.at(defaultType) != te::dt::STRING_TYPE)
+  switch (type)
   {
-    te::dt::SimpleProperty* defaultProperty = new te::dt::SimpleProperty(alias, dataTypes.at(defaultType));
+    case te::dt::DOUBLE_TYPE:
+    {
+      te::dt::SimpleProperty* newProperty = new te::dt::SimpleProperty(alias, type);
 
-    converter->add(i,defaultProperty);
-  }
-  else
-  {
-    te::dt::Property* defaultProperty = property->clone();
-    defaultProperty->setName(alias);
+      converter->add(pos, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
+      break;
+    }
+    case te::dt::INT32_TYPE:
+    {
+      te::dt::SimpleProperty* newProperty = new te::dt::SimpleProperty(alias, type);
 
-    converter->add(i,defaultProperty);
+      converter->add(pos, newProperty, boost::bind(&terrama2::core::DataAccessor::stringToInt, this, _1, _2, _3));
+      break;
+    }
+    default:
+    {
+      te::dt::Property* defaultProperty = property->clone();
+      defaultProperty->setName(alias);
+
+      converter->add(pos,defaultProperty);
+      break;
+    }
   }
 }
 
@@ -423,7 +436,12 @@ void terrama2::core::DataAccessorCSV::adapt(DataSetPtr dataSet, std::shared_ptr<
 
   QJsonArray fieldsArray = getFields(dataSet);
 
-  checkOriginFields(converter, fieldsArray);
+  if(!checkOriginFields(converter, fieldsArray))
+  {
+    QString errMsg = QObject::tr("Field not present in input dataset.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::UndefinedTagException() << ErrorDescription(errMsg);
+  }
 
   std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
   for(size_t i = 0, size = properties.size(); i < size; ++i)
@@ -464,9 +482,9 @@ void terrama2::core::DataAccessorCSV::adapt(DataSetPtr dataSet, std::shared_ptr<
   }
 
   // Check if all fields were created
-  for(const auto& item : fieldsArray)
+  for(int i = 0; i < fieldsArray.size(); i++)
   {
-    auto field = item.toObject();
+    auto field = fieldsArray[i].toObject();
 
     try
     {
