@@ -635,7 +635,7 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       self.getProject({id: projectObject.id}).then(function(project) {
-        var fieldsToUpdate = ["name", "description", "version", "protected"];
+        var fieldsToUpdate = ["name", "description", "version", "protected", "active"];
         // Add user if the project dont have one
         if (!project.user_id){
           fieldsToUpdate.push("user_id");
