@@ -2,7 +2,7 @@
 -- 1. Inserting the current version in the database
 -----------------------------------------------------------------------------------------------------------------------
 
-INSERT INTO terrama2.version (major, minor, patch, tag, database) VALUES (4, 0, 1, 'RELEASE', 2);
+INSERT INTO terrama2.version (major, minor, patch, tag, database) VALUES (4, 0, 6, 'RELEASE', 2);
 
 -----------------------------------------------------------------------------------------------------------------------
 -- 2. Add 'active' parameter to project
