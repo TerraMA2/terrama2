@@ -653,6 +653,7 @@ var DataManager = module.exports = {
           projectItem.version = projectObject.version;
           projectItem.protected = projectObject.protected;
           projectItem.user_id = projectObject.user_id;
+          projectItem.active = projectObject.active;
 
           return resolve(Utils.clone(projectItem));
         }).catch(function(err) {
