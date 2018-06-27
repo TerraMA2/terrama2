@@ -1,5 +1,6 @@
 const BaseClass = require('./AbstractData');
 const isObject = require('./../Utils').isObject;
+const _ = require('lodash');
 
 /**
  * @class Project
@@ -20,7 +21,7 @@ class Project extends BaseClass {
     this.user_id = properties.user_id;
     this.user_name = properties.user_name;
     this.version = properties.version;
-    this.active = properties.active || true;
+    this.active = _.isNil(properties.active) ? true : properties.active;
   }
 
   toObject() {
