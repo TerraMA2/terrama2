@@ -27,12 +27,11 @@
   \author Vinicius Campanha
 */
 
-//TerraMA2
-
-
 //QT
 #include <QtTest/QTest>
 
+#ifndef __TERRAMA2_UNITTEST_CORE_DATA_STORAGER_TIFF_HPP__
+#define __TERRAMA2_UNITTEST_CORE_DATA_STORAGER_TIFF_HPP__
 
 class TsDataStoragerTiff : public QObject
 {
@@ -46,3 +45,5 @@ private slots:
   void testReplaceMask();
 
 };
+
+#endif //__TERRAMA2_UNITTEST_CORE_DATA_STORAGER_TIFF_HPP__
