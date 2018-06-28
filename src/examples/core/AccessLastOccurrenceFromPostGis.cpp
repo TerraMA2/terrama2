@@ -18,7 +18,7 @@
 //TerraLib
 #include <terralib/geometry/WKTReader.h>
 
-int main(int argc, char* argv[])
+int main()
 {
   terrama2::core::TerraMA2Init terramaRaii("example", 0);
 

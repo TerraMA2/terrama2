@@ -16,7 +16,7 @@
 #include <QStringList>
 
 
-int main(int argc, char* argv[])
+int main()
 {
   std::string uri;
   std::string path;

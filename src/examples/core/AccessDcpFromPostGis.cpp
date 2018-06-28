@@ -12,7 +12,7 @@
 //QT
 #include <QUrl>
 
-int main(int argc, char* argv[])
+int main()
 {
   terrama2::core::TerraMA2Init terramaRaii("unittest", 0);
 
@@ -61,9 +61,9 @@ int main(int argc, char* argv[])
 
 
     //Print column names and types (DateTime/Double)
-    int dateColumn = -1;
+    size_t dateColumn = std::numeric_limits<size_t>::max();
     std::string names, types;
-    for(int i = 0; i < teDataSet->getNumProperties(); ++i)
+    for(size_t i = 0; i < teDataSet->getNumProperties(); ++i)
     {
       std::string name = teDataSet->getPropertyName(i);
       names+= name + "\t";
@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
     teDataSet->moveBeforeFirst();
     while(teDataSet->moveNext())
     {
-      for(int i = 0; i < teDataSet->getNumProperties(); ++i)
+      for(size_t i = 0; i < teDataSet->getNumProperties(); ++i)
       {
         if(teDataSet->isNull(i))
         {

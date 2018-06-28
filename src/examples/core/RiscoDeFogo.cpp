@@ -195,7 +195,7 @@ double terrama2::core::RiscoDeFogo::XYLinhaCol(double x, double y, const std::st
     return value;
 }
 
-int main(int argc, char *argv[])
+int main()
 {
     terrama2::core::RiscoDeFogo* riscodefogo = new terrama2::core::RiscoDeFogo();
 
