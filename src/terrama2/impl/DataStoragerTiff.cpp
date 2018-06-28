@@ -50,7 +50,6 @@ terrama2::core::DataStoragerPtr terrama2::core::DataStoragerTiff::make(DataSerie
   return std::make_shared<DataStoragerTiff>(dataSeries, dataProvider);
 }
 
-
 int terrama2::core::DataStoragerTiff::getSRID(DataSetPtr dataSet, bool log = true) const
 {
   try
