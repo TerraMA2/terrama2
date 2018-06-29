@@ -628,11 +628,13 @@ define([], function() {
                 if (isCemadenType()) {
                   var defaultKeys = Object.keys($scope.dataSeries.semantics.metadata.metadata);
                   defaultKeys.push('_id');
-                  defaultKeys.push('latitude');
-                  defaultKeys.push('longitude');
+                  // defaultKeys.push('latitude');
+                  // defaultKeys.push('longitude');
+                  console.log("FORMAT BEFORE", inputDataSeries.dataSets[i].format);
                   inputDataSeries.dataSets[i].format.lat = inputDataSeries.dataSets[i].format.latitude;
                   inputDataSeries.dataSets[i].format.long = inputDataSeries.dataSets[i].format.longitude;
                   inputDataSeries.dataSets[i].format = rejectKeys(inputDataSeries.dataSets[i].format, defaultKeys);
+                  console.log("FORMAT AFTER", inputDataSeries.dataSets[i].format);
 
                   const dcpKeys = Object.keys(inputDataSeries.dataSets[0].format);
 
@@ -678,6 +680,10 @@ define([], function() {
                   dcp = $scope.setHtmlItems(dcp, key, dcp.alias, dcp._id, type);
                 }
 
+                console.log("DCP", dcp);
+
+                dcp["latitude_html"] = dcp["lat_html"];
+                dcp["longitude_html"] = dcp["lon_html"];
                 $scope.dcpsObject[dcp.alias] = dcp;
 
                 var dcpCopy = Object.assign({}, dcp);

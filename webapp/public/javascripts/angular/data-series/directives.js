@@ -84,6 +84,28 @@ define([], function() {
               "</div>" +
             "</div>" +
           "</div>" +
+        "</div>" +
+
+        "<div id=\"importDCPCemadenItemsModal\" class=\"modal fade\">" +
+          "<div class=\"modal-dialog\">" +
+            "<div class=\"modal-content\">" +
+              "<div class=\"modal-header\">" +
+                "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\">" +
+                  "<span aria-hidden=\"true\">×</span>" +
+                "</button>" +
+                "<h4 class=\"modal-title\">{{ i18n.__('Select the fields') }}</h4>" +
+              "</div>" +
+              "<div class=\"modal-body\">" +
+                "<div class=\"checkbox\" ng-repeat=\"field in cemadenFields\">" +
+                  "<label><input type=\"checkbox\" value=\"\" ng-model=\"field.active\" ng-disabled=\"!field.editable\">{{ field.name }}</label>" +
+                "</div>" +
+                "<hr style=\"border: 1px solid #eee !important;\"/>" +
+                "<button type=\"button\" class=\"btn btn-default pull-left\" data-dismiss=\"modal\">{{ i18n.__('Close') }}</button>" +
+                "<button type=\"button\" class=\"btn btn-primary pull-right\" ng-click=\"validateCemaden()\">{{ i18n.__('Import') }}</button>" +
+                "<div style=\"clear: both;\"></div>" +
+              "</div>" +
+            "</div>" +
+          "</div>" +
         "</div>"
       );
 
@@ -212,6 +234,74 @@ define([], function() {
               $scope.selectFileToImport();
           };
 
+          $scope.validateCemaden = function() {
+            $scope.isChecking.value = true;
+            $('#importDCPCemadenItemsModal').modal('hide');
+
+            const keys = $scope.cemadenFields.filter(field => field.active).map(field => field.name);
+
+            $scope.setTableFields(keys);
+
+            let dcpsOutput = [];
+            let dcpsObjectTemp = {};
+
+            $scope.dcpsCemaden.forEach(dcp => {
+              const uniqueId = UniqueNumber();
+              for(let key of keys) {
+                const alias = dcp.alias;
+
+                // const value = alias;
+                const value = dcp[key];
+                let type = 'string';
+
+                if (angular.isNumber(value)) {
+                  type = 'number';
+                }
+
+                const fakeField = {
+                  type,
+                  title: key,
+                  allowEmptyValue: false
+                };
+
+                const fakeFormField = {
+                  key
+                };
+                $scope.dataSeries.semantics.metadata.schema.properties[key] = fakeField;
+                $scope.dataSeries.semantics.metadata.form.push(fakeFormField);
+
+                dcp = $scope.setHtmlItems(dcp, key, alias, uniqueId, type);
+              }
+
+              dcp._id = uniqueId;
+
+              dcpsObjectTemp[dcp.alias] = Object.assign({}, dcp);
+
+              let dcpCopy = Object.assign({}, dcp);
+              dcpCopy.removeButton = $scope.getRemoveButton(dcp.alias);
+
+              dcpsOutput.push(dcpCopy);
+
+              // $scope.inputDataSets.push(dcp);
+            });
+
+            $scope.dcpsObject = angular.merge($scope.dcpsObject, dcpsObjectTemp);
+
+            $scope.storageDcps(dcpsOutput)
+            $scope.addDcpsStorager(dcpsOutput);
+
+            $scope.forms.parametersForm.$setPristine();
+            $scope.isChecking.value = false;
+
+            /*
+              This statement is important due datatables is performing html changes. In this way,
+              we should wait for angular digest cycle in order to work properly.
+
+              Execute Create Table
+            */
+            $timeout(() => $scope.createDataTable());
+          };
+
           $scope.selectFileToImport = function() {
             $('#importParametersModal').modal('hide');
 
@@ -225,70 +315,37 @@ define([], function() {
                     throw new Error("No dcp found");
                   }
 
+                  console.log($scope.dataSeries.semantics);
+                  if (!$scope.dataSeries.semantics.metadata.metadata.static_properties)
+                    throw new Error("Something is wrong with Cemaden type. No static properties set. Contact System Administrator");
+
+                  // Setting cache for DCP Cemaden
+                  $scope.dcpsCemaden = dcps;
+
+                  // Retrieving Cemaden default fields
+                  const staticFields = $scope.dataSeries.semantics.metadata.metadata.static_properties;
+
+                  // Setting Cemaden Fields to select in GUI
+                  let fields = [];
+
+                  // Setting default fields
+                  staticFields.split(",")
+                    .forEach(fieldName => fields.push({ name: fieldName, active: true, editable: false }));
+
+                  // Retrieving all properties from a DCP Cemaden
                   const keys = Object.keys(dcps[0]);
 
-                  $scope.setTableFields(keys);
-
-                  let dcpsOutput = [];
-                  let dcpsObjectTemp = {};
-
-                  dcps.forEach(dcp => {
-                    const uniqueId = UniqueNumber();
-                    for(let key of keys) {
-                      const alias = dcp.alias;
-
-                      // const value = alias;
-                      const value = dcp[key];
-                      let type = 'string';
-
-                      if (angular.isNumber(value)) {
-                        type = 'number';
-                      }
-
-                      const fakeField = {
-                        type,
-                        title: key,
-                        allowEmptyValue: false
-                      };
-
-                      const fakeFormField = {
-                        key
-                      };
-                      $scope.dataSeries.semantics.metadata.schema.properties[key] = fakeField;
-                      $scope.dataSeries.semantics.metadata.form.push(fakeFormField);
-
-                      dcp = $scope.setHtmlItems(dcp, key, alias, uniqueId, type);
-                    }
-
-                    dcp._id = uniqueId;
-
-                    dcpsObjectTemp[dcp.alias] = Object.assign({}, dcp);
-
-                    let dcpCopy = Object.assign({}, dcp);
-                    dcpCopy.removeButton = $scope.getRemoveButton(dcp.alias);
-
-                    dcpsOutput.push(dcpCopy);
-
-                    // $scope.inputDataSets.push(dcp);
+                  // Setting extra fields (excluding defaults)
+                  keys.forEach(key => {
+                    if (!staticFields.includes(key))
+                      fields.push({ name: key, active: false, editable: true });
                   });
 
-                  $scope.dcpsObject = angular.merge($scope.dcpsObject, dcpsObjectTemp);
+                  $scope.cemadenFields = fields;
 
-                  $scope.storageDcps(dcpsOutput)
-                  $scope.addDcpsStorager(dcpsOutput);
-
-                  $scope.forms.parametersForm.$setPristine();
                   $scope.isChecking.value = false;
 
-                  $('#importDCPItemsModal').modal('show');
-
-                  /*
-                    This statement is important due datatables is performing html changes. In this way,
-                    we should wait for angular digest cycle in order to work properly.
-
-                    Execute Create Table
-                  */
-                  $timeout(() => $scope.createDataTable());
+                  $('#importDCPCemadenItemsModal').modal('show');
                 });
             }
 
