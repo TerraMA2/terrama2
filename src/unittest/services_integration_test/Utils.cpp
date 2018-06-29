@@ -197,10 +197,8 @@ void utilsTS::database::tryCatchAnalysis(std::string  typeAnalysis,
 
 void utilsTS::database::compareCollectAndAnalysis(std::string typeAnalysis)
 {
-
   restoreDB(typeAnalysis);
   int numTablesExpected = 0;
-
 
   if(typeAnalysis == utilsTS::typecollectoranalysis::dcp_history || typeAnalysis == utilsTS::typecollectoranalysis::operator_dcp || typeAnalysis == utilsTS::typecollectoranalysis::operator_history_interval)
   {
@@ -210,8 +208,6 @@ void utilsTS::database::compareCollectAndAnalysis(std::string typeAnalysis)
 
     numTablesExpected = 1;
     tryCatchAnalysis(typeAnalysis, numTablesExpected);
-
-
   }
   if(typeAnalysis == utilsTS::typecollectoranalysis::occurence)
   {
@@ -222,9 +218,6 @@ void utilsTS::database::compareCollectAndAnalysis(std::string typeAnalysis)
     numTablesExpected = 1;
     tryCatchAnalysis(typeAnalysis, numTablesExpected);
   }
-
-
-
 }
 
 std::unique_ptr<terrama2::services::collector::core::Service> utilsTS::collector::gmockAndServicesCollector(std::shared_ptr<terrama2::services::collector::core::DataManager> dataManagerCollector)
