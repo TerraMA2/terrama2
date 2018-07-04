@@ -17,7 +17,7 @@ packages_folder=${ubuntu}-${now}
 
 
 # delete old packages
-rm -rf /packages/${VERSION}/${packages_folder}
+rm -rf /packages/${BRANCH}/${packages_folder}
 rm -f /devel/build-package/*.deb
 rm -rf /devel/terrama2/packages/debian-package/terrama2-doc*
 rm -f /devel/terrama2/packages/debian-package/terrama2-doc*.deb
@@ -40,12 +40,12 @@ valid $? "Unable to create the TerraMA2 doc package."
 
 cd /packages
 (
-  mkdir -p /packages/${VERSION}/${packages_folder}
-  cp /devel/build-package/*.deb /packages/${VERSION}/${packages_folder}
-  cp /devel/terrama2/packages/debian-package/*.deb /packages/${VERSION}/${packages_folder}
+  mkdir -p /packages/${BRANCH}/${packages_folder}
+  cp /devel/build-package/*.deb /packages/${BRANCH}/${packages_folder}
+  cp /devel/terrama2/packages/debian-package/*.deb /packages/${BRANCH}/${packages_folder}
 
-  echo ${GIT_REMOTE} >> /packages/${VERSION}/${packages_folder}/version.txt
-  echo ${GIT_BRANCH} >> /packages/${VERSION}/${packages_folder}/version.txt
-  echo ${GIT_COMMIT} >> /packages/${VERSION}/${packages_folder}/version.txt
-  echo ${GIT_DATE} >> /packages/${VERSION}/${packages_folder}/version.txt
+  echo ${GIT_REMOTE} >> /packages/${BRANCH}/${packages_folder}/BRANCH.txt
+  echo ${GIT_BRANCH} >> /packages/${BRANCH}/${packages_folder}/BRANCH.txt
+  echo ${GIT_COMMIT} >> /packages/${BRANCH}/${packages_folder}/BRANCH.txt
+  echo ${GIT_DATE} >> /packages/${BRANCH}/${packages_folder}/BRANCH.txt
 )
