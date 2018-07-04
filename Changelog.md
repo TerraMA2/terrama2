@@ -3,6 +3,7 @@
 # New Features:
 
 # Enhancements:
+-  allow docker to generated package from any repository or branch
 
 # Bugfix:
 - Missing check for fields names in generic CSV dataseries
