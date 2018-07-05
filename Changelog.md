@@ -9,7 +9,8 @@
 - Missing check for fields names in generic CSV dataseries
 - Fix ConvertAll with wrong conversion type
 - Fix max-width size for images in webmonitor
-- Fix word wrap in webmonitor
+- Fix word wrap in webmonitor feature info
+- Alert from DCP analysis
 
 # 4.0.5
 
