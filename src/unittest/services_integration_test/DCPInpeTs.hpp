@@ -52,12 +52,9 @@ class DCPInpeTs: public QObject
 
     //******Test functions********
 
-   void collectAndAnalysisHistory();
-   void collectAndAnalysisDCP();
-   
-     // void collectAndAnalysisHistoryInterval() { collect(); analysisHistoryInterval(); }
-
-
+    void collectAndAnalysisHistory();
+    void collectAndAnalysisHistoryInterval();
+    void collectAndAnalysisDCP();
 };
 
 #endif //__TERRAMA2_UNITTEST_INTEGRATION_DCPINPE_HPP__

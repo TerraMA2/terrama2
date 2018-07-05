@@ -152,10 +152,16 @@ void DCPInpeTs::collectAndAnalysisHistory()
   analysisHistory();
 }
 
-void DCPInpeTs::collectAndAnalysisDCP() \
+void DCPInpeTs::collectAndAnalysisDCP()
 {
   collect();
   analysisDCP();
+}
+
+void DCPInpeTs::collectAndAnalysisHistoryInterval() 
+{
+  collect();
+  analysisHistoryInterval();
 }
 
 /*!
