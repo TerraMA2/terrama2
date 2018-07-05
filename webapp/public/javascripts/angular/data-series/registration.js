@@ -600,6 +600,8 @@ define([], function() {
               var dcps = [];
               var registersCount = 0;
 
+              let states = [];
+
               if (isCemadenType())
                 $scope.dataSeries.semantics.metadata.form = [];
 
@@ -630,11 +632,9 @@ define([], function() {
                   // defaultKeys.push('_id');
                   // defaultKeys.push('latitude');
                   // defaultKeys.push('longitude');
-                  inputDataSeries.dataSets[i].format.lat = inputDataSeries.dataSets[i].format.latitude;
-                  inputDataSeries.dataSets[i].format.long = inputDataSeries.dataSets[i].format.longitude;
 
-                  outputDataseries.dataSets[i].format.lat = outputDataseries.dataSets[i].format.latitude;
-                  outputDataseries.dataSets[i].format.long = outputDataseries.dataSets[i].format.longitude;
+                  if (!states.includes(inputDataSeries.dataSets[i].format["uf"]))
+                    states.push(inputDataSeries.dataSets[i].format["uf"]);
 
                   inputDataSeries.dataSets[i].format = rejectKeys(inputDataSeries.dataSets[i].format, defaultKeys);
                   inputDataSeries.dataSets[i].format["active"] = inputDataSeries.dataSets[i].active;
@@ -687,10 +687,6 @@ define([], function() {
                   dcp = $scope.setHtmlItems(dcp, key, dcp.alias, dcp._id, type);
                 }
 
-                // Forcing
-                dcp["latitude_html"] = dcp["lat_html"];
-                dcp["longitude_html"] = dcp["long_html"];
-
                 var dcpCopy = Object.assign({}, dcp);
                 dcpCopy.removeButton = $scope.getRemoveButton(dcp.alias);
                 $scope.dcpsObject[dcp.alias] = dcpCopy;
@@ -718,7 +714,10 @@ define([], function() {
 
               // Set table keys
               if (isCemadenType()) {
-                var keys = Object.keys(inputDataSeries.dataSets[0].format);
+                var keys = Object.keys(inputDataSeries.dataSets[0].format).filter(key => key !== "_id");
+
+                // Setting model states
+                $scope.$broadcast('selectOption', states);
 
                 $scope.isChecking.value = false;
 

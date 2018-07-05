@@ -28,6 +28,7 @@ define([], () => {
 
       // Set values
       this.configureWatcher();
+      this.configureListener();
     }
 
     init(model) {
@@ -36,6 +37,17 @@ define([], () => {
 
       model.forEach(state => {
         this.$scope.selectedOptions.push(state);
+      });
+    }
+
+    configureListener() {
+      this.$scope.$on('selectOption', (event, selectOptions) => {
+        if (!selectOptions)
+          return;
+
+        const optionsToSelect = this.$scope.options.filter(elm => selectOptions.includes(elm.id));
+
+        this.$scope.selectedOptions = optionsToSelect;
       });
     }
 
