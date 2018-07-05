@@ -1105,5 +1105,7 @@
   "updated": "updated",
   "w": "w",
   "DCP - PostGIS (Single Table)": "DCP - PostGIS (Single Table)",
-  "DCP - PostGIS (N-Table)": "DCP - PostGIS (N-Table)"
+  "DCP - PostGIS (N-Table)": "DCP - PostGIS (N-Table)",
+  "Valid time interval": "Valid time interval",
+  "Interpolation Registration": "Interpolation Registration"
 }
