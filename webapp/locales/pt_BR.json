@@ -247,7 +247,7 @@
   "Data Series Registration": "Registro de Série de Dados",
   "Data Series import": "Importação de série de dados",
   "Data Series is required": "O preenchimento da série de dados é obrigatório",
-  "Data series to interpolate": "Data series para interpolar",
+  "Data series to interpolate": "Série de Dados para Interpolar",
   "Data Server": "Servidor de Dados",
   "Data Server Description": "Descrição do Servidor de Dados",
   "Data Server Name": "Nome do Servidor de Dados",
@@ -404,7 +404,7 @@
   "GRADIENT": "GRADIENTE",
   "GRID": "GRADE",
   "General": "Geral",
-  "General Data": "Dado Geral",
+  "General Data": "Informações Gerais",
   "Generate": "Gerar",
   "Generate Image": "Generação de Imagem",
   "Generate an image": "Gerar uma imagem",
@@ -723,7 +723,7 @@
   "Port is required for": "Porta é requerida para",
   "Port must be a number": "Porta deve ser um número",
   "Port number": "Número da porta",
-  "Power factor": "Power factor",
+  "Power factor": "Fator de potência",
   "Error: The port number is busy, port ": "Erro: O número de porta está em uso, porta ",
   "POSTGIS": "POSTGIS",
   "PostGIS occurrence": "Ocorrência PostGIS",
@@ -1108,5 +1108,7 @@
   "updated": "atualizado",
   "w": "w",
 	"DCP - PostGIS (Single Table)": "DCP - PostGIS (Tabela única)",
-	"DCP - PostGIS (N-Table)": "DCP - PostGIS (N-Tabelas)"
+  "DCP - PostGIS (N-Table)": "DCP - PostGIS (N-Tabelas)",
+  "Valid time interval": "Intervalo de tempo válido",
+  "Interpolation Registration": "Registro de interpolador"
 }

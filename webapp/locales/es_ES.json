@@ -566,20 +566,6 @@
   "HTTPS": "HTTPS",
 	"FTP": "FTP",
 	"Tools": "Herramientas",
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   "ABOUT-TEXT-1": "La plataforma TerraMA² es un producto de software, un sistema computacional, basado en la arquitectura de servicios, de código abierto, que proporciona la infraestructura tecnológica necesaria para desarrollar sistemas operativos para monitorear alertas de riesgos ambientales.",
   "ABOUT-TEXT-2": "TerraMA² es un software de fuente abierta y gratuito, disponible para distribución y modificación bajo los términos de la Licencia Pública General Reducida GNU versión 4, publicada por la Free Software Foundation.",
   "ABOUT-TEXT-3": "Los comentarios, sugerencias o problemas pueden enviarse al equipo de TerraMA² (terrama2@dpi.inpe.br) en la División de Procesamiento de Imágenes (DPI) del Instituto Nacional de Investigaciones Espaciales de Brasil (INPE).",
@@ -1055,7 +1041,7 @@
   "Y max": "",
   "X resolution": "",
   "Y resolution": "",
-  "Power factor": "",
+  "Power factor": "Factor de potencia",
 	"Transfer Shapefile": "",
 	"Interpolate": "",
   "Wild fire event (ESRI Shapefile)": "",
@@ -1129,5 +1115,7 @@
 	"Invalid SRID!": "Invalid SRID!",
 	"Invalid filter SRID.": "Invalid filter SRID.",
 	"DCP - PostGIS (Single Table)": "DCP - PostGIS (Tabela única)",
-	"DCP - PostGIS (N-Table)": "DCP - PostGIS (N-Tabelas)"
+	"DCP - PostGIS (N-Table)": "DCP - PostGIS (N-Tabelas)",
+	"Valid time interval": "Intervalo de tiempo válido",
+  "Interpolation Registration": "Registro de interpolador"
 }

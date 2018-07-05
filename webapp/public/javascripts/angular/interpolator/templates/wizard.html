@@ -3,7 +3,7 @@
     <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
   </div>
   <wizard id="wizard" template="">
-      <wz-step wz-title="General">
+      <wz-step wz-title="{{ i18n.__('General') }}">
         <div class="col-md-12">
           <form name="forms.generalDataForm">
             <div id="includeGeneralData" ng-include=""></div>
@@ -30,7 +30,7 @@
         </div>
       </wz-step>
 
-      <wz-step wz-title="Parameters">
+      <wz-step wz-title="{{ i18n.__('Parameters') }}">
         <div class="col-md-12">
           <form name="forms.parameterDataForm">
             <div id="includeParameterData" ng-include=""></div>
@@ -58,7 +58,7 @@
         </div>
       </wz-step>
       
-      <wz-step wz-title="Store">
+      <wz-step wz-title="{{ i18n.__('Store') }}">
 
           <div class="col-md-12">
             <form name="forms.storeDataForm">

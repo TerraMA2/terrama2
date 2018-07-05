@@ -126,6 +126,9 @@ void terrama2::core::DataStoragerDCPPostGIS::storePositions(const std::unordered
     auto teableNameProperty = new te::dt::StringProperty(TABLE_NAME_PROPERTY_NAME);
     newDataSetType->add(teableNameProperty);
 
+    auto aliasProperty = new te::dt::StringProperty(ALIAS_PROPERTY_NAME);
+    newDataSetType->add(aliasProperty);
+
     //create dataset
     newDataSetType->setName(destinationDataSetName);
     transactorDestination->createDataSet(newDataSetType.get(), {});
@@ -143,15 +146,17 @@ void terrama2::core::DataStoragerDCPPostGIS::storePositions(const std::unordered
       continue;
 
     auto outputDataSet = std::find_if(dataSetLst.cbegin(), dataSetLst.cend(), [outputDataSetId](terrama2::core::DataSetPtr dataSet) { return dataSet->id == outputDataSetId; });
-    std::string destinationDataSetName = boost::to_lower_copy(getDataSetName(*outputDataSet));
+    auto dataSetDcp = std::static_pointer_cast<const DataSetDcp>(*outputDataSet);
 
-    auto dataSetDcp = std::dynamic_pointer_cast<const DataSetDcp>(*outputDataSet);
+    std::string destinationDataSetName = boost::to_lower_copy(getDataSetName(dataSetDcp));
+    
     auto dataSetItem = std::unique_ptr<te::mem::DataSetItem>(new te::mem::DataSetItem(dataset.get()));
     dataSetItem->setInt32(ID_PROPERTY_NAME, static_cast<int32_t>(outputDataSetId));
     std::unique_ptr<te::gm::Geometry>locale (dynamic_cast<te::gm::Geometry*>(dataSetDcp->position->clone()));
     locale->transform(4326);
     dataSetItem->setGeometry(GEOM_PROPERTY_NAME, locale.release());
     dataSetItem->setString(TABLE_NAME_PROPERTY_NAME, destinationDataSetName);
+    dataSetItem->setString(ALIAS_PROPERTY_NAME, dataSetDcp->alias());
 
     dataset->add(dataSetItem.release());
   }
