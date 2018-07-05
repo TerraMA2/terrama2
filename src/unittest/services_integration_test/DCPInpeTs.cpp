@@ -326,5 +326,6 @@ add_value("variance", var))z";
 
     utilsTS::timerCollectorAndAnalysis();
 
-   // utilsTS::database::compareCollectAndAnalysis(utilsTS::typecollectoranalysis::operator_history_interval);
+  // FIXME: check analysis integration test
+  // utilsTS::database::compareCollectAndAnalysis(utilsTS::typecollectoranalysis::operator_history_interval);
 }
