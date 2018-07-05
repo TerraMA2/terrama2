@@ -2,6 +2,7 @@
 
 #include <terrama2/core/utility/Utils.hpp>
 #include <terrama2/core/utility/TerraMA2Init.hpp>
+#include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/core/Exception.hpp>
 
@@ -36,6 +37,9 @@ int main(int argc, char *argv[])
 
     terrama2::core::disableLogger();
     terrama2::core::registerFactories();
+
+    terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
+    Q_UNUSED(pythonInterpreterInit);
 
     try
     {

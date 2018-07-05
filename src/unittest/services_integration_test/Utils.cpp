@@ -37,7 +37,6 @@
 
 
 //Analysis
-#include <terrama2/services/analysis/core/utility/PythonInterpreterInit.hpp>
 #include <terrama2/services/analysis/core/DataManager.hpp>
 #include <terrama2/services/analysis/core/Service.hpp>
 #include <terrama2/services/analysis/core/Analysis.hpp>
@@ -428,9 +427,7 @@ std::unique_ptr<terrama2::services::analysis::core::Service> utilsTS::analysis::
 {
 
   using ::testing::_;
-  terrama2::services::analysis::core::PythonInterpreterInit pythonInterpreterInit;
-  Q_UNUSED(pythonInterpreterInit);
-
+  
   auto loggerCopy = std::make_shared<terrama2::core::MockAnalysisLogger>();
 
   EXPECT_CALL(*loggerCopy, setConnectionInfo(_)).WillRepeatedly(::testing::Return());
