@@ -627,14 +627,17 @@ define([], function() {
                 // Exclude properties for Cemaden
                 if (isCemadenType()) {
                   var defaultKeys = Object.keys($scope.dataSeries.semantics.metadata.metadata);
-                  defaultKeys.push('_id');
+                  // defaultKeys.push('_id');
                   // defaultKeys.push('latitude');
                   // defaultKeys.push('longitude');
-                  console.log("FORMAT BEFORE", inputDataSeries.dataSets[i].format);
                   inputDataSeries.dataSets[i].format.lat = inputDataSeries.dataSets[i].format.latitude;
                   inputDataSeries.dataSets[i].format.long = inputDataSeries.dataSets[i].format.longitude;
+
+                  outputDataseries.dataSets[i].format.lat = outputDataseries.dataSets[i].format.latitude;
+                  outputDataseries.dataSets[i].format.long = outputDataseries.dataSets[i].format.longitude;
+
                   inputDataSeries.dataSets[i].format = rejectKeys(inputDataSeries.dataSets[i].format, defaultKeys);
-                  console.log("FORMAT AFTER", inputDataSeries.dataSets[i].format);
+                  inputDataSeries.dataSets[i].format["active"] = inputDataSeries.dataSets[i].active;
 
                   const dcpKeys = Object.keys(inputDataSeries.dataSets[0].format);
 
@@ -674,20 +677,23 @@ define([], function() {
                   dcp[key + '_pattern'] = pattern;
                   dcp[key + '_titleMap'] = titleMap;
 
+                  dcp.projection = parseInt($scope.dataSeries.semantics.metadata.metadata.srid);
+                  // Setting dcp as active
+                  dcp.active = true;
+
                   if(dcp[key + '_titleMap'] !== undefined)
                     type = $scope.dataSeries.semantics.metadata.form[j].type;
 
                   dcp = $scope.setHtmlItems(dcp, key, dcp.alias, dcp._id, type);
                 }
 
-                console.log("DCP", dcp);
-
+                // Forcing
                 dcp["latitude_html"] = dcp["lat_html"];
-                dcp["longitude_html"] = dcp["lon_html"];
-                $scope.dcpsObject[dcp.alias] = dcp;
+                dcp["longitude_html"] = dcp["long_html"];
 
                 var dcpCopy = Object.assign({}, dcp);
                 dcpCopy.removeButton = $scope.getRemoveButton(dcp.alias);
+                $scope.dcpsObject[dcp.alias] = dcpCopy;
 
                 dcps.push(dcpCopy);
 
@@ -714,12 +720,14 @@ define([], function() {
               if (isCemadenType()) {
                 var keys = Object.keys(inputDataSeries.dataSets[0].format);
 
+                $scope.isChecking.value = false;
+
                 $scope.setTableFields(keys);
               }
 
               if(registersCount > 0) {
                 $scope.storageDcps(dcps);
-                $scope.addDcpsStorager(dcps);
+                // $scope.addDcpsStorager(dcps);
               }
             } else {
               var dataSetFormat = inputDataSeries.dataSets[0].format;
@@ -758,9 +766,14 @@ define([], function() {
             $scope.$broadcast("resetStoragerDataSets");
           }
 
-
-          if($scope.tableFields.length > 0  && $scope.dataSeries.semantics.driver !== 'DCP-json_cemaden')
-            $scope.createDataTable();
+          if($scope.tableFields.length > 0) {
+            // When GUI is for Update, render DCP table
+            if ($scope.isUpdating)
+              $timeout(() => $scope.createDataTable(), 10);
+            // When GUI is for Registration, do not render DCP table for Cemaden type due table incompatibility
+            else if (!$scope.isCemadenType())
+              $timeout(() => $scope.createDataTable(), 10);
+          }
 
           $scope.isChecking.value = false;
 
@@ -1834,10 +1847,17 @@ define([], function() {
           var _makeFormat = function(dSetObject) {
             var format_ = {};
             for(var key in dSetObject) {
-              if(dSetObject.hasOwnProperty(key) && key.toLowerCase() !== "id" && key.substr(key.length - 5) != "_html" && key.substr(key.length - 8) != "_pattern" && key.substr(key.length - 9) != "_titleMap" && key != "removeButton" && key != "oldAlias" && key != "newAlias")
+              if((dSetObject.hasOwnProperty(key) &&
+                  key.toLowerCase() !== "id" &&
+                  (!key.endsWith("_html")) &&
+                  (!key.endsWith("_pattern")) &&
+                  (!key.endsWith("_titleMap")) &&
+                  key != "removeButton" &&
+                  key != "oldAlias" &&
+                  key != "newAlias"))
                 var value = dSetObject[key];
 
-                format_[key] = value !== null ? value.toString() : value;
+                format_[key] = (value !== null && value !== undefined) ? value.toString() : value;
                 if(key.startsWith("output_")) {
                   format_[key.replace("output_", "")] = dSetObject[key];
                 }
@@ -2001,7 +2021,7 @@ define([], function() {
                 if($scope.dcpsObject[dcpKey].hasOwnProperty(key) && key.substr(key.length - 5) != "_html" && key.substr(key.length - 8) != "_pattern" && key.substr(key.length - 9) != "_titleMap" && key != "removeButton" && key != "oldAlias" && key != "newAlias" && key != "latitude" && key != "longitude" && key != "active") {
                   var value = $scope.dcpsObject[dcpKey][key];
 
-                  if (value !== null)
+                  if (value !== null && value !== undefined)
                     format[key] = value.toString();
                   else
                     format[key] = null;

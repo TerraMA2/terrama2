@@ -234,11 +234,21 @@ define([], function() {
               $scope.selectFileToImport();
           };
 
-          $scope.validateCemaden = function() {
+          /**
+           * Fill DCP cemaden in Parameters - GUI
+           */
+          function validateCemaden() {
             $scope.isChecking.value = true;
             $('#importDCPCemadenItemsModal').modal('hide');
 
-            const keys = $scope.cemadenFields.filter(field => field.active).map(field => field.name);
+            let keys = $scope.cemadenFields.filter(field => field.active).map(field => field.name);
+            keys.push("projection");
+
+            // Checking if already alias in keys
+            if (!keys.includes("alias"))
+              keys.push("alias");
+
+            keys.push("active");
 
             $scope.setTableFields(keys);
 
@@ -247,8 +257,13 @@ define([], function() {
 
             $scope.dcpsCemaden.forEach(dcp => {
               const uniqueId = UniqueNumber();
+
+              let copyDcp = {};
+
               for(let key of keys) {
                 const alias = dcp.alias;
+                copyDcp[key] = dcp[key];
+                copyDcp.alias = alias;
 
                 // const value = alias;
                 const value = dcp[key];
@@ -270,24 +285,27 @@ define([], function() {
                 $scope.dataSeries.semantics.metadata.schema.properties[key] = fakeField;
                 $scope.dataSeries.semantics.metadata.form.push(fakeFormField);
 
-                dcp = $scope.setHtmlItems(dcp, key, alias, uniqueId, type);
+                // Setting projection from semantics metadata
+                dcp.projection = parseInt($scope.dataSeries.semantics.metadata.metadata.srid);
+                // Setting dcp as active dcp
+                copyDcp.active = true;
+
+                copyDcp = $scope.setHtmlItems(copyDcp, key, alias, uniqueId, type);
               }
 
-              dcp._id = uniqueId;
+              copyDcp._id = uniqueId;
 
-              dcpsObjectTemp[dcp.alias] = Object.assign({}, dcp);
+              dcpsObjectTemp[copyDcp.alias] = Object.assign({}, copyDcp);
 
-              let dcpCopy = Object.assign({}, dcp);
-              dcpCopy.removeButton = $scope.getRemoveButton(dcp.alias);
+              // let dcpCopy = Object.assign({}, dcp);
+              copyDcp.removeButton = $scope.getRemoveButton(dcp.alias);
 
-              dcpsOutput.push(dcpCopy);
-
-              // $scope.inputDataSets.push(dcp);
+              dcpsOutput.push(copyDcp);
             });
 
             $scope.dcpsObject = angular.merge($scope.dcpsObject, dcpsObjectTemp);
 
-            $scope.storageDcps(dcpsOutput)
+            $scope.storageDcps(dcpsOutput);
             $scope.addDcpsStorager(dcpsOutput);
 
             $scope.forms.parametersForm.$setPristine();
@@ -300,7 +318,9 @@ define([], function() {
               Execute Create Table
             */
             $timeout(() => $scope.createDataTable());
-          };
+          }
+
+          $scope.validateCemaden = validateCemaden;
 
           $scope.selectFileToImport = function() {
             $('#importParametersModal').modal('hide');
@@ -308,14 +328,13 @@ define([], function() {
             $scope.isChecking.value = true;
 
             if ($scope.isCemadenType()) {
+              // Retrieves all DCP cemaden from state and keep in cache
               return CemadenService.listDCP($scope.model.state.map(state => state.id))
                 .then(dcps => {
 
-                  if (dcps.length === 0) {
+                  if (dcps.length === 0)
                     throw new Error("No dcp found");
-                  }
 
-                  console.log($scope.dataSeries.semantics);
                   if (!$scope.dataSeries.semantics.metadata.metadata.static_properties)
                     throw new Error("Something is wrong with Cemaden type. No static properties set. Contact System Administrator");
 
