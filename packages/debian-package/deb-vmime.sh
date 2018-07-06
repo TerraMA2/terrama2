@@ -34,7 +34,7 @@
 
 export UBUNTUVERSION=`lsb_release -rs`
 # terrama2 version
-export TMVERSION=4.0.6
+export TMVERSION=4.0.7
 export DEBNAME=terrama2-vmime-${TMVERSION}
 export DEBVERSION=0.9.2
 export DEBARC=amd64
