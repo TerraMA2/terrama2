@@ -231,7 +231,10 @@ define([], function() {
             if (!$scope.isCemadenType())
               $('#importParametersModal').modal('show');
             else
-              $scope.selectFileToImport();
+              if ($scope.model.state && $scope.model.state.length !== 0)
+                $scope.selectFileToImport();
+              else
+                MessageBoxService.danger(i18n.__("Import DCP"), i18n.__("No state selected"));
           };
 
           /**
