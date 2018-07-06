@@ -47,8 +47,6 @@ module.exports = function(app) {
       var queryParams = {};
       var filterByTemporality = semanticsType ? true : false;
 
-      Application.load();
-
       // get just one semantics
       if (semanticsName) {
         queryParams.code = semanticsName;
