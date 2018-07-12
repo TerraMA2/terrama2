@@ -48,11 +48,11 @@
         <form name="forms.parametersForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
 
         <div class="col-md-3 terrama2-top-field">
-          <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
-          <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-click="openImportParametersModal()">{{ i18n.__('Import CSV') }}</button>
+          <button class="btn btn-default" ng-show="semantics === 'DCP' && !isCemadenType()" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
+          <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-click="openImportParametersModal()">{{ i18n.__('Import') }}</button>
         </div>
 
-        <terrama2-dcp-importer></terrama2-dcp-importer>
+        <terrama2-dcp-importer semantics="dataSeries.semantics"></terrama2-dcp-importer>
         <div id="includeDcpTable" ng-include=""></div>
 
       </div>

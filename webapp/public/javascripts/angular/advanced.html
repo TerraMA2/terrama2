@@ -49,7 +49,7 @@
             <form name="forms.parametersForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
 
             <div class="col-md-3 terrama2-top-field" style="padding-bottom: 40px;">
-              <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
+              <button class="btn btn-default" ng-show="semantics === 'DCP' && !isCemadenType()" ng-click="addDcp(parametersForm)">{{ i18n.__('Add') }}</button>
               <button class="btn btn-default" ng-show="semantics === 'DCP'" ng-click="openImportParametersModal()">{{ i18n.__('Import CSV') }}</button>
             </div>
 
@@ -154,14 +154,14 @@
 <div class="col-md-12" ng-if="isDynamic && form.length > 0">
   <div id="intersection-box" class="box box-default box-solid collapsed-box">
     <div class="box-header with-border" ng-class="{disabled: advanced.intersection.disabled}">
-      <span ng-if="advanced.intersection.disabled && advanced.intersection.optional" 
+      <span ng-if="advanced.intersection.disabled && advanced.intersection.optional"
           class="enable-button-click"
           ng-class="terrama2-font-black"
           data-toggle="tooltip" title="{{advanced.intersection.message}}"
           ng-click="advanced.intersection.openForm()">
         <i class="fa fa-plus-circle"></i>
       </span>
-      <span ng-if="!advanced.intersection.disabled && advanced.intersection.optional" 
+      <span ng-if="!advanced.intersection.disabled && advanced.intersection.optional"
           class="enable-button-click"
           ng-class="terrama2-font-black"
           data-toggle="tooltip" title="Remove intersection configuration"

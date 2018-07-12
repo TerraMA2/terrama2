@@ -1,0 +1,7 @@
+
+module.exports = (app) => {
+  let passport = require('../../config/Passport');
+  let controller = app.controllers.api.Cemaden;
+
+  app.get(app.locals.BASE_URL + 'api/Cemaden/', passport.isAuthenticated, controller.list);
+};

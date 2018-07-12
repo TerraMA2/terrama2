@@ -1,17 +1,24 @@
 define([
-  "TerraMA2WebApp/common/services/index"
-], function(commonServices) {
+  "TerraMA2WebApp/common/services/index",
+  "TerraMA2WebApp/data-series/services/cemaden"
+], (commonServices, CemadenService) => {
   'use strict';
 
   var moduleName = "terrama2.dataseries.services";
 
+  function ConfigureServiceModule($httpProvider) {
+    delete $httpProvider.defaults.headers.common['X-Requested-With'];
+  }
+  ConfigureServiceModule.$inject = ['$httpProvider'];
+
   angular.module(moduleName, [commonServices])
     /**
      * It defines a TerraMA² Data Series Type available.
-     * 
+     *
      * @readonly
      * @enum {string}
      */
+    .config(ConfigureServiceModule)
     .constant("DataSeriesType", {
       DCP: 'DCP',
       OCCURRENCE: 'OCCURRENCE',
@@ -22,13 +29,14 @@ define([
     })
     .service("DataSeriesService", ["BaseService", "DataSeriesType", "$filter", "$q", DataSeriesService])
     .service("DataSeriesSemanticsService", ["BaseService", "$q", DataSeriesSemanticsService])
+    .service("CemadenService", CemadenService)
     .factory("SemanticsParserFactory", [SemanticsParserFactory])
     .factory("SemanticsHelpers", ["StringDiff", WrapSemanticsHelpers])
     .factory("SemanticsLibs", ["SemanticsHelpers", "SemanticsParserFactory", SemanticsLibs]);
-  
+
   /**
    * Data Series service DAO
-   * 
+   *
    * @class DataSeriesService
    * @param {BaseService} BaseService - A TerraMA² base service request
    * @param {DataSeriesType} DataSeriesType - A const TerraMA² enum for handling data series type
@@ -48,7 +56,7 @@ define([
   }
   /**
    * It retrieves data series from remote host. You can specify a query restriction.
-   * 
+   *
    * @param {Object} restriction - A query restriction
    * @returns {angular.IPromise<DataSeries[]>}
    */
@@ -62,7 +70,7 @@ define([
         self.model = response.data;
         return defer.resolve(response.data);
       })
-      
+
       .catch(function(err) {
         return defer.reject(err);
       });
@@ -70,7 +78,7 @@ define([
   };
   /**
    * It retrieves all data series from API
-   * 
+   *
    * @param {Object} restriction - a query restriction
    * @returns {ng.IPromise}
    */
@@ -79,7 +87,7 @@ define([
   };
   /**
    * It performs DataSeries update over API
-   * 
+   *
    * @param {number} dataSeriesId - Data Series ID to update
    * @param {Object} obj - Values to update. It may contain input/output data series values
    * @returns {angular.IPromise}
@@ -98,7 +106,7 @@ define([
   };
   /**
    * It creates a Data Series on remote API
-   * 
+   *
    * @param {Object} dataSeriesObject - A data series object values to save
    * @returns {ng.IPromise}
    */
@@ -118,7 +126,7 @@ define([
   };
   /**
    * It duplicates a Data Series of another project on remote API
-   * 
+   *
    * @param {Object} dataSeriesObject - A data series object values to duplicate
    * @returns {ng.IPromise}
    */
@@ -137,7 +145,7 @@ define([
   };
   /**
    * Data Series Semantics service DAO
-   * 
+   *
    * @class DataSeriesSemanticsService
    * @param {BaseService} BaseService - A TerraMA² base service request
    * @param {DataSeriesType} DataSeriesType - A const TerraMA² enum for handling data series type
@@ -154,7 +162,7 @@ define([
 
   /**
    * It retrieves all data series semantics and cache them in model.
-   * 
+   *
    * @param {Object} restriction
    * @returns {angular.IPromise<Object[]>}
    */
@@ -190,7 +198,7 @@ define([
               if(value) {
                 for(var i = 0, valueLength = value.length; i < valueLength; i++) {
                   var charCode = value.charCodeAt(i);
-  
+
                   if(value[i] === "%") {
                     if(
                       value.substr(i, 5) === "%YYYY" ||
@@ -198,23 +206,23 @@ define([
                       value.substr(i, 3) === "%hh" || value.substr(i, 3) === "%mm" || value.substr(i, 3) === "%ss"
                     )
                       continue;
-  
+
                     return false;
                   }
-  
+
                   if(value[i] === "*" || value[i] === "%" || value[i] === "." || value[i] === "-" || value[i] === "_" || value[i] === "/")
                     continue;
-  
+
                   if((charCode < 48) || ((charCode > 57) && (charCode < 65)) || ((charCode > 90) && (charCode < 97)) || (charCode > 122))
                     return false;
                 }
-  
+
                 return true;
               } else
                 return false;
             }
           };
-  
+
           form.validationMessage.validateMask = "Invalid mask";
         }
       });
@@ -233,7 +241,7 @@ define([
   /**
    * It defines availables methods used in semantics.json
    * Remember to call initialize whenever you want to use it even when resetting model due model reference
-   * 
+   *
    * @class SemanticsHelpers
    */
   function WrapSemanticsHelpers(StringDiff) {
@@ -246,7 +254,7 @@ define([
 
       /**
        * It injects the available functions into scope variable.
-       * 
+       *
        * @param {any} formModel - Angular ngmodel
        */
       this.init = function(formModel) {
@@ -255,8 +263,8 @@ define([
 
       /**
        * It forces the user to match with regex expression. Normally, you may specify expression with only valid values
-       * in order to block the un-match keys 
-       * 
+       * in order to block the un-match keys
+       *
        * @param {string} key - NgModel key
        * @param {any} value - NgModel value
        * @param {string} expression - Regex expression
@@ -276,14 +284,14 @@ define([
 
   /**
    * Class responsibles for processing semantics. Use it whenever you need format semantics before send to server
-   * 
+   *
    * @returns {Object}
    */
   function SemanticsParserFactory() {
     return {
       /**
        * It parses input data series semantics, removing all keys that starts with "output_"
-       *  
+       *
        * @param {Object} semanticsFormat - DataSeries Semantics input with keys
        * @returns {Object} Parse semantics
        */

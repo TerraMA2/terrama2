@@ -106,5 +106,9 @@
   {
     "publicUrl": "externals/angular-sortable-view",
     "path": "node_modules/angular-sortable-view"
+  },
+  {
+    "publicUrl": "externals/angularjs-dropdown-multiselect",
+    "path": "node_modules/angularjs-dropdown-multiselect"
   }
 ]
