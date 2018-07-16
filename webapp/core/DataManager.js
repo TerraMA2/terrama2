@@ -6046,7 +6046,7 @@ var DataManager = module.exports = {
           });
           return Promise.all(promises)
             .then(function(layers) {
-              return self.getView({id: viewResult.view_id})
+              return self.getView({id: viewResult.view_id}, options)
                 .then(function(view) {
                   return resolve(new DataModel.RegisteredView(Utils.extend(viewResult, {layers: layers, view: view})));
                 });
