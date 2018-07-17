@@ -13,6 +13,7 @@
 - Alert from DCP analysis
 - Fix process to generate registered view using sequelize transactor
 - Fix intersection invalid access when static data is larger then colelcted data
+- Fix vegetation fire style for stelite NPP-375
 
 # 4.0.5
 
