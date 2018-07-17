@@ -248,7 +248,7 @@ define(
     var windLayers = undefined;
     var windStart = function(layerId){
       windLayers = layerId;
-      setSizeArrowsTimer = window.setInterval(setListLengthWind, 1000);
+      setSizeArrowsTimer = window.setInterval(setListLengthWind, 500);
     };
 
     //stop wind animation when the layer is disabled

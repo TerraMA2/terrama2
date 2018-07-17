@@ -6148,7 +6148,6 @@ var DataManager = module.exports = {
                   var dModel = new DataModel.RegisteredView(registeredView.get());
                   dModel.setDataSeriesType(registeredView.View.source_type);
                   dModel.setDataSeries(dataSeries);
-                  // dModel.setView(registeredView);
                   output.push(dModel);
                   return true;
                 }
