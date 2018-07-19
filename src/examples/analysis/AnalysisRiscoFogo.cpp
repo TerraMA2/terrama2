@@ -31,8 +31,8 @@ using namespace terrama2::services::analysis::core;
 std::string script()
 {
   std::string script = R"z(import math
-# atribuindo o valor para o atributo A que varia de acordo com a vegetação
-def valorAVegetacao (tipo_vegetacao):
+# Calculate the 'A' factor acording to vegetation type
+def calculateA (tipo_vegetacao):
   if tipo_vegetacao == 0  or tipo_vegetacao == 13 or tipo_vegetacao == 15 or tipo_vegetacao == 16:
       return 0
   elif tipo_vegetacao == 1 or tipo_vegetacao == 3 or tipo_vegetacao == 5:
@@ -51,8 +51,8 @@ def valorAVegetacao (tipo_vegetacao):
       return  4
   return  0
 
-# Convertendo o valor da vegetação IGBP para a classe de risco do INPE
-def converteIGBP_INPE(igbp):
+# Converte IGBP vegetation class to INPE classes
+def convertIGBP2INPE(igbp):
   if igbp in {0,  13, 15, 16}:
       return 0
 
@@ -80,11 +80,10 @@ def converteIGBP_INPE(igbp):
   return None
 
 
-#Calculo para não deixar a curva da tabela de evolução temporal descer e sempre continuar
-#no maximo. Se 1 então o valor da pse é 30, se 2 então é 45, assim por diante.
+# Check for max value for PSE
 
 def maxPSE(igbp, pse):
-  ibge = converteIGBP_INPE(igbp)
+  ibge = convertIGBP2INPE(igbp)
   if ibge == 1:
       return pse if pse < 30 else 30
   elif ibge == 2:
@@ -101,7 +100,7 @@ def maxPSE(igbp, pse):
       return pse if pse < 120 else 120
   return None
 
-# 1 - precipitação intervalos de 11 dias.
+# 1 - retrieve rain data from the last 120 days
 prec1 = grid.history.interval.sum("precipitacao", "1d", "0d", 0)
 prec2 = grid.history.interval.sum("precipitacao", "2d", "1d", 0)
 prec3 = grid.history.interval.sum("precipitacao", "3d", "2d", 0)
@@ -116,7 +115,7 @@ prec91_120 = grid.history.interval.sum("precipitacao", "120d", "90d", 0)
 
 
 
-# 2 - calc fatores de precipitações
+# 2 - calculate rain factors
 fp1 = math.exp(-0.14 * prec1)
 fp2 = math.exp(-0.07 * prec2)
 fp3 = math.exp(-0.04 * prec3)
@@ -130,37 +129,34 @@ fp61_90 = math.exp(-0.001 * prec61_90)
 fp91_120 = math.exp(-0.0007 * prec91_120)
 
 
-# 3 - calc dias de secura
+# 3 - calculate days without rain
 pse = 105. * fp1 * fp2 * fp3 * fp4 * fp5 * fp6_10 *  fp11_15 * fp16_30 * fp31_60 * fp61_90 * fp91_120
 
-# 4 - risco de fogo básico
+# 4 - Base vegetation fire risk
 tipo_vegetacao = grid.sample("lancover")
 
-a = valorAVegetacao(tipo_vegetacao)
+a = calculateA(tipo_vegetacao)
 if not a: return 0
 
 
-# Ajuste
+# Adjust max PSE
 PSE = maxPSE(tipo_vegetacao, pse)
 if not PSE: return 0
 
-
-#rb = 0.9 * (1. + math.sin((a*pse))) / 2.
 rb = 0.9 * (1. + math.sin((a*PSE-90.)*3.1416/180.)) * 0.5
 if(rb > 0.9):
   rb = 0.9
 
-
-# 5 - fator umidade
+# 5 - humidity factor
 ur = grid.history.interval.sum("umidade", "1d", "0d", 0)
 fu = ur * -0.006 + 1.3
 
 
-# 6 - fator temperatura
+# 6 - temperature factor
 tempMax =  grid.history.interval.sum("temperatura", "1d", "0d", 0)
 ft = (tempMax-273.15) * 0.02 + 0.4
 
-# 7 - gerar risco observatorio
+# 7 - observable risk
 rf = rb * ft * fu
 
 
