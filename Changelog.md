@@ -1,3 +1,12 @@
+# 4.0.7
+
+# New Features:
+- Allow user to disable a project.
+
+# Enhancements:
+
+# Bugfix:
+
 # 4.0.6
 
 # New Features:

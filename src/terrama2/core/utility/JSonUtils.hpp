@@ -31,6 +31,7 @@
 #include "../data-model/Schedule.hpp"
 #include "../data-model/DataManager.hpp"
 #include "../data-model/Filter.hpp"
+#include "../data-model/Project.hpp"
 
 #include "SemanticsManager.hpp"
 
@@ -105,6 +106,9 @@ namespace terrama2
 
     TMCOREEXPORT LegendPtr fromRiskJson(QJsonObject json);
     TMCOREEXPORT QJsonObject toJson(const terrama2::core::Risk& risk);
+
+    TMCOREEXPORT ProjectPtr fromProjectJson(QJsonObject json);
+    TMCOREEXPORT QJsonObject toJson(const terrama2::core::ProjectPtr& project);
 
     /*!
       \brief Creates a QJsonObject from a DataProvider.
