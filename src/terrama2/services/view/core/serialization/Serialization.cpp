@@ -56,10 +56,11 @@ void terrama2::services::view::core::Serialization::writeVectorialStyleGeoserver
 
   writer->writeAttribute("xmlns", "http://www.opengis.net/sld");
   writer->writeAttribute("xmlns:ogc", "http://www.opengis.net/ogc");
+  writer->writeAttribute("xmlns:se", "http://www.opengis.net/se");
   writer->writeAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-  writer->writeAttribute("version", style->getVersion());
+  writer->writeAttribute("version", "1.1.0");
   writer->writeAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
-  writer->writeAttribute("xsi:schemaLocation", "http://www.opengis.net/sld http://schemas.opengis.net/sld/1.1.0/StyledLayerDescriptor.xsd");
+  writer->writeAttribute("xsi:schemaLocation", "http://www.opengis.net/sld StyledLayerDescriptor.xsd");
   writer->writeAttribute("xmlns:se", "http://www.opengis.net/se");
 
   writer->writeStartElement("NamedLayer");

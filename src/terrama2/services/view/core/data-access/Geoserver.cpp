@@ -290,7 +290,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
       std::string SQL = "SELECT t.id, t.geom, t.timestamp, t.var as "+variable+" from dcp_last_measures('"+dcpPositions.tableName+"', '"+variable+"')"
                         "AS t(id integer, geom geometry, \"timestamp\" timestamp with time zone, var double precision)";
 
-      std::unique_ptr<te::da::DataSetType> modelDataSetType(dcpPositions.dataSetType.release());
+      std::unique_ptr<te::da::DataSetType> modelDataSetType = std::move(dcpPositions.dataSetType);
 
       TableInfo tableInfo = DataAccess::getDCPPostgisTableInfo(inputDataSeries, inputObjectProvider);
       std::string layerName = viewLayerName(viewPtr);
@@ -1207,7 +1207,13 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string&
   // Register style
   cURLwrapper.post(uriPost, style, contentType);
 
-  if(cURLwrapper.responseCode() == 403)
+  ////////////////////////////////////
+  // for some unknown reason resgistering a new style with
+  // the POST method creates an empty style.
+  // Because of that we after registering the new style
+  // we update with a PUT.
+  ////////////////////////////////////
+
   {
     te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/styles/" + validName +"?raw=true");
 
@@ -1226,12 +1232,6 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string&
       TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
       throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
     }
-  }
-  else if(cURLwrapper.responseCode() != 201)
-  {
-    QString errMsg = QObject::tr(cURLwrapper.response().c_str());
-    TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
-    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
   }
 }
 

@@ -1,4 +1,10 @@
 FROM ubuntu:16.04
+ARG BRANCH=master
+ARG REPOSITORY=TerraMA2
+
+ENV BRANCH=${BRANCH}
+ENV REPOSITORY=${REPOSITORY}
+
 # install minimal dependencies
 RUN  apt-get update \
   && apt-get install -y wget sudo git lsb-release
@@ -13,20 +19,22 @@ RUN mkdir -p devel/terralib && \
     cd .. && \
     rm terralib -r
 
-# install vmime
-RUN cd devel && \
-    wget http://www.terrama2.dpi.inpe.br/pub/downloads/terrama2-vmime-4.0.4_0.9.2-ubuntu16.04_amd64.deb && \
-    dpkg -i terrama2-vmime-4.0.4_0.9.2-ubuntu16.04_amd64.deb || true && \
-    apt update && \
-    apt install -f -y
-
 # terrama2 build dependencies and clone terrama2
 RUN cd devel && \
     apt install -y cmake build-essential libcurl3-dev libpython2.7-dev libquazip-dev libxerces-c-dev libgeos++-dev libproj-dev && \
-    git clone https://github.com/TerraMA2/terrama2 && \
+    git clone https://github.com/${REPOSITORY}/terrama2 && \
     cd terrama2 && \
     git fetch && \
-    git checkout b4.0.4
+    git checkout ${BRANCH}
+
+# install vmime
+RUN cd devel/terrama2/packages/debian-package && \
+    sudo apt install -y doxygen graphviz gnutls-bin gsasl libghc-gsasl-dev libgnutls-dev libssl-dev debhelper devscripts  && \
+    wget https://github.com/kisli/vmime/archive/v0.9.2.tar.gz && \
+    ./deb-vmime.sh && \
+    dpkg -i terrama2-vmime-*_0.9.2-ubuntu16.04_amd64.deb || true && \
+    apt update && \
+    apt install -f -y
 
 # clean apt
 RUN rm -rf /var/lib/apt/lists/*

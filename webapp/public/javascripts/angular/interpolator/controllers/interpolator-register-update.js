@@ -12,7 +12,7 @@ define([], function(){
     $scope.BASE_URL = BASE_URL;
 
     var config = $window.configuration;
-    $scope.inter = {};
+    $scope.inter = { };
     $scope.outputDataSeries = {};
     $scope.bounding_rect = {}
     $scope.scheduleOptions = {
@@ -32,8 +32,16 @@ define([], function(){
     $scope.forms = {};
 
     var isUpdating = false;
-    if (config.interpolator)
+    if (config.interpolator) {
       isUpdating = true;
+
+      const timeInterval = config.interpolator.metadata.time_interval;
+
+      if (timeInterval) {
+        config.interpolator.metadata.time_interval = parseInt(timeInterval.match(/\d+/g)[0]);
+        config.interpolator.intervalType = timeInterval[timeInterval.length - 1];
+      }
+    }
 
     if (config.input_ds)
       $scope.input_data_series = config.input_ds;
@@ -41,6 +49,7 @@ define([], function(){
     function closeDialog() {
       $scope.MessageBoxService.reset();
     }
+
     $scope.close = closeDialog;
 
     $scope.addTifExtention = function(){
@@ -69,7 +78,7 @@ define([], function(){
             }
           })
         });
-    
+
         if (isUpdating){
           prepareObjectToUpdate();
         } else {
@@ -102,7 +111,7 @@ define([], function(){
         }
       }
     });
-  
+
     var prepareDataSetFormatToForm = function(fmt){
       var output = {};
       for(var k in fmt) {
@@ -110,7 +119,7 @@ define([], function(){
           // checking if a number
           if (isNaN(fmt[k]) || fmt[k] == "" || typeof fmt[k] == "boolean") {
             if (k === "active") {
-              output[k] = typeof fmt[k] === "string" ? fmt[k] === "true" : fmt[k]; 
+              output[k] = typeof fmt[k] === "string" ? fmt[k] === "true" : fmt[k];
             } else {
               output[k] = fmt[k];
             }
@@ -156,7 +165,7 @@ define([], function(){
         $scope.$broadcast("updateSchedule", $scope.inter.schedule || {});
       });
     };
-    
+
     var prepareObjectToSave = function(){
       var outputDataSeries = {};
       var outputDataSet = {};
@@ -186,6 +195,8 @@ define([], function(){
       }
 
       var interpolator = Object.assign({}, $scope.inter);
+      // Concat time_interval with type
+      interpolator.metadata.time_interval += $scope.inter.intervalType;
       var bounding_rect = {
         ll_corner: [$scope.bounding_rect.ll_corner.x, $scope.bounding_rect.ll_corner.y],
         ur_corner: [$scope.bounding_rect.ur_corner.x, $scope.bounding_rect.ur_corner.y]
@@ -238,9 +249,9 @@ define([], function(){
       }
 
       objectToSave.run = shouldRun;
-    
-      var operation = isUpdating ? 
-                      $scope.InterpolatorService.update( $scope.inter.id, {interpolator: objectToSave, schedule: scheduleValues}) : 
+
+      var operation = isUpdating ?
+                      $scope.InterpolatorService.update( $scope.inter.id, {interpolator: objectToSave, schedule: scheduleValues}) :
                       $scope.InterpolatorService.create({interpolator: objectToSave, schedule: scheduleValues});
       operation.then(function(response) {
         $window.location.href = BASE_URL + "configuration/dynamic/dataseries?token=" + response.token;

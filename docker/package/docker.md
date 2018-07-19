@@ -1,14 +1,15 @@
 # Docker
-Simple instructions for using docker for TerraMA2 packages.
+Simple instructions for using docker to create TerraMA2 packages.
 
 Obs. In this guide I assume you have permission to run `docker` as user, you may also run the commands using `sudo`
 
 ## Generate docker image (if you don't have one)
 
-The `VERSION` parameter must be in the format `X.Y.Z` and have an associated branch with name in the format `bX.Y.Z`.
+The `BRANCH` parameter must be a valid, existing github branch. If none is provided 'master' is used.
+The `REPOSITORY` where the code is stored, default terrama2. (https://github.com/REPOSITORY/terrama2)
 
 ```
-docker build -t "terrama2:4.0.5" --build-arg VERSION=4.0.5 .
+docker build -t "terrama2:4.0.5" --build-arg BRANCH=b4.0.5 --build-arg REPOSITORY=terrama2 .
 docker run -t --name terrama2_4.0.5 -v ~/packages:/packages terrama2:4.0.5
 ```
 ## Start the docker image

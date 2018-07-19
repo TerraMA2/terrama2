@@ -214,7 +214,6 @@ fi
 #
 # Finished!
 #
-clear
 echo "*****************************************************************"
 echo "* TerraMA2 3rd-party Libraries Installer for Linux Ubuntu 14.04 *"
 echo "*****************************************************************"
