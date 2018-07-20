@@ -38,6 +38,20 @@ namespace terrama2
 {
   namespace core
   {
+    /**
+     * @brief Base class for accessing data in the form of geometric objects
+     * 
+     * In TerraMA2 we consider geometric objects static or dynamic geographic geometries.
+     * They are used as monitored objects for analysis, of this kind.
+     * 
+     * Static geometric objects would be the shape of countries, for example.
+     * 
+     * Dynamic geometric objects are associated with a timestamp,
+     * usually with many objects with the same timestamp.
+     * 
+     * In analysis, Occurrence operators can be applied to this data.
+     * 
+     */
     class DataAccessorGeometricObject : public virtual DataAccessor
     {
       public:
@@ -54,9 +68,6 @@ namespace terrama2
         DataAccessorGeometricObject& operator=(const DataAccessorGeometricObject& other) = default;
         //! Default assignment operator
         DataAccessorGeometricObject& operator=(DataAccessorGeometricObject&& other) { DataAccessor::operator=(std::move(other)); return *this; }
-
-        //! Returns a OccurrenceSeries filtered by Filter
-        // virtual GeometricObjectSeriesPtr getObjectSeries(const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover);
     };
   }
 }
