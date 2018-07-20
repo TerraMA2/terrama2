@@ -33,6 +33,9 @@ sudo apt-get update
   git status
   if [[ $? -ne 0 ]]; then
     GIT_SSL_NO_VERIFY=true git clone -b release-5.3 https://gitlab.dpi.inpe.br/terralib/terralib.git .
+
+    cd .git/hooks
+    cp ${SCRIPTS_DIR}/pre-commit .
   fi
 )
 
