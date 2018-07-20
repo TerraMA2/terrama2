@@ -132,6 +132,18 @@
       viewObj = view.get();
     }
     this.view = new View(viewObj);
+    /**
+     * It verifies if the view object contains the variable dataValues with the key creation_type
+     * 
+     */
+    if(viewObj.ViewStyleLegend && viewObj.ViewStyleLegend.ViewStyleLegendMetadata) {
+      for(const dataValues of viewObj.ViewStyleLegend.ViewStyleLegendMetadata) {
+        if(dataValues.key === "creation_type") {
+          this.view.style = dataValues.value;
+          break;
+        }
+      }
+    }
   };
   /**
    * Get real representation of RegisteredView
@@ -229,7 +241,8 @@
       params: params,
       projectId: this.view.projectId,
       dataSeriesTypeName: dataSeriesTypeName,
-      exportation: exportation
+      exportation: exportation,
+      style: this.view.style
     });
   };
 

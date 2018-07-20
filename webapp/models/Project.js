@@ -17,7 +17,8 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.TEXT,
         comment: "Project description."
       },
-      protected: DataTypes.BOOLEAN
+      protected: DataTypes.BOOLEAN,
+      active: DataTypes.BOOLEAN
     },
     {
       underscored: true,

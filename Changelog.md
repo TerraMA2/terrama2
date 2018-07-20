@@ -1,3 +1,12 @@
+# 4.0.7
+
+# New Features:
+- Allow user to disable a project.
+
+# Enhancements:
+
+# Bugfix:
+
 # 4.0.6
 
 ## New Features:
@@ -11,6 +20,9 @@
 - Fix max-width size for images in webmonitor
 - Fix word wrap in webmonitor feature info
 - Alert from DCP analysis
+- Fix process to generate registered view using sequelize transactor
+- Fix intersection invalid access when static data is larger then colelcted data
+- Fix vegetation fire style for stelite NPP-375
 
 # 4.0.5
 

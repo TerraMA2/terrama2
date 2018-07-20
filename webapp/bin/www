@@ -41,7 +41,7 @@ var io = require('../io');
 var debug = require('debug')('webapp:server');
 var load = require('express-load');
 var path = require('path');
-var exec = require('child_process').exec;
+var child_process = require('child_process');
 var TcpService = require("./../core/facade/tcp-manager/TcpService");
 
 var app = require('../app');
@@ -81,11 +81,11 @@ logger.info("Initializing TerraMA2 on port " + port);
 server.listen(port);
 
 // approach for handling connections and remove it to avoid unclosed nodejs server
-server.on('connection', function(conn) {
+server.on('connection', function (conn) {
   var key = conn.remoteAddress + ':' + conn.remotePort;
   connections[key] = conn;
 
-  conn.on('close', function() {
+  conn.on('close', function () {
     delete connections[key];
   });
 });
@@ -95,10 +95,10 @@ server.on('listening', onListening);
 server.on('close', onClose);
 
 // detecting sigint error and then close server
-process.on('SIGINT', function(){
-  DataManager.finalize().then(function() {
-    var _closeServer = function() {
-      server.close(function() {
+process.on('SIGINT', function () {
+  DataManager.finalize().then(function () {
+    var _closeServer = function () {
+      server.close(function () {
         logger.info("TerraMA2 finalized");
       });
 
@@ -184,21 +184,22 @@ return DataManager.init(null, function (error) {
     return process.exit(1);
   }
 
-  // loading terrama2 data
-  return DataManager.load().then(function() {
+  try {
     var applicationPath = path.join(__dirname, './../..');
+    child_process.execSync("python " + applicationPath + "/share/terrama2/scripts/update_database.py " + applicationPath);
 
-    exec("python " + applicationPath + "/share/terrama2/scripts/update_database.py " + applicationPath, function(err, stdout, stderr) {
-      if(err)
-        throw new Error("Failed to update database.");
+    // loading terrama2 data
+    return DataManager.load().then(function () {
 
       // initialize service listeners
-      return TcpService.init().finally(function() {
+      TcpService.init().finally(function () {
         return PluginLoader.initialize(__dirname + "/../plugins/");
       });
+    }).catch(function (err) {
+      logger.error("Could not load datamanager: " + err.message);
+      process.exit(1);
     });
-  }).catch(function(err) {
-    logger.error("Could not load datamanager: " + err.message);
-    process.exit(1);
-  });
+  } catch (error) {
+    throw new Error("Failed to update database.\n"+error);
+  }
 });
