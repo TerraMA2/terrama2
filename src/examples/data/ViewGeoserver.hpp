@@ -45,6 +45,10 @@
 namespace terrama2
 {
 
+/**
+ * @brief Namespace for metadata of geoserver tests
+ * 
+ */
   namespace geoserver
   {
 
