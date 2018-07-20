@@ -29,33 +29,13 @@
 
 //TerraMA2
 #include "TsDataStoragerTiff.hpp"
-#include <terrama2/impl/DataStoragerTiff.cpp>
+#include <terrama2/core/data-model/DataProvider.hpp>
+#include <terrama2/impl/DataStoragerTiff.hpp>
 #include <terrama2/core/Shared.hpp>
 #include <terrama2/core/utility/TimeUtils.hpp>
 
-
 // GMock
 #include <gtest/gtest.h>
-
-class DerivedDataStoragerTiff : public terrama2::core::DataStoragerTiff
-{
-  public:
-
-    DerivedDataStoragerTiff(terrama2::core::DataSeriesPtr dataSeries, terrama2::core::DataProviderPtr dataProvider)
-      : terrama2::core::DataStoragerTiff(dataSeries, dataProvider)
-    { }
-
-    virtual ~DerivedDataStoragerTiff() = default;
-
-  public:
-
-    virtual std::string replaceMask(const std::string& mask,
-                            std::shared_ptr<te::dt::DateTime> timestamp,
-                            terrama2::core::DataSetPtr dataSet) const
-    {
-      return terrama2::core::DataStoragerTiff::replaceMask(mask, timestamp, dataSet);
-    }
-};
 
 terrama2::core::DataProviderPtr outputDataProvider()
 {
@@ -76,7 +56,7 @@ void TsDataStoragerTiff::testReplaceMask()
 {
   try
   {
-    DerivedDataStoragerTiff ds(std::make_shared<terrama2::core::DataSeries>(), outputDataProvider());
+    terrama2::core::DataStoragerTiff ds(std::make_shared<terrama2::core::DataSeries>(), outputDataProvider());
 
     terrama2::core::DataSet* dataset = new terrama2::core::DataSet();
     terrama2::core::DataSetPtr dataSetPtr(dataset);

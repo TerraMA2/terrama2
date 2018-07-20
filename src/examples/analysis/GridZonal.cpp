@@ -27,9 +27,9 @@
 
 #include <terrama2/Config.hpp>
 
-#include <examples/data/StaticPostGis.hpp>
-#include <examples/data/Geotiff.hpp>
-#include <examples/data/ResultAnalysisPostGis.hpp>
+#include <extra/data/StaticPostGis.hpp>
+#include <extra/data/Geotiff.hpp>
+#include <extra/data/ResultAnalysisPostGis.hpp>
 
 
 // QT
@@ -111,9 +111,7 @@ int main(int argc, char* argv[])
     auto dataProviderResult = terrama2::resultanalysis::dataProviderResultAnalysis();
     dataManager->add(dataProviderResult);
 
-    auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult,
-                                                                                      terrama2::resultanalysis::tablename::zonal_analysis_result,
-                                                                                      dataSeries);
+    auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::zonal_analysis_result, dataSeries);
     dataManager->add(outputDataSeries);
 
 
@@ -125,7 +123,7 @@ int main(int argc, char* argv[])
     analysis->outputDataSetId = outputDataSeries->datasetList.front()->id;
 
     std::string script = R"z(x = grid.zonal.count("geotiff 1")
-add_value("count", x))z";
+add_value("min", x))z";
 
     analysis->script = script;
     analysis->scriptLanguage = ScriptLanguage::PYTHON;
@@ -133,7 +131,7 @@ add_value("count", x))z";
     analysis->serviceInstanceId = 1;
 
 
-
+  
 
     /*
      *  DataProvider and DataSeries geotiff SpotVegetacao

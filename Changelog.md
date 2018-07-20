@@ -1,6 +1,32 @@
-# 4.0.5
+# 4.0.7
 
 # New Features:
+- Allow user to disable a project.
+
+# Enhancements:
+
+# Bugfix:
+
+# 4.0.6
+
+## New Features:
+
+## Enhancements:
+-  allow docker to generated package from any repository or branch
+
+## Bugfix:
+- Missing check for fields names in generic CSV dataseries
+- Fix ConvertAll with wrong conversion type
+- Fix max-width size for images in webmonitor
+- Fix word wrap in webmonitor feature info
+- Alert from DCP analysis
+- Fix process to generate registered view using sequelize transactor
+- Fix intersection invalid access when static data is larger then colelcted data
+- Fix vegetation fire style for stelite NPP-375
+
+# 4.0.5
+
+## New Features:
 - Monitored object analysis operators for counting pixels by value or range of values
 - Time parameters in analysis can have a '+' modifier, this will make the data range be expanded to 00:00h of the start date
 - Interpolate historical data
@@ -9,13 +35,13 @@
   - package generation
 
 
-# Enhancements:
+## Enhancements:
 - Use geometry as filter in MO analysis (instead of a combination of bounding box and RTree)
 - Use Yarn instead of npm for web dependencies
 - Smaller storage of log messages
 - Allow temporal geotiff
 
-# Bugfix:
+## Bugfix:
 - Improved limit of threads
 - Fix legend for for raster views
 - Fix automatic schedule
@@ -23,7 +49,7 @@
 
 # 4.0.4
 
-# New Features:
+## New Features:
 - Status selector on list screens
 - Beta version of the interpolator
 - WepApp id - allow more then one terrama2 instance in the same server
@@ -31,12 +57,12 @@
 - Analysis table at the WebMonitor
 - DCP driver for storing data in a single table
 
-# Enhancements:
+## Enhancements:
 - Improved error messages on errors of the raster analysis output
 - Improved status timeout
 - Improved tcp message system
 
-# Bugfix:
+## Bugfix:
 - Fix DCP behavior - many bugs including activate and deactivate
 - Fix input/output attribute names
 - Fix alert "internal error"
@@ -51,14 +77,14 @@
 
 # 4.0.3
 
-# New Features:
+## New Features:
 - Allow static raster view without style
 - Occurrence picture on the WebMonitor
 
-# Enhancements:
+## Enhancements:
 - Validate projections (SRID) on the WebApp
 
-# Bugfix:
+## Bugfix:
 - Export analysis shapefile from WebMonitor (fix wrong DateTime)
 - Status circle flashing at different project on the WebMonitor
 - View from raster with timezone
@@ -68,17 +94,17 @@
 
 # 4.0.2
 
-# New Features:
+## New Features:
 - Terralib 5.3 - bugfixes and code improvements
 - Auto update database - when updating TerraMA² to a new version the database is automatically updated
 
-# Enhancements:
+## Enhancements:
 - Improved system timezone identification
 - Using shp2pgsql to import shapefiles to the database - better geometry type identification
 - Improved versioning system
 - versioning debian packages names - won't remove older versions automatically
 
-# Bugfix:
+## Bugfix:
 - Fix alert email tables
   - floating point numbers representation
   - Null values representation
@@ -90,14 +116,14 @@
 
 # 4.0.1
 
-# New Features:
+## New Features:
 - Script to update database from v4.0.0
 
-# Enhancements:
+## Enhancements:
 - Intersection using threads
 - update doc
 
-# Bugfix:
+## Bugfix:
 - Fix encoding when importing static data
 - Improved status when collecting multiple files
 - Fix owner when creating function for DCP view
@@ -107,20 +133,20 @@
 
 # 4.0.0
 
-# New Features:
+## New Features:
 - Docker container
 - Doc installer
 - Vector data pre-defined styles
 - External tools menu item
 - Current situation example page
 
-# Enhancements:
+## Enhancements:
 - Using ogr2ogr instead of shp2pgsql
 - Review of wildfire program driver
 - Review raster pre-defined styles
 - Better raster layer names in geoserver
 
-# Bugfix:
+## Bugfix:
 - Collect from postgis
 - Analysis statistic operations
 - Postgres numeric as double
@@ -129,7 +155,7 @@
 
 # RC4
 
-# New Features:
+## New Features:
 - Sample Docker files
 - View
   - DCP view
@@ -145,7 +171,7 @@
   - Auto complete distinct values from table
   - Import DataSeries from other projects
 
-# Enhancements:
+## Enhancements:
 - Collector
   - Process one file at a time
 - View
@@ -158,7 +184,7 @@
   - Improved mask validation (regex was crashing the browser)
   - Advanced filter at status screen
 
-# Bugfix:
+## Bugfix:
 - Collector
   - Fix spatial filter
 - Analysis
@@ -175,14 +201,14 @@
 
 # RC3
 
-# New Features:
+## New Features:
 - Dynamic geometric object
   - Collect and analysis
 - DCP analysis view
 - Pre-defined styles library for tif - INPE WildFire program climate styles
 - Upload shapefile to postgis
 
-# Enhancements:
+## Enhancements:
 - WebApp
   - projects combo
   - icons and components reviews
@@ -193,7 +219,7 @@
 - Make install for non root users
 Splitting project and language selection per session
 
-# Bugfix:
+## Bugfix:
 - icons in firefox
 - copy python scripts during installation
 
@@ -202,7 +228,7 @@ Splitting project and language selection per session
 
 # RC2
 
-# New Features:
+## New Features:
 - Protected projects
 - get_analysis_date operator
 - Import project in command line
@@ -210,12 +236,12 @@ Splitting project and language selection per session
 - Check service status to manipulate objects
 - Import shapefile to database
 
-# Enhancements:
+## Enhancements:
 - Update terralib to 5.2.2
 - Wild fire risk analysis example
 - Better python interpreter for usage outside analysis
 
-# Bugfix:
+## Bugfix:
 - Fix raster band index in views
 - Check objects name when importing a project
 - Fix idle connection to the database
@@ -224,7 +250,7 @@ Splitting project and language selection per session
 
 # RC1
 
-# New Features:
+## New Features:
 - Analysis:
    - DCP analysis
    - get_analysis_date function
@@ -238,11 +264,11 @@ Splitting project and language selection per session
 - General:
    - Data provider HTTP (single files only, no mask support)
 
-# Enhancements:
+## Enhancements:
 - Integration test for analysis
 - Crop raster by dataseries
 
-# Bugfix
+## Bugfix
 - Create view of read only files
 - Review of database connections (some connections were never closed)
 - Improved reading of CTL grads files (VARS field had some bugs)
@@ -335,7 +361,7 @@ Splitting project and language selection per session
 - New service status: Interrupted
 
 
-## bugfix:
+### Bugfix:
 - Fix service error messages
   - Better messages
   - Don't give out of context errors

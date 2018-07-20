@@ -53,7 +53,7 @@
 
 #include <terrama2/impl/Utils.hpp>
 
-#include <examples/data/Geotiff.hpp>
+#include <extra/data/Geotiff.hpp>
 
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 
@@ -69,7 +69,7 @@
 
 #include <terrama2/services/view/mock/MockViewLogger.hpp>
 
-#include <examples/data/StaticPostGis.hpp>
+#include <extra/data/StaticPostGis.hpp>
 
 
 int main(int argc, char** argv)

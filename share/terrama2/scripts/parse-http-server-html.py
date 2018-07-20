@@ -1,4 +1,4 @@
-#!/bin/python
+#!/usr/bin/python
 
 # @author Jean Souza [jean.souza@funcate.org.br]
 from bs4 import BeautifulSoup

@@ -28,7 +28,7 @@
 
 #include <terrama2/Config.hpp>
 
-#include <examples/data/Geotiff.hpp>
+#include <extra/data/Geotiff.hpp>
 
 
 // QT

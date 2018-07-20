@@ -275,7 +275,7 @@ terrama2::core::DataSetSeries terrama2::services::collector::core::processVector
         for(size_t k = 0; k < report.size(); ++k)
         {
           // sanity check, does the geometry exist?
-          if(collectedData->isNull(i, collectedGeomPropertyPos))
+          if(collectedData->isNull(report[k], collectedGeomPropertyPos))
             continue;
 
           std::shared_ptr<te::gm::Geometry> occurrence = collectedData->getGeometry(report[k], collectedGeomPropertyPos);

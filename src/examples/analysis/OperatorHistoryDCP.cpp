@@ -21,9 +21,9 @@
 #include <terrama2/Config.hpp>
 
 
-#include <examples/data/DCPSerramarInpe.hpp>
-#include <examples/data/ResultAnalysisPostGis.hpp>
-#include  <examples/data/StaticPostGis.hpp>
+#include <extra/data/DCPSerramarInpe.hpp>
+#include <extra/data/ResultAnalysisPostGis.hpp>
+#include <extra/data/StaticPostGis.hpp>
 
 #include <iostream>
 
@@ -79,21 +79,6 @@ int main(int argc, char* argv[])
   service.setLogger(logger);
   service.start();
 
-  /*
-   * DataProvider and dataSeries Static
-  */
-
-  auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
-  dataManager->add(dataProviderStatic);
-
-  auto dataSeriesStatic = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderStatic);
-  dataManager->add(dataSeriesStatic);
-
-  AnalysisDataSeries monitoredObjectADS;
-  monitoredObjectADS.id = 1;
-  monitoredObjectADS.dataSeriesId = dataSeriesStatic->id;
-  monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
-  monitoredObjectADS.metadata["identifier"] = "nome";
 
   /*
    * DataProvider and dataSeries result
@@ -101,8 +86,10 @@ int main(int argc, char* argv[])
   auto dataProviderResult = terrama2::resultanalysis::dataProviderResultAnalysis();
   dataManager->add(dataProviderResult);
 
+  auto monitoredObject = terrama2::staticpostgis::dataSeriesEstados2010(dataProviderResult);
 
-  auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::history_dcp_result, dataSeriesStatic);
+
+  auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::history_dcp_result, monitoredObject);
   dataManager->add(outputDataSeries);
 
 
@@ -141,7 +128,7 @@ add_value("history_standard_deviation",x))z";
   analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
 
 
-
+ 
 
   /*
    * DataProvider and dataSeries Serramar
@@ -160,7 +147,11 @@ add_value("history_standard_deviation",x))z";
   dcpADS.type = AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
 
 
-
+  AnalysisDataSeries monitoredObjectADS;
+  monitoredObjectADS.id = 1;
+  monitoredObjectADS.dataSeriesId = monitoredObject->id;
+  monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
+  monitoredObjectADS.metadata["identifier"] = "fid";
 
   std::vector<AnalysisDataSeries> analysisDataSeriesList;
   analysisDataSeriesList.push_back(dcpADS);

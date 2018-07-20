@@ -233,7 +233,7 @@ void MainWidget::onProcStarted()
     ui->labelLoading->setVisible(true);
 }
 
-void MainWidget::onProcFinished(int code)
+void MainWidget::onProcFinished(int /*code*/)
 {
     loadingAnimation->stop();
     ui->labelLoading->setVisible(false);

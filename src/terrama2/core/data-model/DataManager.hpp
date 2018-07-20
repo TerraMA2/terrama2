@@ -41,9 +41,11 @@
 // STL
 #include <memory>
 #include <mutex>
+#include <map>
 
 // QT
 #include <QObject>
+#include <QJsonObject>
 
 namespace terrama2
 {
@@ -206,6 +208,11 @@ namespace terrama2
         */
         virtual void update(DataProviderPtr provider);
 
+        virtual void add(ProjectPtr legend);
+        virtual void update(ProjectPtr legend);
+        virtual void removeProject(const ProjectId id);
+        virtual ProjectPtr findProject(const ProjectId id) const;
+
         virtual void add(LegendPtr legend);
         virtual void update(LegendPtr legend);
         virtual bool hasLegend(LegendId id) const;
@@ -334,6 +341,7 @@ namespace terrama2
 
       protected:
         std::map<DataProviderId, DataProviderPtr> providers_; //!< A map from DataProviderId to DataProvider.
+        std::map<ProjectId, ProjectPtr> projects_; //!< A map from ProjectId to Project. 
         std::map<DataSeriesId, DataSeriesPtr> dataseries_;    //!< A map from DataSeriesId to DataSeries.
         std::map<LegendId, LegendPtr> legends_;    //!< A map from LegendId to Legend.
         mutable std::recursive_mutex mtx_;                    //!< A mutex to synchronize all operations.

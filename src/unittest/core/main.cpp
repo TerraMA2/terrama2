@@ -56,6 +56,7 @@
 
 int main(int argc, char** argv)
 {
+  std::locale::global(std::locale::classic());
   curl_global_init(CURL_GLOBAL_ALL);
 
   int ret = 0;

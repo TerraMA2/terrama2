@@ -262,7 +262,7 @@ terrama2::core::ProcessLogger::log(MessageType messageType, const std::string &d
 
 void terrama2::core::ProcessLogger::checkLogger() const
 {
-  if(!isValid_)
+  if(!isValid())
     throw terrama2::core::LogException() << ErrorDescription("Error on log!");
 }
 

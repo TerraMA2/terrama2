@@ -162,6 +162,12 @@ void TsDataAccessorDcpToa5::TestFailDataSeriesSemanticsInvalid()
 
 void TsDataAccessorDcpToa5::TestOKDataRetrieverValid()
 {
+  QFile file(QString::fromStdString(TERRAMA2_DATA_DIR+"/pcd_toa5//GRM/GRM_slow_2014_01_02_1713.dat"));
+  if(!file.exists())
+  {
+    QFAIL("Test data not found.");
+  }
+
   try
   {
     //DataProvider information
@@ -429,6 +435,12 @@ void TsDataAccessorDcpToa5::TestFailDataSetInvalid()
 
 void TsDataAccessorDcpToa5::TestOK()
 {
+  QFile file(QString::fromStdString(TERRAMA2_DATA_DIR+"/pcd_toa5//GRM/GRM_slow_2014_01_02_1713.dat"));
+  if(!file.exists())
+  {
+    QFAIL("Test data not found.");
+  }
+
   try
   {
     // add OGR build to the factory if not present

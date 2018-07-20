@@ -22,9 +22,9 @@
 
 #include <terrama2/Config.hpp>
 
-#include <examples/data/ResultAnalysisPostGis.hpp>
-#include <examples/data/StaticPostGis.hpp>
-#include <examples/data/OccurrenceWFP.hpp>
+#include <extra/data/ResultAnalysisPostGis.hpp>
+#include <extra/data/StaticPostGis.hpp>
+#include <extra/data/OccurrenceWFP.hpp>
 
 // STL
 #include <iostream>
@@ -83,6 +83,7 @@ int main(int argc, char* argv[])
     service.setLogger(logger);
     service.start();
 
+
     //DataProvider and DataSeries static postgis estados_2010
 
     auto dataProviderStatic = terrama2::staticpostgis::dataProviderStaticPostGis();
@@ -102,7 +103,7 @@ int main(int argc, char* argv[])
     dataManager->add(dataProviderResult);
 
 
-    auto dataSeriesResult = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::buffer_analysis_result,dataSeriesEstados);
+    auto dataSeriesResult = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::buffer_analysis_result, dataSeriesEstados);
     dataManager->add(dataSeriesResult);
 
 
@@ -150,8 +151,7 @@ add_value("level", x))z";
 
 
 
-
-
+   
 
 
     //DataProvider and DataSeries information Occurrence

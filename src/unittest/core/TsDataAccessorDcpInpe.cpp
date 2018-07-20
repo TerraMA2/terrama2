@@ -369,6 +369,12 @@ void TsDataAccessorDcpInpe::TestFailDataSetInvalid()
 
 void TsDataAccessorDcpInpe::TestOK()
 {
+  QFile file(QString::fromStdString(TERRAMA2_DATA_DIR+"/PCD_serrmar_INPE/30885.txt"));
+  if(!file.exists())
+  {
+    QFAIL("Test data not found.");
+  }
+
   try
   {
     // add OGR build to the factory if not present

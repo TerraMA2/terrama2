@@ -87,7 +87,10 @@ define(
      */
     var updateLayerSourceParams = function(layerId, params, refresh) {
       var layer = findBy(memberOlMap.getLayerGroup(), 'id', layerId);
-      layer.getSource().updateParams(params);
+      var source = layer.getSource();
+      if(source.hasOwnProperty("params_")){
+        source.updateParams(params);  
+      }
       if(refresh) layer.getSource().refresh();
     };
 
@@ -108,6 +111,13 @@ define(
       } else {
         updateLayerSourceParams(layerId, { TIME: newTime }, true);
       }
+    };
+      /** update the size of arrows in a wind animation
+       * @param {string} layerId - Layer id
+       * @param {object} currentLength - size to multiply the arrows
+       */
+    var updateLayerLength = function(layerId, currentLength){
+      updateLayerSourceParams(layerId, { env: 'size:'+ currentLength } , true);
     };
 
     /**
@@ -1660,7 +1670,8 @@ define(
       alterLayerIndex: alterLayerIndex,
       init: init,
       updateLayerOpacity: updateLayerOpacity,
-      getLayerOpacity: getLayerOpacity
+      getLayerOpacity: getLayerOpacity,
+      updateLayerLength
     };
   }
 );

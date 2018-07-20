@@ -59,24 +59,53 @@ namespace terrama2
 
       MOCK_CONST_METHOD1(start,
                          RegisterId(ProcessId processId));
+
       MOCK_CONST_METHOD1(setTableName,
                    void(std::string tableName));
+
       MOCK_METHOD1(setConnectionInfo,
                    void(const te::core::URI&));
+
       MOCK_CONST_METHOD2(error,
                          void(const std::string& description, const RegisterId registerId));
+
       MOCK_CONST_METHOD2(done,
                          void(const std::shared_ptr< te::dt::TimeInstantTZ >& dataTimestamp, const RegisterId registerId));
+
       MOCK_CONST_METHOD1(getLastProcessTimestamp,
                          std::shared_ptr<te::dt::TimeInstantTZ>(const ProcessId processId));
+
       MOCK_CONST_METHOD1(getDataLastTimestamp,
                          std::shared_ptr<te::dt::TimeInstantTZ>(const RegisterId registerId));
+
       MOCK_CONST_METHOD1(processID,
                          ProcessId(const RegisterId registerId));
+
       MOCK_CONST_METHOD0(clone,
                          std::shared_ptr<terrama2::core::ProcessLogger>());
 
       MOCK_CONST_METHOD0(isValid, bool());
+
+      MOCK_METHOD2(addInput,
+                   void(std::string value,
+                        RegisterId registerId
+                       )
+                   );
+
+      MOCK_METHOD2(addOutput,
+                   void(std::string value,
+                        RegisterId registerId
+                       )
+                   );
+
+      MOCK_CONST_METHOD2(setStartProcessingTime,
+                              void(const std::shared_ptr< te::dt::TimeInstantTZ > processingStartTime, const RegisterId registerId));
+      MOCK_CONST_METHOD2(setEndProcessingTime,
+                              void(const std::shared_ptr< te::dt::TimeInstantTZ > processingEndTime, const RegisterId registerId));
+ 
+      MOCK_CONST_METHOD3(result,
+                              void(Status status, const std::shared_ptr<te::dt::TimeInstantTZ> &dataTimestamp,
+                                           RegisterId registerId));
     };
 
   }  // namespace core

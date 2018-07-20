@@ -27,9 +27,9 @@
 
 #include <terrama2/Config.hpp>
 
-#include <examples/data/ResultAnalysisPostGis.hpp>
-#include <examples/data/StaticPostGis.hpp>
-#include <examples/data/Geotiff.hpp>
+#include <extra/data/ResultAnalysisPostGis.hpp>
+#include <extra/data/StaticPostGis.hpp>
+#include <extra/data/Geotiff.hpp>
 
 // QT
 #include <QTimer>
@@ -97,7 +97,6 @@ int main(int argc, char* argv[])
     monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
     monitoredObjectADS.metadata["identifier"] = "fid";
 
-
     // DataProvider information
 
     auto dataProviderResult = terrama2::resultanalysis::dataProviderResultAnalysis();
@@ -121,7 +120,6 @@ add_value("max", x))z";
     analysis->scriptLanguage = ScriptLanguage::PYTHON;
     analysis->type = AnalysisType::MONITORED_OBJECT_TYPE;
     analysis->serviceInstanceId = 1;
-
 
 
 

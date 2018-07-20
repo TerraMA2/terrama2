@@ -20,9 +20,9 @@
 #include <terrama2/impl/Utils.hpp>
 #include <terrama2/Config.hpp>
 
-#include <examples/data/DCPSerramarInpe.hpp>
-#include <examples/data/ResultAnalysisPostGis.hpp>
-#include <examples/data/StaticPostGis.hpp>
+#include <extra/data/DCPSerramarInpe.hpp>
+#include <extra/data/ResultAnalysisPostGis.hpp>
+#include <extra/data/StaticPostGis.hpp>
 
 
 #include <iostream>
@@ -95,6 +95,8 @@ int main(int argc, char* argv[])
     monitoredObjectADS.dataSeriesId = dataSeriesEstados->id;
     monitoredObjectADS.type = AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE;
     monitoredObjectADS.metadata["identifier"] = "fid";
+
+
     /*
      * DataProvider and DataSeries Result analysis
     */
@@ -139,8 +141,7 @@ add_value("standard_deviation", x))z";
     analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
 
 
-
-
+  
 
     /*
      * DataProvider and DataSeries Serramar

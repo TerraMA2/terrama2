@@ -33,9 +33,9 @@
 #include <terrama2/services/analysis/mock/MockAnalysisLogger.hpp>
 
 
-#include <examples/data/ResultAnalysisPostGis.hpp>
-#include <examples/data/StaticPostGis.hpp>
-#include <examples/data/DCPSerramarInpe.hpp>
+#include <extra/data/ResultAnalysisPostGis.hpp>
+#include <extra/data/StaticPostGis.hpp>
+#include <extra/data/DCPSerramarInpe.hpp>
 
 //STL
 #include <iostream>
@@ -134,7 +134,6 @@ int main(int argc, char* argv[])
     monitoredObjectADS.metadata["identifier"] = "objet_id_1";
 
 
-
     /*
      * DataProvider and dataSeries result
     */
@@ -142,9 +141,7 @@ int main(int argc, char* argv[])
     dataManager->add(dataProviderResult);
 
 
-    auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult,
-                                                                                      terrama2::resultanalysis::tablename::analysis_result,
-                                                                                      dataSeriesMunicSerrmar);
+    auto outputDataSeries = terrama2::resultanalysis::dataSeriesResultAnalysisPostGis(dataProviderResult, terrama2::resultanalysis::tablename::analysis_result, dataSeriesMunicSerrmar);
     dataManager->add(outputDataSeries);
 
 
@@ -170,7 +167,6 @@ add_value("min", x))z";
     analysis->metadata["INFLUENCE_TYPE"] = "1";
     analysis->metadata["INFLUENCE_RADIUS"] = "50";
     analysis->metadata["INFLUENCE_RADIUS_UNIT"] = "km";
-
 
 
 

@@ -55,7 +55,7 @@
 
 #include <terrama2/core/data-access/DataRetriever.hpp>
 
-#include <examples/data/GradsFTP.hpp>
+#include <extra/data/GradsFTP.hpp>
 
 
 // STL

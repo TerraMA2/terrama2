@@ -28,10 +28,16 @@
 #  add_definitions(-DTMA_CORE_DLL)
 #endif()
 
-file(GLOB TERRAMA2_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/examples/data/*.hpp)
+file(GLOB TERRAMA2_DATA_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/extra/data/*.hpp)
+file(GLOB TERRAMA2_MOCK_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/extra/mock/*.hpp)
 
-source_group("Header Files"  FILES ${TERRAMA2_HDR_FILES})
+source_group("Header Files\\Data"  FILES ${TERRAMA2_DATA_HDR_FILES})
 
-install(FILES ${TERRAMA2_HDR_FILES}
-DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2/examples COMPONENT devel)
+source_group("Header Files\\Mock"  FILES ${TERRAMA2_MOCK_HDR_FILES})
+
+install(FILES ${TERRAMA2_DATA_HDR_FILES}
+DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2/extra/data COMPONENT devel)
+
+install(FILES ${TERRAMA2_MOCK_HDR_FILES}
+DESTINATION ${TERRAMA2_DESTINATION_HEADERS}/terrama2/extra/mock COMPONENT devel)
 

@@ -36,7 +36,7 @@
 
 #include <terrama2/core/data-access/DataRetriever.hpp>
 
-#include <examples/data/DCPSerramarInpe.hpp>
+#include <extra/data/DCPSerramarInpe.hpp>
 
 // STL
 #include <memory>

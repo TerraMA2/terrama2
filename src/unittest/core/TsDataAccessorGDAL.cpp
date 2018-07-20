@@ -210,6 +210,12 @@ void TsDataAccessorGDAL::TestFailDataRetrieverInvalid()
 
 void TsDataAccessorGDAL::TestOK()
 {
+  QFile file(QString::fromStdString(TERRAMA2_DATA_DIR+"/geotiff/L5219076_07620040908_r3g2b1.tif"));
+  if(!file.exists())
+  {
+    QFAIL("Test data not found.");
+  }
+
   try
   {
     //DataProvider information

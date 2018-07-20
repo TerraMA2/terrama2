@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import json, sys, unicodedata
 
 dataEn = json.loads(open('../webapp/locales/en_US.json').read())

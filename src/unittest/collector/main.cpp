@@ -18,6 +18,7 @@
 
 int main(int argc, char *argv[])
 {
+  std::locale::global(std::locale::classic());
 
   int ret = 0;
   QCoreApplication app(argc, argv);
