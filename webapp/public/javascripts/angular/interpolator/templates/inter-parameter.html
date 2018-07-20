@@ -13,28 +13,57 @@
           </div>
         </div>
         <div class="col-md-6">
-          <div class="form-group" terrama2-show-errors>
-            <label>{{ i18n.__('Valid time interval') }}:</label>
-            <input class="form-control" id="time_interval" name="time_interval" ng-model="inter.metadata.time_interval" type="text" required>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group" style="top:30px;" terrama2-show-errors>
+                <label>{{ i18n.__('Time Unit') }}:</label>
+                <select class="form-control" name="schedule"
+                        ng-disabled="options.disabled"
+                        ng-model="inter.intervalType"
+                        required>
+                  <option value="s">{{ i18n.__('Seconds') }}</option>
+                  <option value="min">{{ i18n.__('Minutes') }}</option>
+                  <option value="h">{{ i18n.__('Hours') }}</option>
+                  <option value="d">{{ i18n.__('Days') }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-md-6" ng-if="inter.intervalType">
+              <div class="form-group" terrama2-show-errors>
+                <label>{{ i18n.__('Valid time interval') }}:</label>
+                <input class="form-control"
+                        id="time_interval"
+                        name="time_interval"
+                        ng-model="inter.metadata.time_interval"
+                        type="number"
+                        required>
+              </div>
+              <!-- end form group -->
+            </div>
+            <!-- end col md 6 - ngif -->
+          </div>
+          <!-- end row -->
+      </div>
+      <!-- end col -md 6 -->
+
+      <div class="col-md-12">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group" terrama2-show-errors>
+              <label>{{ i18n.__('Interpolation attribute') }}:</label>
+              <input class="form-control" id="interpolation_attribute" name="interpolation_attribute" ng-model="inter.interpolation_attribute" type="text" required>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group" terrama2-show-errors>
+              <label>{{ i18n.__('Number of neighbors') }}:</label>
+              <input class="form-control" id="number_of_neighbors" name="number_of_neighbors" ng-model="inter.metadata.number_of_neighbors" type="number" required>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="col-md-12">
-        <div class="col-md-6">
-          <div class="form-group" terrama2-show-errors>
-            <label>{{ i18n.__('Interpolation attribute') }}:</label>
-            <input class="form-control" id="interpolation_attribute" name="interpolation_attribute" ng-model="inter.interpolation_attribute" type="text" required>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="form-group" terrama2-show-errors>
-            <label>{{ i18n.__('Number of neighbors') }}:</label>
-            <input class="form-control" id="number_of_neighbors" name="number_of_neighbors" ng-model="inter.metadata.number_of_neighbors" type="number" required>
-          </div>
-        </div>
-      </div>
-    
       <div class="col-md-12">
         <div class="col-md-6" ng-if="inter.interpolator_strategy == 'W-AVERAGE-NEIGHBOR'">
           <div>
@@ -45,7 +74,7 @@
           </div>
         </div>
       </div>
-    </terrama2-box>    
+    </terrama2-box>
 
     <terrama2-box title="i18n.__('Area')" css="cssBoxSolid">
       <div class="col-md-12 no-padding">
@@ -54,13 +83,13 @@
             <div class="form-group" terrama2-show-errors>
               <label>{{ i18n.__('X min') }}:</label>
               <input class="form-control" id="llx" name="llx" ng-model="bounding_rect.ll_corner.x" type="number" required>
-            </div>          
+            </div>
           </div>
           <div class="col-md-6">
             <div class="form-group" terrama2-show-errors>
               <label>{{ i18n.__('X max') }}:</label>
               <input class="form-control" id="urx" name="urx" ng-model="bounding_rect.ur_corner.x" type="number" required>
-            </div>              
+            </div>
           </div>
         </div>
         <div class="col-md-12">
@@ -74,12 +103,12 @@
             <div class="form-group" terrama2-show-errors>
               <label>{{ i18n.__('Y max') }}:</label>
               <input class="form-control" id="ury" name="ury" ng-model="bounding_rect.ur_corner.y" type="number" required>
-            </div>              
+            </div>
           </div>
         </div>
         <div class="col-md-12">
           <div class="col-md-6">
-            <div class="form-group" terrama2-show-errors>            
+            <div class="form-group" terrama2-show-errors>
               <label>{{ i18n.__('X resolution') }}:</label>
               <input class="form-control" id="resolution_x" name="resolution_x" ng-model="inter.resolution_x" type="number" required>
             </div>
@@ -88,7 +117,7 @@
             <div class="form-group" terrama2-show-errors>
               <label>{{ i18n.__('Y resolution') }}:</label>
               <input class="form-control" id="resolution_y" name="resolution_y" ng-model="inter.resolution_y" type="number" required>
-            </div>            
+            </div>
           </div>
         </div>
         <div class="col-md-12">

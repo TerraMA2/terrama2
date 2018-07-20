@@ -35,6 +35,7 @@
 #include "DataProvider.hpp"
 #include "DataSeries.hpp"
 #include "DataSet.hpp"
+#include "Project.hpp"
 #include "../Exception.hpp"
 #include "../Typedef.hpp"
 
@@ -147,6 +148,86 @@ void terrama2::core::DataManager::update(terrama2::core::DataProviderPtr provide
 
   emit dataProviderUpdated(provider);
 }
+
+void terrama2::core::DataManager::add(terrama2::core::ProjectPtr project)
+{
+  // Inside a block so the lock is released before emitting the signal
+  {
+    std::lock_guard<std::recursive_mutex> lock(mtx_);
+
+    if(project->name.empty())
+    {
+      QString errMsg = QObject::tr("Can not add a project with empty name.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
+
+    if(project->id == terrama2::core::InvalidId())
+    {
+      QString errMsg = QObject::tr("Can not add a project with invalid identifier.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
+
+    try
+    {
+      projects_.at(project->id);
+
+      QString errMsg = QObject::tr("Project already registered.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
+    catch (const std::out_of_range&)
+    {
+      //Expected behavior
+    }
+
+    projects_.emplace(project->id, project);
+  }
+}
+
+void terrama2::core::DataManager::update(terrama2::core::ProjectPtr project)
+{
+  {
+    std::lock_guard<std::recursive_mutex> lock(mtx_);
+    blockSignals(true);
+    removeProject(project->id);
+    add(project);
+    blockSignals(false);
+  }
+}
+
+void terrama2::core::DataManager::removeProject(const ProjectId id)
+{
+  {
+    std::lock_guard<std::recursive_mutex> lock(mtx_);
+    auto itPr = projects_.find(id);
+    if(itPr == projects_.end())
+    {
+      QString errMsg = QObject::tr("Could not find a project with the given id: %1.").arg(id);
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
+
+    projects_.erase(itPr);
+  }
+}
+
+terrama2::core::ProjectPtr terrama2::core::DataManager::findProject(const ProjectId id) const
+{
+  std::lock_guard<std::recursive_mutex> lock(mtx_);
+
+  const auto& it = projects_.find(id);
+  if(it == projects_.cend())
+  {
+    QString errMsg = QObject::tr("Could not find a project with the given id: %1.").arg(id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+  }
+
+  return it->second;
+}
+
 
 void terrama2::core::DataManager::add(terrama2::core::LegendPtr legend)
 {
@@ -380,6 +461,16 @@ terrama2::core::DataManager::DataManager()
 
 void terrama2::core::DataManager::addJSon(const QJsonObject& obj)
 {
+  auto projects = obj["Projects"].toArray();
+  for(auto json : projects)
+  {
+    auto dataPtr = terrama2::core::fromProjectJson(json.toObject());
+    if(hasDataProvider(dataPtr->id))
+      update(dataPtr);
+    else
+      add(dataPtr);
+  }
+
   auto dataProviders = obj["DataProviders"].toArray();
   for(auto json : dataProviders)
   {

@@ -100,7 +100,7 @@ cd /home/USER/mydevel/terrama2/codebase/packages/deb-package
 
 1.6. When the script finishes, just run the following command to install VMime package:
 ```
-sudo dpkg -i terrama2-vmime-4.0.5_0.9.2-ubuntu16.04_amd64.deb
+sudo dpkg -i terrama2-vmime-4.0.7_0.9.2-ubuntu16.04_amd64.deb
 ```
 
 1.7. Then check and install any missing library, finishing the dependencies installation with the command:
@@ -204,7 +204,7 @@ cd /home/USER/mydevel/terrama2/codebase/packages/deb-package
 
 1.4. To install TerraMA² debian package in the shell command line change the current directory to the `build-package` folder and run the following command:
 ```
-sudo dpkg -i TerraMA2-4.0.5-release-linux-x64-Ubuntu-16.04.deb
+sudo dpkg -i TerraMA2-4.0.7-release-linux-x64-Ubuntu-16.04.deb
 ```
 
 ### Quick Notes for Developers

@@ -113,6 +113,12 @@ std::vector<double> terrama2::services::analysis::core::grid::history::sample(co
       samples.reserve(rasterList.size());
       for(const auto& raster : rasterList)
       {
+        if(band >= raster->getNumberOfBands())
+        {
+          QString errMsg(QObject::tr("Invalid band index for dataset: %1").arg(dataset->id));
+          throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+        }
+
         auto dsGrid = raster->getGrid();
         if(!dsGrid)
         {

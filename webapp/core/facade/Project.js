@@ -6,22 +6,25 @@
   var PromiseClass = require("./../Promise");
   var Application = require("./../Application");
   var ProjectError = require("./../Exceptions").ProjectError;
+  const ProjectModel = require("./../data-model/Project");
 
   /**
    * It represents a mock to handle project.
    * It is used in Project API
-   * 
+   *
    * @class Project
    */
   var Project = module.exports = {};
 
   /**
    * Helper to send providers via TCP
-   * 
+   *
    * @param {Array} providers Providers values to send
+   * @param {Array} projects Projects values
    */
-  function sendProviders(providers) {
+  function sendProviders(providers, projects) {
     var objToSend = {
+      "Projects": projects,
       "DataProviders": []
     };
 
@@ -34,7 +37,7 @@
 
   /**
    * Helper to send project data via TCP
-   * 
+   *
    * @param {Object} project Project values to send
    */
   function projectReceived(project) {
@@ -43,7 +46,7 @@
 
   /**
    * It applies a save operation and send project to the service
-   * 
+   *
    * @param {Object} projectObject - A project object to save
    * @param {number} userId - A user identifier
    * @param {Object} options - Transaction options
@@ -53,53 +56,50 @@
     return new PromiseClass(function(resolve, reject) {
       projectObject.user_id = userId;
 
-      DataManager.addProject(projectObject).then(function(project) {
-        projectReceived(project);
+      DataManager.addProject(projectObject)
+        .then(function(project) {
+          projectReceived(project);
 
-        // Creating default PostGIS and File providers
-        var configFile = Application.getContextConfig();
+          // Creating default PostGIS and File providers
+          var configFile = Application.getContextConfig();
 
-        // File data provider object
-        var DefaultFileProvider = {
-          name: "Local Folder",
-          uri: "file://" + configFile.defaultFilePath,
-          description: "Local Folder data server",
-          data_provider_intent_id: 1,
-          data_provider_type_id: 1,
-          project_id: project.id,
-          active: true
-        };
+          // File data provider object
+          var DefaultFileProvider = {
+            name: "Local Folder",
+            uri: "file://" + configFile.defaultFilePath,
+            description: "Local Folder data server",
+            data_provider_intent_id: 1,
+            data_provider_type_id: 1,
+            project_id: project.id,
+            active: true
+          };
 
-        // PostGIS data provider object
-        var uriPostgis = "postgis://" + configFile.db.username + ":" + configFile.db.password + "@" + configFile.db.host + ":5432/" + configFile.db.database;
-        var DefaultPostgisProvider = {
-          name: "Local Database PostGIS",
-          uri: uriPostgis,
-          description: "Local Database PostGIS data server",
-          data_provider_intent_id: 1,
-          data_provider_type_id: 4,
-          project_id: project.id,
-          active: true
-        };
-        var promises = [];
-        promises.push(DataManager.addDataProvider(DefaultFileProvider));
-        promises.push(DataManager.addDataProvider(DefaultPostgisProvider));
+          // PostGIS data provider object
+          var uriPostgis = "postgis://" + configFile.db.username + ":" + configFile.db.password + "@" + configFile.db.host + ":5432/" + configFile.db.database;
+          var DefaultPostgisProvider = {
+            name: "Local Database PostGIS",
+            uri: uriPostgis,
+            description: "Local Database PostGIS data server",
+            data_provider_intent_id: 1,
+            data_provider_type_id: 4,
+            project_id: project.id,
+            active: true
+          };
+          var promises = [];
+          promises.push(DataManager.addDataProvider(DefaultFileProvider));
+          promises.push(DataManager.addDataProvider(DefaultPostgisProvider));
 
-        return Promise.all(promises).then(function(providers) {
-          sendProviders(providers);
-          return resolve(project);
-        }).catch(function(err) {
-          return reject(err);
-        });
-      }).catch(function(err) {
-        return reject(err);
-      });
+          return Promise.all(promises)
+            .then(providers => sendProviders(providers, [new ProjectModel(project).toObject()]))
+            .then(() => resolve(project));
+        })
+        .catch(err =>reject(err));
     });
   };
 
   /**
    * It retrieves projects from database. It applies a filter by ID if there is.
-   * 
+   *
    * @param {number} projectId - Project Identifier
    * @param {object} user - User data
    * @returns {Promise<Project[]>}
@@ -126,7 +126,7 @@
 
   /**
    * It performs update project from database from project identifier
-   * 
+   *
    * @param {number} projectId - Project Identifier
    * @param {Object} projectObject - Project object values
    * @param {number} userId - A user identifier
@@ -141,6 +141,9 @@
 
         DataManager.updateProject(projectGiven).then(function(project) {
           projectReceived(project);
+
+          // Sending through TCP
+          TcpService.send({"Projects": [new ProjectModel(project).toObject()]});
           return resolve(project);
         }).catch(function(err) {
           return reject(err);
@@ -153,7 +156,7 @@
 
   /**
    * It performs remove project from database from project identifier
-   * 
+   *
    * @param {number} projectId - Project Identifier
    * @returns {Promise<Project>}
    */
@@ -168,7 +171,8 @@
             "DataProvider": [],
             "DataSeries": [],
             "Legends": [],
-            "Views": []
+            "Views": [],
+            "Projects": [new ProjectModel(project).toObject()]
           };
 
           var dataProviders = DataManager.listDataProviders({ project_id: projectId });

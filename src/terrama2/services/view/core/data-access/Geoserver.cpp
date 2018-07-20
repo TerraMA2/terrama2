@@ -290,7 +290,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
       std::string SQL = "SELECT t.id, t.geom, t.timestamp, t.var as "+variable+" from dcp_last_measures('"+dcpPositions.tableName+"', '"+variable+"')"
                         "AS t(id integer, geom geometry, \"timestamp\" timestamp with time zone, var double precision)";
 
-      std::unique_ptr<te::da::DataSetType> modelDataSetType(dcpPositions.dataSetType.release());
+      std::unique_ptr<te::da::DataSetType> modelDataSetType = std::move(dcpPositions.dataSetType);
 
       TableInfo tableInfo = DataAccess::getDCPPostgisTableInfo(inputDataSeries, inputObjectProvider);
       std::string layerName = viewLayerName(viewPtr);
@@ -1207,7 +1207,13 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string&
   // Register style
   cURLwrapper.post(uriPost, style, contentType);
 
-  if(cURLwrapper.responseCode() == 403)
+  ////////////////////////////////////
+  // for some unknown reason resgistering a new style with
+  // the POST method creates an empty style.
+  // Because of that we after registering the new style
+  // we update with a PUT.
+  ////////////////////////////////////
+
   {
     te::core::URI uriPut(uri_.uri() + "/rest/workspaces/" + workspace_ + "/styles/" + validName +"?raw=true");
 
@@ -1227,12 +1233,6 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string&
       throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
     }
   }
-  else if(cURLwrapper.responseCode() != 201)
-  {
-    QString errMsg = QObject::tr(cURLwrapper.response().c_str());
-    TERRAMA2_LOG_ERROR() << errMsg << uriPost.uri();
-    throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(cURLwrapper.response()));
-  }
 }
 
 
@@ -1246,44 +1246,24 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string&
     if(legend.metadata.at("creation_type") != "editor")
     {
       registerStyle(name, legend.metadata.at("xml_style"));
-
-      return;
     }
-
-    std::unique_ptr<te::se::Style> style(generateVectorialStyle(legend, geomType).release());
-
-    registerStyle(name, style);
+    else
+    {
+      std::unique_ptr<te::se::Style> style(generateVectorialStyle(legend, geomType).release());
+      registerStyle(name, style);
+    }
   }
   else if(objectType == View::Legend::ObjectType::RASTER)
   {
     if(legend.metadata.at("creation_type") != "editor")
     {
       registerStyle(name, legend.metadata.at("xml_style"), "1.0.0");
-
-      return;
     }
-
-    QTemporaryFile file;
-    if(!file.open())
+    else 
     {
-      QString errMsg = QObject::tr("Can't open the file.");
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw ViewGeoserverException() << ErrorDescription(errMsg);
+      registerCoverageStyle(name, legend);
+      registerLegendCoverageStyle(name+"_legend", legend);
     }
-
-    std::string filePath = file.fileName().toStdString();
-
-    Serialization::writeCoverageStyleGeoserverXML(legend, filePath);
-
-    QByteArray content = file.readAll();
-    if(content.isEmpty())
-    {
-      QString errMsg = QObject::tr("Can't read the SLD file.");
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw ViewGeoserverException() << ErrorDescription(errMsg);
-    }
-
-    registerStyle(name, QString(content).toStdString(), "1.0.0");
   }
   else
   {
@@ -1291,6 +1271,37 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string&
     TERRAMA2_LOG_ERROR() << errMsg;
     throw ViewGeoserverException() << ErrorDescription(errMsg);
   }
+}
+
+void terrama2::services::view::core::GeoServer::registerLegendCoverageStyle(const std::string& name,
+                                                                            const View::Legend& legend) const {
+  registerCoverageStyle(name, legend, false);
+}
+
+void terrama2::services::view::core::GeoServer::registerCoverageStyle(const std::string& name,
+                                                                      const View::Legend& legend,
+                                                                      bool useDummy) const {
+  QTemporaryFile file;
+  if(!file.open())
+  {
+    QString errMsg = QObject::tr("Can't open the file.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ViewGeoserverException() << ErrorDescription(errMsg);
+  }
+
+  std::string filePath = file.fileName().toStdString();
+
+  Serialization::writeCoverageStyleGeoserverXML(legend, filePath, useDummy);
+
+  QByteArray content = file.readAll();
+  if(content.isEmpty())
+  {
+    QString errMsg = QObject::tr("Can't read the SLD file.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ViewGeoserverException() << ErrorDescription(errMsg);
+  }
+
+  registerStyle(name, QString(content).toStdString(), "1.0.0");
 }
 
 
