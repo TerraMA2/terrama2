@@ -35,6 +35,10 @@ namespace terrama2
 {
   namespace core
   {
+    /**
+     * @brief RAII class for accessing HTTP servers
+     * 
+     */
     class TMCOREEXPORT CurlWrapperHttp : public te::ws::core::CurlWrapper
     {
       public:

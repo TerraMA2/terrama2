@@ -37,12 +37,10 @@ namespace terrama2
 {
   namespace core
   {
-    /*!
-      \class DataAccessorDCPCSV
-
-      \brief Base class for DataAccessor classes that access a DCP text file.
-
-    */
+    /**
+     * @brief Base class for DataAccessor classes that access a DCP text file.
+     * 
+     */
     class TMIMPLEXPORT DataAccessorOccurrenceCSV : public DataAccessorCSV
     {
       public:
