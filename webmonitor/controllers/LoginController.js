@@ -43,7 +43,8 @@ var LoginController = function(app) {
 
           return response.json({
             error: null,
-            username: user.name
+            username: user.name,
+            token: user.token
           });
         });
       }

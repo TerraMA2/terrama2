@@ -16,6 +16,29 @@ define(
       return memberSocket;
     };
 
+    /**
+     * Retrieves current token of browser cache
+     */
+    const getToken = () => {
+      return sessionStorage.getItem("token");
+    };
+
+    /**
+     * Used to set current session token in browser cache
+     *
+     * @param {string} token
+     */
+    const setToken = (token) => {
+      sessionStorage.setItem("token", token);
+    };
+
+    /**
+     * Clear current browser cache
+     */
+    const clearSession = () => {
+      sessionStorage.removeItem("token");
+    };
+
     var getWebAppSocket = function() {
       return memberWebAppSocket;
     };
@@ -118,7 +141,10 @@ define(
       changeLanguage: changeLanguage,
       getSocket: getSocket,
       getWebAppSocket: getWebAppSocket,
-      orderByProperty: orderByProperty
+      orderByProperty: orderByProperty,
+      setToken,
+      getToken,
+      clearSession
     };
   }
 );

@@ -121,7 +121,7 @@ define(
 
       for(var i = 0, layersLength = newOrder.length; i < layersLength; i++) {
         var layer = Layers.getLayerById(newOrder[i].id);
-        
+
         if(layer !== null && $("#terrama2-sortlayers > ul > #" + layer.htmlId).length > 0) {
           TerraMA2WebComponents.MapDisplay.alterLayerIndex($("#terrama2-sortlayers > ul > #" + layer.htmlId).attr('data-parentid'), (sortableLength - $("#terrama2-sortlayers > ul > #" + layer.htmlId).index()), sortableLength);
           $("#terrama2-sortlayers > ul").insertAt(0, $("#terrama2-sortlayers > ul > #" + layer.htmlId).detach());
@@ -138,7 +138,7 @@ define(
     };
 
     var verifyState = function() {
-      Utils.getSocket().emit('getState', { verifyState: true });
+      Utils.getSocket().emit('getState', { verifyState: true, token: Utils.getToken() });
     };
 
     var loadSocketsListeners = function() {

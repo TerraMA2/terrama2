@@ -112,7 +112,7 @@ define(
           TerraMA2WebComponents.MapDisplay.updateMapSize();
         }, 100);
 
-        $(".sidebar-menu").height((memberWindowHeight - 195) + "px");        
+        $(".sidebar-menu").height((memberWindowHeight - 195) + "px");
       });
 
       $('#close-alert').on('click', function() {
@@ -880,7 +880,7 @@ define(
       loadLayout();
       $("#osm input").trigger("click");
 
-      Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, initialRequest: true });
+      Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, initialRequest: true, token: Utils.getToken() });
     };
 
     return {
