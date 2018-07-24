@@ -264,7 +264,7 @@ define(
         Utils.getSocket().emit('retrieveRemovedViews', { clientId: Utils.getWebAppSocket().id, views: viewsToSend });
       });
 
-      Utils.getWebAppSocket().on('viewReceived', function() {
+      Utils.getWebAppSocket().on('viewReceived', async function() {
         var allLayers = Layers.getAllLayers();
         var viewsToSend = {};
 
@@ -273,7 +273,7 @@ define(
 
         let flag = false;
         try {
-          flag = Utils.isAuthenticated();
+          flag = await Utils.isAuthenticated();
         } catch (err) {
           console.warn("Error checking authentication", err);
         }
