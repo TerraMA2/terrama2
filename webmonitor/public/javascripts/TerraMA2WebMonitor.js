@@ -271,7 +271,14 @@ define(
         for(var i = 0, allLayersLength = allLayers.length; i < allLayersLength; i++)
           viewsToSend[allLayers[i].id] = allLayers[i].private;
 
-        Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, views: viewsToSend });
+        let flag = false;
+        try {
+          flag = Utils.isAuthenticated();
+        } catch (err) {
+          console.warn("Error checking authentication", err);
+        }
+
+        Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, views: viewsToSend, token: flag ? Utils.getToken(): "" });
       });
 
       Utils.getWebAppSocket().on('projectReceived', function(project) {
@@ -880,7 +887,11 @@ define(
       loadLayout();
       $("#osm input").trigger("click");
 
-      Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, initialRequest: true, token: Utils.getToken() });
+      Utils.isAuthenticated()
+        .then(flag => {
+          Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, initialRequest: true, token: flag ? Utils.getToken() : "" });
+        })
+        .catch(error => console.error(error));
     };
 
     return {

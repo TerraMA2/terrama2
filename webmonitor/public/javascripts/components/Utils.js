@@ -39,6 +39,20 @@ define(
       sessionStorage.removeItem("token");
     };
 
+    /**
+     * Check if there a active user session on remote server.
+     *
+     * @returns Promise<boolean>
+     */
+    const isAuthenticated = () => {
+      return new Promise((resolve, reject) => {
+        $.post(BASE_URL + "check-authentication", function(data) {
+          return resolve(data.isAuthenticated);
+        })
+        .fail(() => reject(new Error("Could not check authentication. Please refresh page (F5).")));
+      });
+    };
+
     var getWebAppSocket = function() {
       return memberWebAppSocket;
     };
@@ -144,7 +158,8 @@ define(
       orderByProperty: orderByProperty,
       setToken,
       getToken,
-      clearSession
+      clearSession,
+      isAuthenticated
     };
   }
 );
