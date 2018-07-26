@@ -16,6 +16,43 @@ define(
       return memberSocket;
     };
 
+    /**
+     * Retrieves current token of browser cache
+     */
+    const getToken = () => {
+      return sessionStorage.getItem("token");
+    };
+
+    /**
+     * Used to set current session token in browser cache
+     *
+     * @param {string} token
+     */
+    const setToken = (token) => {
+      sessionStorage.setItem("token", token);
+    };
+
+    /**
+     * Clear current browser cache
+     */
+    const clearSession = () => {
+      sessionStorage.removeItem("token");
+    };
+
+    /**
+     * Check if there a active user session on remote server.
+     *
+     * @returns Promise<boolean>
+     */
+    const isAuthenticated = () => {
+      return new Promise((resolve, reject) => {
+        $.post(BASE_URL + "check-authentication", function(data) {
+          return resolve(data.isAuthenticated);
+        })
+        .fail(() => reject(new Error("Could not check authentication. Please refresh page (F5).")));
+      });
+    };
+
     var getWebAppSocket = function() {
       return memberWebAppSocket;
     };
@@ -118,7 +155,11 @@ define(
       changeLanguage: changeLanguage,
       getSocket: getSocket,
       getWebAppSocket: getWebAppSocket,
-      orderByProperty: orderByProperty
+      orderByProperty: orderByProperty,
+      setToken,
+      getToken,
+      clearSession,
+      isAuthenticated
     };
   }
 );

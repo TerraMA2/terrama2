@@ -8,8 +8,15 @@ module.exports = function(grunt) {
       TerraMA2WebMonitor: {
         options: {
           baseUrl: "public/javascripts",
-          out: "public/dist/TerraMA2WebMonitor.min.js",
-          preserveLicenseComments: false,
+          optimize: "none",
+          out: function(text, sourceMapText) {
+            var UglifyJS = require('uglify-es');
+            uglified = UglifyJS.minify(text, { sourceMap: { content: sourceMapText, url: "/dist/TerraMA2WebMonitor.min.js" } });
+
+            grunt.file.write("public/dist/TerraMA2WebMonitor.min.js", uglified.code);
+            grunt.file.write("public/dist/TerraMA2WebMonitor.min.js.map", uglified.map);
+          },
+          generateSourceMaps: true,
           paths: {
             TerraMA2WebComponents: "../../../webcomponents/dist/TerraMA2WebComponents.min"
           },
