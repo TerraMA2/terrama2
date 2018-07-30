@@ -112,7 +112,7 @@ define(
           TerraMA2WebComponents.MapDisplay.updateMapSize();
         }, 100);
 
-        $(".sidebar-menu").height((memberWindowHeight - 195) + "px");        
+        $(".sidebar-menu").height((memberWindowHeight - 195) + "px");
       });
 
       $('#close-alert').on('click', function() {
@@ -264,14 +264,21 @@ define(
         Utils.getSocket().emit('retrieveRemovedViews', { clientId: Utils.getWebAppSocket().id, views: viewsToSend });
       });
 
-      Utils.getWebAppSocket().on('viewReceived', function() {
+      Utils.getWebAppSocket().on('viewReceived', async function() {
         var allLayers = Layers.getAllLayers();
         var viewsToSend = {};
 
         for(var i = 0, allLayersLength = allLayers.length; i < allLayersLength; i++)
           viewsToSend[allLayers[i].id] = allLayers[i].private;
 
-        Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, views: viewsToSend });
+        let flag = false;
+        try {
+          flag = await Utils.isAuthenticated();
+        } catch (err) {
+          console.warn("Error checking authentication", err);
+        }
+
+        Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, views: viewsToSend, token: flag ? Utils.getToken(): "" });
       });
 
       Utils.getWebAppSocket().on('projectReceived', function(project) {
@@ -880,7 +887,11 @@ define(
       loadLayout();
       $("#osm input").trigger("click");
 
-      Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, initialRequest: true });
+      Utils.isAuthenticated()
+        .then(flag => {
+          Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, initialRequest: true, token: flag ? Utils.getToken() : "" });
+        })
+        .catch(error => console.error(error));
     };
 
     return {

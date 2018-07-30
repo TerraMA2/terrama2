@@ -47,6 +47,9 @@ sudo apt-get update
   git status
   if [[ $? -ne 0 ]]; then
     git clone https://github.com/TerraMA2/terrama2.git .
+
+    cd .git/hooks
+    cp ${SCRIPTS_DIR}/pre-commit .
   fi
 )
 
