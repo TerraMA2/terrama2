@@ -95,9 +95,13 @@ namespace terrama2
 
         //! Default destructor.
         virtual ~DataManager() = default;
+        //! Deleted copy constructor
         DataManager(const DataManager& other) = delete;
+        //! Deleted copy constructor
         DataManager(DataManager&& other) = delete;
+        //! Deleted copy constructor
         DataManager& operator=(const DataManager& other) = delete;
+        //! Deleted copy constructor
         DataManager& operator=(DataManager&& other) = delete;
 
         /*!
@@ -391,6 +395,15 @@ namespace terrama2
         */
         virtual DataProviderPtr findDataProvider(const DataProviderId id) const;
 
+        /*!
+          \brief Verify if a given DataProvider exist
+
+          \param id ID of the DataProvider
+
+          \pre The DataProvider must not have a terrama2::core::InvalidId.
+
+          \note Thread-safe.
+        */
         virtual bool hasDataProvider(const DataProviderId id) const;
 
         /*!
@@ -416,6 +429,16 @@ namespace terrama2
           \note Thread-safe.
         */
         virtual DataSeriesPtr findDataSeries(const DataSeriesId id) const;
+
+        /*!
+          \brief Verify if a given DataSeries exist
+
+          \param id ID of the DataSeries
+
+          \pre The DataSeries must not have a terrama2::core::InvalidId.
+
+          \note Thread-safe.
+        */
         virtual bool hasDataSeries(const DataSeriesId id) const;
 
       signals:

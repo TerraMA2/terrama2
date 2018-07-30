@@ -65,6 +65,7 @@ namespace terrama2
   } /* core */
 } /* terrama2 */
 
+//! Typedef for a projection EPSG code
 typedef uint32_t Srid;
 
 #endif // __TERRAMA2_CORE_TYPEDEF_HPP__

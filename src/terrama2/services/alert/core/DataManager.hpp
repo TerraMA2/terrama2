@@ -80,9 +80,13 @@ namespace terrama2
 
             //! Default destructor
             virtual ~DataManager() = default;
+            //! Deleted copy constructor
             DataManager(const DataManager& other) = delete;
+            //! Deleted copy constructor
             DataManager(DataManager&& other) = delete;
+            //! Deleted copy constructor
             DataManager& operator=(const DataManager& other) = delete;
+            //! Deleted copy constructor
             DataManager& operator=(DataManager&& other) = delete;
 
             using terrama2::core::DataManager::add;

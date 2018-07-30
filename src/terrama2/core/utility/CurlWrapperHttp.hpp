@@ -45,6 +45,11 @@ namespace terrama2
         using te::ws::core::CurlWrapper::downloadFile;
         using te::ws::core::CurlWrapper::verifyURL;
 
+        /**
+         * @brief Method to download a file retrieved from given URL and save into the specified File.
+         * 
+         * @note This is a wrapper method to set some needed flags in the curl object.
+         */
         virtual void downloadFile(const std::string &url, std::FILE* file, te::common::TaskProgress* taskProgress = nullptr) override;
     };
   } /* core */
