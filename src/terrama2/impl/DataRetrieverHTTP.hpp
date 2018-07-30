@@ -112,6 +112,12 @@ namespace terrama2
         static DataRetrieverPtr make(DataProviderPtr dataProvider);
         static DataRetrieverType dataRetrieverType() { return "HTTP"; }
 
+        /**
+         * @brief List files in a page
+         * 
+         * This method parses the content of a page,
+         * as it depends on the HTML it should be used with caution.
+         */
         std::vector<std::string> listFiles(const std::string& uri) const;
 
       private:
