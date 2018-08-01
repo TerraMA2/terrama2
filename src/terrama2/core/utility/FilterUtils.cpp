@@ -44,47 +44,62 @@
 
 std::string terrama2::core::terramaMask2Regex(const std::string& mask)
 {
-  QString m(mask.c_str());
+  auto temp = QString::fromStdString(mask);
+  auto list = temp.split(QRegExp("\\%\\(|\\)\\%"), QString::SkipEmptyParts);
+  std::function<bool(int)> isRegex;
+  if(temp.startsWith("%("))
+    isRegex = [](int i){ return i%2 == 0; };
+  else
+    isRegex = [](int i){ return i%2 != 0; };
 
-  // escape regex metacharacters
-  m.replace("+", "\\+");
-  m.replace("(", "\\(");
-  m.replace(")", "\\)");
-  m.replace("[", "\\[");
-  m.replace("]", "\\]");
-  m.replace("{", "\\{");
-  m.replace("}", "\\}");
-  m.replace("^", "\\^");
-  m.replace("$", "\\$");
-  m.replace("&", "\\&");
-  m.replace("|", "\\|");
-  m.replace("?", "\\?");
-  m.replace(".", "\\.");
+  for(int i = 0; i < list.size(); ++i)
+  {
+    auto& m = list[i];
+    if(isRegex(i))
+    {
+      m = "("+m+")";
+      continue;
+    }
 
-  /*
-    YYYY  year with 4 digits        [0-9]{4}
-    YY    year with 2 digits        [0-9]{2}
-    MM    month with 2 digits       0[1-9]|1[012]
-    DD    day with 2 digits         0[1-9]|[12][0-9]|3[01]
-    hh    hout with 2 digits        [0-1][0-9]|2[0-4]
-    mm    minutes with 2 digits     [0-5][0-9]
-    ss    seconds with 2 digits     [0-5][0-9]
-     *    any character, any times  .*
-    */
+    // escape regex metacharacters
+    m.replace("+", "\\+");
+    m.replace("(", "\\(");
+    m.replace(")", "\\)");
+    m.replace("[", "\\[");
+    m.replace("]", "\\]");
+    m.replace("{", "\\{");
+    m.replace("}", "\\}");
+    m.replace("^", "\\^");
+    m.replace("$", "\\$");
+    m.replace("&", "\\&");
+    m.replace("|", "\\|");
+    m.replace("?", "\\?");
+    m.replace(".", "\\.");
 
-  m.replace("%YYYY", "(?<YEAR>[0-9]{4})");
-  m.replace("%YY", "(?<YEAR2DIGITS>[0-9]{2})");
-  m.replace("%MM", "(?<MONTH>0[1-9]|1[012])");
-  m.replace("%DD", "(?<DAY>0[1-9]|[12][0-9]|3[01])");
-  m.replace("%hh", "(?<HOUR>[0-1][0-9]|2[0-4])");
-  m.replace("%mm", "(?<MINUTES>[0-5][0-9])");
-  m.replace("%ss", "(?<SECONDS>[0-5][0-9])");
-  m.replace("*", ".*");
+    /*
+      YYYY  year with 4 digits        [0-9]{4}
+      YY    year with 2 digits        [0-9]{2}
+      MM    month with 2 digits       0[1-9]|1[012]
+      DD    day with 2 digits         0[1-9]|[12][0-9]|3[01]
+      hh    hout with 2 digits        [0-1][0-9]|2[0-4]
+      mm    minutes with 2 digits     [0-5][0-9]
+      ss    seconds with 2 digits     [0-5][0-9]
+      *    any character, any times  .*
+      */
 
-  // add a extension validation in case of the name has it
-  m += "(?<EXTENSIONS>((\\.[^.]+)+\\.(gz|zip|rar|7z|tar)|\\.[^.]+))?";
+    m.replace("%YYYY", "(?<YEAR>[0-9]{4})");
+    m.replace("%YY", "(?<YEAR2DIGITS>[0-9]{2})");
+    m.replace("%MM", "(?<MONTH>0[1-9]|1[012])");
+    m.replace("%DD", "(?<DAY>0[1-9]|[12][0-9]|3[01])");
+    m.replace("%hh", "(?<HOUR>[0-1][0-9]|2[0-4])");
+    m.replace("%mm", "(?<MINUTES>[0-5][0-9])");
+    m.replace("%ss", "(?<SECONDS>[0-5][0-9])");
+    m.replace("*", ".*");
+    // add a extension validation in case of the name has it
+    m += "(?<EXTENSIONS>((\\.[^.]+)+\\.(gz|zip|rar|7z|tar)|\\.[^.]+))?";
+  }
 
-  return m.toStdString();
+  return list.join("").toStdString();
 }
 
 std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::getFileTimestamp(const std::string& mask,
