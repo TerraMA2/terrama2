@@ -204,7 +204,7 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
       // read data from buffer
       QByteArray bytearray = tcpSocket->read(blockSize_);
       TERRAMA2_LOG_DEBUG() << "JSon size: " << bytearray.size();
-      TERRAMA2_LOG_DEBUG() << QString(bytearray);
+      // TERRAMA2_LOG_DEBUG() << QString(bytearray);
 
       QJsonParseError error;
       QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
@@ -416,10 +416,10 @@ void terrama2::core::TcpManager::sendSignalSlot(QTcpSocket* tcpSocket, TcpSignal
   //  debug buffer
   //  we can't use usual log because of \0 characters
   //
-  std::cout << "Send buffer data: \n";
-  for(auto it = buffer.cbegin(); it != buffer.cend(); ++it)
-    std::cout << *it;
-  std::cout << std::endl;
+  // std::cout << "Send buffer data: \n";
+  // for(auto it = buffer.cbegin(); it != buffer.cend(); ++it)
+  //   std::cout << *it;
+  // std::cout << std::endl;
   ///////////////////////////////////////////
 
   TERRAMA2_LOG_DEBUG() << QObject::tr("Send buffer data: ");
