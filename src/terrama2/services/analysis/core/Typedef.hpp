@@ -32,9 +32,11 @@
 
 #include "../../../core/Typedef.hpp"
 
+//! Unique identifier for Analysis DataSeries
 typedef uint32_t AnalysisDataSeriesId;
-typedef uint32_t InterpolationMethodId;
+//! Unique identifier for Analysis
 typedef ProcessId AnalysisId;
+//! Unique identifier for an execution of an analysis
 typedef size_t AnalysisHashCode;
 
 #endif // __TERRAMA2_SERVICES_ANALYSIS_CORE_TYPEDEF_HPP__

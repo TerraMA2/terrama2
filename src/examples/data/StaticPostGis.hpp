@@ -44,7 +44,10 @@
 
 namespace terrama2
 {
-
+/**
+ * @brief Namespace for test metadata for staticpostgis
+ * 
+ */
   namespace staticpostgis
   {
       QJsonObject dataProviderStaticPostGisJson()

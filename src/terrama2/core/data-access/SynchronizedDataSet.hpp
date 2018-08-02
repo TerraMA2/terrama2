@@ -72,7 +72,9 @@ namespace terrama2
         /*! \brief Virtual destructor. */
         virtual ~SynchronizedDataSet();
 
-
+        /**
+         * @brief Update current te::da::DataSet.
+         */
         void setDataSet(std::shared_ptr<te::da::DataSet> dataset) { dataset_ = dataset; }
 
         /*!
@@ -386,6 +388,9 @@ namespace terrama2
         */
         std::shared_ptr<te::gm::Envelope> getExtent(std::size_t i) const;
 
+        /**
+         * @brief Get value as string.
+         */
         std::string getAsString(std::size_t row, const std::string& name) const;
 
       protected:

@@ -44,6 +44,10 @@
 
 namespace terrama2
 {
+  /**
+   * @brief Namespace for test metadata for Fire Risk 
+   * 
+   */
   namespace riscofogo
   {
 
@@ -241,7 +245,7 @@ namespace terrama2
      }
 
 
-  }  // end namespace geotiff
+  }  // end namespace
 }  // end namespace terrama2
 
 #endif  // __TERRAMA2_ANALYSIS_RISCOFOGO_HPP__

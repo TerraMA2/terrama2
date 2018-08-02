@@ -44,7 +44,10 @@
 
 namespace terrama2
 {
-
+/**
+ * @brief Namespace for test analysis result metadata
+ * 
+ */
   namespace resultanalysis
   {
 

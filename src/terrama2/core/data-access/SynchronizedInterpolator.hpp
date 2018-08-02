@@ -45,14 +45,26 @@ namespace terrama2
 {
   namespace core
   {
-
+    /**
+     * @brief Provides sycronized access to a [te::rst::Interpolator](http://www.dpi.inpe.br/terralib5/doxygendoc/d2/da4/classte_1_1rst_1_1Interpolator.html).
+     * 
+     * 
+     */ 
     class TMCOREEXPORT SynchronizedInterpolator : protected te::rst::Interpolator
     {
       public:
         SynchronizedInterpolator(te::rst::Raster const* r, int m);
 
+        /**
+         * @brief Check documentation on base class [te::rst::Interpolator](http://www.dpi.inpe.br/terralib5/doxygendoc/d2/da4/classte_1_1rst_1_1Interpolator.html).
+         * 
+         */
         virtual void getValue(const double& c, const double& r, std::complex<double>& v, const std::size_t& b);
 
+        /**
+         * @brief Check documentation on base class [te::rst::Interpolator](http://www.dpi.inpe.br/terralib5/doxygendoc/d2/da4/classte_1_1rst_1_1Interpolator.html).
+         * 
+         */
         virtual void getValues(const double& c, const double& r, std::vector<std::complex<double> >& values);
 
       protected:

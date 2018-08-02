@@ -55,7 +55,7 @@ namespace terrama2
         {
           int32_t index = -1; //!< Geometry index of the monitored object.
           AnalysisHashCode analysisHashCode = 0; //!< Hashcode of current analysis.
-          terrama2::services::analysis::core::AnalysisPtr analysisPtr;
+          terrama2::services::analysis::core::AnalysisPtr analysisPtr; //!< Current analysis of the cache.
           int32_t row = -1; //!< Output raster row.
           int32_t column = -1; //!< Output raster column.
           double sum = std::nan(""); //!< Result of the sum.

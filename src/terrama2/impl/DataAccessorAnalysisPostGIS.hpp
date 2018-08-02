@@ -40,6 +40,10 @@ namespace terrama2
 {
   namespace core
   {
+    /**
+     * @brief DataAccessor for accessing analysis results in PostGIS databases.
+     * 
+     */
     class TMIMPLEXPORT DataAccessorAnalysisPostGIS : public DataAccessorPostGIS
     {
     public:
