@@ -96,7 +96,30 @@ namespace terrama2
     */
     TMCOREEXPORT bool isValidDatedMask(const std::string& mask);
 
-    //! Convert a TerraMA2 mask to a regular expression
+    /**
+     * @brief Convert a TerraMA2 mask to a regular expression
+     * 
+     * This function will replace TerraMA2 special expressions form Regex expressions,
+     * unless the TerraMA2 regex expression is used every special regex character is scaped.
+     * 
+     * TerraMA2 date expression:
+     *  - %YYYY - Year with four numbers
+     *  - %YY - Year with two numbers
+     *  - %MM - Month with two numbers
+     *  - %DD - Day of the month with two numbers
+     * 
+     * TerraMA2 time expression:
+     *  - %hh - Hour with two numbers
+     *  - %mm - Minutes with two numbers
+     *  - %ss - Seconds with two numbers
+     * 
+     * TerraMA2 general expressions:
+     *  - * - Wildcard character, will match any number of characters
+     *  - %( )% - Regex expression, allow the use of a regex inside the paranteses
+     * 
+     * @param mask TerraMA2 style mask
+     * @return Regex style mask 
+     */
     TMCOREEXPORT std::string terramaMask2Regex(const std::string& mask);
   } // end namespace core
 }   // end namespace terrama2
