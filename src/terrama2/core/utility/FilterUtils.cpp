@@ -41,6 +41,7 @@
 #include <string>
 #include <QString>
 #include <QObject>
+#include <QRegExp>
 
 // TODO: This method is being call for every check of the mask, this should only be called once to avoid a costy operation.
 std::string terrama2::core::terramaMask2Regex(const std::string& mask)
