@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Usage: add this file to your project's .git/hooks directory. Rename it to
+# just 'pre-commit'.
+# Now, when you change some files in repository and try to commit these
+# changes, git will run this script right before commit. Cppcheck will scan
+# changed/new files in repository. If it finds some issues, script returns with
+# exit code 1, rejecting commit. Otherwise, script returns 0, and you can
+# actually commit your changes.
+#
+# Example:
+# $ cat hello.c
+# int main() {
+#    int *s = malloc(10);
+# }
+# $ git add hello.c
+# $ git commit
+# Checking hello.c...
+# [hello.c:3]: (error) Memory leak: s
+# [hello.c:2]: (error) The allocated size 10 is not a multiple of the underlying type's size.
+#
+# $ vim hello.c
+# $ cat hello.c
+# int main() {
+# }
+# $ git add hello.c
+# $ git commit
+# Checking hello.c...
+# $
+
+function valid()
+{
+  if [ $1 -ne 0 ]; then
+    exit $1
+  fi
+}
+
+checks=-*,modernize-use-nullptr,modernize-use-equals-default,modernize-use-equals-delete,modernize-use-override,misc-unused-parameters,readability-redundant-string-cstr,readability-redundant-string-init,readability-redundant-member-init,modernize-use-default-member-init
+
+# We should pass only added or modified C/C++ source files to cppcheck.
+changed_files=$(git diff --cached --name-only | grep -E '.*\.(c|cpp|cc|cxx)$')
+
+if [ -n "$changed_files" ]; then
+	cppcheck --error-exitcode=1 --quiet ${changed_files}
+	valid $?
+
+	clang_parse=$(git diff -U0 HEAD^ | ${SCRIPTS_DIR}/clang-tidy-diff.py -p1 -quiet -checks=${checks} -extra-arg-before=-xc++ -extra-arg-before=-std=c++11 -- -warnings-as-errors=* -header-filter=.* 2> /dev/null)
+	echo ${clang_parse} | test $(grep -E "(warning|error)" -c) -eq 0
+	if [ $? -ne 0 ]; then
+		>&2 echo ${clang_parse}
+    exit 1
+  fi
+fi

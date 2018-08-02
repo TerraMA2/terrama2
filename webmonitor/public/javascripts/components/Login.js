@@ -31,12 +31,13 @@ define(
           $("#user-div").removeClass("hidden");
 
         State.verifyState();
-        Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, onlyPrivate: true });
+        Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, onlyPrivate: true, token: Utils.getToken() });
       }
     };
 
     var signout = function() {
       Layers.removePrivateLayers();
+      Utils.clearSession();
 
       if(!$('#authentication-div').hasClass('hidden'))
         $('#authentication-div').addClass('hidden');
@@ -62,6 +63,7 @@ define(
           username: $("#username").val(),
           password: $("#password").val()
         }, function(data) {
+          Utils.setToken(data.token);
           signin(data.error, data.username);
         });
       });

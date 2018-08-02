@@ -43,7 +43,7 @@ RUN sh -c 'echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-6.0 main"
     python-clang-6.0 \
     python-lldb-6.0
 
-RUN apt install -y gdb valgrind
+RUN apt install -y gdb valgrind cppcheck
 
 # Install VSCode
 RUN curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg && \
@@ -127,18 +127,31 @@ ADD ./clang_update-alternative.sh ${SCRIPTS_DIR}
 RUN cd ${SCRIPTS_DIR} && \
     ./clang_update-alternative.sh
 
-ADD install-3rdparty-linux-ubuntu-16.04.sh ${SCRIPTS_DIR}
-ADD prepare_terralib_base.sh ${SCRIPTS_DIR}
-RUN cd ${SCRIPTS_DIR} && cat prepare_terralib_base.sh | sed -e "s@\${DEPENDENCIES_DIR}@${DEPENDENCIES_DIR}@g" > prepare_terralib_base_2.sh && \
-    cat prepare_terralib_base_2.sh | sed -e "s@\${TERRALIB_DIR}@${TERRALIB_DIR}@g" > prepare_terralib_base_3.sh && \
-    cat prepare_terralib_base_3.sh | sed -e "s@\${SCRIPTS_DIR}@${SCRIPTS_DIR}@g" > prepare_terralib.sh && \
-    rm prepare_terralib_base.sh prepare_terralib_base_2.sh prepare_terralib_base_3.sh -f
+ADD clang-tidy-diff.py ${SCRIPTS_DIR}
+ADD pre-commit ${SCRIPTS_DIR}
+RUN cd ${SCRIPTS_DIR} && \
+        sed -i \
+        -e "s@\${SCRIPTS_DIR}@${SCRIPTS_DIR}@g" \
+        pre-commit
 
-ADD prepare_terrama2_base.sh ${SCRIPTS_DIR}
-RUN cd ${SCRIPTS_DIR} && cat prepare_terrama2_base.sh | sed -e "s@\${DEPENDENCIES_DIR}@${DEPENDENCIES_DIR}@g" > prepare_terrama2_base_2.sh && \
-    cat prepare_terrama2_base_2.sh | sed -e "s@\${TERRALIB_DIR}@${TERRALIB_DIR}@g" > prepare_terrama2_base_3.sh && \
-    cat prepare_terrama2_base_3.sh | sed -e "s@\${TERRAMA2_DIR}@${TERRAMA2_DIR}@g" > prepare_terrama2.sh && \
-    rm prepare_terrama2_base.sh prepare_terrama2_base_2.sh prepare_terrama2_base_3.sh -f
+ADD install-3rdparty-linux-ubuntu-16.04.sh ${SCRIPTS_DIR}
+
+ADD prepare_terralib.sh ${SCRIPTS_DIR}
+RUN cd ${SCRIPTS_DIR} && \
+        sed -i \
+        -e "s@\${DEPENDENCIES_DIR}@${DEPENDENCIES_DIR}@g" \
+        -e "s@\${TERRALIB_DIR}@${TERRALIB_DIR}@g" \
+        -e "s@\${SCRIPTS_DIR}@${SCRIPTS_DIR}@g" \
+        prepare_terralib.sh
+
+ADD prepare_terrama2.sh ${SCRIPTS_DIR}
+RUN cd ${SCRIPTS_DIR} && \
+        sed -i \
+        -e "s@\${DEPENDENCIES_DIR}@${DEPENDENCIES_DIR}@g" \
+        -e "s@\${TERRALIB_DIR}@${TERRALIB_DIR}@g" \
+        -e "s@\${TERRAMA2_DIR}@${TERRAMA2_DIR}@g" \
+        -e "s@\${SCRIPTS_DIR}@${SCRIPTS_DIR}@g" \
+        prepare_terrama2.sh
 
 WORKDIR /home/${USER}
 
