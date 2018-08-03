@@ -36,8 +36,6 @@ function makeMetadata(identifier, metadata) {
 }
 
 module.exports = function(app) {
-  const Application = require('./../../core/Application');
-
   return {
     get: function(request, response) {
       var semanticsName = request.params.name;

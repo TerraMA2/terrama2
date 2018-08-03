@@ -577,8 +577,6 @@ define([], function() {
         };
 
         $scope.form = formTranslatorResult.display;
-        // $scope.model.state = [{id: "AC", name: "Acre"}];
-
         $scope.$broadcast('schemaFormRedraw');
 
         _processParameters();
@@ -629,9 +627,6 @@ define([], function() {
                 // Exclude properties for Cemaden
                 if (isCemadenType()) {
                   var defaultKeys = Object.keys($scope.dataSeries.semantics.metadata.metadata);
-                  // defaultKeys.push('_id');
-                  // defaultKeys.push('latitude');
-                  // defaultKeys.push('longitude');
 
                   if (!states.includes(inputDataSeries.dataSets[i].format["uf"]))
                     states.push(inputDataSeries.dataSets[i].format["uf"]);
@@ -726,6 +721,7 @@ define([], function() {
 
               if(registersCount > 0) {
                 $scope.storageDcps(dcps);
+                // TODO: should this be removed?
                 // $scope.addDcpsStorager(dcps);
               }
             } else {
