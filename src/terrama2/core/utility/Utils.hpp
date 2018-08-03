@@ -72,6 +72,8 @@ namespace terrama2
 {
   namespace core
   {
+    class FileRemover;
+    
     /*!
       \brief Returns the path relative to a directory or file in the context of TerraMA2.
 
@@ -185,6 +187,17 @@ namespace terrama2
     TECOREEXPORT std::pair<std::shared_ptr<te::da::DataSetType>, std::shared_ptr<te::da::DataSet> >
     getDCPPositionsTable(std::shared_ptr<te::da::DataSource> datasource, const std::string& dataSetName);
 
+      
+    /**
+     * @brief Get a new Temporary Folder.
+     * 
+     * @param oldTempTerraMAFolder Optional temporary folder to be used.
+     * @return std::string Path of the temporary folder.
+     */
+    TECOREEXPORT std::string
+    getTemporaryFolder( std::shared_ptr<terrama2::core::FileRemover> remover,
+                        const std::string& oldTempTerraMAFolder = "",
+                        const std::string& internalFolder = "");
     /*!
       \brief Erase content from previous execution
 
