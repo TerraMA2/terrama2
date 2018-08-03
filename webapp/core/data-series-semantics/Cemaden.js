@@ -58,19 +58,17 @@ class Cemaden {
             let numEstacoes = 0;
 
             for (const rawDcp of rawDCPList) {
-              if(this.idtipoestacao && !this.idtipoestacao.includes(rawDcp[this.semantics.station_type_id_property]))
+              if (this.idtipoestacao && !this.idtipoestacao.includes(rawDcp[this.semantics.station_type_id_property]))
                 continue;
 
-              if(ufs && !ufs.includes(rawDcp[this.semantics.uf_property]))
+              if (ufs && !ufs.includes(rawDcp[this.semantics.uf_property]))
                 continue;
 
               const dcp = {
-                // metadata: {
-                  ...rawDcp,
-                  alias: rawDcp[this.semantics.dcp_code_property],
-                  lat: rawDcp[this.semantics.latitude_property],
-                  long: rawDcp[this.semantics.longitude_property],
-                // }
+                ...rawDcp,
+                alias: rawDcp[this.semantics.dcp_code_property],
+                lat: rawDcp[this.semantics.latitude_property],
+                long: rawDcp[this.semantics.longitude_property],
               }
 
               dcpList.push(dcp);
