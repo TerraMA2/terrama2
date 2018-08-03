@@ -105,6 +105,8 @@ namespace terrama2
                                           const Filter& filter,
                                           std::shared_ptr<FileRemover> remover,
                                           std::function<void(const std::string& /*uri*/)> processFile) const override;
+
+        std::string getFolderMask(DataSetPtr dataSet) const;
     };
   }
 }

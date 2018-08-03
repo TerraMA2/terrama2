@@ -69,15 +69,20 @@ std::string terrama2::core::DataRetrieverStaticHTTP::retrieveData(const std::str
                                                            const std::string& /*timezone*/,
                                                            std::shared_ptr<terrama2::core::FileRemover> remover,
                                                            const std::string& temporaryFolderUri,
-                                                           const std::string& /*foldersMask*/) const
+                                                           const std::string& foldersMask) const
 {
   std::string downloadBaseFolderUri = getTemporaryFolder(remover, temporaryFolderUri);
 
   try
   {
-    std::string uriOrigin = dataProvider_->uri + "/" + mask;
+    std::string uriOrigin = dataProvider_->uri + "/" + foldersMask + "/" + mask;
     te::core::URI tempFolderUri(downloadBaseFolderUri);
-    std::string filePath = tempFolderUri.path() + mask;
+    std::string folderPath = tempFolderUri.path() + "/" + foldersMask;
+    QDir dir(QString::fromStdString(folderPath));
+      if(!dir.exists())
+        dir.mkpath(QString::fromStdString(folderPath));
+        
+    std::string filePath = folderPath + "/" + mask;
 
     te::core::URI uri(uriOrigin);
 
