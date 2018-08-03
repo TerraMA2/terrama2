@@ -130,28 +130,7 @@ std::string terrama2::core::Unpack::decompress(std::string uri,
                                                std::shared_ptr<terrama2::core::FileRemover> remover,
                                                const std::string& temporaryFolder)
 {
-  QString unpackFolder = QString::fromStdString(temporaryFolder);
-  if(temporaryFolder.empty())
-  {
-    boost::filesystem::path tempDir = boost::filesystem::temp_directory_path();
-    boost::filesystem::path tempTerrama(tempDir.string()+"/terrama2-unpack");
-    boost::filesystem::path upackDir = boost::filesystem::unique_path(tempTerrama.string()+"/%%%%-%%%%-%%%%-%%%%");
-
-    unpackFolder = QString::fromStdString(upackDir.string());
-    remover->addTemporaryFolder(unpackFolder.toStdString());
-
-    // Create the directory where you will unpack the files.
-    QDir dir(unpackFolder);
-    if(!dir.exists())
-    {
-      if(!dir.mkpath(unpackFolder))
-      {
-          TERRAMA2_LOG_ERROR() << QObject::tr("Error creating temporary folder.");
-          return "";
-      }
-    }
-  }
-
+  QString unpackFolder = QString::fromStdString(getTemporaryFolder(remover, temporaryFolder));
   try
   {
     QUrl url(uri.c_str());

@@ -627,10 +627,9 @@ void terrama2::core::erasePreviousResult(DataManagerPtr dataManager, DataSeriesI
 }
 
 std::string terrama2::core::getTemporaryFolder( std::shared_ptr<terrama2::core::FileRemover> remover,
-                                                const std::string& oldTempTerraMAFolder,
-                                                const std::string& internalFolder)
+                                                const std::string& oldTempTerraMAFolder)
 {
-    std::string tempTerraMAFolder = oldTempTerraMAFolder + "/";
+    std::string tempTerraMAFolder = oldTempTerraMAFolder + "/"; 
 
     if(oldTempTerraMAFolder.empty())
     {
@@ -639,7 +638,7 @@ std::string terrama2::core::getTemporaryFolder( std::shared_ptr<terrama2::core::
       boost::filesystem::path tempDataDir = boost::filesystem::unique_path(tempTerrama.string()+"/%%%%-%%%%-%%%%-%%%%");
 
       // Create the directory where you will download the files.
-      QDir dir(QString::fromStdString(tempDataDir.string()+"/"+internalFolder));
+      QDir dir(QString::fromStdString(tempDataDir.string()));
       if(!dir.exists())
         dir.mkpath(QString::fromStdString(tempDataDir.string()));
 
