@@ -2,6 +2,7 @@
 
 # New Features:
 - Allow user to disable a project.
+- Allow regex expressions in the masks.
 
 # Enhancements:
 

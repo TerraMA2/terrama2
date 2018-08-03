@@ -35,6 +35,10 @@ namespace terrama2
 {
   namespace core
   {
+    /**
+     * @brief RAII class for accessing FTP servers
+     * 
+     */
     class TMCOREEXPORT CurlWrapperFtp : public te::ws::core::CurlWrapper
     {
       public:

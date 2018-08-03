@@ -203,11 +203,22 @@ define([
                     if(
                       value.substr(i, 5) === "%YYYY" ||
                       value.substr(i, 3) === "%YY" || value.substr(i, 3) === "%MM" || value.substr(i, 3) === "%DD" ||
-                      value.substr(i, 3) === "%hh" || value.substr(i, 3) === "%mm" || value.substr(i, 3) === "%ss"
+                      value.substr(i, 3) === "%hh" || value.substr(i, 3) === "%mm" || value.substr(i, 3) === "%ss" ||
+                      value.substr(i, 2) === "%("
                     )
                       continue;
 
                     return false;
+                  }
+
+                  if(value[i] == "(" && i > 0 && value[i-1] === "%")
+                  {
+                    let j = value.indexOf(")%", i);
+                    if(j === -1)
+                      return false;
+                    
+                    i = j+1;
+                    continue;
                   }
 
                   if(value[i] === "*" || value[i] === "%" || value[i] === "." || value[i] === "-" || value[i] === "_" || value[i] === "/")

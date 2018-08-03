@@ -44,6 +44,10 @@
 
 namespace terrama2
 {
+  /**
+   * @brief Namespace for test metadata for geotiff
+   * 
+   */
   namespace geotiff
   {
 

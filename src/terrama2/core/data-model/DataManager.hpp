@@ -95,9 +95,13 @@ namespace terrama2
 
         //! Default destructor.
         virtual ~DataManager() = default;
+        //! Deleted copy constructor
         DataManager(const DataManager& other) = delete;
+        //! Deleted copy constructor
         DataManager(DataManager&& other) = delete;
+        //! Deleted copy constructor
         DataManager& operator=(const DataManager& other) = delete;
+        //! Deleted copy constructor
         DataManager& operator=(DataManager&& other) = delete;
 
         /*!
@@ -168,7 +172,7 @@ namespace terrama2
           \param provider The DataProvider to be registered into the manager.
 
           \pre The DataProvider must not have a terrama2::core::InvalidId.
-          \pre A DataProvider with the same name must not be already in the manager.
+          \pre A DataProvider with the same id must not be already in the manager.
 
           \exception terrama2::InvalidArgumentException If it is not possible to add the DataProvider.
 
@@ -184,7 +188,7 @@ namespace terrama2
           \param DataSeries The DataSeries to be registered into the manager.
 
           \pre The DataSeries must not have a terrama2::core::InvalidId.
-          \pre A DataSeries with the same name must not be already in the manager.
+          \pre A DataSeries with the same id must not be already in the manager.
 
           \exception terrama2::InvalidArgumentException If it is not possible to add the DataSeries.
 
@@ -208,15 +212,115 @@ namespace terrama2
         */
         virtual void update(DataProviderPtr provider);
 
-        virtual void add(ProjectPtr legend);
-        virtual void update(ProjectPtr legend);
+        /*!
+          \brief Register a Project in the manager.
+
+          \param project The Project to be registered into the manager.
+
+          \pre The Project must not have a terrama2::core::InvalidId.
+          \pre A Project with the same id must not be already in the manager.
+
+          \exception terrama2::InvalidArgumentException If it is not possible to add the Project.
+
+          \note Thread-safe.
+        */
+        virtual void add(ProjectPtr project);
+
+        /*!
+          \brief Update a given Project.
+
+          \param project    The Project to be updated.
+
+          \pre The Project must not have a terrama2::core::InvalidId.
+          \pre The Project must exist in the DataManager.
+
+          \exception terrama2::InvalidArgumentException If it is not possible to update the Project.
+
+          \note Thread-safe.
+        */
+        virtual void update(ProjectPtr project);
+        /*!
+          \brief Removes a given Project.
+
+          \param id ID of the Project to remove.
+
+          \exception terrama2::InvalidArgumentException If it is not possible to remove the Project.
+
+          \note Thread-safe.
+        */
         virtual void removeProject(const ProjectId id);
+        /*!
+          \brief Retrieves the Project with the given id.
+
+          \param name The Project id.
+
+          \return ProjectPtr A smart pointer to the Project
+
+          \exception terrama2::InvalidArgumentException If some error occur when trying to find the Project.
+
+          \note Thread-safe.
+        */
         virtual ProjectPtr findProject(const ProjectId id) const;
 
+        /*!
+          \brief Register a Legend in the manager.
+
+          \param legend The Legend to be registered into the manager.
+
+          \pre The Legend must not have a terrama2::core::InvalidId.
+          \pre A Legend with the same id must not be already in the manager.
+
+          \exception terrama2::InvalidArgumentException If it is not possible to add the Legend.
+
+          \note Thread-safe.
+        */
         virtual void add(LegendPtr legend);
+
+        /*!
+          \brief Update a given Legend.
+
+          \param legend The Legend to be updated.
+
+          \pre The Legend must not have a terrama2::core::InvalidId.
+          \pre The Legend must exist in the DataManager.
+
+          \exception terrama2::InvalidArgumentException If it is not possible to update the Legend.
+
+          \note Thread-safe.
+        */
         virtual void update(LegendPtr legend);
+
+        /*!
+          \brief Verify if a given Legend exist
+
+          \param id ID of the legend
+
+          \pre The Legend must not have a terrama2::core::InvalidId.
+
+          \note Thread-safe.
+        */
         virtual bool hasLegend(LegendId id) const;
+        /*!
+          \brief Removes a given Legend.
+
+          \param id ID of the Legend to remove.
+
+          \exception terrama2::InvalidArgumentException If it is not possible to remove the Legend.
+
+          \note Thread-safe.
+        */
         virtual void removeLegend(const LegendId id);
+        /*!
+          \brief Retrieves the Legend with the given id.
+
+          \param name The Legend id.
+
+          \return LegendPtr A smart pointer to the Legend
+
+          \exception terrama2::InvalidArgumentException If some error occur when trying to find the Legend.
+
+          \note Thread-safe.
+        */
         virtual LegendPtr findLegend(const LegendId id) const;
 
         /*!
@@ -291,6 +395,15 @@ namespace terrama2
         */
         virtual DataProviderPtr findDataProvider(const DataProviderId id) const;
 
+        /*!
+          \brief Verify if a given DataProvider exist
+
+          \param id ID of the DataProvider
+
+          \pre The DataProvider must not have a terrama2::core::InvalidId.
+
+          \note Thread-safe.
+        */
         virtual bool hasDataProvider(const DataProviderId id) const;
 
         /*!
@@ -316,6 +429,16 @@ namespace terrama2
           \note Thread-safe.
         */
         virtual DataSeriesPtr findDataSeries(const DataSeriesId id) const;
+
+        /*!
+          \brief Verify if a given DataSeries exist
+
+          \param id ID of the DataSeries
+
+          \pre The DataSeries must not have a terrama2::core::InvalidId.
+
+          \note Thread-safe.
+        */
         virtual bool hasDataSeries(const DataSeriesId id) const;
 
       signals:
