@@ -2100,7 +2100,7 @@ var DataManager = module.exports = {
               });
               promises.push(removeProvider);
             });
-          } 
+          }
 
           (dataSeriesObject.editedDcps !== undefined ? dataSeriesObject.editedDcps : dataSeriesObject.dataSets).forEach(function(newDataSet) {
             var dataSetToUpdate = dataSeries.dataSets.find(function(dSet){
@@ -4194,7 +4194,7 @@ var DataManager = module.exports = {
             ],
             required: false
           },
-          { 
+          {
             model: models.db.Schedule,
             include: [
               {
@@ -6092,7 +6092,7 @@ var DataManager = module.exports = {
               },
               /** It adds the parameters ViewStyleLegend, ViewStyleColor
                * and ViewStyleLegendMetadata to the list of model registered views
-               */ 
+               */
               {
                 model: models.db.ViewStyleLegend,
                 required: false,
@@ -6201,7 +6201,7 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       return models.db.RegisteredView.update(registeredObject, Utils.extend({
-        fields: ['workspace'],
+        fields: ['workspace', 'uri'],
         where: restriction
       }, options))
         .then(function() {
