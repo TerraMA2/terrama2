@@ -363,6 +363,12 @@ define([], function() {
 
       $scope.isCemadenType = isCemadenType;
 
+      function isDCP() {
+        return $scope.dataSeries.semantics.data_series_type_name === "DCP";
+      }
+
+      $scope.isDCP = isDCP;
+
       $scope.createDataTable = function() {
         if($scope.dcpTable !== undefined)
           $scope.dcpTable.destroy();
