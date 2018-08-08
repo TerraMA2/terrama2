@@ -30,25 +30,45 @@
 #ifndef __TERRAMA2_CORE_UTILS_HPP__
 #define __TERRAMA2_CORE_UTILS_HPP__
 
-// TerraMA2
-#include "../data-model/DataProvider.hpp"
-#include "../data-model/DataSeries.hpp"
-#include "../data-model/DataSet.hpp"
-#include "../data-model/Filter.hpp"
-
+#include <terralib/dataaccess/dataset/DataSet.h>
+#include <terralib/dataaccess/dataset/DataSetType.h>
+#include <terralib/core/Config.h>
+#include <terralib/dataaccess/datasource/DataSource.h>
 // TerraLib
 #include <terralib/geometry/Coord2D.h>
 #include <terralib/raster/Raster.h>
-#include <terralib/dataaccess/dataset/DataSet.h>
-#include <terralib/dataaccess/dataset/DataSetType.h>
-#include <terralib/dataaccess/datasource/DataSource.h>
-
+#include <memory>
 // STL
 #include <string>
+#include <utility>
+#include <vector>
 
+#include "../Shared.hpp"
+#include "../Typedef.hpp"
+// TerraMA2
+#include "../data-model/DataProvider.hpp"
+#include "../data-model/DataSeries.hpp"
+#include "../data-model/DataSeriesSemantics.hpp"
+#include "../data-model/DataSet.hpp"
+#include "../data-model/Filter.hpp"
 
 // Forward declaration
 class QJsonDocument;
+namespace terrama2 {
+namespace core {
+struct Filter;
+}  // namespace core
+}  // namespace terrama2
+namespace te {
+namespace da {
+class DataSet;
+class DataSetType;
+class DataSource;
+}  // namespace da
+namespace dt {
+class TimeInstantTZ;
+}  // namespace dt
+}  // namespace te
 
 // Forward declaration
 namespace te

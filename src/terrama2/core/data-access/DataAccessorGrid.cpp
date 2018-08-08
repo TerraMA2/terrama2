@@ -27,14 +27,14 @@
   \author Jano Simas
  */
 
+#include <terralib/datatype/Property.h>
+#include <terralib/dataaccess/dataset/DataSetType.h>
+#include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
+#include <cstddef>
+
+#include "../Shared.hpp"
 #include "DataAccessorGrid.hpp"
 #include "GridSeries.hpp"
-#include "../data-model/DataSetGrid.hpp"
-#include "../Shared.hpp"
-
-//QT
-#include <QString>
-#include <QObject>
 
 terrama2::core::GridSeriesPtr terrama2::core::DataAccessorGrid::getGridSeries(const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover)
 {

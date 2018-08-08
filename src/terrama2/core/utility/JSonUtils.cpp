@@ -26,31 +26,43 @@
 
   \author Jano Simas
 */
+
+#include <terralib/datatype/TimeInstantTZ.h>
+#include <terralib/geometry/Geometry.h>
+#include <terralib/geometry/Point.h>
+#include <algorithm>
+#include <functional>
+#include <iterator>
+//STL
+#include <limits>
+#include <map>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
+#include "../Exception.hpp"
+#include "../data-model/DataSetOccurrence.hpp"
+#include "../../Exception.hpp"
+#include "../Typedef.hpp"
+#include "../data-model/DataManager.hpp"
+
 #include "../data-model/DataProvider.hpp"
 #include "../data-model/DataSeries.hpp"
 #include "../data-model/DataSeriesSemantics.hpp"
 #include "../data-model/DataSet.hpp"
 #include "../data-model/DataSetDcp.hpp"
 #include "../data-model/DataSetGrid.hpp"
-#include "../data-model/DataSetOccurrence.hpp"
-#include "../utility/SemanticsManager.hpp"
-#include "../utility/TimeUtils.hpp"
+#include "../data-model/Project.hpp"
+#include "../data-model/Risk.hpp"
 #include "../utility/GeoUtils.hpp"
-#include "../utility/Utils.hpp"
 #include "../utility/Logger.hpp"
+#include "../utility/TimeUtils.hpp"
 #include "../utility/Verify.hpp"
-#include "../Exception.hpp"
-
 #include "JSonUtils.hpp"
+#include "SemanticsManager.hpp"
 
-//STL
-#include <limits>
-
-
-//Qt
-#include <QJsonDocument>
 #include <QJsonArray>
-#include <QObject>
 
 terrama2::core::DataProviderPtr terrama2::core::fromDataProviderJson(QJsonObject json)
 {

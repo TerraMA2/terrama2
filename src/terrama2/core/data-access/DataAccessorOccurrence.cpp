@@ -30,16 +30,13 @@
 //TerraMA2
 #include "DataAccessorOccurrence.hpp"
 #include "OccurrenceSeries.hpp"
-#include "DataRetriever.hpp"
-#include "../utility/Logger.hpp"
-#include "../Exception.hpp"
 
-//TerraLib
-#include <terralib/dataaccess/datasource/DataSource.h>
-#include <terralib/memory/DataSet.h>
-
-//Qt
-#include <QObject>
+namespace terrama2 {
+namespace core {
+class FileRemover;
+struct Filter;
+}  // namespace core
+}  // namespace terrama2
 
 terrama2::core::OccurrenceSeriesPtr terrama2::core::DataAccessorOccurrence::getOccurrenceSeries(const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover)
 {

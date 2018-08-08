@@ -1,19 +1,19 @@
 #ifndef __TERRAMA2_CORE_LOGGER_HPP__
 #define __TERRAMA2_CORE_LOGGER_HPP__
 
-// TerraMA2
-#include "../Config.hpp"
-#include "../Exception.hpp"
-
-// Terralib
-#include <terralib/common/Singleton.h>
-
-// Boost
-#include <boost/shared_ptr.hpp>
 #include <boost/log/common.hpp>
 #include <boost/log/sinks/async_frontend.hpp>
 #include <boost/log/sinks/text_ostream_backend.hpp>
 #include <boost/log/utility/manipulators/add_value.hpp>
+// Terralib
+#include <terralib/common/Singleton.h>
+#include <QString>
+#include <string>
+
+#include "../../Exception.hpp"
+// TerraMA2
+#include "../Config.hpp"
+#include "../Exception.hpp"
 
 
 namespace terrama2

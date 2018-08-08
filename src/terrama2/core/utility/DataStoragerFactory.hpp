@@ -31,18 +31,18 @@
 #define __TERRAMA2_CORE_UTILITY_DATA_STORAGER_FACTORY_HPP__
 
 
-// TerraMa2
-#include "../Config.hpp"
-#include "../Shared.hpp"
-#include "../data-model/DataProvider.hpp"
-
 // TerraLib
 #include <terralib/common/Singleton.h>
-
 // STL
 #include <functional>
 #include <map>
 #include <string>
+
+// TerraMa2
+#include "../Config.hpp"
+#include "../Shared.hpp"
+#include "../Typedef.hpp"
+#include "../data-model/DataProvider.hpp"
 
 namespace terrama2
 {
