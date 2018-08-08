@@ -30,10 +30,22 @@
 #ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_DCP_HPP__
 
+#include <algorithm>
+#include <memory>
+
+#include "../Config.hpp"
 //TerraMA2
 #include "../Shared.hpp"
+#include "../Config.hpp"
 #include "DataAccessor.hpp"
 #include "DcpSeries.hpp"
+
+namespace terrama2 {
+namespace core {
+class FileRemover;
+struct Filter;
+}  // namespace core
+}  // namespace terrama2
 
 namespace terrama2
 {

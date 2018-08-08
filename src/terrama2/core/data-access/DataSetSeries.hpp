@@ -38,6 +38,7 @@
 
 //STL
 #include <vector>
+#include <memory>
 
 //TerraLib
 #include <terralib/memory/DataSet.h>

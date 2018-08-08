@@ -30,26 +30,25 @@
 #ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_FACTORY_HPP__
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_FACTORY_HPP__
 
-//TerraMA2
-#include "../Config.hpp"
-#include "../Shared.hpp"
-#include "../data-model/Filter.hpp"
-#include "../data-model/DataSeriesSemantics.hpp"
-
 // TerraLib
 #include <terralib/common/Singleton.h>
-
 // STL
 #include <functional>
 #include <map>
+
+//TerraMA2
+#include "../Config.hpp"
+#include "../Shared.hpp"
+#include "../data-model/DataSeriesSemantics.hpp"
+#include "../data-model/Filter.hpp"
 
 namespace terrama2
 {
   namespace core
   {
 
-    struct DataSeries;
     struct DataProvider;
+    struct DataSeries;
 
     /*!
       \brief DataAccessorFactory allows the creation of a DataAcessor.

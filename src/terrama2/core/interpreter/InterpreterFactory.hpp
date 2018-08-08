@@ -30,17 +30,18 @@
 #ifndef __TERRAMA2_CORE_INTERPRETER_FACTORY_HPP__
 #define __TERRAMA2_CORE_INTERPRETER_FACTORY_HPP__
 
-#include "../Shared.hpp"
-#include "Interpreter.hpp"
-
 // TerraLib
 #include <terralib/common/Singleton.h>
-
 // STL
 #include <functional>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
+
+#include "../Config.hpp"
+#include "../Shared.hpp"
+#include "Interpreter.hpp"
 
 namespace terrama2
 {

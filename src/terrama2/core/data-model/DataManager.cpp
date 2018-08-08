@@ -30,29 +30,34 @@
   \author Vinicius Campanha
 */
 
-// TerraMA2
-#include "DataManager.hpp"
-#include "DataProvider.hpp"
-#include "DataSeries.hpp"
-#include "DataSet.hpp"
-#include "Project.hpp"
-#include "../Exception.hpp"
-#include "../Typedef.hpp"
-
-// TerraMA2 Logger
-#include "../utility/Logger.hpp"
-#include "../utility/JSonUtils.hpp"
-
-// STL
-#include <algorithm>
-#include <memory>
-
 //Qt
 #include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonValue>
+#include <QMetaType>
 #include <QString>
+// STL
+#include <algorithm>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <stdexcept>
+#include <string>
+#include <utility>
 
-// TerraLib
-#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+#include "../Typedef.hpp"
+#include "../../Exception.hpp"
+#include "../Shared.hpp"
+#include "../data-model/DataManager.hpp"
+#include "../data-model/DataProvider.hpp"
+#include "../data-model/Project.hpp"
+#include "../data-model/Risk.hpp"
+#include "../utility/JSonUtils.hpp"
+// TerraMA2 Logger
+#include "../utility/Logger.hpp"
+// TerraMA2
+#include "DataManager.hpp"
+#include "DataSeries.hpp"
 
 std::unique_lock<std::recursive_mutex> terrama2::core::DataManager::getLock()
 {

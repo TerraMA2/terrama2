@@ -30,13 +30,28 @@
 #ifndef __TERRAMA2_CORE_DATA_ACCESS_GRID_SERIES_HPP__
 #define __TERRAMA2_CORE_DATA_ACCESS_GRID_SERIES_HPP__
 
+//TerraLib
+#include <terralib/raster.h>
+#include <memory>
+#include <unordered_map>
+
+#include "../Config.hpp"
+#include "../Shared.hpp"
 //TerraMA2
 #include "../data-model/DataSetGrid.hpp"
 #include "DataSetSeries.hpp"
 #include "SeriesAggregation.hpp"
 
-//TerraLib
-#include <terralib/raster.h>
+namespace terrama2 {
+namespace core {
+struct DataSetSeries;
+}  // namespace core
+}  // namespace terrama2
+namespace te {
+namespace rst {
+class Raster;
+}  // namespace rst
+}  // namespace te
 
 namespace terrama2
 {

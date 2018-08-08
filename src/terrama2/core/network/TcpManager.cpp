@@ -21,20 +21,32 @@
   \author Jano Simas
 */
 
-#include "TcpManager.hpp"
-#include "TcpSignals.hpp"
+#include <QByteArray>
+#include <QDataStream>
+#include <QIODevice>
+#include <QJsonArray>
+#include <QJsonValue>
+#include <QTcpSocket>
+#include <Qt>
+#include <QtGlobal>
+#include <exception>
+#include <string>
+
+#include "../data-model/DataManager.hpp"
+#include "../../Exception.hpp"
+#include "../Exception.hpp"
+#include "../data-model/../Typedef.hpp"
 #include "../utility/Logger.hpp"
 #include "../utility/ServiceManager.hpp"
 #include "../utility/TimeUtils.hpp"
-#include "../data-model/DataManager.hpp"
+#include "TcpManager.hpp"
+#include "TcpSignals.hpp"
 
-// Qt
-#include <QObject>
-#include <QDataStream>
-#include <QTcpSocket>
-#include <QJsonDocument>
-#include <QJsonArray>
-#include <QJsonObject>
+namespace te {
+namespace dt {
+class TimeInstantTZ;
+}  // namespace dt
+}  // namespace te
 
 class RaiiBlock
 {

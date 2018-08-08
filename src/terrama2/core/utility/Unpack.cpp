@@ -31,45 +31,7 @@
 */
 
 
-// TerraMA2
-#include "Unpack.hpp"
-#include "Logger.hpp"
-#include "Utils.hpp"
-#include "Raii.hpp"
-#include "../Exception.hpp"
-
-// STL
-#include <iostream>
-#include <fstream>
-#include <cstdio>
-#include <string>
-#include <cstring>
-#include <cstdlib>
-#include <zlib.h>
-#include <zconf.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <cstddef>
-#include <sys/stat.h>
-
-// QT
-#include <QFileInfo>
-#include <QDir>
-#include <QUrl>
-#include <QDebug>
-#include <QTemporaryFile>
-#include <QTemporaryDir>
-#include <QFile>
-#include <QByteArray>
-
-// Quazip
-#include <quazip.h>
 #include <JlCompress.h>
-
-// Boost
-#include <fstream>
-#include <iostream>
 #include <boost/iostreams/filtering_streambuf.hpp>
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filter/zlib.hpp>
@@ -78,6 +40,20 @@
 #include <boost/filesystem/operations.hpp>
 
 #include <terralib/Exception.h>
+#include <cstdio>
+#include <cstdlib>
+#include <exception>
+#include <fstream>
+// STL
+#include <iostream>
+#include <string>
+
+#include "../../Exception.hpp"
+#include "FileRemover.hpp"
+#include "Logger.hpp"
+#include "Raii.hpp"
+// TerraMA2
+#include "Unpack.hpp"
 
 QString terrama2::core::Unpack::decompressGz(QFileInfo fileInfo, QString temporaryFolder, std::shared_ptr<terrama2::core::FileRemover> remover)
 {

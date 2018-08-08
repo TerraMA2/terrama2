@@ -30,18 +30,31 @@
 #ifndef __TERRAMA2_CORE_PROCESSLOGGER_HPP__
 #define __TERRAMA2_CORE_PROCESSLOGGER_HPP__
 
-// TerraMA2
-#include "../Exception.hpp"
-#include "../Typedef.hpp"
-#include "Raii.hpp"
 
+#include <terralib/core/uri/URI.h>
+#include <terralib/dataaccess/datasource/DataSource.h>
 // TerraLib
 #include <terralib/datatype/TimeInstantTZ.h>
-#include <terralib/core/uri/URI.h>
-
 // Qt
 #include <QJsonObject>
 #include <QObject>
+#include <QString>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "../Config.hpp"
+// TerraMA2
+#include "../Exception.hpp"
+#include "../Typedef.hpp"
+#include "../utility/Raii.hpp"
+#include "Raii.hpp"
+
+namespace te {
+namespace dt {
+class TimeInstantTZ;
+}  // namespace dt
+}  // namespace te
 
 namespace terrama2
 {

@@ -30,22 +30,36 @@
 #ifndef __TERRAMA2_CORE_SERVICE_HPP__
 #define __TERRAMA2_CORE_SERVICE_HPP__
 
+#include <QJsonDocument>
+#include <QJsonObject>
+//Qt
+#include <QObject>
+#include <QString>
+#include <condition_variable>
+#include <future>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <queue>
+//STL
+#include <vector>
+
+#include "../Config.hpp"
+#include "../Shared.hpp"
 // TerraMa2
 #include "../Typedef.hpp"
 #include "../Shared.hpp"
-#include "../data-model/Schedule.hpp"
 #include "../data-model/Filter.hpp"
+#include "../data-model/Schedule.hpp"
 #include "ProcessLogger.hpp"
 
-//STL
-#include <vector>
-#include <mutex>
-#include <future>
-#include <queue>
-
-//Qt
-#include <QObject>
-#include <QJsonDocument>
+namespace terrama2 {
+namespace core {
+class DataManager;
+class ProcessLogger;
+struct Filter;
+}  // namespace core
+}  // namespace terrama2
 
 namespace te
 {

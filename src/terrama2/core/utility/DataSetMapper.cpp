@@ -27,13 +27,16 @@
   \author Jano Simas
 */
 
+#include <terralib/datatype/AbstractData.h>
+#include <terralib/dataaccess/dataset/DataSet.h>
+#include <QObject>
+#include <QString>
+#include <limits>
+
+#include "../../Exception.hpp"
+#include "../Exception.hpp"
 #include "DataSetMapper.hpp"
 #include "Logger.hpp"
-#include "../Exception.hpp"
-
-
-#include <QString>
-#include <QObject>
 
 
 terrama2::core::DataSetMapper::DataSetMapper(std::shared_ptr<te::da::DataSet> dataSet, std::string pkProperty)
