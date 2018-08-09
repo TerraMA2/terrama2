@@ -466,6 +466,21 @@ define([], function(){
           }, function(error) {
             console.log("Err in removing dcp");
           });
+        } else if (args.action === "removeAll") {
+          for(let alias of args.aliases) {
+            const dcp = args.dcpsObject[alias];
+
+            self.removePcdStorager(dcp);
+            removeInput(dcp.alias);
+          }
+
+          $http.post(BASE_URL + "configuration/dynamic/dataseries/removeStoredDcpStore", {
+              key: storedDcpsKey,
+              aliases: args.aliases.join(",")
+            })
+            .then((/*result*/) => reloadDataStore())
+            .catch((error) => console.log("Err in removing dcps ", error));
+
         } else if(args.action === "add") {
           addDcpStorager([args.dcp], args.storageData, args.reloadDataStore);
         } else if(args.action === "addMany") {

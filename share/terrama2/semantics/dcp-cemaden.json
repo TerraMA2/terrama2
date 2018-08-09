@@ -58,18 +58,37 @@
               { "id": "SE", "label": "Sergipe" },
               { "id": "TO", "label": "Tocantins" }
             ]
+          },
+          "station": {
+            "title": "Stations",
+            "type": "string"
           }
         },
-        "required": ["state"]
+        "required": ["state", "station"]
       },
       "form":[
         {
           "key": "state",
           "type": "uiselectmultiple",
-          "htmlClass": "col-md-6",
+          "htmlClass": "col-md-3",
           "extraSettings": {
             "buttonClasses": "btn btn-primary btn-block"
           }
+        },
+        {
+          "key": "station",
+          "type": "select",
+          "htmlClass": "col-md-3",
+          "extraSettings": {
+            "buttonClasses": "btn btn-primary btn-block"
+          },
+          "titleMap": [
+            { "value": "1", "name": "Pluviométrica" },
+            { "value": "3", "name": "Hidrológica" },
+            { "value": "4", "name": "Agrometeorológica" },
+            { "value": "5", "name": "Acqua" },
+            { "value": "10", "name": "Geotécnica" }
+          ]
         }
       ]
     }

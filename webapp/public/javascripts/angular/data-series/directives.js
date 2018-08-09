@@ -5,88 +5,89 @@ define([], function() {
     .run(["$templateCache", function($templateCache) {
       $templateCache.put(
         "modals.html",
-        "<div id=\"importParametersModal\" class=\"modal fade\">" +
-          "<div class=\"modal-dialog\">" +
-            "<div class=\"modal-content\">" +
-              "<div class=\"modal-header\">" +
-                "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\">" +
-                  "<span aria-hidden=\"true\">×</span>" +
-                "</button>" +
-                "<h4 class=\"modal-title\">{{ i18n.__('Select the delimiter character of the CSV and choose if the file has a header') }}</h4>" +
-              "</div>" +
-              "<div class=\"modal-body\">" +
-                "<div class=\"form-group\">" +
-                  "<label>{{ i18n.__('Delimiter character') }}</label>" +
-                  "<select class=\"form-control\" name=\"delimiterCharacter\" ng-model=\"csvImport.delimiterCharacter\">" +
-                    "<option value=\";\">{{ i18n.__('Semicolon') }} (;)</option>" +
-                    "<option value=\",\">{{ i18n.__('Comma') }} (,)</option>" +
-                  "</select>" +
+        "<div ng-if=\"!isCemadenType()\">" +
+          "<div id=\"importParametersModal\" class=\"modal fade\">" +
+            "<div class=\"modal-dialog\">" +
+              "<div class=\"modal-content\">" +
+                "<div class=\"modal-header\">" +
+                  "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\">" +
+                    "<span aria-hidden=\"true\">×</span>" +
+                  "</button>" +
+                  "<h4 class=\"modal-title\">{{ i18n.__('Select the delimiter character of the CSV and choose if the file has a header') }}</h4>" +
                 "</div>" +
-                "<div class=\"form-group\">" +
-                  "<div class=\"checkbox\">" +
-                    "<label>" +
-                      "<input name=\"hasHeader\" ng-model=\"csvImport.hasHeader\" type=\"checkbox\"> <span style=\"font-weight: 900;\">{{ i18n.__('The first line is a header?') }}</span>" +
-                    "</label>" +
+                "<div class=\"modal-body\">" +
+                  "<div class=\"form-group\">" +
+                    "<label>{{ i18n.__('Delimiter character') }}</label>" +
+                    "<select class=\"form-control\" name=\"delimiterCharacter\" ng-model=\"csvImport.delimiterCharacter\">" +
+                      "<option value=\";\">{{ i18n.__('Semicolon') }} (;)</option>" +
+                      "<option value=\",\">{{ i18n.__('Comma') }} (,)</option>" +
+                    "</select>" +
                   "</div>" +
+                  "<div class=\"form-group\">" +
+                    "<div class=\"checkbox\">" +
+                      "<label>" +
+                        "<input name=\"hasHeader\" ng-model=\"csvImport.hasHeader\" type=\"checkbox\"> <span style=\"font-weight: 900;\">{{ i18n.__('The first line is a header?') }}</span>" +
+                      "</label>" +
+                    "</div>" +
+                  "</div>" +
+                  "<hr style=\"border: 1px solid #eee !important;\"/>" +
+                  "<button type=\"button\" class=\"btn btn-default pull-left\" data-dismiss=\"modal\">{{ i18n.__('Close') }}</button>" +
+                  "<button type=\"button\" class=\"btn btn-primary pull-right\" ng-click=\"selectFileToImport()\">{{ i18n.__('Import') }}</button>" +
+                  "<div style=\"clear: both;\"></div>" +
                 "</div>" +
-                "<hr style=\"border: 1px solid #eee !important;\"/>" +
-                "<button type=\"button\" class=\"btn btn-default pull-left\" data-dismiss=\"modal\">{{ i18n.__('Close') }}</button>" +
-                "<button type=\"button\" class=\"btn btn-primary pull-right\" ng-click=\"selectFileToImport()\">{{ i18n.__('Import') }}</button>" +
-                "<div style=\"clear: both;\"></div>" +
+              "</div>" +
+            "</div>" +
+          "</div>" +
+          "<div id=\"importDCPItemsModal\" class=\"modal fade\">" +
+            "<div class=\"modal-dialog\">" +
+              "<div class=\"modal-content\">" +
+                "<div class=\"modal-header\">" +
+                  "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\">" +
+                    "<span aria-hidden=\"true\">×</span>" +
+                  "</button>" +
+                  "<h4 class=\"modal-title\">{{ i18n.__('Select the fields') }}</h4>" +
+                "</div>" +
+                "<div class=\"modal-body\">" +
+                  "<div ng-repeat=\"semantic in dataSeries.semantics.metadata.form | filter: defaultValueFilter\">" +
+                    "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasPrefixFieldForImport\">" +
+                      "<label>{{ i18n.__('Prefix') }}:</label>" +
+                      "<input class=\"form-control\" id=\"{{ semantic.key + dataSeries.semantics.code }}Prefix\" name=\"{{ semantic.key + dataSeries.semantics.code }}Prefix\" ng-model=\"importationFields[dataSeries.semantics.code][semantic.key + 'Prefix']\" placeholder=\"{{ i18n.__('Prefix') }}\" type=\"text\">" +
+                    "</div>" +
+                    "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\">" +
+                      "<label>{{ dataSeries.semantics.metadata.schema.properties[semantic.key].title }}:</label>" +
+                      "<select class=\"form-control\" name=\"{{ semantic.key + dataSeries.semantics.code }}\" ng-change=\"verifyDefault(dataSeries.semantics.code, semantic.key);\" ng-model=\"importationFields[dataSeries.semantics.code][semantic.key]\">" +
+                        "<option value=\"\">{{ i18n.__('Select a column') }}</option>" +
+                        "<option value=\"default\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasDefaultFieldForImport\">{{ i18n.__('Enter default value') }}</option>" +
+                        "<option value=\"empty\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].allowEmptyValue\">{{ i18n.__('Leave it empty') }}</option>" +
+                        "<option ng-repeat=\"column in csvImport.finalData.header\" ng-init=\"importationFields[dataSeries.semantics.code][semantic.key] = ''\" value=\"{{ column }}\">{{ column }}</option>" +
+                      "</select>" +
+                    "</div>" +
+                    "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasDefaultFieldForImport && semantic.titleMap\">" +
+                      "<label>{{ i18n.__('Default') }}:</label>" +
+                      "<select class=\"form-control\" ng-disabled=\"importationFields[dataSeries.semantics.code][semantic.key] != 'default'\" id=\"{{ semantic.key + dataSeries.semantics.code }}Default\" name=\"{{ semantic.key + dataSeries.semantics.code }}Default\" ng-model=\"importationFields[dataSeries.semantics.code][semantic.key + 'Default']\">" +
+                        "<option value=\"\">{{ i18n.__('Select a value') }}</option>" +
+                        "<option ng-repeat=\"titleMap in semantic.titleMap\" label=\"{{ titleMap.name }}\" value=\"{{ titleMap.value }}\">{{ titleMap.name }}</option>" +
+                      "</select>" +
+                    "</div>" +
+                    "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasDefaultFieldForImport && !semantic.titleMap\">" +
+                      "<label>{{ i18n.__('Default') }}:</label>" +
+                      "<input class=\"form-control\" ng-disabled=\"importationFields[dataSeries.semantics.code][semantic.key] != 'default'\" id=\"{{ semantic.key + dataSeries.semantics.code }}Default\" name=\"{{ semantic.key + dataSeries.semantics.code }}Default\" ng-model=\"importationFields[dataSeries.semantics.code][semantic.key + 'Default']\" placeholder=\"{{ i18n.__('Default') }}\" type=\"text\">" +
+                    "</div>" +
+                    "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasSuffixFieldForImport\">" +
+                      "<label>{{ i18n.__('Suffix') }}:</label>" +
+                      "<input class=\"form-control\" id=\"{{ semantic.key + dataSeries.semantics.code }}Suffix\" name=\"{{ semantic.key + dataSeries.semantics.code }}Suffix\" ng-model=\"importationFields[dataSeries.semantics.code][semantic.key + 'Suffix']\" placeholder=\"{{ i18n.__('Suffix') }}\" type=\"text\">" +
+                    "</div>" +
+                  "</div>"+
+                  "<hr style=\"border: 1px solid #eee !important;\"/>" +
+                  "<button type=\"button\" class=\"btn btn-default pull-left\" data-dismiss=\"modal\">{{ i18n.__('Close') }}</button>" +
+                  "<button type=\"button\" class=\"btn btn-primary pull-right\" ng-click=\"validateImportationMetadata()\">{{ i18n.__('Import') }}</button>" +
+                  "<div style=\"clear: both;\"></div>" +
+                "</div>" +
               "</div>" +
             "</div>" +
           "</div>" +
         "</div>" +
-        "<div id=\"importDCPItemsModal\" class=\"modal fade\">" +
-          "<div class=\"modal-dialog\">" +
-            "<div class=\"modal-content\">" +
-              "<div class=\"modal-header\">" +
-                "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\">" +
-                  "<span aria-hidden=\"true\">×</span>" +
-                "</button>" +
-                "<h4 class=\"modal-title\">{{ i18n.__('Select the fields') }}</h4>" +
-              "</div>" +
-              "<div class=\"modal-body\">" +
-                "<div ng-repeat=\"semantic in dataSeries.semantics.metadata.form | filter: defaultValueFilter\">" +
-                  "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasPrefixFieldForImport\">" +
-                    "<label>{{ i18n.__('Prefix') }}:</label>" +
-                    "<input class=\"form-control\" id=\"{{ semantic.key + dataSeries.semantics.code }}Prefix\" name=\"{{ semantic.key + dataSeries.semantics.code }}Prefix\" ng-model=\"importationFields[dataSeries.semantics.code][semantic.key + 'Prefix']\" placeholder=\"{{ i18n.__('Prefix') }}\" type=\"text\">" +
-                  "</div>" +
-                  "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\">" +
-                    "<label>{{ dataSeries.semantics.metadata.schema.properties[semantic.key].title }}:</label>" +
-                    "<select class=\"form-control\" name=\"{{ semantic.key + dataSeries.semantics.code }}\" ng-change=\"verifyDefault(dataSeries.semantics.code, semantic.key);\" ng-model=\"importationFields[dataSeries.semantics.code][semantic.key]\">" +
-                      "<option value=\"\">{{ i18n.__('Select a column') }}</option>" +
-                      "<option value=\"default\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasDefaultFieldForImport\">{{ i18n.__('Enter default value') }}</option>" +
-                      "<option value=\"empty\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].allowEmptyValue\">{{ i18n.__('Leave it empty') }}</option>" +
-                      "<option ng-repeat=\"column in csvImport.finalData.header\" ng-init=\"importationFields[dataSeries.semantics.code][semantic.key] = ''\" value=\"{{ column }}\">{{ column }}</option>" +
-                    "</select>" +
-                  "</div>" +
-                  "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasDefaultFieldForImport && semantic.titleMap\">" +
-                    "<label>{{ i18n.__('Default') }}:</label>" +
-                    "<select class=\"form-control\" ng-disabled=\"importationFields[dataSeries.semantics.code][semantic.key] != 'default'\" id=\"{{ semantic.key + dataSeries.semantics.code }}Default\" name=\"{{ semantic.key + dataSeries.semantics.code }}Default\" ng-model=\"importationFields[dataSeries.semantics.code][semantic.key + 'Default']\">" +
-                      "<option value=\"\">{{ i18n.__('Select a value') }}</option>" +
-                      "<option ng-repeat=\"titleMap in semantic.titleMap\" label=\"{{ titleMap.name }}\" value=\"{{ titleMap.value }}\">{{ titleMap.name }}</option>" +
-                    "</select>" +
-                  "</div>" +
-                  "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasDefaultFieldForImport && !semantic.titleMap\">" +
-                    "<label>{{ i18n.__('Default') }}:</label>" +
-                    "<input class=\"form-control\" ng-disabled=\"importationFields[dataSeries.semantics.code][semantic.key] != 'default'\" id=\"{{ semantic.key + dataSeries.semantics.code }}Default\" name=\"{{ semantic.key + dataSeries.semantics.code }}Default\" ng-model=\"importationFields[dataSeries.semantics.code][semantic.key + 'Default']\" placeholder=\"{{ i18n.__('Default') }}\" type=\"text\">" +
-                  "</div>" +
-                  "<div class=\"form-group col-md-{{ importationModalColSize[semantic.key] }}\" ng-show=\"dataSeries.semantics.metadata.schema.properties[semantic.key].hasSuffixFieldForImport\">" +
-                    "<label>{{ i18n.__('Suffix') }}:</label>" +
-                    "<input class=\"form-control\" id=\"{{ semantic.key + dataSeries.semantics.code }}Suffix\" name=\"{{ semantic.key + dataSeries.semantics.code }}Suffix\" ng-model=\"importationFields[dataSeries.semantics.code][semantic.key + 'Suffix']\" placeholder=\"{{ i18n.__('Suffix') }}\" type=\"text\">" +
-                  "</div>" +
-                "</div>"+
-                "<hr style=\"border: 1px solid #eee !important;\"/>" +
-                "<button type=\"button\" class=\"btn btn-default pull-left\" data-dismiss=\"modal\">{{ i18n.__('Close') }}</button>" +
-                "<button type=\"button\" class=\"btn btn-primary pull-right\" ng-click=\"validateImportationMetadata()\">{{ i18n.__('Import') }}</button>" +
-                "<div style=\"clear: both;\"></div>" +
-              "</div>" +
-            "</div>" +
-          "</div>" +
-        "</div>" +
-
-        "<div id=\"importDCPCemadenItemsModal\" class=\"modal fade\">" +
+        "<div id=\"importDCPCemadenItemsModal\" ng-if=\"isCemadenType()\" class=\"modal fade\">" +
           "<div class=\"modal-dialog\">" +
             "<div class=\"modal-content\">" +
               "<div class=\"modal-header\">" +
@@ -231,16 +232,20 @@ define([], function() {
             if (!$scope.isCemadenType())
               $('#importParametersModal').modal('show');
             else
-              if ($scope.model.state && $scope.model.state.length !== 0)
+              if ($scope.model.state && $scope.model.state.length !== 0 &&
+                  $scope.model.station)
                 $scope.selectFileToImport();
               else
-                MessageBoxService.danger(i18n.__("Import DCP"), i18n.__("No state selected"));
+                MessageBoxService.danger(i18n.__("Import DCP"), i18n.__("The fields Station and State are required."));
           };
 
           /**
            * Fill DCP cemaden in Parameters - GUI
            */
           function validateCemaden() {
+            // Resetting
+            $scope.cleanDCPS();
+
             $scope.isChecking.value = true;
             $('#importDCPCemadenItemsModal').modal('hide');
 
@@ -331,8 +336,13 @@ define([], function() {
             $scope.isChecking.value = true;
 
             if ($scope.isCemadenType()) {
+              const dataProviderId = $scope.dataSeries.data_provider_id;
+              const stationId = $scope.model.station;
+              if (!stationId)
+                return MessageBoxService.danger(i18n.__("Import DCP"), i18n.__("No station selected"));
+
               // Retrieves all DCP cemaden from state and keep in cache
-              return CemadenService.listDCP($scope.model.state.map(state => state.id))
+              return CemadenService.listDCP($scope.model.state.map(state => state.id), dataProviderId, stationId)
                 .then(dcps => {
 
                   if (dcps.length === 0)
@@ -368,6 +378,10 @@ define([], function() {
                   $scope.isChecking.value = false;
 
                   $('#importDCPCemadenItemsModal').modal('show');
+                })
+                .catch(err => {
+                  $scope.isChecking.value = false;
+                  MessageBoxService.danger("Cemaden", i18n.__("Could not retrive Cemaden DCP due ") + err.toString());
                 });
             }
 
