@@ -19,21 +19,22 @@
   TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 */
 
-#include "StoragerManager.hpp"
-
-#include "../data-model/DataSet.hpp"
-#include "../data-model/DataSeries.hpp"
-#include "../data-model/DataProvider.hpp"
-#include "../data-model/DataManager.hpp"
-#include "../data-access/DataStorager.hpp"
-#include "../utility/Logger.hpp"
-#include "../utility/DataStoragerFactory.hpp"
-#include "../../Exception.hpp"
 
 #include <terralib/Exception.h>
+#include <algorithm>
+#include <memory>
 
-// Qt
-#include <QString>
+#include "../../Exception.hpp"
+#include "../Exception.hpp"
+#include "../data-access/DataSetSeries.hpp"
+#include "../data-model/DataManager.hpp"
+#include "../data-model/DataSeries.hpp"
+#include "../data-access/DataStorager.hpp"
+#include "../data-model/DataProvider.hpp"
+#include "../data-model/DataSet.hpp"
+#include "../utility/DataStoragerFactory.hpp"
+#include "../utility/Logger.hpp"
+#include "StoragerManager.hpp"
 
 terrama2::core::StoragerManager::StoragerManager(terrama2::core::DataManagerPtr dataManager) : dataManager_(dataManager)
 {

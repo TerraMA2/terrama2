@@ -28,11 +28,24 @@
   \author Vinicius Campanha
  */
 
+#include <QObject>
+#include <QString>
+#include <algorithm>
+#include <memory>
+#include <utility>
+
+#include "../data-model/DataSet.hpp"
+#include "../../Exception.hpp"
+#include "../Exception.hpp"
+#include "../utility/Logger.hpp"
 //TerraMA2
 #include "DataStorager.hpp"
-#include "../utility/Logger.hpp"
-#include "../Exception.hpp"
-#include "../../Config.hpp"
+
+namespace terrama2 {
+namespace core {
+struct DataSetSeries;
+}  // namespace core
+}  // namespace terrama2
 
 terrama2::core::DataStorager::DataStorager(DataSeriesPtr outputDataSeries, DataProviderPtr outputDataProvider)
         : dataSeries_(outputDataSeries),

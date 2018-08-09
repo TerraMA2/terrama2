@@ -31,19 +31,25 @@
 #ifndef __TERRAMA2_CORE_TIMER_HPP__
 #define __TERRAMA2_CORE_TIMER_HPP__
 
-// TerraMA2
-#include "../Config.hpp"
-#include "../Typedef.hpp"
-#include "../data-model/Schedule.hpp"
-
-// Qt
+#include <QObject>
+#include <QString>
 #include <QTimer>
+#include <memory>                       // for shared_ptr, unique_ptr
 
-// Terralib
-#include <terralib/datatype/TimeInstantTZ.h>
+#include "../Config.hpp"                // for TMCOREEXPORT
+#include "../Shared.hpp"  // for ProcessPtr
 
-// STL
-#include <memory>
+class QObject;
+namespace terrama2 {
+namespace core {
+struct Schedule;
+}  // namespace core
+}  // namespace terrama2
+namespace te {
+namespace dt {
+class TimeInstantTZ;
+}  // namespace dt
+}  // namespace te
 
 namespace terrama2
 {

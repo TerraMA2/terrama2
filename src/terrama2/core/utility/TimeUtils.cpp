@@ -27,23 +27,24 @@
   \author Vinicius Campanha
 */
 
+#include <terralib/common/UnitsOfMeasureManager.h>
+#include <terralib/common/UnitOfMeasure.h>
+#include <terralib/datatype/TimeInstantTZ.h>
+#include <QObject>
+#include <QString>
+#include <sstream>
+#include <algorithm>
 
-// TerraMA2
+#include "../data-model/Schedule.hpp"
 #include "TimeUtils.hpp"
 #include "LocalTimeUtils.hpp"
 #include "Logger.hpp"
+// TerraMA2
+#include "TimeUtils.hpp"
 #include "Verify.hpp"
-#include "../../Exception.hpp"
-
-// TerraLib
-#include <terralib/common/UnitsOfMeasureManager.h>
 
 // Boost
 #include <boost/algorithm/string.hpp>
-
-// Qt
-#include <QString>
-#include <QObject>
 
 std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::TimeUtils::stringToTimestamp(const std::string& dateTime, const std::string& mask)
 {

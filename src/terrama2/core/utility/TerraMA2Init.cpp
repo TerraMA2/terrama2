@@ -22,18 +22,26 @@
   \author Jano Simas
 */
 
-#include "TerraMA2Init.hpp"
-#include "Utils.hpp"
+#include <unordered_map>
+#include <vector>
+
+#include "../Typedef.hpp"
 #include "Logger.hpp"
 #include "SemanticsManager.hpp"
+#include "TerraMA2Init.hpp"
+#include "Utils.hpp"
 
-// QT
-#include <QDir>
-#include <QFile>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QString>
+#include <QByteArray>                                   // for QByteArray
+#include <QDir>                                         // for QDir, operator|
+#include <QFile>                                        // for QFile
+#include <QIODevice>                                    // for QIODevice::Op...
+#include <QJsonArray>                                   // for QJsonArray
+#include <QJsonDocument>                                // for QJsonDocument
+#include <QJsonObject>                                  // for QJsonObject
+#include <QJsonValue>                                   // for QJsonValueRef
+#include <QObject>                                      // for QObject
+#include <QString>                                      // for QString
+#include <QStringList>                                  // for QStringList
 
 terrama2::core::TerraMA2Init::TerraMA2Init(const std::string& serviceType, const int listeningPort)
 {

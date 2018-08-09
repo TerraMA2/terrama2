@@ -30,12 +30,26 @@
 #ifndef __TERRAMA2_CORE_TIMEUTILS_HPP__
 #define __TERRAMA2_CORE_TIMEUTILS_HPP__
 
+#include <boost/date_time/local_time/local_date_time.hpp>
 // TerraLib
 #include <terralib/datatype/TimeInstantTZ.h>
+#include <memory>
+#include <string>
 
 // TerraMa2
 #include "../Config.hpp"
 #include "../data-model/Schedule.hpp"
+
+namespace terrama2 {
+namespace core {
+struct Schedule;
+}  // namespace core
+}  // namespace terrama2
+namespace te {
+namespace dt {
+class TimeInstantTZ;
+}  // namespace dt
+}  // namespace te
 
 namespace terrama2
 {

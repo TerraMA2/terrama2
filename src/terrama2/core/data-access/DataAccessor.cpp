@@ -28,26 +28,43 @@
   \author Evandro Delatin
  */
 
-#include "DataAccessor.hpp"
-#include "../Exception.hpp"
-#include "../utility/Logger.hpp"
-#include "../utility/Utils.hpp"
-#include "../utility/DataRetrieverFactory.hpp"
-
-//terralib
-#include <terralib/dataaccess/dataset/DataSet.h>
+#include <cassert>
+#include <boost/date_time/local_time/local_date_time.hpp>
+#include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
 #include <terralib/dataaccess/dataset/DataSetType.h>
-#include <terralib/datatype/SimpleData.h>
 #include <terralib/datatype/Property.h>
-
-
-//QT
-#include <QUrl>
-#include <QDir>
+#include <terralib/datatype/SimpleData.h>
+#include <terralib/datatype/TimeInstantTZ.h>
+#include <terralib/dataaccess/dataset/DataSet.h>
 #include <QObject>
-
+#include <QString>
 //STL
 #include <algorithm>
+#include <cmath>
+#include <exception>
+#include <stdexcept>
+
+#include "../data-model/DataProvider.hpp"
+#include "../data-model/Filter.hpp"
+#include "../../Exception.hpp"
+#include "../Exception.hpp"
+#include "../data-model/DataSet.hpp"
+#include "../utility/DataRetrieverFactory.hpp"
+#include "../utility/Logger.hpp"
+#include "../utility/Utils.hpp"
+#include "DataAccessor.hpp"
+#include "DataRetriever.hpp"
+
+namespace terrama2 {
+namespace core {
+class FileRemover;
+}  // namespace core
+}  // namespace terrama2
+namespace te {
+namespace dt {
+class AbstractData;
+}  // namespace dt
+}  // namespace te
 
 terrama2::core::DataAccessor::DataAccessor(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
   : dataProvider_(dataProvider),

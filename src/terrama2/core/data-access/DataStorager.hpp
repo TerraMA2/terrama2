@@ -30,12 +30,25 @@
 #ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_HPP__
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_STORAGER_HPP__
 
+#include <map>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+#include "../Config.hpp"
 //TerraMA2
 #include "../Shared.hpp"
-#include "../data-model/DataManager.hpp"
 #include "../data-access/DataSetSeries.hpp"
+#include "../Config.hpp"
+#include "../Shared.hpp"
+#include "../Typedef.hpp"
+#include "../data-model/DataManager.hpp"
 
-#include <unordered_map>
+namespace terrama2 {
+namespace core {
+struct DataSetSeries;
+}  // namespace core
+}  // namespace terrama2
 
 namespace te
 {

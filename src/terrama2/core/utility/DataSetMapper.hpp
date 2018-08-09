@@ -30,16 +30,24 @@
 #ifndef __TERRAMA2_CORE_DATASET_MAPPER_HPP__
 #define __TERRAMA2_CORE_DATASET_MAPPER_HPP__
 
-// TerraMa2
-#include "../Config.hpp"
-
 // Terralib
 #include <terralib/dataaccess/dataset/DataSet.h>
-
 // STL
 #include <memory>
 #include <string>
 #include <unordered_map>
+
+// TerraMa2
+#include "../Config.hpp"
+
+namespace te {
+namespace da {
+class DataSet;
+}  // namespace da
+namespace dt {
+class AbstractData;
+}  // namespace dt
+}  // namespace te
 
 namespace terrama2
 {

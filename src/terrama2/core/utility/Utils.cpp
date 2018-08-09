@@ -28,58 +28,48 @@
 */
 
 // TerraMA2
-#include "Utils.hpp"
-#include "DataAccessorFactory.hpp"
-#include "SemanticsManager.hpp"
-#include "Raii.hpp"
-#include "Logger.hpp"
-#include "FileRemover.hpp"
-
-#include "../data-model/DataManager.hpp"
-#include "../data-model/DataSeries.hpp"
-#include "../data-model/DataProvider.hpp"
-#include "../Exception.hpp"
-#include "../../Config.hpp"
-
-// TerraLib
-#include <terralib/dataaccess/datasource/ScopedTransaction.h>
-#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
-#include <terralib/dataaccess/datasource/DataSourceFactory.h>
-#include <terralib/core/utils/Platform.h>
-#include <terralib/common/PlatformUtils.h>
-#include <terralib/common/UnitsOfMeasureManager.h>
-#include <terralib/common.h>
-#include <terralib/core/plugin.h>
-#include <terralib/geometry/Geometry.h>
-#include <terralib/geometry/Utils.h>
-#include <terralib/sa/core/Utils.h>
-#include <terralib/srs/SpatialReferenceSystemManager.h>
-#include <terralib/srs/SpatialReferenceSystem.h>
-#include <terralib/geometry/WKTReader.h>
-#include <terralib/geometry/MultiPolygon.h>
-#include <terralib/raster/RasterFactory.h>
-#include <terralib/raster/Grid.h>
-#include <terralib/raster/Band.h>
-#include <terralib/raster/BandIterator.h>
-#include <terralib/core/filesystem/FileSystem.h>
-
-#include <ctime>
-#include <unordered_map>
-#include <functional>
-#include <string>
-#include <fstream>
-#include <streambuf>
-
-// Boost
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/trim.hpp>
 
-// QT
-#include <QFile>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QString>
+#include <terralib/core/filesystem/FileSystem.h>
+#include <terralib/core/plugin/PluginInfo.h>
+#include <terralib/core/plugin/PluginManager.h>
+#include <terralib/core/plugin/Serializers.h>
+#include <terralib/core/plugin/Utils.h>
+#include <terralib/dataaccess/datasource/DataSource.h>
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+// TerraLib
+#include <terralib/dataaccess/datasource/ScopedTransaction.h>
+#include <terralib/datatype/TimeInstantTZ.h>
+#include <terralib/common/TerraLib.h>
+#include <terralib/common/UnitsOfMeasureManager.h>
+#include <terralib/core/logger/../utils/Platform.h>
+#include <terralib/geometry/Geometry.h>
+#include <terralib/common/UnitOfMeasure.h>
+#include <terralib/common/Enums.h>
+#include <terralib/dataaccess/dataset/DataSet.h>
+#include <terralib/dataaccess/dataset/DataSetType.h>
+#include <algorithm>
+#include <fstream>
+#include <limits>
+#include <map>
+#include <string>
+#include <unordered_map>
+
+#include "../Exception.hpp"
+#include "../../Exception.hpp"
+#include "../data-model/DataManager.hpp"
+#include "../data-model/DataProvider.hpp"
+#include "../data-model/DataSeries.hpp"
+#include "../data-model/DataSet.hpp"
+#include "../data-model/Filter.hpp"
+#include "FileRemover.hpp"
+#include "Logger.hpp"
+#include "Raii.hpp"
+// TerraMA2
+#include "Utils.hpp"
+#include "terrama2_config.hpp"
 
 namespace te
 {
@@ -627,8 +617,7 @@ void terrama2::core::erasePreviousResult(DataManagerPtr dataManager, DataSeriesI
 }
 
 std::string terrama2::core::getTemporaryFolder( std::shared_ptr<terrama2::core::FileRemover> remover,
-                                                const std::string& oldTempTerraMAFolder,
-                                                const std::string& internalFolder)
+                                                const std::string& oldTempTerraMAFolder)
 {
     std::string tempTerraMAFolder = oldTempTerraMAFolder + "/";
 
@@ -639,7 +628,7 @@ std::string terrama2::core::getTemporaryFolder( std::shared_ptr<terrama2::core::
       boost::filesystem::path tempDataDir = boost::filesystem::unique_path(tempTerrama.string()+"/%%%%-%%%%-%%%%-%%%%");
 
       // Create the directory where you will download the files.
-      QDir dir(QString::fromStdString(tempDataDir.string()+"/"+internalFolder));
+      QDir dir(QString::fromStdString(tempDataDir.string()));
       if(!dir.exists())
         dir.mkpath(QString::fromStdString(tempDataDir.string()));
 

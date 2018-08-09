@@ -30,15 +30,22 @@
 #ifndef __TERRAMA2_CORE_UTILITY_UNPACK_HPP__
 #define __TERRAMA2_CORE_UTILITY_UNPACK_HPP__
 
+// QT
+#include <QFileInfo>
 // STL
 #include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <string>
 
+#include "../Config.hpp"
 #include "FileRemover.hpp"
 
-// QT
-#include <QFileInfo>
+namespace terrama2 {
+namespace core {
+class FileRemover;
+}  // namespace core
+}  // namespace terrama2
 
 namespace terrama2
 {

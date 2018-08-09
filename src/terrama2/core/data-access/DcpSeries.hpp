@@ -30,9 +30,20 @@
 #ifndef __TERRAMA2_CORE_DATA_ACCESS_DCP_SERIES_HPP__
 #define __TERRAMA2_CORE_DATA_ACCESS_DCP_SERIES_HPP__
 
+#include <memory>
+#include <unordered_map>
+
+#include "../Config.hpp"
+#include "../Shared.hpp"
 //TerraMA2
 #include "../data-model/DataSetDcp.hpp"
 #include "SeriesAggregation.hpp"
+
+namespace terrama2 {
+namespace core {
+struct DataSetSeries;
+}  // namespace core
+}  // namespace terrama2
 
 namespace terrama2
 {

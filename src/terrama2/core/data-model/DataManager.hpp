@@ -33,19 +33,18 @@
 #ifndef __TERRAMA2_CORE_DATAMANAGER_HPP__
 #define __TERRAMA2_CORE_DATAMANAGER_HPP__
 
+#include <QJsonObject>
+// QT
+#include <QObject>
+#include <map>
+// STL
+#include <memory>
+#include <mutex>
+
 // TerraMa2
 #include "../Config.hpp"
 #include "../Shared.hpp"
 #include "../Typedef.hpp"
-
-// STL
-#include <memory>
-#include <mutex>
-#include <map>
-
-// QT
-#include <QObject>
-#include <QJsonObject>
 
 namespace terrama2
 {

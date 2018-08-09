@@ -21,11 +21,21 @@
   \author Jano Simas
 */
 
-#include "TimeUtils.hpp"
-#include "Utils.hpp"
-#include "ServiceManager.hpp"
+#include <terralib/core/uri/URI.h>
+#include <QJsonValue>
+#include <thread>
+
+#include "ProcessLogger.hpp"
 #include "Service.hpp"
-#include "../../Version.hpp"
+#include "ServiceManager.hpp"
+#include "TimeUtils.hpp"
+#include "terrama2_version.hpp"
+
+namespace te {
+namespace dt {
+class TimeInstantTZ;
+}  // namespace dt
+}  // namespace te
 
 terrama2::core::ServiceManager::ServiceManager()
   : startTime_(terrama2::core::TimeUtils::nowUTC())

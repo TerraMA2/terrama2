@@ -1,14 +1,10 @@
 // TerraMA2
-#include "Logger.hpp"
-#include "../network/TcpManager.hpp"
-
-// Boost
 #include <boost/log/attributes.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/core/null_deleter.hpp>
-
-// STL
 #include <fstream>
+
+#include "Logger.hpp"
 
 void logFormatter(const boost::log::record_view& rec, boost::log::formatting_ostream& stream)
 {

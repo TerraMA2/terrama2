@@ -866,15 +866,8 @@ te::core::URI terrama2::services::alert::core::AlertExecutor::generateImage(Aler
   auto imageName = terrama2::core::simplifyString(alertPtr->name)+".jpg";
 
   // create temporary folder
-  boost::filesystem::path tempDir = boost::filesystem::temp_directory_path();
-  boost::filesystem::path tempTerrama(tempDir.string()+"/terrama2");
-  boost::filesystem::path downloadBaseDir = boost::filesystem::unique_path(tempTerrama.string()+"/%%%%-%%%%-%%%%-%%%%");
-  // Create the directory where you will download the files.
-  QDir dir(QString::fromStdString(downloadBaseDir.string()));
-  if(!dir.exists())
-    dir.mkpath(QString::fromStdString(downloadBaseDir.string()));
-
-  auto imagePath = downloadBaseDir.string()+"/"+imageName;
+  auto tempDir = getTemporaryFolder(remover);
+  auto imagePath = tempDir+"/"+imageName;
   remover->addTemporaryFile(imagePath);
 
   // download image

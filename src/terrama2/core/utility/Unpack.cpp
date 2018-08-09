@@ -31,45 +31,7 @@
 */
 
 
-// TerraMA2
-#include "Unpack.hpp"
-#include "Logger.hpp"
-#include "Utils.hpp"
-#include "Raii.hpp"
-#include "../Exception.hpp"
-
-// STL
-#include <iostream>
-#include <fstream>
-#include <cstdio>
-#include <string>
-#include <cstring>
-#include <cstdlib>
-#include <zlib.h>
-#include <zconf.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <cstddef>
-#include <sys/stat.h>
-
-// QT
-#include <QFileInfo>
-#include <QDir>
-#include <QUrl>
-#include <QDebug>
-#include <QTemporaryFile>
-#include <QTemporaryDir>
-#include <QFile>
-#include <QByteArray>
-
-// Quazip
-#include <quazip.h>
 #include <JlCompress.h>
-
-// Boost
-#include <fstream>
-#include <iostream>
 #include <boost/iostreams/filtering_streambuf.hpp>
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filter/zlib.hpp>
@@ -78,6 +40,19 @@
 #include <boost/filesystem/operations.hpp>
 
 #include <terralib/Exception.h>
+#include <fstream>
+// STL
+#include <iostream>
+#include <string>
+#include <QString>
+
+#include "../../Exception.hpp"
+#include "FileRemover.hpp"
+#include "Logger.hpp"
+#include "Raii.hpp"
+#include "Utils.hpp"
+// TerraMA2
+#include "Unpack.hpp"
 
 QString terrama2::core::Unpack::decompressGz(QFileInfo fileInfo, QString temporaryFolder, std::shared_ptr<terrama2::core::FileRemover> remover)
 {
@@ -130,28 +105,7 @@ std::string terrama2::core::Unpack::decompress(std::string uri,
                                                std::shared_ptr<terrama2::core::FileRemover> remover,
                                                const std::string& temporaryFolder)
 {
-  QString unpackFolder = QString::fromStdString(temporaryFolder);
-  if(temporaryFolder.empty())
-  {
-    boost::filesystem::path tempDir = boost::filesystem::temp_directory_path();
-    boost::filesystem::path tempTerrama(tempDir.string()+"/terrama2-unpack");
-    boost::filesystem::path upackDir = boost::filesystem::unique_path(tempTerrama.string()+"/%%%%-%%%%-%%%%-%%%%");
-
-    unpackFolder = QString::fromStdString(upackDir.string());
-    remover->addTemporaryFolder(unpackFolder.toStdString());
-
-    // Create the directory where you will unpack the files.
-    QDir dir(unpackFolder);
-    if(!dir.exists())
-    {
-      if(!dir.mkpath(unpackFolder))
-      {
-          TERRAMA2_LOG_ERROR() << QObject::tr("Error creating temporary folder.");
-          return "";
-      }
-    }
-  }
-
+  QString unpackFolder = QString::fromStdString(getTemporaryFolder(remover, temporaryFolder));
   try
   {
     QUrl url(uri.c_str());

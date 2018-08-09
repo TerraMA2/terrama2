@@ -30,14 +30,16 @@
 #ifndef __TERRAMA2_CORE_DATA_MODEL_RISK_HPP__
 #define __TERRAMA2_CORE_DATA_MODEL_RISK_HPP__
 
-#include "../Config.hpp"
-#include "DataSet.hpp"
-#include "../Shared.hpp"
-#include "../Typedef.hpp"
-
-#include <vector>
 #include <algorithm>
 #include <limits>
+#include <string>
+#include <tuple>
+#include <vector>
+
+#include "../Config.hpp"
+#include "../Shared.hpp"
+#include "../Typedef.hpp"
+#include "DataSet.hpp"
 
 namespace terrama2
 {

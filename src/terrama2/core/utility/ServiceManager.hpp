@@ -25,24 +25,39 @@
 #ifndef __TERRAMA2_CORE_SERVICE_MANAGER_HPP__
 #define __TERRAMA2_CORE_SERVICE_MANAGER_HPP__
 
+// TerraLib
+#include <terralib/common/Singleton.h>
+#include <terralib/core/uri/URI.h>
+#include <terralib/datatype/TimeInstantTZ.h>
+//Qt
+#include <QJsonObject>
+#include <QObject>
+#include <QString>
+#include <memory>
+#include <string>
+
+#include "../Config.hpp"
 // TerraMa2
 #include "../Typedef.hpp"
 #include "ProcessLogger.hpp"
 
-//Qt
-#include <QJsonObject>
-#include <QObject>
-
-// TerraLib
-#include <terralib/common/Singleton.h>
-#include <terralib/datatype/TimeInstantTZ.h>
-#include <terralib/core/uri/URI.h>
+namespace terrama2 {
+namespace core {
+class ProcessLogger;
+}  // namespace core
+}  // namespace terrama2
+namespace te {
+namespace dt {
+class TimeInstantTZ;
+}  // namespace dt
+}  // namespace te
 
 namespace terrama2
 {
   namespace core
   {
     class Service;
+
     /*!
       \brief Controls service instance information.
 
