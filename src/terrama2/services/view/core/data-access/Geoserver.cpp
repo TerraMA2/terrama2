@@ -1259,7 +1259,7 @@ void terrama2::services::view::core::GeoServer::registerStyle(const std::string&
     {
       registerStyle(name, legend.metadata.at("xml_style"), "1.0.0");
     }
-    else 
+    else
     {
       registerCoverageStyle(name, legend);
       registerLegendCoverageStyle(name+"_legend", legend);
@@ -1877,10 +1877,10 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
 
       std::map<std::string, std::string> options;
       dataSource->add(layerName, ds.get(), options);
-
-      // register datastore and layer if they don't exists
-      registerMosaicCoverage(viewPtr, layerName, url.path().toStdString(), layerName, vecRasterInfo[0], "", "all");
     }
+    
+    // register datastore and layer if they don't exists
+    registerMosaicCoverage(viewPtr, layerName, url.path().toStdString(), layerName, vecRasterInfo[0], "", "all");
 
     layersNames.push_back(layerName);
   }
