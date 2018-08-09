@@ -3,6 +3,8 @@ var db = {};
 var path = require("path");
 var Sequelize = require("sequelize");
 
+const isFunction = require("./../core/Utils").isFunction;
+
 
 function load(sequelizeObject) {
   fs.readdirSync(__dirname).filter(function(file) {
@@ -15,6 +17,10 @@ function load(sequelizeObject) {
   Object.keys(db).forEach(function(modelName) {
     if ("associate" in db[modelName]) {
       db[modelName].associate(db);
+
+      // Register Hooks if there is
+      if (isFunction(db[modelName].registerHooks))
+        db[modelName].registerHooks(db)
     }
   });
 

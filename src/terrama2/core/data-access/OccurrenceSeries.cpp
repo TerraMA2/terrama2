@@ -28,21 +28,23 @@
   \author Vinicius Campanha
  */
 
+#include <QObject>
+#include <QString>
+#include <iostream>
+#include <memory>
+#include <utility>
+
+#include "../Shared.hpp"
+#include "../data-model/DataSetOccurrence.hpp"
+#include "../utility/Logger.hpp"
 //TerraMA2
 #include "OccurrenceSeries.hpp"
-#include "../../Config.hpp"
-#include "../Shared.hpp"
-#include "../utility/Logger.hpp"
 
-//STL
-#include <vector>
-
-//TerraLib
-#include <terralib/memory/DataSet.h>
-
-//Qt
-#include <QString>
-#include <QObject>
+namespace terrama2 {
+namespace core {
+struct DataSetSeries;
+}  // namespace core
+}  // namespace terrama2
 
 
 void terrama2::core::OccurrenceSeries::addOccurrences(std::unordered_map<DataSetPtr,DataSetSeries> seriesMap)

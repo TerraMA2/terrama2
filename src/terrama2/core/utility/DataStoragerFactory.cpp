@@ -27,13 +27,17 @@
   \author Jano Simas
  */
 
-#include "DataStoragerFactory.hpp"
-#include "../data-access/DataStorager.hpp"
-#include "../data-model/DataProvider.hpp"
-#include "../utility/Logger.hpp"
-
 #include <QObject>
 #include <QString>
+#include <memory>
+#include <utility>
+
+#include "../../Exception.hpp"
+#include "../Exception.hpp"
+#include "../data-model/DataSeries.hpp"
+#include "../data-model/DataSeriesSemantics.hpp"
+#include "../utility/Logger.hpp"
+#include "DataStoragerFactory.hpp"
 
 void terrama2::core::DataStoragerFactory::add(const std::string& code, FactoryFnctType f)
 {

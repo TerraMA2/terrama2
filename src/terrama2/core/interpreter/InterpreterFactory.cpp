@@ -27,11 +27,15 @@
   \author Jano Simas
  */
 
-#include "InterpreterFactory.hpp"
-#include "../utility/Logger.hpp"
-
 #include <QObject>
 #include <QString>
+#include <string>
+#include <utility>
+
+#include "../../Exception.hpp"
+#include "../Exception.hpp"
+#include "../utility/Logger.hpp"
+#include "InterpreterFactory.hpp"
 
 void terrama2::core::InterpreterFactory::add(const terrama2::core::InterpreterType& interpreterType, FactoryFnctType f, RaiiInterpreterFnctType raiiFunction)
 {

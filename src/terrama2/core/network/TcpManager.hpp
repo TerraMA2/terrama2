@@ -25,16 +25,26 @@
 #ifndef __TERRAMA2_CORE_TCP_MANAGER_HPP__
 #define __TERRAMA2_CORE_TCP_MANAGER_HPP__
 
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QObject>
+#include <QString>
 #include <QTcpServer>
 #include <QTcpSocket>
-
-#include <memory>
 #include <QtCore/QJsonDocument>
+#include <memory>
 
-#include "TcpSignals.hpp"
 #include "../utility/ProcessLogger.hpp"
+#include "TcpSignals.hpp"
 
+class QObject;
 class QTcpSocket;
+
+namespace te {
+namespace dt {
+class TimeInstantTZ;
+}  // namespace dt
+}  // namespace te
 
 namespace terrama2
 {
@@ -57,9 +67,9 @@ namespace terrama2
         QTcpSocket* tcpSocket_;
     };
 
+    class DataManager;
     class ServiceManager;
 
-    class DataManager;
     /*!
        \brief Manages all TCP data communication between the service and TerraMA² application.
 

@@ -27,19 +27,27 @@
   \author Jano Simas
 */
 
-// TerraMa2
-#include "../Config.hpp"
-
+// Boost
+#include <boost/dynamic_bitset.hpp>
+#include <terralib/geometry/Coord2D.h>
 // TerraLib
 #include <terralib/geometry/Geometry.h>
 #include <terralib/geometry/Coord2D.h>
 #include <terralib/raster/Raster.h>
-
-// Boost
-#include <boost/dynamic_bitset.hpp>
-
 // STL
 #include <memory>
+
+// TerraMa2
+#include "../Config.hpp"
+
+namespace te {
+namespace gm {
+class Geometry;
+}  // namespace gm
+namespace rst {
+class Raster;
+}  // namespace rst
+}  // namespace te
 
 #ifndef __TERRAMA2_CORE_UTILS_BITSET_INTERSECTION_HPP__
 #define __TERRAMA2_CORE_UTILS_BITSET_INTERSECTION_HPP__

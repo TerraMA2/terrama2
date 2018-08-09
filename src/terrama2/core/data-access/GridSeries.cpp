@@ -28,23 +28,28 @@
   \author Vinicius Campanha
  */
 
-//TerraMA2
-#include "GridSeries.hpp"
-#include "../../Config.hpp"
+
+#include <terralib/datatype/Enums.h>
+//TerraLib
+#include <terralib/dataaccess/utils/Utils.h>
+#include <QObject>
+#include <QString>
+#include <iostream>
+#include <utility>
+
 #include "../Shared.hpp"
 #include "../data-model/DataSetGrid.hpp"
 #include "../utility/Logger.hpp"
+#include "DataSetSeries.hpp"
+//TerraMA2
+#include "GridSeries.hpp"
 #include "SynchronizedDataSet.hpp"
 
-//STL
-#include <vector>
-
-//TerraLib
-#include <terralib/dataaccess/utils/Utils.h>
-
-//Qt
-#include <QString>
-#include <QObject>
+namespace te {
+namespace rst {
+class Raster;
+}  // namespace rst
+}  // namespace te
 
 
 void terrama2::core::GridSeries::addGridSeries(std::unordered_map<DataSetPtr,DataSetSeries> seriesMap)

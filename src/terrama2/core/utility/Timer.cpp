@@ -28,18 +28,24 @@
   \author Vinicius Campanha
 */
 
-// Boost
+#ifndef __TERRAMA2_CORE_UTILITY_TIMER_HPP__
+#define __TERRAMA2_CORE_UTILITY_TIMER_HPP__
+
 #include <boost/date_time/gregorian/gregorian.hpp>
+                                 // for int64_t
+#include <terralib/datatype/TimeDuration.h>                // for TimeDuration
+#include <terralib/datatype/TimeInstantTZ.h>               // for TimeInstantTZ
+#include <Qt>
+#include <ostream>                                         // for stringstream
+#include <string>                                          // for streamsize
 
-//Terralib
-#include <terralib/common/UnitsOfMeasureManager.h>
-
-// TerraMA2
+#include "../../Exception.hpp"                             // for ErrorDescr...
+#include "../Exception.hpp"                                // for InvalidFre...
+#include "../data-model/Process.hpp"                       // for Process
+#include "../data-model/Schedule.hpp"                      // for Schedule
+#include "Logger.hpp"                                      // for operator<<
+#include "TimeUtils.hpp"                                   // for nowUTC
 #include "Timer.hpp"
-#include "Logger.hpp"
-#include "TimeUtils.hpp"
-#include "../data-model/Process.hpp"
-#include "../Exception.hpp"
 
 
 struct terrama2::core::Timer::Impl
@@ -166,3 +172,5 @@ terrama2::core::ProcessPtr terrama2::core::Timer::process() const
 {
   return impl_->process_;
 }
+
+#endif //__TERRAMA2_CORE_UTILITY_TIMER_HPP__

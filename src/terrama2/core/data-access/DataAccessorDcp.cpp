@@ -27,18 +27,21 @@
   \author Jano Simas
  */
 
+#include <cassert>
+#include <terralib/geometry/Point.h>
+#include <terralib/geometry/Geometry.h>
+
+#include "../data-model/DataSetDcp.hpp"
+#include "../data-model/Filter.hpp"
 //TerraMA2
 #include "DataAccessorDcp.hpp"
-#include "DataRetriever.hpp"
-#include "../utility/Logger.hpp"
-#include "../Exception.hpp"
+#include "DcpSeries.hpp"
 
-//TerraLib
-#include <terralib/dataaccess/datasource/DataSource.h>
-#include <terralib/memory/DataSet.h>
-
-//Qt
-#include <QObject>
+namespace terrama2 {
+namespace core {
+class FileRemover;
+}  // namespace core
+}  // namespace terrama2
 
 terrama2::core::DcpSeriesPtr terrama2::core::DataAccessorDcp::getDcpSeries(const Filter& filter, std::shared_ptr<terrama2::core::FileRemover> remover)
 {

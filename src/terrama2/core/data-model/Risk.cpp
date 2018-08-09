@@ -27,12 +27,15 @@
   \author Jano Simas
 */
 
-#include "Risk.hpp"
-#include "../utility/Logger.hpp"
-#include "../Exception.hpp"
-
-#include <QString>
 #include <QObject>
+#include <QString>
+#include <algorithm>
+#include <cstdint>
+
+#include "../../Exception.hpp"
+#include "../Exception.hpp"
+#include "../utility/Logger.hpp"
+#include "Risk.hpp"
 
 std::tuple<uint32_t, std::string> terrama2::core::Risk::riskLevel(double value) const
 {
