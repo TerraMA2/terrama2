@@ -2,6 +2,16 @@ module.exports = (/*app*/) => {
   const Cemaden = require('./../../core/data-series-semantics/Cemaden');
   const DataManager = require('./../../core/DataManager');
 
+  /**
+   * Helper to dispatch CemadenNotSupported
+   *
+   * @param {Express.Response} response
+   * @param {Error} error
+   */
+  const raiseCemadenNotSupported = (response, error) => {
+    return response.status(400).json({ error: "Format Cemaden not found. Please contact System Administrator for further details." });
+  }
+
   const list = (request, response) => {
     try {
       const cemadenObj = new Cemaden();
@@ -30,9 +40,35 @@ module.exports = (/*app*/) => {
           response.status(400).json({ error: error.message })
         });
     } catch (error) {
-      return response.status(400).json({ error: "Format Cemaden not found. Please contact System Administrator for further details." });
+      raiseCemadenNotSupported(response, error);
     }
   };
 
-  return { list };
+  /**
+   * URL Handler to retrieve available Cemaden stations
+   * @param {Express.Request} request HTTP Request interceptor
+   * @param {Express.Response} response HTTP Response object
+   */
+  const listStations = (request, response) => {
+    try {
+      const cemadenObj = new Cemaden();
+
+      const cemadenForm = cemadenObj.semantics.gui.form;
+      const stationField = cemadenForm.find(fields => fields.key === "station");
+
+      if (!stationField || !stationField.titleMap)
+        throw new Error("No station field set");
+
+      // Helper to format station
+      const parseStation = (station) => {
+        return { id: station.value, name: station.name };
+      }
+
+      response.status(200).json(stationField.titleMap.map(station => parseStation(station)));
+    } catch (error) {
+      raiseCemadenNotSupported(response, error);
+    }
+  };
+
+  return { list, listStations };
 };

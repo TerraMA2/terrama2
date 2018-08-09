@@ -2,7 +2,7 @@ define([], function() {
   function RegisterDataSeries($scope, $http, i18n, $window, $state, $httpParamSerializer,
                               DataSeriesSemanticsService, DataProviderService, DataSeriesService,
                               Service, $timeout, WizardHandler, UniqueNumber,
-                              FilterForm, MessageBoxService, $q, GeoLibs, $compile, DateParser, FormTranslator, Socket) {
+                              FilterForm, MessageBoxService, $q, GeoLibs, $compile, DateParser, FormTranslator, Socket, CemadenService) {
 
     var srids = [];
 
@@ -719,6 +719,12 @@ define([], function() {
 
                 // Setting model states
                 $scope.$broadcast('selectOption', states);
+                const stationId = inputDataSeries.dataSets[0].format;
+
+                const stationName = inputDataSeries.dataSets[0].format["tipoestacao"];
+                // Retrieves real station name
+                CemadenService.getStationId(stationName)
+                  .then(stationId => $scope.model.station = stationId);
 
                 $scope.isChecking.value = false;
 
@@ -2304,7 +2310,7 @@ define([], function() {
     })
   }
 
-  RegisterDataSeries.$inject = ["$scope", "$http", "i18n", "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsService", "DataProviderService", "DataSeriesService", "Service", "$timeout", "WizardHandler", "UniqueNumber", "FilterForm", "MessageBoxService", "$q", "GeoLibs", "$compile", "DateParser", "FormTranslator", "Socket"];
+  RegisterDataSeries.$inject = ["$scope", "$http", "i18n", "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsService", "DataProviderService", "DataSeriesService", "Service", "$timeout", "WizardHandler", "UniqueNumber", "FilterForm", "MessageBoxService", "$q", "GeoLibs", "$compile", "DateParser", "FormTranslator", "Socket", "CemadenService"];
 
-  return { "RegisterDataSeries": RegisterDataSeries};
+  return { "RegisterDataSeries": RegisterDataSeries };
 })

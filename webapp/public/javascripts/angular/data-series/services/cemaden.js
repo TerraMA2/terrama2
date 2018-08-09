@@ -31,6 +31,32 @@ define([], () => {
 
       return defer.promise;
     }
+
+    /**
+     * Get cemaden station id from name
+     *
+     * @param {string} stationName
+     * @returns {Promise<number>} Promise with station id
+     */
+    getStationId(stationName) {
+      let defer = this.$q.defer();
+
+      this.$http.get('/api/Cemaden/stations', {})
+        .then(response => {
+          if (!response.data || !angular.isArray(response.data))
+            return defer.reject(new Error("Invalid station"));
+
+          for(let station of response.data) {
+            if (station.name === stationName)
+              return defer.resolve(station.id);
+          }
+
+          return defer.reject(new Error("Invalid station"));
+        })
+        .catch(err => defer.reject(new Error((err.data.error || "Could not retrieve Cemaden Stations"))));
+
+      return defer.promise;
+    }
   }
 
   CemadenService.$inject = ['$http', '$q'];
