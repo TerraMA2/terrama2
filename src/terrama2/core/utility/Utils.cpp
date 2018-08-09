@@ -64,12 +64,12 @@
 #include "../data-model/DataSeries.hpp"
 #include "../data-model/DataSet.hpp"
 #include "../data-model/Filter.hpp"
+#include "FileRemover.hpp"
 #include "Logger.hpp"
 #include "Raii.hpp"
 // TerraMA2
 #include "Utils.hpp"
 #include "terrama2_config.hpp"
-
 
 namespace te
 {
@@ -614,4 +614,28 @@ void terrama2::core::erasePreviousResult(DataManagerPtr dataManager, DataSeriesI
     QString errMsg = QObject::tr("Removing old results not implement for this dataseries format.");
     TERRAMA2_LOG_ERROR() << errMsg;
   }
+}
+
+std::string terrama2::core::getTemporaryFolder( std::shared_ptr<terrama2::core::FileRemover> remover,
+                                                const std::string& oldTempTerraMAFolder)
+{
+    std::string tempTerraMAFolder = oldTempTerraMAFolder + "/";
+
+    if(oldTempTerraMAFolder.empty())
+    {
+      boost::filesystem::path systemTempDir = boost::filesystem::temp_directory_path();
+      boost::filesystem::path tempTerrama(systemTempDir.string()+"/terrama2");
+      boost::filesystem::path tempDataDir = boost::filesystem::unique_path(tempTerrama.string()+"/%%%%-%%%%-%%%%-%%%%");
+
+      // Create the directory where you will download the files.
+      QDir dir(QString::fromStdString(tempDataDir.string()));
+      if(!dir.exists())
+        dir.mkpath(QString::fromStdString(tempDataDir.string()));
+
+      std::string scheme = "file://";
+      tempTerraMAFolder = scheme + tempDataDir.string();
+      remover->addTemporaryFolder(tempTerraMAFolder);
+    }
+
+    return tempTerraMAFolder;
 }

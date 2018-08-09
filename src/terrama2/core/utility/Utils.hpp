@@ -216,8 +216,7 @@ namespace terrama2
      */
     TECOREEXPORT std::string
     getTemporaryFolder( std::shared_ptr<terrama2::core::FileRemover> remover,
-                        const std::string& oldTempTerraMAFolder = "",
-                        const std::string& internalFolder = "");
+                        const std::string& oldTempTerraMAFolder = "");
     /*!
       \brief Erase content from previous execution
 
