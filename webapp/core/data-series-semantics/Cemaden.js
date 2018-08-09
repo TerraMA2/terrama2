@@ -1,74 +1,62 @@
 const http = require('http');
 const Promise = require('./../Promise');
+const SemanticsFactory = require('./Factory');
+const URL = require('url');
 
+/**
+ * Class responsible to retrieve and to parse Cemaden DCPS from remote server.
+ *
+ * Requires semantics "DCP-json_cemaden" loaded. Otherwise, an exception will be thrown
+ */
 class Cemaden {
   constructor() {
-    this.TIPO_ESTACAO = {
-      PLUVIOMETRICA: {
-        name: 'Pluviométrica',
-        id: 1
-      },
-      HIDROLOGICA: {
-        name: 'Hidrológica',
-        id: 3
-      },
-      AGROMETEOROLOGICA: {
-        name: 'Agrometeorológica',
-        id: 4
-      },
-      ACQUA: {
-        name: 'Acqua',
-        id: 5
-      },
-      GEOTECNICA: {
-        name: 'Geotécnica',
-        id: 10
-      }
-    }
-
-    this.idtipoestacao = [this.TIPO_ESTACAO.PLUVIOMETRICA.id];
-    this.dataProviderUri = 'http://sjc.salvar.cemaden.gov.br';
-    this.semantics = {
-      dcp_list_uri: '/resources/dados/311_1.json',
-      latitude_property: 'latitude',
-      longitude_property: 'longitude',
-      station_type_id_property: 'idtipoestacao',
-      dcp_code_property: 'codestacao',
-      uf_property: 'uf',
-    };
+    this.semantics = SemanticsFactory.build({ code: "DCP-json_cemaden" });
   }
 
-  listDCP(ufs) {
+  /**
+   * Communicate with Cemaden API Server. Parses the Cemaden data to TerraMA² DCPS
+   *
+   * @param {string[]} ufs List of brazilian states to filter
+   * @param {DataProvider} dataProvider DataProvider credentials for download
+   * @param {string[]} types List of Stations to retrieve
+   * @returns {Promise<Array<any>>} Promise of DCPs
+   */
+  listDCP(ufs, dataProvider, types) {
     return new Promise((resolve, reject) => {
-      let dcpList = [];
+      if (!dataProvider && !dataProvider.hasOwnProperty("uri"))
+        return reject(new Error("No URI set in DataProvider"));
 
-      http.get(this.dataProviderUri + this.semantics.dcp_list_uri, (res) => {
-        console.log('Got response: ' + res.statusCode);
-
+      const uri = dataProvider.uri + this.semantics.metadata.dcp_list_uri;
+      http.get(uri, (res) => {
         let rawData = '';
 
         res.on('data', (chunk) => { rawData += chunk; });
 
         res.on('end', () => {
           try {
+            let dcpList = [];
+            let stationIds = [];
+            if (!Array.isArray(types))
+              stationIds.push(types);
+            else
+              stationIds = types;
+
             const json = rawData.slice(10, rawData.length - 2);
             const parsedData = JSON.parse(json);
             const rawDCPList = parsedData.estacao;
 
-            let numEstacoes = 0;
-
             for (const rawDcp of rawDCPList) {
-              if (this.idtipoestacao && !this.idtipoestacao.includes(rawDcp[this.semantics.station_type_id_property]))
+              if (stationIds && !stationIds.includes(rawDcp[this.semantics.metadata.station_type_id_property]))
                 continue;
 
-              if (ufs && !ufs.includes(rawDcp[this.semantics.uf_property]))
+              if (ufs && !ufs.includes(rawDcp[this.semantics.metadata.uf_property]))
                 continue;
 
               const dcp = {
                 ...rawDcp,
-                alias: rawDcp[this.semantics.dcp_code_property],
-                lat: rawDcp[this.semantics.latitude_property],
-                long: rawDcp[this.semantics.longitude_property],
+                alias: rawDcp[this.semantics.metadata.dcp_code_property],
+                lat: rawDcp[this.semantics.metadata.latitude_property],
+                long: rawDcp[this.semantics.metadata.longitude_property],
               }
 
               dcpList.push(dcp);
@@ -76,7 +64,9 @@ class Cemaden {
 
             return resolve(dcpList);
           } catch (error) {
-            return reject(error);
+            const uriObject = new URL.parse(uri);
+            const url = uriObject.protocol + "//" + uriObject.host + uriObject.pathname;
+            return reject(new Error("Invalid DCP Cemaden. Is it a valid Cemaden DataProvider? - " + url));
           }
         });
       }).on('error', error => reject(error));
@@ -84,6 +74,4 @@ class Cemaden {
   }
 }
 
-const cemaden = new Cemaden();
-
-module.exports = cemaden;
+module.exports = Cemaden;

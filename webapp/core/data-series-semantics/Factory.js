@@ -1,22 +1,9 @@
 var DataSeriesSemanticsError = require('./../Exceptions').DataSeriesSemanticsError;
 var Application = require("./../Application");
 
-function availableTypes() {
-  var output = [];
-
-  return output.concat(plugins);
-}
-
-// list of all instances of semantics type
-var semanticsTypes = Application.get("semantics").map(function(semanticsItem) {
-  if (semanticsItem.gui) {
-    return semanticsItem;
-  }
-});
-
 const getSemanticsTypes = () => {
   // list of all instances of semantics type
-  var semanticsTypes = Application.get("semantics").map(function(semanticsItem) {
+  var semanticsTypes = Application.get("semantics").map((semanticsItem) => {
     if (semanticsItem.gui) {
       return semanticsItem;
     }

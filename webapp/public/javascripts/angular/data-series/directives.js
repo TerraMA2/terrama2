@@ -232,16 +232,20 @@ define([], function() {
             if (!$scope.isCemadenType())
               $('#importParametersModal').modal('show');
             else
-              if ($scope.model.state && $scope.model.state.length !== 0)
+              if ($scope.model.state && $scope.model.state.length !== 0 &&
+                  $scope.model.station)
                 $scope.selectFileToImport();
               else
-                MessageBoxService.danger(i18n.__("Import DCP"), i18n.__("No state selected"));
+                MessageBoxService.danger(i18n.__("Import DCP"), i18n.__("The fields Station and State are required."));
           };
 
           /**
            * Fill DCP cemaden in Parameters - GUI
            */
           function validateCemaden() {
+            // Resetting
+            $scope.cleanDCPS();
+
             $scope.isChecking.value = true;
             $('#importDCPCemadenItemsModal').modal('hide');
 
@@ -332,8 +336,13 @@ define([], function() {
             $scope.isChecking.value = true;
 
             if ($scope.isCemadenType()) {
+              const dataProviderId = $scope.dataSeries.data_provider_id;
+              const stationId = $scope.model.station;
+              if (!stationId)
+                return MessageBoxService.danger(i18n.__("Import DCP"), i18n.__("No station selected"));
+
               // Retrieves all DCP cemaden from state and keep in cache
-              return CemadenService.listDCP($scope.model.state.map(state => state.id))
+              return CemadenService.listDCP($scope.model.state.map(state => state.id), dataProviderId, stationId)
                 .then(dcps => {
 
                   if (dcps.length === 0)
@@ -369,6 +378,10 @@ define([], function() {
                   $scope.isChecking.value = false;
 
                   $('#importDCPCemadenItemsModal').modal('show');
+                })
+                .catch(err => {
+                  $scope.isChecking.value = false;
+                  MessageBoxService.danger("Cemaden", i18n.__("Could not retrive Cemaden DCP due ") + err.toString());
                 });
             }
 

@@ -1523,6 +1523,34 @@ define([], function() {
         $window.location.href = BASE_URL + "configuration/providers/new?redirectTo=" + url + "&" + $httpParamSerializer(output);
       };
 
+      /**
+       * Clean both Input and Output DCPS
+       *
+       * Used in DCP Cemaden
+       */
+      $scope.cleanDCPS = () => {
+        // Retrieves DCPs aliases
+        const aliases = Object.keys($scope.dcpsObject);
+
+        // Notify Remove listeners
+        $scope.$broadcast("dcpOperation", { action: "removeAll", dcpsObject: $scope.dcpsObject, aliases });
+
+        // Remove cache from the server
+        $http.post(BASE_URL + "configuration/dynamic/dataseries/removeStoredDcp", {
+            key: storedDcpsKey,
+            aliases
+          })
+          .then((/*result*/) => reloadData())
+          .catch((error) => console.log("Err in removing dcp"));
+
+        // Ensure that front-end already removed dcp
+        // ???
+        aliases.forEach(alias => {
+          $scope.removedDcps.push($scope.dcpsObject[alias]._id);
+          delete $scope.dcpsObject[alias];
+        });
+      };
+
       $scope.removePcd = function(alias) {
         if($scope.dcpsObject[alias] !== undefined) {
           $scope.$broadcast("dcpOperation", {action: "remove", dcp: Object.assign({}, $scope.dcpsObject[alias])});
