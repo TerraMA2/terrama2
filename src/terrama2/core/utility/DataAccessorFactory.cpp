@@ -27,20 +27,17 @@
   \author Paulo R. M. Oliveira
  */
 
-#include "DataAccessorFactory.hpp"
-#include "../data-access/DataAccessor.hpp"
-#include "../Exception.hpp"
-#include "../data-model/DataSet.hpp"
-#include "../data-model/DataSeries.hpp"
-#include "../data-model/DataProvider.hpp"
-
-#include "Logger.hpp"
-#include "SemanticsManager.hpp"
-
 #include <QObject>
 #include <QString>
-
 #include <memory>
+#include <string>
+
+#include "../../Exception.hpp"
+#include "../Exception.hpp"
+#include "../data-model/DataSeriesSemantics.hpp"
+#include "../data-model/DataSeries.hpp"
+#include "DataAccessorFactory.hpp"
+#include "Logger.hpp"
 
 void terrama2::core::DataAccessorFactory::add(const SemanticsDriver& semanticsDriver, FactoryFnctType f)
 {

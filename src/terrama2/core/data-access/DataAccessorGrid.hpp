@@ -30,10 +30,27 @@
 #ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_GRID_HPP__
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_GRID_HPP__
 
-//TerraMA2
+#include <algorithm>                    // for move
+#include <memory>                       // for shared_ptr
+
+#include "../Config.hpp"
+#include "../Shared.hpp"  // for DataProviderPtr, DataSeriesPtr
+#include "../Config.hpp"     // for TMCOREEXPORT
 #include "../Shared.hpp"
-#include "DataAccessor.hpp"
-#include "DcpSeries.hpp"
+#include "DataAccessor.hpp"             // for DataAccessor
+
+namespace terrama2 {
+namespace core {
+class FileRemover;
+struct Filter;
+}  // namespace core
+}  // namespace terrama2
+namespace te {
+namespace da {
+class DataSetType;
+class DataSetTypeConverter;
+}  // namespace da
+}  // namespace te
 
 namespace terrama2
 {

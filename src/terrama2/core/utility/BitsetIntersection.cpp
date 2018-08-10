@@ -1,11 +1,15 @@
 
+#include <terralib/geometry/Utils.h>
+#include <terralib/geometry/Envelope.h>
+#include <terralib/geometry/Geometry.h>
+#include <terralib/raster/Grid.h>
+#include <terralib/raster/Raster.h>
+#include <algorithm>
+#include <limits>
+#include <tuple>
+
 #include "BitsetIntersection.hpp"
 #include "GeoUtils.hpp"
-
-#include <terralib/rp/Functions.h>
-#include <terralib/geometry/Utils.h>
-
-#include <limits>
 
 terrama2::core::BitsetIntersection::BitsetIntersection(const te::gm::Coord2D& lowerLeftPixel,
                                                        const te::gm::Coord2D& upperRightPixel,

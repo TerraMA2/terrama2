@@ -29,21 +29,24 @@
  */
 
 
-//TerraMA2
-#include "DcpSeries.hpp"
-#include "../../Config.hpp"
-#include "../Shared.hpp"
-#include "../utility/Logger.hpp"
-
-//STL
-#include <vector>
-
-//TerraLib
-#include <terralib/memory/DataSet.h>
-
+#include <QObject>
 //Qt
 #include <QString>
-#include <QObject>
+#include <iostream>
+#include <memory>
+#include <utility>
+
+#include "../Shared.hpp"
+#include "../data-model/DataSetDcp.hpp"
+#include "../utility/Logger.hpp"
+//TerraMA2
+#include "DcpSeries.hpp"
+
+namespace terrama2 {
+namespace core {
+struct DataSetSeries;
+}  // namespace core
+}  // namespace terrama2
 
 
 void terrama2::core::DcpSeries::addDcpSeries(std::unordered_map<DataSetPtr,DataSetSeries> seriesMap)

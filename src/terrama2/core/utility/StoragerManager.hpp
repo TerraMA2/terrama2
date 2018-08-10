@@ -25,16 +25,25 @@
 #ifndef __TERRAMA2_CORE_STORAGER_MANAGER_HPP__
 #define __TERRAMA2_CORE_STORAGER_MANAGER_HPP__
 
+#include <condition_variable>
+#include <map>
+#include <mutex>
+#include <string>
+// STL
+#include <vector>
+
+#include "../Shared.hpp"
 // TerraMa2
 #include "../Typedef.hpp"
+#include "../Config.hpp"
 #include "../Shared.hpp"
 #include "../data-access/DataSetSeries.hpp"
 
-// STL
-#include <vector>
-#include <map>
-#include <mutex>
-#include <condition_variable>
+namespace terrama2 {
+namespace core {
+struct DataSetSeries;
+}  // namespace core
+}  // namespace terrama2
 
 namespace terrama2
 {

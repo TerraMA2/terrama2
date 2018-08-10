@@ -19,6 +19,13 @@
   TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
 */
 
+#ifndef __TERRAMA2_CORE_UTILITY_JSONUTILS_HPP__
+#define __TERRAMA2_CORE_UTILITY_JSONUTILS_HPP__
+
+//Qt
+#include <QJsonObject>
+#include <memory>
+
 /*!
   \file terrama2/core/utility/JSonUtils.hpp
 
@@ -27,16 +34,22 @@
   \author Jano Simas
 */
 #include "../Shared.hpp"
-#include "../data-model/Risk.hpp"
-#include "../data-model/Schedule.hpp"
+#include "../Config.hpp"
 #include "../data-model/DataManager.hpp"
 #include "../data-model/Filter.hpp"
 #include "../data-model/Project.hpp"
-
+#include "../data-model/Risk.hpp"
+#include "../data-model/Schedule.hpp"
 #include "SemanticsManager.hpp"
 
-//Qt
-#include <QJsonObject>
+namespace terrama2 {
+namespace core {
+class DataManager;
+struct DataSeriesSemantics;
+struct DataSet;
+struct Risk;
+}  // namespace core
+}  // namespace terrama2
 
 namespace terrama2
 {
@@ -153,3 +166,5 @@ namespace terrama2
 
   } /* core */
 } /* terrama2 */
+
+#endif //__TERRAMA2_CORE_UTILITY_JSONUTILS_HPP__

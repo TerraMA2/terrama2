@@ -27,19 +27,31 @@
   \author Jano Simas
 */
 
+#include <terralib/common/Exception.h>
+#include <terralib/datatype/TimeInstantTZ.h>
+#include <QCoreApplication>
+#include <Qt>
+#include <QtGlobal>
+#include <algorithm>
+#include <chrono>
+#include <string>
+#include <thread>
+
+#include "../../Exception.hpp"
+#include "../Exception.hpp"
+#include "../Shared.hpp"
+#include "../Typedef.hpp"
+#include "../data-model/DataManager.hpp"
+#include "../data-model/Filter.hpp"
+#include "../data-model/Process.hpp"
+#include "../data-model/Project.hpp"
+#include "../data-model/Schedule.hpp"
+#include "Logger.hpp"
+#include "ProcessLogger.hpp"
 #include "Service.hpp"
 #include "ServiceManager.hpp"
-#include "Logger.hpp"
-#include "Timer.hpp"
 #include "TimeUtils.hpp"
-#include "../data-model/Process.hpp"
-#include "../data-model/Schedule.hpp"
-#include "../data-model/DataManager.hpp"
-#include "../data-model/Project.hpp"
-
-// QT
-#include <QJsonObject>
-#include <QCoreApplication>
+#include "Timer.hpp"
 
 terrama2::core::Service::Service(std::weak_ptr<DataManager> dataManager)
   : dataManager_(dataManager),

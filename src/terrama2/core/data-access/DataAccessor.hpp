@@ -31,23 +31,51 @@
 #ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_HPP__
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_ACCESSOR_HPP__
 
+#include <terralib/dataaccess/dataset/DataSetType.h>
+//TerraLib
+#include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
+#include <terralib/datatype/TimeInstantTZ.h>
+#include <terralib/memory/DataSet.h>
+#include <cstddef>
+#include <functional>
+#include <map>
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
 //TerraMA2
 #include "../Config.hpp"
 #include "../Shared.hpp"
+#include "../data-model/../Shared.hpp"
+#include "../data-model/DataProvider.hpp"
+#include "../data-model/DataSeriesSemantics.hpp"
+#include "../data-model/Filter.hpp"
+#include "../Config.hpp"
+#include "../data-model/../Shared.hpp"
+#include "../data-model/../Typedef.hpp"
+#include "../data-model/DataSeries.hpp"
+#include "../data-model/DataSeriesSemantics.hpp"
+#include "../utility/FileRemover.hpp"
 #include "DataRetriever.hpp"
 #include "DataSetSeries.hpp"
-#include "../data-model/DataSeriesSemantics.hpp"
-#include "../data-model/DataProvider.hpp"
-#include "../data-model/Filter.hpp"
-#include "../utility/FileRemover.hpp"
 
-//TerraLib
-#include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
-#include <terralib/dataaccess/dataset/DataSetType.h>
-#include <terralib/datatype/TimeInstantTZ.h>
-#include <terralib/memory/DataSet.h>
-
-#include <functional>
+namespace terrama2 {
+namespace core {
+class FileRemover;
+struct Filter;
+}  // namespace core
+}  // namespace terrama2
+namespace te {
+namespace da {
+class DataSetType;
+class DataSetTypeConverter;
+}  // namespace da
+namespace dt {
+class AbstractData;
+class TimeInstantTZ;
+}  // namespace dt
+}  // namespace te
 
 namespace te
 {

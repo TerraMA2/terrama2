@@ -30,16 +30,25 @@
 #ifndef __TERRAMA2_CORE_DATA_ACCESS_DATA_RETRIEVER_HPP__
 #define __TERRAMA2_CORE_DATA_ACCESS_DATA_RETRIEVER_HPP__
 
+//terralib
+#include <terralib/datatype/TimeInstantTZ.h>
+#include <functional>
+#include <memory>
+#include <string>
+
 //TerraMA2
 #include "../Config.hpp"
+#include "../Shared.hpp"
 #include "../data-model/DataProvider.hpp"
 #include "../data-model/Filter.hpp"
 #include "../utility/FileRemover.hpp"
 
-#include <functional>
-
-//terralib
-#include <terralib/datatype/TimeInstantTZ.h>
+namespace terrama2 {
+namespace core {
+class FileRemover;
+struct Filter;
+}  // namespace core
+}  // namespace terrama2
 
 namespace terrama2
 {

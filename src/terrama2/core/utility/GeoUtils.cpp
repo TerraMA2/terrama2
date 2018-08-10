@@ -1,23 +1,32 @@
 
-#include "GeoUtils.hpp"
-#include "../Exception.hpp"
-#include "Logger.hpp"
 
 #include <terralib/common/UnitsOfMeasureManager.h>
-#include <terralib/srs/SpatialReferenceSystemManager.h>
-#include <terralib/srs/SpatialReferenceSystem.h>
-#include <terralib/geometry/WKTReader.h>
-#include <terralib/geometry/MultiPolygon.h>
-#include <terralib/geometry/GeometryProperty.h>
-#include <terralib/raster/RasterFactory.h>
-#include <terralib/dataaccess/dataset/DataSetType.h>
+#include <terralib/datatype/Enums.h>
+#include <terralib/raster/Raster.h>
 #include <terralib/dataaccess/utils/Utils.h>
-#include <terralib/raster/Grid.h>
+#include <terralib/geometry/WKTReader.h>
+#include <terralib/geometry/Coord2D.h>
+#include <terralib/geometry/Geometry.h>
+#include <terralib/geometry/Envelope.h>
 #include <terralib/raster/Band.h>
-#include <terralib/raster/BandIterator.h>
+#include <terralib/raster/BandProperty.h>
+#include <terralib/raster/Grid.h>
+#include <terralib/raster/RasterFactory.h>
+#include <terralib/srs/SpatialReferenceSystemManager.h>
+#include <cmath>
+#include <limits>
+#include <map>
+#include <vector>
+
+#include "../Exception.hpp"
+#include "../../Exception.hpp"
+#include "../data-access/DataSetSeries.hpp"
+#include "../data-access/SynchronizedDataSet.hpp"
+#include "GeoUtils.hpp"
+#include "Logger.hpp"
 
 #include <QObject>
-#include <QString>
+
 
 int terrama2::core::getUTMSrid(te::gm::Geometry* geom)
 {

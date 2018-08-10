@@ -27,15 +27,23 @@
   \author Jano Simas
  */
 
-#include "DataRetriever.hpp"
-#include "../utility/Logger.hpp"
-#include "../Exception.hpp"
-
+#include <boost/filesystem/operations.hpp>
+#include <QDir>
+#include <QObject>
 //Qt
 #include <QString>
-#include <QObject>
 
-#include <boost/filesystem/operations.hpp>
+#include "../../Exception.hpp"
+#include "../Exception.hpp"
+#include "../utility/FileRemover.hpp"
+#include "../utility/Logger.hpp"
+#include "DataRetriever.hpp"
+
+namespace terrama2 {
+namespace core {
+struct Filter;
+}  // namespace core
+}  // namespace terrama2
 
 terrama2::core::DataRetriever::DataRetriever(DataProviderPtr dataProvider)
   : dataProvider_(dataProvider)

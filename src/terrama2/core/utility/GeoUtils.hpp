@@ -1,15 +1,34 @@
 
-#include <string>
+#ifndef __TERRAMA2_CORE_UTILITY_GEOUTILS_HPP__
+#define __TERRAMA2_CORE_UTILITY_GEOUTILS_HPP__
 
-#include <terralib/geometry/Geometry.h>
 #include <terralib/geometry/Coord2D.h>
-#include <terralib/raster/Raster.h>
+#include <terralib/geometry/Geometry.h>
+#include <terralib/sam/rtree/Index.h>
 #include <terralib/raster/Grid.h>
+#include <terralib/raster/Raster.h>
+#include <memory>
+#include <string>
+#include <utility>
 
+#include "../Config.hpp"
 #include "../data-access/DataSetSeries.hpp"
+
+namespace te {
+namespace gm {
+class Geometry;
+struct Coord2D;
+}  // namespace gm
+namespace rst {
+class Grid;
+class Raster;
+}  // namespace rst
+}  // namespace te
 
 namespace terrama2 {
   namespace core {
+    struct DataSetSeries;
+
     /*!
       \brief Returns the SRID of a UTM projection based on the zone of given coordinate.
     */
@@ -61,3 +80,5 @@ namespace terrama2 {
     TMCOREEXPORT std::unique_ptr<te::sam::rtree::Index<size_t, 8> > createRTreeFromSeries(const terrama2::core::DataSetSeries& dataSetSeries);
   } /* core */
 } /* terrama2 */
+
+#endif //__TERRAMA2_CORE_UTILITY_GEOUTILS_HPP__

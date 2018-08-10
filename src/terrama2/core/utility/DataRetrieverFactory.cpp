@@ -27,13 +27,18 @@
   \author Jano Simas
  */
 
-#include "DataRetrieverFactory.hpp"
+#include <QObject>
+#include <QString>
+#include <memory>
+#include <string>
+#include <utility>
+
+#include "../../Exception.hpp"
+#include "../Exception.hpp"
 #include "../data-access/DataRetriever.hpp"
 #include "../data-model/DataProvider.hpp"
 #include "../utility/Logger.hpp"
-
-#include <QObject>
-#include <QString>
+#include "DataRetrieverFactory.hpp"
 
 void terrama2::core::DataRetrieverFactory::add(const DataProviderType& dataProviderType, FactoryFnctType f)
 {

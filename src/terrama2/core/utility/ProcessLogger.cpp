@@ -27,35 +27,39 @@
   \author Vinicius Campanha
 */
 
-// TerraMA2
-#include "ProcessLogger.hpp"
-#include "TimeUtils.hpp"
-#include "../utility/Logger.hpp"
-#include "../utility/Verify.hpp"
-#include "../utility/Utils.hpp"
-#include "../utility/Raii.hpp"
-
+#include <terralib/datatype/DateTimeProperty.h>
+#include <terralib/datatype/Property.h>
+#include <terralib/datatype/SimpleProperty.h>
+#include <terralib/datatype/StringProperty.h>
+#include <terralib/datatype/DateTime.h>
+#include <terralib/datatype/Enums.h>
+#include <terralib/dataaccess/dataset/DataSet.h>
+#include <terralib/dataaccess/dataset/DataSetType.h>
+#include <terralib/dataaccess/dataset/ForeignKey.h>
+#include <terralib/dataaccess/dataset/PrimaryKey.h>
+#include <terralib/dataaccess/datasource/DataSource.h>
 //TerraLib
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 #include <terralib/dataaccess/datasource/ScopedTransaction.h>
 #include <terralib/dataaccess/utils/Utils.h>
-#include <terralib/dataaccess/dataset/DataSet.h>
-#include <terralib/datatype.h>
-#include <terralib/core/uri/URI.h>
-
-// Qt
-#include <QString>
-#include <QObject>
+#include <terralib/datatype/TimeInstantTZ.h>
+#include <QByteArray>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QJsonValue>
+#include <algorithm>
+#include <map>
 
-// Boost
+#include "../../Exception.hpp"
+#include "../Exception.hpp"
+#include "../utility/Verify.hpp"
+#include "Logger.hpp"
+// TerraMA2
+#include "ProcessLogger.hpp"
+#include "TimeUtils.hpp"
+
 #include <boost/format.hpp>
-
-// STL
-#include <utility>
-#include <type_traits>
 
 void terrama2::core::ProcessLogger::internalClone(std::shared_ptr<terrama2::core::ProcessLogger> loggerCopy) const
 {
