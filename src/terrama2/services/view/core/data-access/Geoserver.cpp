@@ -946,7 +946,7 @@ void terrama2::services::view::core::GeoServer::registerVectorsFolder(const std:
   }
 
   // Register Vector file
-  cURLwrapper.customRequest(uriPut, "PUT", "file://" + shpFolderPath);
+  cURLwrapper.customRequest(uriPut, "PUT", "file://" + shpFolderPath, "Content-Type: text/plain");
 }
 
 
