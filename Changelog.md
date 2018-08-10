@@ -8,6 +8,7 @@
 
 # Bugfix:
 - Fix error creating view when the layer is removed from geoserver
+- Fix creating views from static raster
 
 # 4.0.6
 
