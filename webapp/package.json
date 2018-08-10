@@ -82,5 +82,11 @@
     "ui-select": "=0.19.8",
     "unzip2": "^0.2.5",
     "winston": "^2.3.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.0.0-beta.49",
+    "@babel/preset-env": "^7.0.0-beta.49",
+    "grunt-babel": "^7.0.0",
+    "uglify-es": "^3.3.9"
   }
 }
