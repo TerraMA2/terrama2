@@ -999,7 +999,7 @@ void terrama2::services::view::core::GeoServer::registerCoverageFile(const std::
     throw ViewGeoserverException() << ErrorDescription(errMsg + QString::fromStdString(uriPut.uri()));
   }
   // Upload Coverage file
-  cURLwrapper.customRequest(uriPut, "PUT", "file://" + coverageFilePath);
+  cURLwrapper.customRequest(uriPut, "PUT", "file://" + coverageFilePath, "Content-Type: text/plain");
   if(cURLwrapper.responseCode() != 201)
   {
     QString errMsg = QObject::tr(cURLwrapper.response().c_str());
