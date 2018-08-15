@@ -53,7 +53,6 @@ To compile TerraMA² from a fresh git clone you'll need:
 
 - libcurl3-dev
 - libpython2.7-dev
-- libquazip0-dev
 - libproj-dev
 - libgeos++-dev
 - libxerces-c-dev
@@ -64,49 +63,15 @@ All can be installed with the command:
 
 Ubuntu 14.04
 ```
-sudo apt-get install curl libcurl3-dev libpython2.7-dev libquazip0-dev libproj-dev libgeos++-dev libxerces-c-dev screen postgresql-9.3-postgis-2.1
+sudo apt-get install curl libcurl3-dev libpython2.7-dev libproj-dev libgeos++-dev libxerces-c-dev screen postgresql-9.3-postgis-2.1
 ```
 
 Ubuntu 16.04
 ```
-sudo apt-get install curl libcurl3-dev libpython2.7-dev libquazip-dev libproj-dev libgeos++-dev libxerces-c-dev screen postgresql-9.5-postgis-2.2
+sudo apt-get install curl libcurl3-dev libpython2.7-dev libproj-dev libgeos++-dev libxerces-c-dev screen postgresql-9.5-postgis-2.2
 ````
 
-We also need the VMime library, as the ubuntu version is outdated we should use the [VMime](https://github.com/kisli/vmime/archive/v0.9.2.tar.gz) source version.
-
-Or generate the VMime debian package (especially if you want to generate the TerraMA² package) as shown below:
-
-### VMime
-
-1.1. Install the vmime and debian package dependencies with the command:
-```
-sudo apt install doxygen graphviz gnutls-bin gsasl libghc-gsasl-dev libgnutls-dev libssl-dev debhelper devscripts cmake
-```
-
-1.2. Download the VMime source used by the development team, from the link below:
-  - [v0.9.2.tar.gz](https://github.com/kisli/vmime/archive/v0.9.2.tar.gz).
-
-1.3. Open the shell command line and change the current directory to that folder:
-```
-cd /home/USER/mydevel/terrama2/codebase/packages/deb-package
-```
-
-1.4. Copy the downloaded source to current directory.
-
-1.5. In the shell command line, call the script *deb-vmime.sh* that will generate the debian package for VMime:
-```
-./deb-vmime.sh
-```
-
-1.6. When the script finishes, just run the following command to install VMime package:
-```
-sudo dpkg -i terrama2-vmime-4.0.7_0.9.2-ubuntu16.04_amd64.deb
-```
-
-1.7. Then check and install any missing library, finishing the dependencies installation with the command:
-```
-sudo apt install -f
-```
+We also need the VMime and Quazip library, as the ubuntu version is outdated we should use the [VMime](https://github.com/kisli/vmime/archive/v0.9.2.tar.gz) source version and the [Quazip](https://github.com/stachenov/quazip/archive/0.7.6.tar.gz) source version.
 
 ### NodeJs
 
@@ -198,7 +163,7 @@ cd /home/USER/mydevel/terrama2/codebase/packages/deb-package
 ./deb-terrama2.sh
 ```
 
-**Note:** the script will assume that you installed terralib (and dependencies) at `/opt/terralib/5.3.1`.
+**Note:** the script will assume that you installed terralib (and dependencies) at `/opt/terralib/5.3.3`.
 
 1.3. When finished the generated package will be located in the `build-package` folder in the same directory as your codebase.
 
