@@ -1,23 +1,28 @@
 #!/bin/bash
 
-echo "* --------------------------- *"
+echo "* ------------------------ *"
 echo "* TerraMa2 Release Package *"
-echo "* --------------------------- *"
+echo "* ------------------------ *"
 echo ""
 
 #
 # Set global session variables:
 #
 export TM_INSTALL=/opt/terrama2/4.0.7
-export TL_PATH=/opt/terralib/5.3.1
+export TL_PATH=/opt/terralib/5.3.3
 export TM_OUT_DIR=`pwd`/../../../build-package
 export CODEBASE=`pwd`/../..
+
+# Where to find Vmime and Quazip libraries
+if [ -z "$DEPENDENCIES" ]; then
+  export DEPENDENCIES=`pwd`/../../../dependencies
+fi
 
 echo ""
 echo "Check TerraLib Installation:"
 echo ""
 
-terralib_test=`dpkg -s terralib-5.3.1 | grep Status`
+terralib_test=`dpkg -s terralib-5.3.3 | grep Status`
 
 if [ "$terralib_test" != "Status: install ok installed" ]; then
   echo "TerraLib is not installed!"
