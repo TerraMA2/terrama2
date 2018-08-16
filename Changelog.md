@@ -5,10 +5,14 @@
 - Allow regex expressions in the masks.
 
 # Enhancements:
+- View style for wind data
 
 # Bugfix:
-- Fix error creating view when the layer is removed from geoserver
+- Fix monitor permission for private views
+- Fix update view uri when changing mapserver uri in the service
+- Allow recreating view when the layer is removed from geoserver
 - Fix creating views from static raster
+- Fix crash when the system has only one core
 
 # 4.0.6
 

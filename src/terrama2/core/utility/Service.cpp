@@ -105,9 +105,9 @@ void terrama2::core::Service::start(size_t threadNumber)
 
 size_t terrama2::core::Service::verifyNumberOfThreads(size_t numberOfThreads, size_t maxNumberOfThreads) const
 {
-  if(numberOfThreads == 0)
+  if(numberOfThreads < 1)
     numberOfThreads = std::thread::hardware_concurrency(); //looks for how many threads the hardware support
-  if(numberOfThreads == 0)
+  if(numberOfThreads < 1)
     numberOfThreads = 1; //if not able to find out set to 1
   if(maxNumberOfThreads > 0 && numberOfThreads > maxNumberOfThreads)
     numberOfThreads = maxNumberOfThreads;
