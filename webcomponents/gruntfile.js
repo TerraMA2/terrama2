@@ -8,7 +8,14 @@ module.exports = function(grunt) {
       TerraMA2WebComponents: {
         options: {
           baseUrl: "javascripts",
-          out: "dist/TerraMA2WebComponents.min.js",
+          optimize: "none", // It does not minify
+          out: function(text, sourceMapText) {
+            var UglifyJS = require('uglify-es');
+            uglified = UglifyJS.minify(text, { sourceMap: { content: sourceMapText, url: "/dist/TerraMA2WebComponents.min.js" } });
+
+            grunt.file.write("dist/TerraMA2WebComponents.min.js", uglified.code);
+            grunt.file.write("dist/TerraMA2WebComponents.min.js.map", uglified.map);
+          },
           preserveLicenseComments: false,
           paths: {
             TerraMA2WebComponentsPath: "src"

@@ -36,6 +36,9 @@ if(UNIX)
             PATH_SUFFIXES include
                           vmime)
 
+  find_path(VMIME_LIBRARY_DIR libvmime.so
+            PATH_SUFFIXES lib)
+
   find_library(VMIME_LIBRARY
                NAMES vmime
                PATHS /usr

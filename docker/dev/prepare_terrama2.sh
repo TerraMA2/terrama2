@@ -40,7 +40,29 @@ sudo apt-get update
 )
 
 (
-  sudo apt-get install -y libcurl3-dev libpython2.7-dev libquazip-dev libxerces-c-dev libgeos++-dev libproj-dev
+  ls ${DEPENDENCIES_DIR}/lib/libquazip.so
+  if [[ $? -ne 0 ]]; then
+    mkdir -p ${DEPENDENCIES_DIR}
+    cd ${DEPENDENCIES_DIR}
+    sudo apt-get install -y zlib1g-dev
+    ls 0.7.6.tar.gz
+    if [[ $? -ne 0 ]]; then
+      wget https://github.com/stachenov/quazip/archive/0.7.6.tar.gz
+    fi
+
+    tar xzf 0.7.6.tar.gz
+    cd quazip-0.7.6/
+    qmake "PREFIX=${DEPENDENCIES_DIR}"
+    make -j4
+    make install
+
+    rm -rf 0.7.6*
+    rm -rf quazip*
+  fi
+)
+
+(
+  sudo apt-get install -y libcurl3-dev libpython2.7-dev libxerces-c-dev libgeos++-dev libproj-dev
   mkdir -p ${TERRAMA2_DIR}/codebase
   cd ${TERRAMA2_DIR}/codebase
   # check if terrama2 code is available
