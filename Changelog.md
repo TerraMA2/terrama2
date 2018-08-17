@@ -6,6 +6,8 @@
 
 # Enhancements:
 - View style for wind data
+- Update dependency to Terralib 5.3.3
+- Distribute VMime and Quazip inside TerraMA2 package
 
 # Bugfix:
 - Fix monitor permission for private views
