@@ -19,7 +19,7 @@ set "TERRAMA2_DEPENDENCIES_DIR=C:\terrama2-3rdparty-msvc-2015-win64"
 set "TERRAMA2_CODEBASE_PATH=%ROOT_DIR%\..\.."
 set "TERRAMA2_BUILD_PATH=%TERRAMA2_CODEBASE_PATH%\..\build-package-b4.0"
 set "TERRAMA2_INSTALL_PATH=%TERRAMA2_DEPENDENCIES_DIR%\terrama2-install-b4.0"
-set "TERRALIB_INSTALL_DIR=%TERRALIB_DEPENDENCIES_DIR%\terralib-install\lib\cmake\terralib-5.3.1"
+set "TERRALIB_INSTALL_DIR=%TERRALIB_DEPENDENCIES_DIR%\terralib-install\lib\cmake\terralib-5.3.3"
 
 :: Where is qmake.exe
 set "QMAKE_FILEPATH=C:\Qt\5.10.0\msvc2015_64\bin"

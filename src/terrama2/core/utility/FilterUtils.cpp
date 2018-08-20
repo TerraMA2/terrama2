@@ -99,7 +99,7 @@ std::string terrama2::core::terramaMask2Regex(const std::string& mask)
     m.replace("%ss", "(?<SECONDS>[0-5][0-9])");
     m.replace("*", ".*");
     // add a extension validation in case of the name has it
-    m += "(?<EXTENSIONS>((\\.[^.]+)+\\.(gz|zip|rar|7z|tar)|\\.[^.]+))?";
+    m += "(?<EXTENSIONS>(\\.(gz|zip|rar|7z|tar))+)?$";
   }
 
   return list.join("").toStdString();

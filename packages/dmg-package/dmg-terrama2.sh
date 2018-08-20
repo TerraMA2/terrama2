@@ -4,7 +4,7 @@
 export CODEBASE=`pwd`/../..
 export TL_THIRD_DIR=$HOME/mylibs
 export TM_THIRD_DIR=${TL_THIRD_DIR}
-export TL_PATH=${TL_THIRD_DIR}/terralib-install/lib/cmake/terralib-5.3.1/
+export TL_PATH=${TL_THIRD_DIR}/terralib-install/lib/cmake/terralib-5.3.3/
 export PATH=$PATH:$HOME/Qt5.4.1/5.4/clang_64/bin:/Applications/CMake.app/Contents/bin
 
 echo "* ------------------------ *"
