@@ -53,6 +53,7 @@ target_link_libraries(terrama2_impl terrama2_core
                                     terralib_mod_memory
                                     terralib_mod_vp_core
                                     terralib_mod_rp
+                                    terralib_mod_ws_ogc_wcs_client
                                     ${Boost_FILESYSTEM_LIBRARY}
                                     ${Boost_SYSTEM_LIBRARY}
                                     ${Boost_REGEX_LIBRARY}
