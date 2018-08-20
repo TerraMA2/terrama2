@@ -1,0 +1,96 @@
+[
+  {
+    "name": "DCP - CEMADEN",
+    "code": "DCP-json_cemaden",
+    "driver": "DCP-json_cemaden",
+    "type": "DCP",
+    "temporality": "DYNAMIC",
+    "format": "CSV",
+    "providers_type_list": ["STATIC-HTTP"],
+    "allow_direct_access": false,
+    "metadata": {
+      "input_timestamp_property": "dataHora",
+      "timestamp_property": "datetime",
+      "latitude_property": "latitude",
+      "longitude_property": "longitude",
+      "dcp_code_property": "codestacao",
+      "uf_property": "uf",
+      "station_type_id_property": "idtipoestacao",
+      "static_properties": "codestacao,latitude,longitude,cidade,nomeestacao,tipoestacao,uf,idtipoestacao,alias",
+      "dcp_list_uri": "/resources/dados/311_1.json",
+      "dcp_data_mask": "/resources/dados/%UF_%ID.json",
+      "timezone": "UTM+00",
+      "srid": "4326"
+    },
+    "collector": true,
+    "gui": {
+      "schema": {
+        "properties": {
+          "state": {
+            "title": "States",
+            "type": "string",
+            "items": [
+              { "id": "AC", "label": "Acre" },
+              { "id": "AL", "label": "Alagoas" },
+              { "id": "AP", "label": "Amapá" },
+              { "id": "AM", "label": "Amazonas" },
+              { "id": "BA", "label": "Bahia" },
+              { "id": "CE", "label": "Ceará" },
+              { "id": "DF", "label": "Distrito Federal" },
+              { "id": "ES", "label": "Espirito Santo" },
+              { "id": "GO", "label": "Goiás" },
+              { "id": "MA", "label": "Maranhão" },
+              { "id": "MT", "label": "Mato Grosso" },
+              { "id": "MS", "label": "Mato Grosso do Sul" },
+              { "id": "MG", "label": "Minas Gerais" },
+              { "id": "PA", "label": "Pará" },
+              { "id": "PB", "label": "Paraíba" },
+              { "id": "PR", "label": "Paraná" },
+              { "id": "PE", "label": "Pernambuco" },
+              { "id": "PI", "label": "Piauí" },
+              { "id": "RJ", "label": "Rio de Janeiro" },
+              { "id": "RN", "label": "Rio Grande do Norte" },
+              { "id": "RS", "label": "Rio Grande do Sul" },
+              { "id": "RO", "label": "Rondônia" },
+              { "id": "RR", "label": "Roraima" },
+              { "id": "SC", "label": "Santa Catarina" },
+              { "id": "SP", "label": "São Paulo" },
+              { "id": "SE", "label": "Sergipe" },
+              { "id": "TO", "label": "Tocantins" }
+            ]
+          },
+          "station": {
+            "title": "Stations",
+            "type": "string"
+          }
+        },
+        "required": ["state", "station"]
+      },
+      "form":[
+        {
+          "key": "state",
+          "type": "uiselectmultiple",
+          "htmlClass": "col-md-3",
+          "extraSettings": {
+            "buttonClasses": "btn btn-primary btn-block"
+          }
+        },
+        {
+          "key": "station",
+          "type": "select",
+          "htmlClass": "col-md-3",
+          "extraSettings": {
+            "buttonClasses": "btn btn-primary btn-block"
+          },
+          "titleMap": [
+            { "value": "1", "name": "Pluviométrica" },
+            { "value": "3", "name": "Hidrológica" },
+            { "value": "4", "name": "Agrometeorológica" },
+            { "value": "5", "name": "Acqua" },
+            { "value": "10", "name": "Geotécnica" }
+          ]
+        }
+      ]
+    }
+  }
+]

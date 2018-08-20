@@ -1,24 +1,22 @@
 var DataSeriesSemanticsError = require('./../Exceptions').DataSeriesSemanticsError;
 var Application = require("./../Application");
 
-function availableTypes() {
-  var output = [];
+const getSemanticsTypes = () => {
+  // list of all instances of semantics type
+  var semanticsTypes = Application.get("semantics").map((semanticsItem) => {
+    if (semanticsItem.gui) {
+      return semanticsItem;
+    }
+  });
 
-  return output.concat(plugins);
+  return semanticsTypes;
 }
-
-// list of all instances of semantics type
-var semanticsTypes = Application.get("semantics").map(function(semanticsItem) {
-  if (semanticsItem.gui) {
-    return semanticsItem;
-  }
-});
 
 var Factory = module.exports = {};
 
 function getSemanticHelper(identifier) {
   var semanticsOutput = null;
-  semanticsTypes.some(function(semantics) {
+  getSemanticsTypes().some((semantics) => {
     if (semantics.code === identifier) {
       semanticsOutput = semantics;
       return true;
@@ -36,5 +34,5 @@ Factory.build = function(args) {
 };
 
 Factory.listAll = function() {
-  return semanticsTypes;
+  return getSemanticsTypes();
 };

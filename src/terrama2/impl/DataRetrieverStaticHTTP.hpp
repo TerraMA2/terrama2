@@ -20,71 +20,53 @@
 */
 
 /*!
-  \file terrama2/impl/DataRetrieverFTP.hpp
+  \file terrama2/impl/DataRetrieverStaticHTTP.hpp
 
-  \brief Data Retriever FTP.
+  \brief Data Retriever HTTP.
 
- \author Evandro Delatin
+ \author Jean Souza
 */
 
 
-#ifndef __TERRAMA2_IMPL_DATARETRIEVERFTP_HPP__
-#define __TERRAMA2_IMPL_DATARETRIEVERFTP_HPP__
-
-// STL
-#include <memory>
-#include <cassert>
+#ifndef __TERRAMA2_IMPL_DATARETRIEVER_STATIC_HTTP_HPP__
+#define __TERRAMA2_IMPL_DATARETRIEVER_STATIC_HTTP_HPP__
 
 // TerraMA2
 #include "Config.hpp"
-#include "../core/utility/Raii.hpp"
-#include "../core/utility/CurlWrapperFtp.hpp"
-#include "../core/data-access/DataRetriever.hpp"
+#include "DataRetrieverHTTP.hpp"
 #include "../core/Shared.hpp"
-
-// LibCurl
-#include <curl/curl.h>
-
-// Qt
-#include <QTemporaryDir>
 
 namespace terrama2
 {
   namespace core
   {
     /*!
-       * \brief The DataRetrieverFTP class performs the download of
-       * occurrences of files, DCP-TOA5, DCP-INPE, GRADES ETA15km.
-       *
-       * \warning The DataRetrieverFTP class only performs the download of files, but does not
-       * perform the removal of the files after downloading.
+       * \brief The DataRetrieverJsonRest class performs the download of text files from a static address
     */
-    class TMIMPLEXPORT DataRetrieverFTP: public DataRetriever
+    class TMIMPLEXPORT DataRetrieverStaticHTTP: public DataRetrieverHTTP
     {
       public:
         /*!
-         * \brief DataRetrieverFTP Constructor:
+         * \brief DataRetrieverHTTP Constructor
+         *
          * Initializes the Curl and check the URL to download.
          * Initializes scheme information. Ex. "file://".
          * Initializes temporaFolder Folder information where the files will be saved. Ex. "/tmp/".
          * Create the directory where you will download the files. Ex. "/tmp/terrama2-download/".
          * \param dataprovider dataprovider Dataprovider information.
-         * \exception DataRetrieverException when FTP address is invalid.
-         * \exception DataRetreiverFTPException when unknown Error, FTP address is invalid.
+         * \exception DataRetrieverException when HTTP address is invalid.
+         * \exception DataRetreiverHTTPException when unknown Error, HTTP address is invalid.
         */
-        explicit DataRetrieverFTP(DataProviderPtr dataprovider, std::unique_ptr<CurlWrapperFtp>&& curlwrapper);
+        explicit DataRetrieverStaticHTTP(DataProviderPtr dataprovider, std::unique_ptr<CurlWrapperHttp>&& curlwrapper);
 
         /*!
-         * \brief DataRetrieverFTP Default Destructor.
+         * \brief DataRetrieverHTTP Default Destructor.
          *
          */
-        virtual ~DataRetrieverFTP() = default;
-
-        //comments on parent
-        virtual bool isRetrivable() const noexcept override;
+        virtual ~DataRetrieverStaticHTTP() = default;
 
         /*!
-         * \brief retrieveData Retrieving remote data from FTP servers.
+         * \brief retrieveData Retrieving remote data from HTTP servers.
          * \param mask Mask to the data files.
          * \param filter Filter to the data files.
          * \return Returns the absolute path of the folder that contains the files that have been made the download.
@@ -98,7 +80,7 @@ namespace terrama2
                                          const std::string& temporaryFolder = "",
                                          const std::string& foldersMask = "") const override;
 
-        virtual void retrieveDataCallback(const std::string& mask,
+      virtual void retrieveDataCallback(const std::string& mask,
                                         const Filter& filter,
                                         const std::string& timezone,
                                         std::shared_ptr<terrama2::core::FileRemover> remover,
@@ -106,32 +88,13 @@ namespace terrama2
                                         const std::string& foldersMask,
                                         std::function<void(const std::string& /*uri*/, const std::string& /*filename*/)> processFile) const override;
 
-        /*!
-         * \brief Check if the URIs and their subfolders matches the folders mask.
-         * \param uris The list of URIs to check
-         * \param foldersMask The folders mask
-         * \return A list with the full path of the URIs that matched the folders mask.
-         */
-        virtual std::vector<std::string> getFoldersList(const std::vector<std::string>& uris,
-                                                        const std::string& foldersMask) const;
-
-        /*!
-         * \brief Receives a list of URIs, check if theirs subfolders match with the mask and returns
-         * the full path of the ones that match.
-         * \param baseURIs List of URIs to check the subfolders
-         * \param mask The mask
-         * \return Returns the full path of the subfolders that match the mask.
-         */
-        virtual std::vector<std::string> checkSubfolders(const std::vector<std::string> baseURIs,
-                                                         const std::string mask) const;
-
         static DataRetrieverPtr make(DataProviderPtr dataProvider);
-        static DataRetrieverType dataRetrieverType() { return "FTP"; }
+        static DataRetrieverType dataRetrieverType() { return "STATIC-HTTP"; }
 
       private:
-        std::unique_ptr<CurlWrapperFtp> curlwrapper_; //!< Curl handler.
+        using DataRetrieverHTTP::listFiles;
     };
   }
 }
 
-#endif //__TERRAMA2_IMPL_DATARETRIEVERFTP_HPP__
+#endif //__TERRAMA2_IMPL_DATARETRIEVER_STATIC_HTTP_HPP__

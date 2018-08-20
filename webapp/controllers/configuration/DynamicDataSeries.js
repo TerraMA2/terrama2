@@ -11,6 +11,38 @@ var storedDcpsStore = {};
 var storedDcpsKeysTime = {};
 var storedDcpsStoreKeysTime = {};
 
+/**
+ * Helper to remove specific DCPS from request alias parameter.
+ *
+ * @param {express.Request} request HTTP Request object
+ * @param {boolean} isStore Flag to determine store DCP list.
+ */
+function removeDCPHandler(request, isStore) {
+  const key = request.body.key;
+
+  // Check cache key lifecycle
+  checkKeys();
+
+  // Retrieve responsible Dcp List
+  let targetDcpList = isStore ? storedDcpsStore : storedDcps;
+
+  // Only remove DCP if there is any
+  if(targetDcpList[key] != undefined) {
+    // List of DCP Alias to remove
+    let aliases = [];
+
+    // When a "aliases" parameters set, split elements
+    if (request.body.aliases) {
+      aliases = request.body.aliases;
+    } else {
+      // Otherwise, use single alias to remove
+      aliases.push(request.body.alias);
+    }
+
+    targetDcpList[key] = targetDcpList[key].filter(dcp => !aliases.includes(dcp.alias));
+  }
+}
+
 var checkKeys = function() {
   for(var key in storedDcpsKeysTime) {
     if(storedDcpsKeysTime.hasOwnProperty(key)) {
@@ -189,37 +221,11 @@ module.exports = function(app) {
     },
 
     removeStoredDcp: function(request, response) {
-      var key = request.body.key;
-
-      checkKeys();
-
-      if(storedDcps[key] != undefined) {
-        for(var i = 0, dcpsLength = storedDcps[key].length; i < dcpsLength; i++) {
-          if(storedDcps[key][i].alias == request.body.alias) {
-            storedDcps[key].splice(i, 1);
-            break;
-          }
-        }
-      }
-
-      response.json(storedDcps[key]);
+      response.json(removeDCPHandler(request));
     },
 
     removeStoredDcpStore: function(request, response) {
-      var key = request.body.key;
-
-      checkKeys();
-
-      if(storedDcpsStore[key] != undefined) {
-        for(var i = 0, dcpsLength = storedDcpsStore[key].length; i < dcpsLength; i++) {
-          if(storedDcpsStore[key][i].alias == request.body.alias) {
-            storedDcpsStore[key].splice(i, 1);
-            break;
-          }
-        }
-      }
-
-      response.json(storedDcpsStore[key]);
+      response.json(removeDCPHandler(request, true));
     },
 
     updateDcp: function(request, response) {

@@ -170,14 +170,6 @@ namespace terrama2
         virtual bool isRetrivable() const;
 
       protected:
-      /**
-       * @brief Get a new Temporary Folder.
-       * 
-       * @param oldTempTerraMAFolder Optional temporary folder to be used.
-       * @return std::string Path of the temporary folder.
-       */
-        std::string getTemporaryFolder(std::shared_ptr<terrama2::core::FileRemover> remover, const std::string& oldTempTerraMAFolder = "") const;
-
         DataProviderPtr dataProvider_;//!< Information of the remote server.
     };
   }

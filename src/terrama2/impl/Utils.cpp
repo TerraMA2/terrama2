@@ -44,6 +44,7 @@
 #include "DataAccessorGeometricObjectPostGIS.hpp"
 #include "DataAccessorGeometricObjectOGR.hpp"
 #include "DataAccessorWildFireEvent.hpp"
+#include "DataAccessorJsonCemaden.hpp"
 
 #include "DataAccessorStaticDataOGR.hpp"
 #include "DataAccessorStaticDataPostGIS.hpp"
@@ -60,6 +61,7 @@
 #include "DataRetrieverFTP.hpp"
 #include "DataRetrieverHTTP.hpp"
 #include "DataRetrieverHTTPS.hpp"
+#include "DataRetrieverStaticHTTP.hpp"
 
 #include "../core/utility/DataAccessorFactory.hpp"
 #include "../core/utility/DataStoragerFactory.hpp"
@@ -86,6 +88,7 @@ void terrama2::core::registerFactories()
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorGeometricObjectOGR::dataAccessorType(), terrama2::core::DataAccessorGeometricObjectOGR::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorWildFireEvent::dataAccessorType(), terrama2::core::DataAccessorWildFireEvent::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorDcpSingleTable::dataAccessorType(), terrama2::core::DataAccessorDcpSingleTable::make);
+  terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorJsonCemaden::dataAccessorType(), terrama2::core::DataAccessorJsonCemaden::make);
 
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorStaticDataOGR::dataAccessorType(), terrama2::core::DataAccessorStaticDataOGR::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorStaticDataPostGIS::dataAccessorType(), terrama2::core::DataAccessorStaticDataPostGIS::make);
@@ -105,6 +108,7 @@ void terrama2::core::registerFactories()
   terrama2::core::DataRetrieverFactory::getInstance().add(terrama2::core::DataRetrieverFTP::dataRetrieverType(), terrama2::core::DataRetrieverFTP::make);
   terrama2::core::DataRetrieverFactory::getInstance().add(terrama2::core::DataRetrieverHTTP::dataRetrieverType(), terrama2::core::DataRetrieverHTTP::make);
   terrama2::core::DataRetrieverFactory::getInstance().add(terrama2::core::DataRetrieverHTTPS::dataRetrieverType(), terrama2::core::DataRetrieverHTTPS::make);
+  terrama2::core::DataRetrieverFactory::getInstance().add(terrama2::core::DataRetrieverStaticHTTP::dataRetrieverType(), terrama2::core::DataRetrieverStaticHTTP::make);
 
   terrama2::core::InterpreterFactory::getInstance().add(terrama2::core::PythonInterpreter::interpreterType(), terrama2::core::PythonInterpreter::make, terrama2::core::PythonInterpreter::createInitializer);
 }

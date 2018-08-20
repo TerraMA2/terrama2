@@ -30,10 +30,21 @@ module.exports = function(grunt) {
       TerraMA2WebAppMin: {
         options: {
           baseUrl: SCRIPTS_PATH,
-          optimize: "none", // It does not minify
+          optimize: 'none',
+          /**
+           * Un-comment next line to help debug accurately
+           * and comment out with "uglyfy-es" module
+           */
+          // out: DEST_PATH + "terrama2-webapp.min.js",
+
+          /**
+           * Wrapping Grunt to support ES5+ expressions
+           *
+           * We must use "uglify-es" module and then write manually both .min.js and .min.js.map files
+           */
           out: function(text, sourceMapText) {
-            var UglifyJS = require('uglify-es');
-            uglified = UglifyJS.minify(text, { sourceMap: { content: sourceMapText, url: "/dist/terrama2-webapp.min.js" } });
+            var UglifyJS = require('uglify-es'),
+                uglified = UglifyJS.minify(text, { sourceMap: { content: sourceMapText, url: "/dist/terrama2-webapp.min.js.map" } });
 
             grunt.file.write(DEST_PATH + "terrama2-webapp.min.js", uglified.code);
             grunt.file.write(DEST_PATH + "terrama2-webapp.min.js.map", uglified.map);

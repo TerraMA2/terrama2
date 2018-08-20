@@ -1,10 +1,27 @@
 define([], function() {
   function RegisterDataSeries($scope, $http, i18n, $window, $state, $httpParamSerializer,
                               DataSeriesSemanticsService, DataProviderService, DataSeriesService,
-                              Service, $timeout, WizardHandler, UniqueNumber, 
-                              FilterForm, MessageBoxService, $q, GeoLibs, $compile, DateParser, FormTranslator, Socket) {
+                              Service, $timeout, WizardHandler, UniqueNumber,
+                              FilterForm, MessageBoxService, $q, GeoLibs, $compile, DateParser, FormTranslator, Socket, CemadenService) {
 
     var srids = [];
+
+    /**
+     * Retrieves properties from object excluding provided keys.
+     *
+     * @param {Object} obj
+     * @param {string[]} keys
+     * @returns A new object without provided keys
+     */
+    function rejectKeys(obj, keys) {
+      if (!keys instanceof Array)
+        throw new Error("Keys must be an array");
+
+      return Object.keys(obj)
+        .filter(key => !keys.includes(key))//keys.some(elm => elm === key))
+        .map(key => Object.assign({}, {[key]: obj[key]}))
+        .reduce((res, o) => Object.assign(res, o), {});
+    }
 
     $http.get(BASE_URL + "configuration/get-srids").then(function(sridsResult) {
       srids = sridsResult.data.srids;
@@ -98,7 +115,7 @@ define([], function() {
       for (var key in $scope.intersection) {
         $scope.removeDataSeries(key);
       }
-      $scope.advanced.intersection.disabled = true; 
+      $scope.advanced.intersection.disabled = true;
       $scope.wizard.intersection.disabled = true;
       $scope.wizard.intersection.message = i18n.__("Add intersection configuration");
       var enableIntersection = angular.element('#intersection-collapse');
@@ -175,7 +192,7 @@ define([], function() {
         clearForm: clearIntersectionForm,
         openForm: openIntersectionForm,
         optional: true,
-        message: i18n.__("Must have a valid store values to create an intersection") 
+        message: i18n.__("Must have a valid store values to create an intersection")
       }
     };
 
@@ -327,6 +344,7 @@ define([], function() {
             break;
           case "HTTP":
           case "HTTPS":
+          case "STATIC-HTTP":
             return BASE_URL + "images/data-server/http/http.png";
             break;
           case "POSTGIS":
@@ -335,6 +353,21 @@ define([], function() {
             break;
         }
       }
+
+      /**
+       * Checks if Data series semantics is Cemaden
+       */
+      function isCemadenType() {
+        return $scope.dataSeries.semantics.driver === 'DCP-json_cemaden';
+      }
+
+      $scope.isCemadenType = isCemadenType;
+
+      function isDCP() {
+        return $scope.dataSeries.semantics.data_series_type_name === "DCP";
+      }
+
+      $scope.isDCP = isDCP;
 
       $scope.createDataTable = function() {
         if($scope.dcpTable !== undefined)
@@ -400,7 +433,7 @@ define([], function() {
 
       $scope.countObjectProperties = function(object) {
         var count = 0;
-        
+
         if(object !== undefined && object !== null && typeof object === "object")
           for(key in object) if(object.hasOwnProperty(key)) count++;
 
@@ -441,7 +474,7 @@ define([], function() {
 
         $scope.providersList.forEach(function(dataProvider) {
           if($scope.dataSeries.data_provider_id === dataProvider.id && dataProvider.data_provider_type.id === 1) {
-            returnVal = true; 
+            returnVal = true;
             return;
           }
         });
@@ -466,7 +499,7 @@ define([], function() {
         $scope.$broadcast("changeDataSemantics");
 
         if ($scope.hasCollector){
-        
+
           // fill filter
           var filter = collector.filter || {};
 
@@ -496,7 +529,7 @@ define([], function() {
 
           if (filter.data_series_id){
             $scope.$emit('updateFilterArea', "3");
-            $scope.filter.data_series_id = filter.data_series_id; 
+            $scope.filter.data_series_id = filter.data_series_id;
             if (filter.crop_raster){
               $scope.filter.area.crop_raster = true;
             }
@@ -541,128 +574,6 @@ define([], function() {
 
 	      $scope.tableFieldsDataTable.push('');
 
-        // fill out
-        if ($scope.isUpdating) {
-          $scope.wizard.parameters.disabled = false;
-          $scope.wizard.parameters.error = false;
-          $scope.wizard.general.error = false;
-          if ($scope.semantics === globals.enums.DataSeriesType.DCP) {
-            // TODO: prepare format as dcp item
-            $scope.dcpsObject = {};
-            $scope.editedDcps = [];
-            $scope.removedDcps = [];
-            $scope.duplicatedAliasCounter = {};
-
-            var dcps = [];
-            var registersCount = 0;
-
-            for(var i = 0, dataSetsLength = inputDataSeries.dataSets.length; i < dataSetsLength; i++) {
-              if(inputDataSeries.dataSets[i].position) {
-                var lat;
-                var long;
-                if(inputDataSeries.dataSets[i].position.type) {
-                  // geojson
-                  long = inputDataSeries.dataSets[i].position.coordinates[0];
-                  lat = inputDataSeries.dataSets[i].position.coordinates[1];
-                } else {
-                  var first = inputDataSeries.dataSets[i].position.indexOf("(");
-                  var firstSpace = inputDataSeries.dataSets[i].position.indexOf(" ", first);
-                  lat = parseInt(inputDataSeries.dataSets[i].position.slice(first+1, firstSpace));
-
-                  var last = inputDataSeries.dataSets[i].position.indexOf(")", firstSpace);
-                  long = inputDataSeries.dataSets[i].position.slice(firstSpace + 1, last);
-
-                }
-                inputDataSeries.dataSets[i].format["latitude"] = lat;
-                inputDataSeries.dataSets[i].format["longitude"] = long;
-              }
-              angular.merge(inputDataSeries.dataSets[i].format, {active: inputDataSeries.dataSets[i].active});
-
-              var dcp = $scope.prepareFormatToForm(inputDataSeries.dataSets[i].format);
-
-              for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
-                var key = $scope.dataSeries.semantics.metadata.form[j].key;
-                var titleMap = $scope.dataSeries.semantics.metadata.form[j].titleMap;
-                var title = $scope.dataSeries.semantics.metadata.schema.properties[key].title;
-                var type = $scope.dataSeries.semantics.metadata.schema.properties[key].type;
-                var pattern = $scope.dataSeries.semantics.metadata.schema.properties[key].pattern;
-
-                dcp[key + '_pattern'] = pattern;
-                dcp[key + '_titleMap'] = titleMap;
-
-                if(dcp[key + '_titleMap'] !== undefined)
-                  type = $scope.dataSeries.semantics.metadata.form[j].type;
-
-                dcp = $scope.setHtmlItems(dcp, key, dcp.alias, dcp._id, type);
-              }
-
-              $scope.dcpsObject[dcp.alias] = dcp;
-
-              var dcpCopy = Object.assign({}, dcp);
-              dcpCopy.removeButton = $scope.getRemoveButton(dcp.alias);
-
-              dcps.push(dcpCopy);
-
-              registersCount++;
-
-              if(registersCount >= 1000) {
-                $scope.storageDcps(dcps);
-                $scope.addDcpsStorager(dcps);
-
-                registersCount = 0;
-                dcps = [];
-              }
-
-	            if(inputDataSeries.data_series_semantics.custom_format) {
-                $scope.csvFormatData.fields = JSON.parse(inputDataSeries.dataSets[i].format.fields)
-                $scope.csvFormatData.header_size = parseInt(inputDataSeries.dataSets[i].format.header_size);
-                $scope.csvFormatData.default_type = inputDataSeries.dataSets[i].format.default_type;
-                $scope.csvFormatData.convert_all = (inputDataSeries.dataSets[i].format.convert_all == "true");
-                $scope.csvFormatData.properties_names_line = parseInt(inputDataSeries.dataSets[i].format.properties_names_line);
-              }
-            }
-
-            if(registersCount > 0) {
-              $scope.storageDcps(dcps);
-              $scope.addDcpsStorager(dcps);
-            }
-          } else {
-	          var dataSetFormat = inputDataSeries.dataSets[0].format;
-            $scope.model = $scope.prepareFormatToForm(inputDataSeries.dataSets[0].format);
-	          if(inputDataSeries.data_series_semantics.custom_format) {
-              $scope.csvFormatData.fields = JSON.parse(dataSetFormat.fields)
-              $scope.csvFormatData.header_size = parseInt(dataSetFormat.header_size);
-              $scope.csvFormatData.default_type = dataSetFormat.default_type;
-              $scope.csvFormatData.convert_all = (dataSetFormat.convert_all == "true");
-              $scope.csvFormatData.properties_names_line = parseInt(dataSetFormat.properties_names_line);
-            }
-            $scope.model.temporal = ($scope.model.temporal == 'true' || $scope.model.temporal == true ? true : false);
-
-            if(typeof $scope.model.timezone === "number") {
-              $scope.model.timezone = $scope.model.timezone.toString();
-            }
-          }
-
-          if($scope.hasCollector) {
-            $scope.wizard.store.message = i18n.__("Remove store configuration");
-            $scope.wizard.store.disabled = false;
-            $scope.wizard.store.error = false;
-            $scope.advanced.store.disabled = false;
-          }
-          if(Object.keys($scope.intersection).length > 0) {
-            $scope.wizard.intersection.message = i18n.__("Remove intersection configuration");
-            $scope.wizard.intersection.disabled = false;
-            $scope.advanced.intersection.disabled = false;
-          }
-        } else {
-          $scope.dcpsObject = {};
-          $scope.editedDcps = [];
-          $scope.removedDcps = [];
-          $scope.duplicatedAliasCounter = {};
-          $scope.model = {};
-          $scope.$broadcast("resetStoragerDataSets");
-        }
-
         var formTranslatorResult = FormTranslator(dataSeriesSemantics.metadata.schema.properties, dataSeriesSemantics.metadata.form, dataSeriesSemantics.metadata.schema.required);
 
         $scope.schema = {
@@ -672,14 +583,204 @@ define([], function() {
         };
 
         $scope.form = formTranslatorResult.display;
-
         $scope.$broadcast('schemaFormRedraw');
 
         _processParameters();
 
         $timeout(function() {
-          if($scope.tableFields.length > 0)
-            $scope.createDataTable();
+
+          // fill out
+          if ($scope.isUpdating) {
+            $scope.wizard.parameters.disabled = false;
+            $scope.wizard.parameters.error = false;
+            $scope.wizard.general.error = false;
+            if ($scope.semantics === globals.enums.DataSeriesType.DCP) {
+              // TODO: prepare format as dcp item
+              $scope.dcpsObject = {};
+              $scope.editedDcps = [];
+              $scope.removedDcps = [];
+              $scope.duplicatedAliasCounter = {};
+
+              var dcps = [];
+              var registersCount = 0;
+
+              let states = [];
+
+              if (isCemadenType())
+                $scope.dataSeries.semantics.metadata.form = [];
+
+              for(var i = 0, dataSetsLength = inputDataSeries.dataSets.length; i < dataSetsLength; i++) {
+                if(inputDataSeries.dataSets[i].position) {
+                  var lat;
+                  var long;
+                  if(inputDataSeries.dataSets[i].position.type) {
+                    // geojson
+                    long = inputDataSeries.dataSets[i].position.coordinates[0];
+                    lat = inputDataSeries.dataSets[i].position.coordinates[1];
+                  } else {
+                    var first = inputDataSeries.dataSets[i].position.indexOf("(");
+                    var firstSpace = inputDataSeries.dataSets[i].position.indexOf(" ", first);
+                    lat = parseInt(inputDataSeries.dataSets[i].position.slice(first+1, firstSpace));
+
+                    var last = inputDataSeries.dataSets[i].position.indexOf(")", firstSpace);
+                    long = inputDataSeries.dataSets[i].position.slice(firstSpace + 1, last);
+
+                  }
+                  inputDataSeries.dataSets[i].format["latitude"] = lat;
+                  inputDataSeries.dataSets[i].format["longitude"] = long;
+                }
+
+                // Exclude properties for Cemaden
+                if (isCemadenType()) {
+                  var defaultKeys = Object.keys($scope.dataSeries.semantics.metadata.metadata);
+
+                  if (!states.includes(inputDataSeries.dataSets[i].format["uf"]))
+                    states.push(inputDataSeries.dataSets[i].format["uf"]);
+
+                  inputDataSeries.dataSets[i].format = rejectKeys(inputDataSeries.dataSets[i].format, defaultKeys);
+                  inputDataSeries.dataSets[i].format["active"] = inputDataSeries.dataSets[i].active;
+
+                  const dcpKeys = Object.keys(inputDataSeries.dataSets[0].format);
+
+                  for(let key of dcpKeys) {
+                    const value = inputDataSeries.dataSets[i].format[key];
+                    let type = 'string';
+
+                    if (angular.isNumber(value)) {
+                      type = 'number';
+                    }
+
+                    const fakeField = {
+                      type,
+                      title: key,
+                      allowEmptyValue: false
+                    };
+
+                    const fakeFormField = {
+                      key
+                    };
+                    $scope.dataSeries.semantics.metadata.schema.properties[key] = fakeField;
+                    $scope.dataSeries.semantics.metadata.form.push(fakeFormField);
+                  }
+                } else {
+                  angular.merge(inputDataSeries.dataSets[i].format, {active: inputDataSeries.dataSets[i].active});
+                }
+
+                var dcp = $scope.prepareFormatToForm(inputDataSeries.dataSets[i].format);
+
+                for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
+                  var key = $scope.dataSeries.semantics.metadata.form[j].key;
+                  var titleMap = $scope.dataSeries.semantics.metadata.form[j].titleMap;
+                  var title = $scope.dataSeries.semantics.metadata.schema.properties[key].title;
+                  var type = $scope.dataSeries.semantics.metadata.schema.properties[key].type;
+                  var pattern = $scope.dataSeries.semantics.metadata.schema.properties[key].pattern;
+
+                  dcp[key + '_pattern'] = pattern;
+                  dcp[key + '_titleMap'] = titleMap;
+
+                  dcp.projection = parseInt($scope.dataSeries.semantics.metadata.metadata.srid);
+                  // Setting dcp as active
+                  dcp.active = true;
+
+                  if(dcp[key + '_titleMap'] !== undefined)
+                    type = $scope.dataSeries.semantics.metadata.form[j].type;
+
+                  dcp = $scope.setHtmlItems(dcp, key, dcp.alias, dcp._id, type);
+                }
+
+                var dcpCopy = Object.assign({}, dcp);
+                dcpCopy.removeButton = $scope.getRemoveButton(dcp.alias);
+                $scope.dcpsObject[dcp.alias] = dcpCopy;
+
+                dcps.push(dcpCopy);
+
+                registersCount++;
+
+                if(registersCount >= 1000) {
+                  $scope.storageDcps(dcps);
+                  $scope.addDcpsStorager(dcps);
+
+                  registersCount = 0;
+                  dcps = [];
+                }
+
+                if(inputDataSeries.data_series_semantics.custom_format) {
+                  $scope.csvFormatData.fields = JSON.parse(inputDataSeries.dataSets[i].format.fields)
+                  $scope.csvFormatData.header_size = parseInt(inputDataSeries.dataSets[i].format.header_size);
+                  $scope.csvFormatData.default_type = inputDataSeries.dataSets[i].format.default_type;
+                  $scope.csvFormatData.convert_all = (inputDataSeries.dataSets[i].format.convert_all == "true");
+                  $scope.csvFormatData.properties_names_line = parseInt(inputDataSeries.dataSets[i].format.properties_names_line);
+                }
+              } // end for
+
+              // Set table keys
+              if (isCemadenType()) {
+                var keys = Object.keys(inputDataSeries.dataSets[0].format).filter(key => key !== "_id");
+
+                // Setting model states
+                $scope.$broadcast('selectOption', states);
+                const stationId = inputDataSeries.dataSets[0].format;
+
+                const stationName = inputDataSeries.dataSets[0].format["tipoestacao"];
+                // Retrieves real station name
+                CemadenService.getStationId(stationName)
+                  .then(stationId => $scope.model.station = stationId);
+
+                $scope.isChecking.value = false;
+
+                $scope.setTableFields(keys);
+              }
+
+              if(registersCount > 0) {
+                $scope.storageDcps(dcps);
+                // TODO: should this be removed?
+                // $scope.addDcpsStorager(dcps);
+              }
+            } else {
+              var dataSetFormat = inputDataSeries.dataSets[0].format;
+              $scope.model = $scope.prepareFormatToForm(inputDataSeries.dataSets[0].format);
+              if(inputDataSeries.data_series_semantics.custom_format) {
+                $scope.csvFormatData.fields = JSON.parse(dataSetFormat.fields)
+                $scope.csvFormatData.header_size = parseInt(dataSetFormat.header_size);
+                $scope.csvFormatData.default_type = dataSetFormat.default_type;
+                $scope.csvFormatData.convert_all = (dataSetFormat.convert_all == "true");
+                $scope.csvFormatData.properties_names_line = parseInt(dataSetFormat.properties_names_line);
+              }
+              $scope.model.temporal = ($scope.model.temporal == 'true' || $scope.model.temporal == true ? true : false);
+
+              if(typeof $scope.model.timezone === "number") {
+                $scope.model.timezone = $scope.model.timezone.toString();
+              }
+            }
+
+            if($scope.hasCollector) {
+              $scope.wizard.store.message = i18n.__("Remove store configuration");
+              $scope.wizard.store.disabled = false;
+              $scope.wizard.store.error = false;
+              $scope.advanced.store.disabled = false;
+            }
+            if(Object.keys($scope.intersection).length > 0) {
+              $scope.wizard.intersection.message = i18n.__("Remove intersection configuration");
+              $scope.wizard.intersection.disabled = false;
+              $scope.advanced.intersection.disabled = false;
+            }
+          } else {
+            $scope.dcpsObject = {};
+            $scope.editedDcps = [];
+            $scope.removedDcps = [];
+            $scope.duplicatedAliasCounter = {};
+            $scope.model = {};
+            $scope.$broadcast("resetStoragerDataSets");
+          }
+
+          if($scope.tableFields.length > 0) {
+            // When GUI is for Update, render DCP table
+            if ($scope.isUpdating)
+              $timeout(() => $scope.createDataTable(), 10);
+            // When GUI is for Registration, do not render DCP table for Cemaden type due table incompatibility
+            else if (!$scope.isCemadenType())
+              $timeout(() => $scope.createDataTable(), 10);
+          }
 
           $scope.isChecking.value = false;
 
@@ -733,6 +834,15 @@ define([], function() {
       $scope.tableFields = [];
       $scope.tableFieldsDataTable = [];
 
+      $scope.setTableFields = (keys) => {
+        $scope.tableFields = keys;
+        $scope.tableFieldsDataTable.length = 0;
+
+        keys.forEach(key => $scope.tableFieldsDataTable.push(key));
+
+        $scope.tableFieldsDataTable.push('');
+      };
+
       // injecting state handler in scope
       $scope.stateApp = $state;
 
@@ -755,7 +865,7 @@ define([], function() {
             // checking if a number
             if (isNaN(fmt[k]) || fmt[k] == "" || typeof fmt[k] == "boolean") {
               if (k === "active") {
-                output[k] = typeof fmt[k] === "string" ? fmt[k] === "true" : fmt[k]; 
+                output[k] = typeof fmt[k] === "string" ? fmt[k] === "true" : fmt[k];
               } else {
                 output[k] = fmt[k];
               }
@@ -868,7 +978,7 @@ define([], function() {
           if (ds.data_series_semantics.temporality == globals.enums.TemporalityType.STATIC){
             _helper(0, ds);
           } else {
-            _helper(1, ds);            
+            _helper(1, ds);
           }
         };
 
@@ -905,8 +1015,8 @@ define([], function() {
 
         if (dataSeries.data_series_semantics.temporality == globals.enums.TemporalityType.STATIC){
           $scope.dataSeriesGroups[0].children = _helper($scope.dataSeriesGroups[0].children);
-        } else { 
-          $scope.dataSeriesGroups[1].children = _helper($scope.dataSeriesGroups[1].children);           
+        } else {
+          $scope.dataSeriesGroups[1].children = _helper($scope.dataSeriesGroups[1].children);
         }
 
         // removing ds attributes
@@ -1059,7 +1169,7 @@ define([], function() {
         if ($scope.filter.filterArea === $scope.filterTypes.NO_FILTER.value) {
           $scope.filter.area = {srid: 4326, showCrop: $scope.filter.area.showCrop};
           delete $scope.filter.data_series_id;
-        } 
+        }
         else if ($scope.filter.filterArea === $scope.filterTypes.AREA.value){
           delete $scope.filter.data_series_id;
           if ($scope.filter.area){
@@ -1257,12 +1367,12 @@ define([], function() {
       // fill intersection data series
       $scope.dataSeriesList.forEach(function(dSeries) {
         var temporality = dSeries.data_series_semantics.temporality;
-        switch(temporality) {          
+        switch(temporality) {
           case globals.enums.TemporalityType.DYNAMIC:
             if (dSeries.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.GRID || dSeries.data_series_semantics.data_series_type_name === globals.enums.DataSeriesType.GEOMETRIC_OBJECT)
               $scope.dataSeriesGroups[1].children.push(dSeries);
             break;
-          
+
           case globals.enums.TemporalityType.STATIC:
             $scope.dataSeriesGroups[0].children.push(dSeries);
             $scope.staticDataSeriesList.push(dSeries);
@@ -1298,7 +1408,7 @@ define([], function() {
                 return true;
               }
             });
-          }); 
+          });
         }
       }
 
@@ -1394,7 +1504,7 @@ define([], function() {
 
       var listTables = function(dataProvider){
         var result = $q.defer();
-        
+
         DataProviderService.listPostgisObjects({providerId: dataProvider.id, objectToGet: "table"})
           .then(function(response){
             if (response.data.status == 400){
@@ -1417,6 +1527,34 @@ define([], function() {
         output.parametersData = $scope.parametersData;
 
         $window.location.href = BASE_URL + "configuration/providers/new?redirectTo=" + url + "&" + $httpParamSerializer(output);
+      };
+
+      /**
+       * Clean both Input and Output DCPS
+       *
+       * Used in DCP Cemaden
+       */
+      $scope.cleanDCPS = () => {
+        // Retrieves DCPs aliases
+        const aliases = Object.keys($scope.dcpsObject);
+
+        // Notify Remove listeners
+        $scope.$broadcast("dcpOperation", { action: "removeAll", dcpsObject: $scope.dcpsObject, aliases });
+
+        // Remove cache from the server
+        $http.post(BASE_URL + "configuration/dynamic/dataseries/removeStoredDcp", {
+            key: storedDcpsKey,
+            aliases
+          })
+          .then((/*result*/) => reloadData())
+          .catch((error) => console.log("Err in removing dcp"));
+
+        // Ensure that front-end already removed dcp
+        // ???
+        aliases.forEach(alias => {
+          $scope.removedDcps.push($scope.dcpsObject[alias]._id);
+          delete $scope.dcpsObject[alias];
+        });
       };
 
       $scope.removePcd = function(alias) {
@@ -1518,53 +1656,57 @@ define([], function() {
         if(insertDcp) $scope.editedDcps.push(id);
       };
 
+      $scope.addDcpToTable = (dcp) => {
+        if($scope.isAliasValid(dcp.alias, $scope.dcpsObject)) {
+          dcp._id = UniqueNumber();
+          var alias = dcp.alias;
+
+          for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
+            var key = $scope.dataSeries.semantics.metadata.form[j].key;
+
+            if (key instanceof Array)
+              key = key[0];
+
+            var type = $scope.dataSeries.semantics.metadata.form[j].schema.type;
+            dcp[key + '_pattern'] = $scope.dataSeries.semantics.metadata.form[j].schema.pattern;
+            dcp[key + '_titleMap'] = $scope.dataSeries.semantics.metadata.form[j].titleMap;
+
+            if(typeof dcp[key] === "string")
+              dcp[key] = dcp[key].trim();
+
+            if(dcp[key + '_titleMap'] !== undefined)
+              type = $scope.dataSeries.semantics.metadata.form[j].type;
+
+            dcp = $scope.setHtmlItems(dcp, key, alias, dcp._id, type);
+          }
+
+          $scope.dcpsObject[alias] = Object.assign({}, dcp);
+
+          if($scope.storager.format)
+            $scope.$broadcast("dcpOperation", { action: "add", dcp, storageData: true, reloadDataStore: false });
+
+          $scope.model = {active: true};
+
+          var dcpCopy = Object.assign({}, dcp);
+          dcpCopy.removeButton = $scope.getRemoveButton(dcpCopy.alias);
+
+          $scope.storageDcps([dcpCopy]);
+
+          if($scope.isUpdating)
+            $scope.insertEditedDcp(dcpCopy._id);
+
+          // reset form to do not display feedback class
+          $scope.forms.parametersForm.$setPristine();
+
+          reloadData();
+        } else {
+          MessageBoxService.danger(i18n.__("Field error"), i18n.__("The Alias has to be unique"));
+        }
+      };
+
       $scope.addDcp = function() {
         if(isValidParametersForm($scope.forms.parametersForm)) {
           var data = Object.assign({}, $scope.model);
-
-          var performAddDcp = function() {
-            if($scope.isAliasValid(data.alias, $scope.dcpsObject)) {
-              data._id = UniqueNumber();
-              var alias = data.alias;
-
-              for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
-                var key = $scope.dataSeries.semantics.metadata.form[j].key;
-                var type = $scope.dataSeries.semantics.metadata.form[j].schema.type;
-                data[key + '_pattern'] = $scope.dataSeries.semantics.metadata.form[j].schema.pattern;
-                data[key + '_titleMap'] = $scope.dataSeries.semantics.metadata.form[j].titleMap;
-
-                if(typeof data[key] === "string")
-                  data[key] = data[key].trim();
-
-                if(data[key + '_titleMap'] !== undefined)
-                  type = $scope.dataSeries.semantics.metadata.form[j].type;
-
-                data = $scope.setHtmlItems(data, key, alias, data._id, type);
-              }
-
-              $scope.dcpsObject[alias] = Object.assign({}, data);
-              
-              if($scope.storager.format)
-                $scope.$broadcast("dcpOperation", { action: "add", dcp: data, storageData: true, reloadDataStore: false });
-
-              $scope.model = {active: true};
-
-              var dcpCopy = Object.assign({}, data);
-              dcpCopy.removeButton = $scope.getRemoveButton(dcpCopy.alias);
-
-              $scope.storageDcps([dcpCopy]);
-
-              if($scope.isUpdating)
-                $scope.insertEditedDcp(dcpCopy._id);
-
-              // reset form to do not display feedback class
-              $scope.forms.parametersForm.$setPristine();
-
-              reloadData();
-            } else {
-              MessageBoxService.danger(i18n.__("Field error"), i18n.__("The Alias has to be unique"));
-            }
-          };
 
           if(data.projection || data.srid) {
             var srid = (data.projection ? data.projection : data.srid);
@@ -1572,12 +1714,12 @@ define([], function() {
 
             if(sridValidationResult) {
               MessageBoxService.danger(i18n.__("Data Registration"), i18n.__(sridValidationResult));
-            } else {
-              performAddDcp();
+
+              return;
             }
-          } else {
-            performAddDcp();
           }
+
+          $scope.addDcpToTable(data);
         }
       };
 
@@ -1740,8 +1882,17 @@ define([], function() {
           var _makeFormat = function(dSetObject) {
             var format_ = {};
             for(var key in dSetObject) {
-              if(dSetObject.hasOwnProperty(key) && key.toLowerCase() !== "id" && key.substr(key.length - 5) != "_html" && key.substr(key.length - 8) != "_pattern" && key.substr(key.length - 9) != "_titleMap" && key != "removeButton" && key != "oldAlias" && key != "newAlias")
-                format_[key] = dSetObject[key].toString();
+              if((dSetObject.hasOwnProperty(key) &&
+                  key.toLowerCase() !== "id" &&
+                  (!key.endsWith("_html")) &&
+                  (!key.endsWith("_pattern")) &&
+                  (!key.endsWith("_titleMap")) &&
+                  key != "removeButton" &&
+                  key != "oldAlias" &&
+                  key != "newAlias"))
+                var value = dSetObject[key];
+
+                format_[key] = (value !== null && value !== undefined) ? value.toString() : value;
                 if(key.startsWith("output_")) {
                   format_[key.replace("output_", "")] = dSetObject[key];
                 }
@@ -1766,7 +1917,7 @@ define([], function() {
               if (output_geometry_property_field){
                 dSets[i].geometry_property = output_geometry_property_field;
               }
-              
+
 
               var outputDcp = {
                 active: dSets[i].active,
@@ -1902,8 +2053,14 @@ define([], function() {
             for(var dcpKey in $scope.dcpsObject) {
               var format = {};
               for(var key in $scope.dcpsObject[dcpKey]) {
-                if($scope.dcpsObject[dcpKey].hasOwnProperty(key) && key.substr(key.length - 5) != "_html" && key.substr(key.length - 8) != "_pattern" && key.substr(key.length - 9) != "_titleMap" && key != "removeButton" && key != "oldAlias" && key != "newAlias" && key != "latitude" && key != "longitude" && key != "active")
-                  format[key] = $scope.dcpsObject[dcpKey][key].toString();
+                if($scope.dcpsObject[dcpKey].hasOwnProperty(key) && key.substr(key.length - 5) != "_html" && key.substr(key.length - 8) != "_pattern" && key.substr(key.length - 9) != "_titleMap" && key != "removeButton" && key != "oldAlias" && key != "newAlias" && key != "latitude" && key != "longitude" && key != "active") {
+                  var value = $scope.dcpsObject[dcpKey][key];
+
+                  if (value !== null && value !== undefined)
+                    format[key] = value.toString();
+                  else
+                    format[key] = null;
+                }
               }
               angular.merge(format, semantics.metadata.metadata);
               if (semantics.custom_format){
@@ -2051,7 +2208,7 @@ define([], function() {
         }
 
         if($scope.isDynamic) {
-          if(angular.element('form[name="scheduleForm"]').scope()){ 
+          if(angular.element('form[name="scheduleForm"]').scope()){
             var scheduleForm = angular.element('form[name="scheduleForm"]').scope()['scheduleForm'];
             if(scheduleForm.$invalid) {
               MessageBoxService.danger(i18n.__("Data Registration"), i18n.__("There are invalid fields on form"));
@@ -2152,7 +2309,8 @@ define([], function() {
       };
     })
   }
-    RegisterDataSeries.$inject = ["$scope", "$http", "i18n", "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsService", "DataProviderService", "DataSeriesService", "Service", "$timeout", "WizardHandler", "UniqueNumber", "FilterForm", "MessageBoxService", "$q", "GeoLibs", "$compile", "DateParser", "FormTranslator", "Socket"];
 
-    return { "RegisterDataSeries": RegisterDataSeries};
+  RegisterDataSeries.$inject = ["$scope", "$http", "i18n", "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsService", "DataProviderService", "DataSeriesService", "Service", "$timeout", "WizardHandler", "UniqueNumber", "FilterForm", "MessageBoxService", "$q", "GeoLibs", "$compile", "DateParser", "FormTranslator", "Socket", "CemadenService"];
+
+  return { "RegisterDataSeries": RegisterDataSeries };
 })

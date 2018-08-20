@@ -78,7 +78,7 @@ module.exports = function(app) {
             else
               dataSeriesSemanticsList.push(semantics);
           });
-          
+
           return response.json(dataSeriesSemanticsList);
         }).catch(function(err) {
           return Utils.handleRequestError(response, err, 400);

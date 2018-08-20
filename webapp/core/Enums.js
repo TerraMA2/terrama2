@@ -208,6 +208,10 @@ module.exports = {
     POSTGIS: {
       name: "POSTGIS",
       value: 4
+    },
+    STATIC_HTTP: {
+      name: "STATIC-HTTP",
+      value: 5
     }
   },
 

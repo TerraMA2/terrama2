@@ -25,6 +25,7 @@
     "angular-wizard": "=0.9.0",
     "angular-xeditable": "=0.4.0",
     "angularjs-color-picker": "=2.7.2",
+    "angularjs-dropdown-multiselect": "^2.0.0-beta.10",
     "async": "^2.0.0-rc.6",
     "bcrypt": "^0.8.5",
     "bluebird": "^3.3.4",

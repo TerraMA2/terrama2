@@ -104,27 +104,3 @@ terrama2::core::DataRetriever* terrama2::core::DataRetriever::make(DataProviderP
 {
   return new DataRetriever(dataProvider);
 }
-
-std::string terrama2::core::DataRetriever::getTemporaryFolder(std::shared_ptr<terrama2::core::FileRemover> remover, const std::string& oldTempTerraMAFolder) const
-{
-    std::string tempTerraMAFolder = oldTempTerraMAFolder + "/";
-
-    if(oldTempTerraMAFolder.empty())
-    {
-      boost::filesystem::path systemTempDir = boost::filesystem::temp_directory_path();
-      boost::filesystem::path tempTerrama(systemTempDir.string()+"/terrama2");
-      boost::filesystem::path tempDataDir = boost::filesystem::unique_path(tempTerrama.string()+"/%%%%-%%%%-%%%%-%%%%");
-
-      // Create the directory where you will download the files.
-      QDir dir(QString::fromStdString(tempDataDir.string()));
-      if(!dir.exists())
-        dir.mkpath(QString::fromStdString(tempDataDir.string()));
-
-      std::string scheme = "file://";
-      tempTerraMAFolder = scheme + tempDataDir.string();
-      remover->addTemporaryFolder(tempTerraMAFolder);
-    }
-
-    return tempTerraMAFolder;
-}
-
