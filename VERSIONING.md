@@ -11,11 +11,9 @@ TerraMA2:
 Web Applications:
 - webapp/config/sample_instances/default.json
 - webapp/package.json
-- webapp/package-lock.json
 - webapp/locales/en_US.json
 - webapp/locales/es_ES.json
 - webapp/locales/pt_BR.json
-- webcomponents/package-lock.json
 - webcomponents/package.json
 - webmonitor/package.json
 - webmonitor/locales/en.json
@@ -28,7 +26,6 @@ Manual:
 - packages/debian-package/deb-helper.sh
 
 VMime
-- packages/debian-package/deb-vmime.sh
 - build/cmake/modules/FindVMime.cmake
 
 GTest
