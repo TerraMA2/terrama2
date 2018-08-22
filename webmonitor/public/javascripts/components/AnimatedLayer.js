@@ -1,8 +1,8 @@
 'use strict';
 
 define(
-  ['components/Layers', 'components/Utils', 'TerraMA2WebComponents'],
-  function(Layers, Utils, TerraMA2WebComponents) {
+  ['components/Utils', 'TerraMA2WebComponents'],
+  function(Utils, TerraMA2WebComponents) {
 
     // Initial date to start animation
     var memberInitialDate;
@@ -33,8 +33,8 @@ define(
     var arrowFinalLength = 4;
     // Current size of the animated arrows (wind data)
     var arrowCurrentLength = 0;
-    // Array with values to animate wind data 
-    var arrowLengthList = [0.5, 0.6, 0.7, 0.9, 1]; 
+    // Array with values to animate wind data
+    var arrowLengthList = [0.5, 0.6, 0.7, 0.9, 1];
     // Set layer info to animate
     var setLayerToAnimate = function(layer) {
       pause();
@@ -171,7 +171,7 @@ define(
     var setTime = function() {
       if (memberDateType == 'list')
         setListTime();
-      else 
+      else
         setCountinuousTime();
     };
 
@@ -179,6 +179,11 @@ define(
     var setListTime = function() {
       if(memberCurrentDate > memberFinalDate)
         memberCurrentDate = memberInitialDate;
+
+      // TODO: Review this import module
+      // Temporary Solution to Fix circular dependency
+      // This module must be redesigned in next release
+      const Layers = require('./components/Layers');
 
       memberLayer.dateInfo.initialDateIndex = memberCurrentDate;
       Layers.updateDateInfo(memberLayer.id, memberLayer.dateInfo);
@@ -197,8 +202,8 @@ define(
 
       TerraMA2WebComponents.MapDisplay.updateLayerLength(windLayers, arrowLengthList[arrowCurrentLength]);
       arrowCurrentLength++;
-    } 
-      
+    }
+
 
     // Set new layer time when date type is continuous
     var setCountinuousTime = function() {
@@ -256,7 +261,7 @@ define(
       if(setSizeArrowsTimer !== null){
         window.clearInterval(setSizeArrowsTimer);
         setSizeArrowsTimer = null;
-      }      
+      }
     };
 
     // Reset the animation
@@ -276,7 +281,7 @@ define(
     var showAnimationTools = function() {
       if($("#animate-tools").hasClass("hidden"))
         $("#animate-tools").removeClass("hidden");
-    
+
       if($("#pauseAnimation").hasClass("hidden"))
         $("#pauseAnimation").removeClass("hidden");
 
