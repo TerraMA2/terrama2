@@ -8,13 +8,13 @@
     "format": "CSV",
     "providers_type_list": ["FILE", "FTP", "HTTP", "HTTPS"],
     "metadata": {
-      "timestamp_property": "data_passagem",
+      "timestamp_property": "data_hora_gmt",
       "input_geometry_property": "geometria",
       "geometry_property": "geometria",
       "latitude_property": "latitude",
       "longitude_property": "longitude",
       "float_properties": "latitude,longitude",
-      "int_properties": "id_pais,id_estado,id_municipio,continente_id",
+      "int_properties": "id_0,id_1,id_2",
       "timezone": "UTM+00",
       "srid": "4326"
     },
