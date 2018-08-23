@@ -29,7 +29,8 @@ module.exports = function(sequelize, DataTypes) {
             if (result instanceof Array) {
               result.map(collector => collector.project_id = collector.dataValues.project_id = collector.DataSery.project_id);
             } else {
-              result.project_id = result.dataValues.project_id = result.DataSery.project_id;
+              if (result !== null)
+                result.project_id = result.dataValues.project_id = result.DataSery.project_id;
             }
           }
 

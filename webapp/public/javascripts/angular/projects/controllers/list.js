@@ -573,6 +573,10 @@ define(function() {
       $scope.interpolators = {};
 
       response.data.map(function(project, index) {
+        // TODO: Review how to handle swipe
+        // This directive disables swipe button visualization
+        project.active = null;
+
         if($scope.projectsCheckboxes[project.id] == undefined)
           $scope.projectsCheckboxes[project.id] = {
             fileName: project.name,
