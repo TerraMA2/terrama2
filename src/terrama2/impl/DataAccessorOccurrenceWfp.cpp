@@ -53,6 +53,8 @@
 //STL
 #include <limits>
 
+#include <boost/algorithm/string.hpp>
+
 terrama2::core::DataAccessorOccurrenceWfp::DataAccessorOccurrenceWfp(DataProviderPtr dataProvider, DataSeriesPtr dataSeries, const bool checkSemantics)
   : DataAccessor(dataProvider, dataSeries),
     DataAccessorOccurrence(dataProvider, dataSeries),
@@ -85,10 +87,14 @@ void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::s
 
   te::dt::DateTimeProperty* timestampProperty = new te::dt::DateTimeProperty(getTimestampPropertyName(dataSet), te::dt::TIME_INSTANT_TZ);
   te::gm::GeometryProperty* geomProperty = new te::gm::GeometryProperty(getGeometryPropertyName(dataSet), srid, te::gm::PointType);
-  std::string paisPropertyName("pais_id");
-  std::string biomaPropertyName("bioma_id");
-  te::dt::SimpleProperty* paisIdProperty = new te::dt::SimpleProperty(paisPropertyName, te::dt::INT32_TYPE);
-  te::dt::SimpleProperty* biomaIdProperty = new te::dt::SimpleProperty(biomaPropertyName, te::dt::INT32_TYPE);
+
+  std::vector<std::string> floatProperties;
+  auto floatPropertiesStr = getProperty(dataSet, dataSeries_, "float_properties");
+  boost::split(floatProperties, floatPropertiesStr, boost::is_any_of(","));
+
+  std::vector<std::string> intProperties;
+  auto intPropertiesStr = getProperty(dataSet, dataSeries_, "int_properties");
+  boost::split(intProperties, intPropertiesStr, boost::is_any_of(","));
 
   // Find the right column to adapt
   std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
@@ -100,8 +106,10 @@ void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::s
       // datetime column found
       converter->add(i, timestampProperty,
                      boost::bind(&terrama2::core::DataAccessorOccurrenceWfp::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet)));
+      continue;
     }
-    else if(property->getName() == getLatitudePropertyName(dataSet) || property->getName() == getLongitudePropertyName(dataSet))
+
+    if(property->getName() == getLatitudePropertyName(dataSet) || property->getName() == getLongitudePropertyName(dataSet))
     {
       // update latitude column index
       if(property->getName() == getLatitudePropertyName(dataSet))
@@ -111,35 +119,36 @@ void terrama2::core::DataAccessorOccurrenceWfp::adapt(DataSetPtr dataSet, std::s
       if(property->getName() == getLongitudePropertyName(dataSet))
         lonPos = i;
 
-      if(!isValidColumn(latPos) || !isValidColumn(lonPos))
-        continue;
+      if(isValidColumn(latPos) && isValidColumn(lonPos))
+      {
+        std::vector<size_t> latLonAttributes;
+        latLonAttributes.push_back(lonPos);
+        latLonAttributes.push_back(latPos);
 
+        converter->add(latLonAttributes, geomProperty, boost::bind(&terrama2::core::DataAccessorOccurrenceWfp::stringToPoint, this, _1, _2, _3, srid));
+      }
+    }
 
-      std::vector<size_t> latLonAttributes;
-      latLonAttributes.push_back(lonPos);
-      latLonAttributes.push_back(latPos);
+    // convert the numeric properties listed in the semantics
+    auto it = std::find(floatProperties.cbegin(), floatProperties.cend(), property->getName());
+    auto it2 = std::find(intProperties.cbegin(), intProperties.cend(), property->getName());
+    if(it != floatProperties.cend())
+    {
+      te::dt::SimpleProperty* numericProperty = new te::dt::SimpleProperty(property->getName(), te::dt::DOUBLE_TYPE);
 
-      converter->add(latLonAttributes, geomProperty, boost::bind(&terrama2::core::DataAccessorOccurrenceWfp::stringToPoint, this, _1, _2, _3, srid));
+      converter->add(i, numericProperty,
+                    boost::bind(&terrama2::core::DataAccessor::stringToDouble, this, _1, _2, _3));
     }
-    else if(property->getName() == "sat")
+    else if(it2 != intProperties.cend())
     {
-      // the only other columns is the satellite name
-      te::dt::Property* p = converter->getConvertee()->getProperty(i)->clone();
-      p->setName("satelite");
-      converter->add(i, p);
-    }
-    else if(property->getName() == paisPropertyName)
-    {
-      converter->add(i, paisIdProperty,
-                     boost::bind(&terrama2::core::DataAccessor::stringToInt, this, _1, _2, _3));
-    }
-    else if(property->getName() == biomaPropertyName)
-    {
-      converter->add(i, biomaIdProperty,
-                     boost::bind(&terrama2::core::DataAccessor::stringToInt, this, _1, _2, _3));
+      te::dt::SimpleProperty* numericProperty = new te::dt::SimpleProperty(property->getName(), te::dt::INT32_TYPE);
+
+      converter->add(i, numericProperty,
+                    boost::bind(&terrama2::core::DataAccessor::stringToInt, this, _1, _2, _3));
     }
     else
     {
+      // all other cases, keep the same property type
       converter->add(i, converter->getConvertee()->getProperty(i)->clone());
     }
   }
