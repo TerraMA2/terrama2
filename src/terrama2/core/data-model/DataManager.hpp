@@ -403,6 +403,17 @@ namespace terrama2
 
           \note Thread-safe.
         */
+        virtual bool hasProject(ProjectId id) const;
+
+        /*!
+          \brief Verify if a given DataProvider exist
+
+          \param id ID of the DataProvider
+
+          \pre The DataProvider must not have a terrama2::core::InvalidId.
+
+          \note Thread-safe.
+        */
         virtual bool hasDataProvider(const DataProviderId id) const;
 
         /*!
