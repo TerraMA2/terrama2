@@ -5017,7 +5017,7 @@ var DataManager = module.exports = {
             if(alert.AlertAttachment) {
               var alertAttachment = alert.AlertAttachment.get();
 
-              if(alert.View.ServiceInstance.ServiceMetadata) {
+              if(alert.View && alert.View.ServiceInstance.ServiceMetadata) {
                 for(var i = 0, serviceMetadataLength = alert.View.ServiceInstance.ServiceMetadata.length; i < serviceMetadataLength; i++) {
                   if(alert.View.ServiceInstance.ServiceMetadata[i].dataValues.key === "maps_server") {
                     alertAttachment.geoserverUri = alert.View.ServiceInstance.ServiceMetadata[i].dataValues.value;
