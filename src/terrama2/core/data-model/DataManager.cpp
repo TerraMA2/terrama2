@@ -395,6 +395,14 @@ terrama2::core::DataProviderPtr terrama2::core::DataManager::findDataProvider(co
   return it->second;
 }
 
+bool terrama2::core::DataManager::hasProject(ProjectId id) const
+{
+  std::lock_guard<std::recursive_mutex> lock(mtx_);
+
+  const auto& it = projects_.find(id);
+  return it != projects_.cend();
+}
+
 bool terrama2::core::DataManager::hasDataProvider(DataProviderId id) const
 {
   std::lock_guard<std::recursive_mutex> lock(mtx_);
@@ -470,7 +478,7 @@ void terrama2::core::DataManager::addJSon(const QJsonObject& obj)
   for(auto json : projects)
   {
     auto dataPtr = terrama2::core::fromProjectJson(json.toObject());
-    if(hasDataProvider(dataPtr->id))
+    if(hasProject(dataPtr->id))
       update(dataPtr);
     else
       add(dataPtr);
