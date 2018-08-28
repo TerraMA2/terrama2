@@ -24,7 +24,7 @@ define([], function() {
     }
 
     /**
-     * Helper to disable Lat Lat and Longitude field by key
+     * Helper to disable Latitude and Longitude field by key
      */
     function disableLatLongField(key) {
       return key.includes("latitude") || key.includes("longitude");
