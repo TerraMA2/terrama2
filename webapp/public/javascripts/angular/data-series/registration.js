@@ -23,6 +23,13 @@ define([], function() {
         .reduce((res, o) => Object.assign(res, o), {});
     }
 
+    /**
+     * Helper to disable Lat Lat and Longitude field by key
+     */
+    function disableLatLongField(key) {
+      return key.includes("latitude") || key.includes("longitude");
+    }
+
     $http.get(BASE_URL + "configuration/get-srids").then(function(sridsResult) {
       srids = sridsResult.data.srids;
     });
@@ -456,11 +463,13 @@ define([], function() {
           $scope.$broadcast("dcpOperation", { action: "addMany", dcps: dcps, storageData: true, reloadDataStore: false });
       };
 
-      $scope.setHtmlItems = function(dcp, key, alias, _id, type) {
-        if($scope.isBoolean(dcp[key]))
+      $scope.setHtmlItems = function(dcp, key, alias, _id, type, disabled) {
+        if($scope.isBoolean(dcp[key])) {
           dcp[key + '_html'] = "<span class=\"dcps-table-span\"><input type=\"checkbox\" ng-model=\"dcpsObject['" + alias + "']['" + key + "']\" ng-change=\"insertEditedDcp('" + _id + "')\"></span>";
-        else
-          dcp[key + '_html'] = "<span class=\"dcps-table-span\" editable-text=\"dcpsObject['" + alias + "']['" + key + "']\" onaftersave=\"insertEditedDcp('" + _id + "')\" onbeforesave=\"validateFieldEdition($data, '" + type + "', '" + alias + "', '" + key + "')\">{{ (dcpsObject['" + alias + "']['" + key + "'] === \"\" ? \"&nbsp;&nbsp;&nbsp;&nbsp;\" : dcpsObject['" + alias + "']['" + key + "']) }}</span>";
+        } else {
+          var html = (!disabled ? "editable-text=\"dcpsObject['" + alias + "']['" + key + "']\"" : "" );
+          dcp[key + '_html'] = "<span class=\"dcps-table-span\" " + html + "onaftersave=\"insertEditedDcp('" + _id + "')\" onbeforesave=\"validateFieldEdition($data, '" + type + "', '" + alias + "', '" + key + "')\">{{ (dcpsObject['" + alias + "']['" + key + "'] === \"\" ? \"&nbsp;&nbsp;&nbsp;&nbsp;\" : dcpsObject['" + alias + "']['" + key + "']) }}</span>";
+        }
 
         return dcp;
       };
@@ -678,14 +687,14 @@ define([], function() {
                   dcp[key + '_pattern'] = pattern;
                   dcp[key + '_titleMap'] = titleMap;
 
-                  dcp.projection = parseInt($scope.dataSeries.semantics.metadata.metadata.srid);
+                  dcp.projection = parseInt(dcp.projection || $scope.dataSeries.semantics.metadata.metadata.srid);
                   // Setting dcp as active
                   dcp.active = true;
 
                   if(dcp[key + '_titleMap'] !== undefined)
                     type = $scope.dataSeries.semantics.metadata.form[j].type;
 
-                  dcp = $scope.setHtmlItems(dcp, key, dcp.alias, dcp._id, type);
+                  dcp = $scope.setHtmlItems(dcp, key, dcp.alias, dcp._id, type, disableLatLongField(key));
                 }
 
                 var dcpCopy = Object.assign({}, dcp);
@@ -1779,7 +1788,7 @@ define([], function() {
                       var key = $scope.dataSeries.semantics.metadata.form[j].key;
                       var type = $scope.dataSeries.semantics.metadata.schema.properties[key].type;
 
-                      $scope.dcpsObject[newAlias] = $scope.setHtmlItems($scope.dcpsObject[newAlias], key, $scope.dcpsObject[newAlias].alias, $scope.dcpsObject[newAlias]._id, type);
+                      $scope.dcpsObject[newAlias] = $scope.setHtmlItems($scope.dcpsObject[newAlias], key, $scope.dcpsObject[newAlias].alias, $scope.dcpsObject[newAlias]._id, type, disableLatLongField(key));
                     }
 
                     $scope.dcpsObject[newAlias].removeButton = $scope.getRemoveButton(newAlias);
