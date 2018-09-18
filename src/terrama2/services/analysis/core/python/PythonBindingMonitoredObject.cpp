@@ -13,7 +13,7 @@
 #pragma GCC diagnostic ignored "-Wunused-local-typedef"
 
 // // Declaration needed for default parameter restriction
-BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceCount_overloads, terrama2::services::analysis::core::occurrence::zonal::count, 2, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceCount_overloads, terrama2::services::analysis::core::occurrence::zonal::count, 2, 6)
 
 BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceMin_overloads, terrama2::services::analysis::core::occurrence::zonal::min, 3, 5)
 
@@ -50,7 +50,7 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceIntervalVariance_overloads, terrama2::
 
 // Occurence aggreagation
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationCount_overloads, terrama2::services::analysis::core::occurrence::zonal::aggregation::count, 3, 5)
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationCount_overloads, terrama2::services::analysis::core::occurrence::zonal::aggregation::count, 3, 7)
 
 BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationMin_overloads, terrama2::services::analysis::core::occurrence::zonal::aggregation::min, 5, 7)
 
@@ -268,7 +268,7 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerOccurr
   scope occurrenceAggregationScope = occurrenceAggregationModule;
 
   def("count", terrama2::services::analysis::core::occurrence::zonal::aggregation::count,
-      occurrenceAggregationCount_overloads(args("dataSeriesName", "dateFilter", "aggregationBuffer", "buffer", "restriction"),
+      occurrenceAggregationCount_overloads(args("dataSeriesName", "dateFilter", "aggregationBuffer", "buffer", "restriction", "monitoredIdentifier", "additionalIdentifier"),
                                            "Count operator for occurrence aggregation"));
   def("min", terrama2::services::analysis::core::occurrence::zonal::aggregation::min,
       occurrenceAggregationMin_overloads(args("dataSeriesName", "dateFilter", "aggregationBuffer", "buffer", "restriction"), "Minimum operator for occurrence aggregation"));

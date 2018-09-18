@@ -53,10 +53,12 @@ namespace terrama2
             namespace aggregation
             {
               TMANALYSISEXPORT int count(const std::string& dataSeriesName,
-                        const std::string& dateFilter,
-                        terrama2::services::analysis::core::Buffer aggregationBuffer,
-                        terrama2::services::analysis::core::Buffer buffer = Buffer(),
-                        const std::string& restriction = "");
+                                         const std::string& dateFilter,
+                                         terrama2::services::analysis::core::Buffer aggregationBuffer,
+                                         terrama2::services::analysis::core::Buffer buffer = Buffer(),
+                                         const std::string& restriction = "",
+                                         const std::string& monitoredIdentifier = "",
+                                         const std::string& additionalIdentifier = "");
 
               /*!
                 \brief Calculates the maximum value of the attribute of occurrences in the monitored object area.

@@ -100,6 +100,9 @@ namespace terrama2
         virtual void addValueFilter(const terrama2::core::Filter& filter,
                                     std::string& conditions) const;
 
+        virtual void addConstraintFilter(const terrama2::core::Filter& filter,
+                                         std::vector<std::string>& whereConditions) const;
+
         virtual std::string addLastDatesFilter(terrama2::core::DataSetPtr dataSet,
                                         const std::string datetimeColumnName,
                                         const terrama2::core::Filter& filter,

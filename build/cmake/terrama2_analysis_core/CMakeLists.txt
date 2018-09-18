@@ -60,6 +60,10 @@ file(GLOB TERRAMA2_DCP_ZONAL_INFLUENCE_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/s
 file(GLOB TERRAMA2_OCCURRENCE_ZONAL_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/occurrence/zonal/*.cpp)
 file(GLOB TERRAMA2_OCCURRENCE_ZONAL_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/occurrence/zonal/*.hpp)
 
+#
+file(GLOB TERRAMA2_OCCURRENCE_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/occurrence/*.cpp)
+file(GLOB TERRAMA2_OCCURRENCE_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/occurrence/*.hpp)
+
 file(GLOB TERRAMA2_OCCURRENCE_ZONAL_AGRREGATION_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/occurrence/zonal/aggregation/*.cpp)
 file(GLOB TERRAMA2_OCCURRENCE_ZONAL_AGGREGATION_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/occurrence/zonal/aggregation/*.hpp)
 
@@ -132,6 +136,8 @@ source_group("Header Files\\dcp\\zonal\\history\\interval"  FILES ${TERRAMA2_DCP
 source_group("Source Files\\dcp\\zonal\\influence"  FILES ${TERRAMA2_DCP_ZONAL_INFLUENCE_SRC_FILES})
 source_group("Header Files\\dcp\\zonal\\influence"  FILES ${TERRAMA2_DCP_ZONAL_INFLUENCE_HDR_FILES})
 
+source_group("Source Files\\occurrence"  FILES ${TERRAMA2_OCCURRENCE_SRC_FILES})
+source_group("Header Files\\occurrence"  FILES ${TERRAMA2_OCCURRENCE_HDR_FILES})
 source_group("Source Files\\occurrence\\zonal"  FILES ${TERRAMA2_OCCURRENCE_ZONAL_SRC_FILES})
 source_group("Header Files\\occurrence\\zonal"  FILES ${TERRAMA2_OCCURRENCE_ZONAL_HDR_FILES})
 source_group("Source Files\\occurrence\\zonal\\aggregation"  FILES ${TERRAMA2_OCCURRENCE_ZONAL_AGRREGATION_SRC_FILES})
@@ -202,6 +208,9 @@ add_library(terrama2_analysis_core SHARED ${TERRAMA2_SRC_FILES}
                                           ${TERRAMA2_DCP_ZONAL_HISTORY_INTERVAL_HDR_FILES}
                                           ${TERRAMA2_DCP_ZONAL_INFLUENCE_SRC_FILES}
                                           ${TERRAMA2_DCP_ZONAL_INFLUENCE_HDR_FILES}
+
+                                          ${TERRAMA2_OCCURRENCE_SRC_FILES}
+                                          ${TERRAMA2_OCCURRENCE_HDR_FILES}
 
                                           ${TERRAMA2_OCCURRENCE_ZONAL_SRC_FILES}
                                           ${TERRAMA2_OCCURRENCE_ZONAL_HDR_FILES}

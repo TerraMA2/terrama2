@@ -70,7 +70,7 @@ namespace terrama2
                                 const std::string &dateFilterBegin, const std::string &dateFilterEnd,
                                 terrama2::services::analysis::core::Buffer aggregationBuffer, const std::string &attribute,
                                 terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
-                                const std::string &restriction);
+                                const std::string &restriction, const std::string& monitoredIdentifier = "", const std::string& additionalIdentifier = "");
 
             /*!
               \brief Calculates the count of occurrences in the monitored object.
@@ -84,7 +84,7 @@ namespace terrama2
             */
             TMANALYSISEXPORT double count(const std::string& dataSeriesName, const std::string& dateFilter,
                       terrama2::services::analysis::core::Buffer buffer = Buffer(),
-                      const std::string& restriction= "");
+                      const std::string& restriction= "", const std::string& monitoredIdentifier = "", const std::string& additionalIdentifier = "");
 
             /*!
               \brief Calculates the minimum value of the attribute of occurrences in the monitored object area.

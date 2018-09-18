@@ -44,6 +44,7 @@
 #include <QObject>
 
 //boost
+#include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
 std::string terrama2::core::DataAccessorPostGIS::whereConditions(terrama2::core::DataSetPtr dataSet,
@@ -53,6 +54,7 @@ std::string terrama2::core::DataAccessorPostGIS::whereConditions(terrama2::core:
   std::vector<std::string> whereConditions;
   addExtraConditions(dataSet, whereConditions);
   addDateTimeFilter(datetimeColumnName, filter, whereConditions);
+
   addGeometryFilter(dataSet, filter, whereConditions);
 
   std::string conditions;
@@ -87,6 +89,14 @@ void terrama2::core::DataAccessorPostGIS::addValueFilter(const terrama2::core::F
     else
       conditions = condition;
   }
+}
+
+void terrama2::core::DataAccessorPostGIS::addConstraintFilter(const terrama2::core::Filter& filter, std::vector<std::string>& whereConditions) const
+{
+  if(filter.monitoredIdentifier.empty())
+    return;
+
+  whereConditions.push_back(" t."+filter.monitoredIdentifier+" = u."+filter.additionalIdentifier);
 }
 
 terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(const std::string& uri, const terrama2::core::Filter& filter,
@@ -143,10 +153,24 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
   }
 
   std::string query = "SELECT ";
-  query+="* ";
-  query+= "FROM "+tableName+" AS t";
+  std::string groupByClause = "";
+
+  // When filter fields provided, use it to select. Otherwize, default all
+  if (filter.fields.empty())
+    query+="* ";
+  else
+    query += boost::algorithm::join(filter.fields, ", ");
+
+  query+= " FROM "+tableName+" AS t";
+
   query += whereConditions(dataSet, datetimeColumnName, filter);
 
+  if (!filter.monitoredIdentifier.empty())
+    groupByClause += " GROUP BY " + filter.monitoredIdentifier;
+
+  query += groupByClause;
+
+  std::cout << query << std::endl;
   //  TERRAMA2_LOG_DEBUG() << query;
 
   std::shared_ptr<te::da::DataSet> tempDataSet = transactor->query(query);
