@@ -92,7 +92,6 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
     if(context->hasError())
       return std::nan("");
 
-
     bool hasData = false;
 
     auto dataManagerPtr = context->getDataManager().lock();
@@ -124,9 +123,6 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
     if(!moGeom->isValid())
       return std::nan("");
 
-
-    auto monitoredValue = moDsContext->series.syncDataSet->getAsString(cache.index, monitoredIdentifier);
-
     //////////////////////////////////////////////////////////////////////////////////////
     // Save thread state and unlock python interpreter before entering multi-thread zone
     {
@@ -144,20 +140,32 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
         filter.discardAfter = context->getTimeFromString(dateFilterEnd);
         filter.byValue = restriction;
 
-        // When no summarization set, use geometry to filter
+        // Retrieve monitored value. Used in summarization
+        auto monitoredValue = moDsContext->series.syncDataSet->getAsString(cache.index, monitoredIdentifier);
+
+        /*
+         * When performing summarization, both modified and additional identifier must be
+         * supplied to skip filter by region.
+         */
         if (monitoredIdentifier.empty() && additionalIdentifier.empty())
           filter.region = geomResult;
         else
         {
+          auto monitoredDataSeries = dataManagerPtr->findDataSeries(moDsContext->series.dataSet->dataSeriesId);
+
+          filter.joinableTable = terrama2::core::getProperty(moDsContext->series.dataSet, monitoredDataSeries, "table_name");
+
+          // Make query fields
           std::vector<std::string> fields;
-          fields.push_back("count(*)");
-          fields.push_back(monitoredIdentifier);
+          // Retrieving operation for summarization
+
+          // TODO: Remove (*). Currently is only working with COUNT.
+          fields.push_back(operationAsString(statisticOperation)+ "(*)");
+          fields.push_back(filter.joinableTable + "." + monitoredIdentifier);
           filter.fields = std::move(fields);
+          filter.monitoredIdentifier = monitoredIdentifier;
+          filter.additionalIdentifier = additionalIdentifier;
         }
-
-        filter.monitoredIdentifier = monitoredIdentifier;
-        filter.additionalIdentifier = additionalIdentifier;
-
         auto dataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
         context->addDataSeries(dataSeries, filter, true);
 
@@ -171,7 +179,6 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
           {
             continue;
           }
-
 
           uint32_t countValues = 0;
           std::vector<double> values;
@@ -193,12 +200,9 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
              */
             if (!monitoredIdentifier.empty() && !additionalIdentifier.empty())
             {
-              // SELECT count(*), id_0 FROM focos_bdq_c2 WHERE data_hora_gmt::date >= '2018' AND satelite = '' GROUPY BY id_0
-
               // Allocate memory for indexes size
               values.reserve(syncDs->size());
 
-              std::cout << "SIZE: " << syncDs->size() << std::endl;
               for(uint32_t i = 0; i < syncDs->size(); ++i)
               {
                 auto additionalValue = syncDs->getAsString(i, additionalIdentifier);

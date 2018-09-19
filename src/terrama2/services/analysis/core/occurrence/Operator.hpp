@@ -1,14 +1,42 @@
+/*
+  Copyright (C) 2007 National Institute For Space Research (INPE) - Brazil.
+
+  This file is part of TerraMA2 - a free and open source computational
+  platform for analysis, monitoring, and alert of geo-environmental extremes.
+
+  TerraMA2 is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation, either version 3 of the License,
+  or (at your option) any later version.
+
+  TerraMA2 is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with TerraMA2. See LICENSE. If not, write to
+  TerraMA2 Team at <terrama2-team@dpi.inpe.br>.
+*/
+
+/*!
+  \file terrama2/services/analysis/core/occurrence/Operator.hpp
+
+  \brief Contains occurrence analysis operators (summarization).
+
+  \author Raphael Willian da Costa
+*/
+
+
 #ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_OCCURRENCE_OPERATOR_HPP__
 #define __TERRAMA2_SERVICES_ANALYSIS_CORE_OCCURRENCE_OPERATOR_HPP__
 
 
 // TerraMA2
-#include "../python/PythonInterpreter.hpp"
-#include "../Analysis.hpp"
+#include "../Config.hpp"
 
 // STL
 #include <string>
-
 
 namespace terrama2
 {
@@ -21,43 +49,23 @@ namespace terrama2
         namespace occurrence
         {
           /*!
-          \brief Calculates the all statistics of the attribute of occurrences in the monitored object area.
-
-          \param statisticOperation The statistic operation called by the script.
-          \param dataSeriesName DataSeries name.
-          \param buffer Buffer to be used in the monitored object.
-          \param dateFilterBegin Begin time filter for the data.
-          \param dateFilterEnd End time filter for the data.
-          \param attribute Name of the attribute to be used in statistic operator.
-          \param aggregationBuffer Buffer configuration to be used to aggregate occurrences in the same area.
-          \param restriction SQL restriction.
-          \return The result of the selected operation.
-        */
-          TMANALYSISEXPORT double operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
-                                               const std::string & dataSeriesName,
-                                               const std::string & dateFilterBegin,
-                                               const std::string & dateFilterEnd,
-                                               const std::string & attribute,
-                                               terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
-                                               const std::string& additionalIdentifier = "",
-                                               const std::string& monitoredIdentifier = "",
-                                               const std::string& restriction = "");
-
-          /*!
             \brief Calculates the count of occurrences in the monitored object.
 
+            This operation does not use Geometry as filter.
+
             \param dataSeriesName DataSeries name.
-            \param buffer Buffer to be used in the monitored object.
             \param dateFilter Time filter for the data.
+            \param monitoredIdentifier Monitored Identifier Attribute to join
+            \param additionalIdentifier Additional Indentifiere Attribute to join
             \param restriction SQL restriction.
 
             \return The number of occurrences in the monitored object.
           */
-          TMANALYSISEXPORT double count(const std::string& dataSeriesName,
-                                        const std::string& dateFilter,
-                                        const std::string& monitoredIdentifier = "",
-                                        const std::string& additionalIdentifier = "",
-                                        const std::string& restriction= "");
+          TMANALYSISEXPORT int count(const std::string& dataSeriesName,
+                                     const std::string& dateFilter,
+                                     const std::string& monitoredIdentifier,
+                                     const std::string& additionalIdentifier,
+                                     const std::string& restriction= "");
         }
       }
     }

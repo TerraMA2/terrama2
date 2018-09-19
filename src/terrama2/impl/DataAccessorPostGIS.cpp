@@ -57,6 +57,8 @@ std::string terrama2::core::DataAccessorPostGIS::whereConditions(terrama2::core:
 
   addGeometryFilter(dataSet, filter, whereConditions);
 
+  addConstraintFilter(filter, whereConditions);
+
   std::string conditions;
   if(!whereConditions.empty())
   {
@@ -93,10 +95,10 @@ void terrama2::core::DataAccessorPostGIS::addValueFilter(const terrama2::core::F
 
 void terrama2::core::DataAccessorPostGIS::addConstraintFilter(const terrama2::core::Filter& filter, std::vector<std::string>& whereConditions) const
 {
-  if(filter.monitoredIdentifier.empty())
+  if(filter.joinableTable.empty())
     return;
 
-  whereConditions.push_back(" t."+filter.monitoredIdentifier+" = u."+filter.additionalIdentifier);
+  whereConditions.push_back(filter.joinableTable + "."+filter.monitoredIdentifier+" = t." + filter.additionalIdentifier);
 }
 
 terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(const std::string& uri, const terrama2::core::Filter& filter,
@@ -153,7 +155,6 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
   }
 
   std::string query = "SELECT ";
-  std::string groupByClause = "";
 
   // When filter fields provided, use it to select. Otherwize, default all
   if (filter.fields.empty())
@@ -163,15 +164,19 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
 
   query+= " FROM "+tableName+" AS t";
 
+  // Check table join
+  if (!filter.joinableTable.empty())
+  {
+    query += ", " + filter.joinableTable;
+  }
+
   query += whereConditions(dataSet, datetimeColumnName, filter);
 
+  // When monitored identifier supplied, add GROUP BY clause
   if (!filter.monitoredIdentifier.empty())
-    groupByClause += " GROUP BY " + filter.monitoredIdentifier;
+    query += " GROUP BY " + filter.joinableTable + "." + filter.monitoredIdentifier;
 
-  query += groupByClause;
-
-  std::cout << query << std::endl;
-  //  TERRAMA2_LOG_DEBUG() << query;
+//  TERRAMA2_LOG_DEBUG() << query;
 
   std::shared_ptr<te::da::DataSet> tempDataSet = transactor->query(query);
 
