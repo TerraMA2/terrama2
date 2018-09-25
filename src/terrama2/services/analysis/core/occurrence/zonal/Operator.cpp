@@ -140,15 +140,14 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
         filter.discardAfter = context->getTimeFromString(dateFilterEnd);
         filter.byValue = restriction;
 
-        // Retrieve monitored value. Used in summarization
-        auto monitoredValue = moDsContext->series.syncDataSet->getAsString(cache.index, monitoredIdentifier);
-
         /*
          * When performing summarization, both modified and additional identifier must be
          * supplied to skip filter by region.
          */
         if (monitoredIdentifier.empty() && additionalIdentifier.empty())
+        {
           filter.region = geomResult;
+        }
         else
         {
           auto monitoredDataSeries = dataManagerPtr->findDataSeries(moDsContext->series.dataSet->dataSeriesId);
@@ -202,6 +201,9 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
             {
               // Allocate memory for indexes size
               values.reserve(syncDs->size());
+
+              // Retrieve monitored value. Used in summarization
+              auto monitoredValue = moDsContext->series.syncDataSet->getAsString(cache.index, monitoredIdentifier);
 
               for(uint32_t i = 0; i < syncDs->size(); ++i)
               {

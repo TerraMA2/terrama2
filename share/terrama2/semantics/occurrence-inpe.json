@@ -14,14 +14,14 @@
       "latitude_property": "latitude",
       "longitude_property": "longitude",
       "float_properties": "latitude,longitude",
-      "int_properties": "id_0,id_1,id_2",
+      "int_properties": "id_0,id_1,id_2,bioma_id",
       "timezone": "UTM+00",
       "srid": "4326"
     },
     "collector": true,
     "gui": {
       "schema": {
-        "properties": {          
+        "properties": {
           "mask": {
             "type": "string",
             "title": "Mask"
