@@ -7,8 +7,26 @@ var Exceptions = require("./Exceptions");
 var Form = require("./Enums").Form;
 var FormField = Form.Field;
 var UriPattern = require("./Enums").Uri;
-var Utils = require("./Utils");
+const isString = require('./Utils').isString;
+const logger = require('./Logger');
 
+/**
+ * Parse FTP directory and retrieves content structure
+ *
+ * @throws Error could not parse file correctly
+ * @param {string} fileList File paths
+ */
+function parseField(file) {
+  const artifacts = file.split(' ');
+
+  // Retrieve permission mode
+  const permission = artifacts[0];
+
+  return {
+    name: artifacts[artifacts.length - 1],
+    type: permission[0]
+  };
+}
 
 var FtpRequest = function(params) {
   AbstractRequest.apply(this, arguments);
@@ -50,35 +68,53 @@ FtpRequest.prototype.request = function() {
           return reject(error);
         } else {
           if(self.params.list) {
-            var items = [];
+            try {
+              var items = [];
 
-            list = list.filter(function(a) { return a.name.indexOf('/') === -1 && a.name.indexOf('\\') === -1 });
+              /**
+               * Checking if the output is array of string paths
+               *
+               * It is important since the FTP provider may use different configurations to list directory.
+               * Sometimes, got string or object.
+               */
 
-            if(self.params[self.syntax().PATHNAME] == self.params.basePath) {
-              var lastChar = self.params[self.syntax().PATHNAME].substr(self.params[self.syntax().PATHNAME].length - 1);
-              self.params[self.syntax().PATHNAME] = (lastChar == '/' ? self.params[self.syntax().PATHNAME].slice(0, -1) : self.params[self.syntax().PATHNAME]);
+              list = list.map(elm => {
+                if (isString(elm))
+                  return parseField(elm);
+                if (elm.name.indexOf('/') === -1 && elm.name.indexOf('\\') === -1)
+                  return elm;
+                return {};
+              });
+
+              if(self.params[self.syntax().PATHNAME] == self.params.basePath) {
+                var lastChar = self.params[self.syntax().PATHNAME].substr(self.params[self.syntax().PATHNAME].length - 1);
+                self.params[self.syntax().PATHNAME] = (lastChar == '/' ? self.params[self.syntax().PATHNAME].slice(0, -1) : self.params[self.syntax().PATHNAME]);
+              }
+
+              for(var i = 0, listLength = list.length; i < listLength; i++) {
+                if(list[i].type == 'd' && list[i].name.charAt(0) != '.')
+                  items.push({
+                    name: list[i].name,
+                    fullPath: self.params[self.syntax().PATHNAME] + '/' + list[i].name,
+                    children: [],
+                    childrenVisible: false
+                  });
+              }
+
+              items.sort(function(a, b) {
+                if(a.name < b.name) return -1;
+                if(a.name > b.name) return 1;
+                return 0;
+              });
+
+              client.end();
+              return resolve({ list: items });
+            } catch (error) {
+              logger.error(`An unexpected error occurred while list FTP ${host}: ${error}`);
+              // Close connection
+              client.end();
+              return reject(error);
             }
-
-            for(var i = 0, listLength = list.length; i < listLength; i++) {
-              if(list[i].type == 'd' && list[i].name.charAt(0) != '.')
-                items.push({
-                  name: list[i].name,
-                  fullPath: self.params[self.syntax().PATHNAME] + '/' + list[i].name,
-                  children: [],
-                  childrenVisible: false
-                });
-            }
-
-            items.sort(function(a, b) {
-              if(a.name < b.name) return -1;
-              if(a.name > b.name) return 1;
-              return 0;
-            });
-
-            client.end();
-            return resolve({
-              list: items
-            });
           } else {
             client.end();
             return resolve();
@@ -89,7 +125,6 @@ FtpRequest.prototype.request = function() {
 
     client.on('error', function(err) {
       var error;
-      var syntax = self.syntax();
       switch (err.code) {
         case "ENOTFOUND":
         case 421:
