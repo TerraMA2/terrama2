@@ -50,7 +50,7 @@ var Exportation = function(io) {
       options.TableName = json.table;
 
       // Remove special chars
-      const nomalizedFileNAme = json.fileName.replace(/[^a-zA-Z0-9]/g,'_');
+      const normalizedFileName = json.fileName.replace(/[^a-zA-Z0-9]/g,'_');
 
       if(json.dateTimeField !== undefined && json.dateTimeFrom !== undefined && json.dateTimeTo !== undefined) {
         options.dateTimeField = json.dateTimeField;
@@ -59,14 +59,14 @@ var Exportation = function(io) {
 
         var dataTimeFrom = json.dateTimeFrom.split(' ');
         var dataTimeTo = json.dateTimeTo.split(' ');
-        var fileName = nomalizedFileNAme + '.' + dataTimeFrom[0] + '.' + dataTimeTo[0];
+        var fileName = normalizedFileName + '.' + dataTimeFrom[0] + '.' + dataTimeTo[0];
       } else if(json.dateTimeField !== undefined && json.date !== undefined) {
         options.dateTimeField = json.dateTimeField;
         options.date = json.date;
 
-        var fileName = nomalizedFileNAme + '.' + json.date;
+        var fileName = normalizedFileName + '.' + json.date;
       } else {
-        var fileName = nomalizedFileNAme;
+        var fileName = normalizedFileName;
       }
 
       var separator = (options.fieldSeparator !== undefined && options.fieldSeparator == "semicolon" ? "SEMICOLON" : "COMMA");
