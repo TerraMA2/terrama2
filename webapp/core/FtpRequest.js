@@ -75,7 +75,7 @@ FtpRequest.prototype.request = function() {
                * Checking if the output is array of string paths
                *
                * It is important since the FTP provider may use different configurations to list directory.
-               * In this way, the FTP client handle it as string.
+               * Sometimes, got string or object.
                */
 
               list = list.map(elm => {
