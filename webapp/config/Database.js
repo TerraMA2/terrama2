@@ -17,7 +17,7 @@ var sequelize = null;
  * In other words, it already handles error code for "Exists" to skip and resolve promise
  *
  * @param {string} query Query statement
- * @param {pg.Client} client
+ * @param {pg.Client} client PostgreSQL Client
  */
 function executeQuery(query, client) {
   return new Promise((resolve, reject) => {
@@ -55,6 +55,25 @@ function exists(query, client) {
 
 /**
  * It is a TerraMA2 Database initialization module.
+ *
+ * Tries to prepare an environment for TerraMA², creating the databases and configure extensions.
+ *
+ * This module is used by DataManager in order to load tables and defaults rows in database.
+ *
+ * Whenever initialize database, remember to call .finalize in order to close connections properly
+ *
+ * @example
+ *
+ * const database = require('./config/Database');
+ *
+ * database.init()
+ *   .then(orm => {
+ *     // use orm directly
+ *
+ *     // close database connections (promise)
+ *     database.finalize()
+ *   })
+ *   .catch(err => console.error(err))
  *
  * @class Database
  */
@@ -161,7 +180,7 @@ class Database {
       /**
        * Tries to create Schema and Extension for TerraMA²
        *
-       * @param {Connection} client PG client
+       * @param {pg.Client} client PG client
        * @returns Promise<Sequelize>
        */
       const createStructures = async client => {
