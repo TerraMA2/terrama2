@@ -100,6 +100,8 @@ process.on('SIGINT', function () {
     var _closeServer = function () {
       server.close(function () {
         logger.info("TerraMA2 finalized");
+
+        process.exit(0);
       });
 
       for (var key in connections)

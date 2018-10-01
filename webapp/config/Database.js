@@ -1,12 +1,9 @@
-var Application = require("./../core/Application");
-var Promise = require('./../core/Promise');
-var pg = require('pg');
-var util = require('util');
-var fs = require('fs');
-var path = require('path');
-var Sequelize = require('./Sequelize');
-var Connection = require("sequelize").Connection;
-var logger = require("./../core/Logger");
+const pg = require('pg');
+const fs = require('fs');
+const Application = require("./../core/Application");
+const logger = require('./../core/Logger');
+const Promise = require('./../core/Promise');
+const Sequelize = require('./Sequelize');
 
 /**
  * @type {Connection}
@@ -14,141 +11,226 @@ var logger = require("./../core/Logger");
 var sequelize = null;
 
 /**
+ * Execute query on pg client.
+ *
+ * This method is used only in TerraMA² startup to create database, schema and extension.
+ * In other words, it already handles error code for "Exists" to skip and resolve promise
+ *
+ * @param {string} query Query statement
+ * @param {pg.Client} client PostgreSQL Client
+ */
+function executeQuery(query, client) {
+  return new Promise((resolve, reject) => {
+    if (!client)
+      return reject(new Error("Database client is closed."));
+
+    client.query(query, (err, result) => {
+      if (!err)
+        return resolve(result)
+
+      switch(err.code) {
+        // When already exists, return true
+        case '42P06':
+          return resolve(result);
+        default:
+          return reject(err);
+      }
+    });
+  });
+}
+
+/**
+ * Utility function to check if query returns result set.
+ *
+ * @param {string} query SQL Query statement
+ * @param {pg.Client} client PostgreSQL client
+ * @returns {Promise<boolean>}
+ */
+function exists(query, client) {
+  return executeQuery(query, client)
+    .then(found => (
+      Promise.resolve(found.rows.length !== 0)
+    ));
+}
+
+/**
  * It is a TerraMA2 Database initialization module.
- * 
+ *
+ * Tries to prepare an environment for TerraMA², creating the databases and configure extensions.
+ *
+ * This module is used by DataManager in order to load tables and defaults rows in database.
+ *
+ * Whenever initialize database, remember to call .finalize in order to close connections properly
+ *
+ * @example
+ *
+ * const database = require('./config/Database');
+ *
+ * database.init()
+ *   .then(orm => {
+ *     // use orm directly
+ *
+ *     // close database connections (promise)
+ *     database.finalize()
+ *   })
+ *   .catch(err => console.error(err))
+ *
  * @class Database
  */
-var Database = function(pathToConfig) {
-  if (pathToConfig === undefined || !pathToConfig) {
-    pathToConfig = path.join(__dirname, '/instances/default.json');
+class Database {
+  constructor() {
+    /**
+     * It defines a current context key
+     *
+     * @type {string}
+     */
+    this.currentContext = "default";
   }
 
   /**
-   * It defines a current context key
-   * 
-   * @type {string}
+   * It retrieves if orm is already initialized
+   *
+   * @returns {boolean}
    */
-  this.currentContext = "default";
-};
+  isInitialized() {
+    return sequelize !== null;
+  }
 
-/**
- * It retrieves if orm is already initialized
- * 
- * @returns {boolean}
- */
-Database.prototype.isInitialized = function() {
-  return sequelize !== null;
-};
+  /**
+   * It retrieves a orm instance
+   *
+   * @returns {Connection}
+   */
+  getORM() {
+    return sequelize;
+  };
 
-/**
- * It retrieves a orm instance
- * 
- * @returns {Connection}
- */
-Database.prototype.getORM = function() {
-  return sequelize;
-};
+  /**
+   * Tries to connect to PostgreSQL
+   *
+   * @param {string} uri URI connection
+   * @returns Promise<Connection>
+   */
+  connect(uri) {
+    return new Promise((resolve, reject) => (
+      pg.connect(uri, (err, client, done) => {
+        this.client = client;
+        this.done = done;
 
-/**
- * It initializes database, creating database, schema and postgis support. Once prepared, it retrieves a ORM instance
- *    
- * @param {function} configFile - Optional db configuration file to initialize de Postgres 
- * @returns {Promise<Connection>}
- */
-Database.prototype.init = function(configFile) {
-  var self = this;
+        if (err)
+          reject(err)
+        else
+          resolve(client)
+      })
+    ));
+  }
 
-  return new Promise(function(resolve, reject) {
-    if (self.isInitialized()) {
-      return resolve(sequelize);
-    }
-    var currentContext;
-    if (configFile){
-      try {
-        currentContext = JSON.parse(fs.readFileSync(configFile, "utf-8"));
-      } catch(err){
-        console.log(err.message);
-      }
-    } else {
-      currentContext = Application.getContextConfig();
-    }
-
-    /**
-     * Current database configuration context
-     * 
-     * @type {Object}
-     */
-    var contextConfig = currentContext.db;
-
-    var schema = contextConfig.define.schema;
-    var databaseName = contextConfig.database;
-    var baseUri = util.format("postgres://%s:%s@%s", contextConfig.username, contextConfig.password, contextConfig.host);
-
-    if (contextConfig.port) {
-      baseUri += ":" + contextConfig.port;
-    }
-
-    var uri = baseUri;
-
-    uri += "/postgres";
-
-    pg.connect(uri, function(err, client, done) {
-      if (err) {
-        return reject(err);
+  /**
+   * It closes database orm connection
+   *
+   * @returns {Promise}
+   */
+  finalize() {
+    return new Promise(resolve => {
+      if (this.isInitialized()) {
+        sequelize.close();
       }
 
-      var databaseQuery = util.format("CREATE DATABASE %s", databaseName);
-
-      var _createSchema = function() {
-        pg.connect(baseUri + "/" + databaseName, function(err, cli, dbDone) {
-          if (!schema || schema === "") {
-            dbDone();
-            return resolve(sequelize);
-          }
-          var query = util.format("CREATE SCHEMA %s", schema);
-          cli.query(query, function(err) {
-            if (err && err.code !== "42P06") { // 42P06 -> Already exists
-              return reject(err);
-            }
-
-            cli.query("CREATE EXTENSION postgis", function(err) {
-              sequelize = new Sequelize(contextConfig);
-              cli.end();
-              resolve(sequelize);
-            });
-          });
-        });
-      };
-
-      client.query(databaseQuery, function(err) {
-        if (err) {
-          if (err.code === "42P04") {
-            logger.debug(err.toString());
-          } else {
-            logger.warn(err);
-          }
-        }
-        client.end();
-        _createSchema();
-      });
+      return resolve();
     });
-  });
-};
+  };
 
-/**
- * It closes database orm connection
- * 
- * @returns {Promise}
- */
-Database.prototype.finalize = function() {
-  var self = this;
-  return new Promise(function(resolve, reject) {
-    if (self.isInitialized()) {
-      sequelize.close();
-    }
+  /**
+   * It initializes database, creating database, schema and postgis support. Once prepared, it retrieves a ORM instance
+   *
+   * @param {function} configFile - Optional db configuration file to initialize de Postgres
+   * @returns {Promise<Connection>}
+   */
+  init(configFile) {
+    return new Promise((resolve, reject) => {
+      if (this.isInitialized())
+        return resolve(sequelize);
 
-    return resolve();
-  });
-};
+      var currentContext;
+      if (configFile){
+        try {
+          currentContext = JSON.parse(fs.readFileSync(configFile, "utf-8"));
+        } catch(err){
+          logger.warn(`Could not read ${configFile} while initializing database: ${err.message}`);
+        }
+      } else {
+        currentContext = Application.getContextConfig();
+      }
+
+      /**
+       * Current database configuration context
+       *
+       * @type {Object}
+       */
+      var contextConfig = currentContext.db;
+
+      var schema = contextConfig.define.schema;
+      var databaseName = contextConfig.database;
+      var uri = `postgres://${contextConfig.username}:${contextConfig.password}@${contextConfig.host}`;
+
+      if (contextConfig.port) {
+        uri += ":" + contextConfig.port;
+      }
+
+      /**
+       * Tries to create Schema and Extension for TerraMA²
+       *
+       * @param {pg.Client} client PG client
+       * @returns Promise<Sequelize>
+       */
+      const createStructures = async client => {
+        try {
+          // First of all, we need check if schema already exists
+          const foundSchema = await exists(`SELECT schema_name FROM information_schema.schemata WHERE schema_name = '${schema}'`, client);
+
+          // When not found, tries to create. Remember that user must have right permission
+          if (!foundSchema) {
+            await executeQuery(`CREATE SCHEMA ${schema}`, client);
+          }
+
+          // Same for extension that requires superuser rights
+          const foundExtension = await exists(`SELECT extname FROM pg_extension WHERE extname = 'postgis'`, client);
+
+          if (!foundExtension) {
+            await executeQuery(`CREATE EXTENSION postgis`, client);
+          }
+
+          // Set sequelize db config
+          sequelize = new Sequelize(contextConfig);
+
+          client.end();
+          return resolve(sequelize);
+        } catch (err) {
+          client.end();
+          return reject(err);
+        }
+      }
+
+      // Tries to connect real database
+      return this.connect(uri + "/" + databaseName)
+        // On success, just proceed and create schema
+        .then(client => createStructures(client))
+
+        // On error, tries to connect to PostgreSQL to create database manually
+        .catch(err => {
+          // When code is related to pg_hba.conf, stop promise chain.
+          if (err.code === '28000')
+            return reject(err);
+
+          logger.warn(`Could not connect to database ${databaseName}. Is it exists?\nTrying connect to database "postgres" in order to create database ${databaseName}...`)
+
+          return this.connect(uri + "/postgres")
+            .then(() => executeQuery(`CREATE DATABASE ${databaseName}`, this.client))
+            .then(() => createStructures(this.client))
+            .catch(error => reject(error));
+        });
+    });
+  }
+}
 
 module.exports = new Database();
