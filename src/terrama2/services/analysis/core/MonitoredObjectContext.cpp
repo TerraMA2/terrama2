@@ -311,6 +311,11 @@ void terrama2::services::analysis::core::MonitoredObjectContext::addDataSeries(t
     {
       for(std::size_t i = 0; i < series.syncDataSet->size(); ++i)
       {
+        // This check is necessary to validate if geometry is defined.
+        // Since we are working with summarization, it is not retrieve
+        // a geometry property for performance issues.
+        if (series.syncDataSet->isNull(i, geomPropertyPosition))
+          continue;
 
         auto geom = series.syncDataSet->getGeometry(i, geomPropertyPosition);
         dataSeriesContext->rtree.insert(*geom->getMBR(), i);
