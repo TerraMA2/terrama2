@@ -90,7 +90,7 @@ var Exportation = function() {
 
         var database = (uriObject.database.charAt(0) === '/' ? uriObject.database.substr(1) : uriObject.database);
 
-        var connectionString = "psql -h " + uriObject.host + " -d " + database + " -U " + uriObject.user;
+        var connectionString = `psql -h ${uriObject.host} -d ${database} -U ${uriObject.user} -p ${uriObject.port}`;
         var exportPassword = "export PGPASSWORD='" + uriObject.password + "';";
 
         return resolve({
@@ -140,8 +140,11 @@ var Exportation = function() {
           client.query("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_name = $1;", [tableName], function(err, result) {
             client.end();
 
-            if(err) return reject(err.toString());
-            else return resolve(result);
+            if(err) {
+              return reject(err.toString())
+            }
+
+            return resolve(result.rows.length !== 0);
           });
         });
       }).catch(function(err) {

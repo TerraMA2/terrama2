@@ -10,31 +10,21 @@
  * @property {object} memberPath - 'path' module.
  * @property {object} memberExportation - 'Exportation' model.
  * @property {object} memberUnzip - 'unzip' module.
- * @property {object} memberExec - Exec function.
- * @property {object} memberExecSync - Exec function sync.
- * @property {object} memberSpawn - Spawn function.
  * @property {object} memberUtils - 'Utils' model.
  */
-var ImportStaticFiles = function(app) {
-
+const ImportStaticFiles = (/*app*/) => {
   // 'fs' module
-  var memberFs = require('fs');
+  const memberFs = require('fs');
   // 'path' module
-  var memberPath = require('path');
-  // 'Exportation' model
-  var memberExportation = new (require('../../core/Exportation.js'))();
+  const memberPath = require('path');
   // 'DataManager' module
-  var memberDataManager = require('../../core/DataManager.js');
-  // 'unzip' module
-  var memberUnzip = require('unzip2');
-  // Exec function
-  var memberExec = require('child_process').exec;
-  // Exec function sync
-  var memberExecSync = require('child_process').execSync;
-  // Spawn function
-  var memberSpawn = require('child_process').spawn;
+  const memberDataManager = require('../../core/DataManager.js');
+  // 'Exportation' model
+  const memberExportation = new (require('../../core/Exportation.js'))();
   // 'Utils' model
-  var memberUtils = require('../../core/Utils.js');
+  const memberUtils = require('../../core/Utils.js');
+
+  const ShapeImporter = require('./../../core/ShapeImporter');
 
   /**
    * Processes the request and returns a response.
@@ -65,111 +55,35 @@ var ImportStaticFiles = function(app) {
         else {
           var path = memberPath.join(__dirname, '../../tmp/' + filesFolder + '/' + request.files.file.name);
 
-          memberFs.writeFile(path, data, function(err) {
+          memberFs.writeFile(path, data, async err => {
             if(err)
               return sendResponse(err.toString(), folderPath);
             else {
               try {
-                memberFs.createReadStream(path).pipe(memberUnzip.Extract({ path: folderPath })).on('close', function() {
-                  var files = memberFs.readdirSync(folderPath);
-                  var shpName = null;
-                  var shpCount = 0;
-                  var shpError = null;
+                // Retrieve file information such size, permissions, etc.
+                const fileProperties = memberFs.lstatSync(path);
 
-                  for(var i = 0, filesLength = files.length; i < filesLength; i++) {
-                    var filename = memberPath.join(folderPath, files[i]);
-                    var stat = memberFs.lstatSync(filename);
+                // Check file size. TODO: Remove it, since the it should be validated on header parsing
+                if(!fileProperties.isDirectory() && (fileProperties.size / 1048576) > 300) {
+                  return sendResponse('File is too large', path);
+                }
 
-                    if(!stat.isDirectory() && memberPath.extname(filename) !== ".zip" && (stat.size / 1048576) > 300) {
-                      shpError = "File is too large!";
-                      break;
-                    }
+                const importer = new ShapeImporter(folderPath, request.body.srid, request.body.encoding);
+                importer.unzip(path);
 
-                    if(!stat.isDirectory() && memberPath.extname(filename)  === ".shp") {
-                      shpName = filename;
-                      shpCount++;
-                    };
+                if(request.body.semantics === 'STATIC_DATA-postgis') {
+                  await importer.toDatabase(request.body.tableName, request.body.dataProviderId);
+                } else {
+                  const mask = request.body.mask.split("\\").join("/");
+
+                  if(memberPath.extname(mask) !== ".shp") {
+                    return sendResponse("Invalid file name!", folderPath);
                   }
 
-                  if(shpError !== null) {
-                    return sendResponse(shpError, folderPath);
-                  } else if(shpName !== null) {
-                    if(shpCount === 1) {
-                      if(request.body.semantics === 'STATIC_DATA-postgis') {
-                        memberExportation.getPsqlString(request.body.dataProviderId).then(function(connectionString) {
-                          memberExportation.tableExists(request.body.tableName, request.body.dataProviderId).then(function(resultTable) {
-                            if(resultTable.rowCount > 0 && resultTable.rows[0].table_name == request.body.tableName) {
-                              return sendResponse("Table already exists!", folderPath);
-                            } else {
-                              memberExec(connectionString.exportPassword + memberExportation.shp2pgsql() + " -I -s " + request.body.srid + " -W \"" + request.body.encoding + "\" " + shpName + " " + request.body.tableName + " | " + connectionString.connectionString, function(commandErr, commandOut, commandCode) {
-                                if(commandErr)
-                                  return sendResponse(commandErr.toString(), folderPath);
+                  await importer.toDataProvider(request.body.dataProviderId, mask);
+                }
 
-                                memberExportation.tableExists(request.body.tableName, request.body.dataProviderId).then(function(resultTable) {
-                                  if(resultTable.rowCount > 0 && resultTable.rows[0].table_name == request.body.tableName)
-                                    return sendResponse(null, folderPath);
-                                  else
-                                    return sendResponse(commandCode, folderPath);
-                                }).catch(function(err) {
-                                  return sendResponse(err.toString(), folderPath);
-                                });
-                              });
-                            }
-                          }).catch(function(err) {
-                            return sendResponse(err.toString(), folderPath);
-                          });
-                        }).catch(function(err) {
-                          return sendResponse(err.toString(), folderPath);
-                        });
-                      } else {
-                        var mask = request.body.mask.split("\\").join("/");
-
-                        if(memberPath.extname(mask) === ".shp") {
-                          memberDataManager.getDataProvider({ id: request.body.dataProviderId }).then(function(dataProvider) {
-                            var dataProviderPath = dataProvider.uri.replace("file://", "");
-
-                            if(memberFs.existsSync(dataProviderPath)) {
-                              var finalFilePath = (dataProviderPath + "/" + mask).split("//").join("/");
-
-                              if(!memberFs.existsSync(finalFilePath)) {
-                                var maskArray = mask.split("/");
-
-                                if(maskArray.length > 1)
-                                  var pathCreationResult = memberExportation.createPathToFile(dataProviderPath, maskArray);
-                                else
-                                  var pathCreationResult = {
-                                    error: null,
-                                    createdPath: dataProviderPath
-                                  };
-
-                                if(!pathCreationResult.error) {
-                                  var createdPath = pathCreationResult.createdPath;
-                                  var newFilename = maskArray[maskArray.length - 1].replace(memberPath.extname(maskArray[maskArray.length - 1]), "");
-
-                                  memberExportation.copyShpFiles(folderPath, createdPath, newFilename);
-
-                                  return sendResponse(null, folderPath);
-                                } else {
-                                  return sendResponse(pathCreationResult.error, folderPath);
-                                }
-                              } else {
-                                return sendResponse("File already exists!", folderPath);
-                              }
-                            } else {
-                              return sendResponse("Invalid data provider path!", folderPath);
-                            }
-                          });
-                        } else {
-                          return sendResponse("Invalid file name!", folderPath);
-                        }
-                      }
-                    } else {
-                      return sendResponse("More than one shapefile found!", folderPath);
-                    }
-                  } else {
-                    return sendResponse("No shapefile found!", folderPath);
-                  }
-                });
+                return sendResponse(null, folderPath);
               } catch(err) {
                 return sendResponse(err.toString(), folderPath);
               }
