@@ -106,7 +106,7 @@ class Database {
   };
 
   /**
-   * Tries to connect to PostgreSQL
+   * Tries to connect to PostgreSQL and retrieves a client executor
    *
    * @param {string} uri URI connection
    * @returns Promise<Connection>
@@ -211,22 +211,37 @@ class Database {
         }
       }
 
-      // Tries to connect real database
-      return this.connect(uri + "/" + databaseName)
-        // On success, just proceed and create schema
-        .then(client => createStructures(client))
+      /**
+       * Wrap connection method in order to create data structures
+       *
+       * @param {string} uri String URI to the database
+       * @returns {Promise<Sequelize>}
+       */
+      const wrapConnect = () => {
+        return this.connect(`${uri}/${databaseName}`)
+          // On success, just proceed and create schema
+          .then(client => createStructures(client))
+      };
 
+      // Tries to connect real database and proceed with data structures creation
+      return wrapConnect()
         // On error, tries to connect to PostgreSQL to create database manually
         .catch(err => {
           // When code is related to pg_hba.conf, stop promise chain.
-          if (err.code === '28000')
+          if (err.code === '28000') {
             return reject(err);
+          }
 
           logger.warn(`Could not connect to database ${databaseName}. Is it exists?\nTrying connect to database "postgres" in order to create database ${databaseName}...`)
 
           return this.connect(uri + "/postgres")
             .then(() => executeQuery(`CREATE DATABASE ${databaseName}`, this.client))
-            .then(() => createStructures(this.client))
+            .then(() => {
+              // Close channel with Postgres
+              this.client.end();
+              // Reconnect to the database provided
+              return wrapConnect();
+            })
             .catch(error => reject(error));
         });
     });
