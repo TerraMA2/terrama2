@@ -88,6 +88,10 @@ namespace terrama2
       std::string byValue; //! Filter by value expression. Must be a valid sql filter expression.
       DataProviderPtr dataProvider; //! Provider from static data filter.
       DataSeriesPtr dataSeries; //! Static data data series.
+      std::vector<std::string> fields; //! Fields in SELECT clause
+      std::string joinableTable; //! Table to perform inner join. Used when both monitored identifier and additional identififer supplied.
+      std::string monitoredIdentifier; //! Monitored attribute name to execute SQL JOIN while performing operation
+      std::string additionalIdentifier; //! Additional attribute name to execute SQL join while performing operation
 
       //operator bool() const { return dataSetId != 0; }
     };

@@ -37,13 +37,17 @@ int terrama2::services::analysis::core::occurrence::zonal::aggregation::count(co
                                                                        const std::string& dateFilter,
                                                                        Buffer aggregationBuffer,
                                                                        Buffer buffer,
-                                                                       const std::string& restriction)
+                                                                       const std::string& restriction,
+                                                                       const std::string& monitoredIdentifier,
+                                                                       const std::string& additionalIdentifier)
 {
   return (int) terrama2::services::analysis::core::occurrence::zonal::operatorImpl(StatisticOperation::COUNT,
                                                                                    dataSeriesName, buffer, dateFilter,
                                                                                    "0s", aggregationBuffer,
                                                                                    "", StatisticOperation::COUNT,
-                                                                                   restriction);
+                                                                                   restriction,
+                                                                                   monitoredIdentifier,
+                                                                                   additionalIdentifier);
 }
 
 double terrama2::services::analysis::core::occurrence::zonal::aggregation::min(const std::string& dataSeriesName,

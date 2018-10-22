@@ -4,6 +4,7 @@
 #include "../dcp/zonal/history/Operator.hpp"
 #include "../dcp/zonal/history/interval/Operator.hpp"
 #include "../dcp/zonal/influence/PythonOperator.hpp"
+#include "../occurrence/Operator.hpp"
 #include "../occurrence/zonal/Operator.hpp"
 #include "../occurrence/zonal/interval/Operator.hpp"
 #include "../occurrence/zonal/aggregation/Operator.hpp"
@@ -13,7 +14,7 @@
 #pragma GCC diagnostic ignored "-Wunused-local-typedef"
 
 // // Declaration needed for default parameter restriction
-BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceCount_overloads, terrama2::services::analysis::core::occurrence::zonal::count, 2, 4)
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceCount_overloads, terrama2::services::analysis::core::occurrence::zonal::count, 2, 6)
 
 BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceMin_overloads, terrama2::services::analysis::core::occurrence::zonal::min, 3, 5)
 
@@ -28,6 +29,10 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceSum_overloads, terrama2::services::ana
 BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceStandardDeviation_overloads, terrama2::services::analysis::core::occurrence::zonal::standardDeviation, 4, 5)
 
 BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceVariance_overloads, terrama2::services::analysis::core::occurrence::zonal::variance, 3, 5)
+
+// Occurrence Summary
+
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceSummaryCount_overloads, terrama2::services::analysis::core::occurrence::count, 4, 5)
 
 // Occurence interval
 
@@ -50,7 +55,7 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceIntervalVariance_overloads, terrama2::
 
 // Occurence aggreagation
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationCount_overloads, terrama2::services::analysis::core::occurrence::zonal::aggregation::count, 3, 5)
+BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationCount_overloads, terrama2::services::analysis::core::occurrence::zonal::aggregation::count, 3, 7)
 
 BOOST_PYTHON_FUNCTION_OVERLOADS(occurrenceAggregationMin_overloads, terrama2::services::analysis::core::occurrence::zonal::aggregation::min, 5, 7)
 
@@ -96,6 +101,11 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerOccurr
   // set the current scope to the new sub-module
   scope occurrenceScope = occurrenceModule;
 
+  // Export summary
+  def("count", terrama2::services::analysis::core::occurrence::count,
+      occurrenceSummaryCount_overloads(args("dataSeriesName", "dateFilter", "monitoredIdentifier", "additinalIdentifier", "restriction"),
+                                "Count operator for occurrence"));
+
   boost::python::object occurrenceZonalModule(handle<>(borrowed(PyImport_AddModule("terrama2.occurrence.zonal"))));
   import("terrama2.occurrence").attr("zonal") = occurrenceZonalModule;
 
@@ -121,7 +131,6 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerOccurr
   def("variance", terrama2::services::analysis::core::occurrence::zonal::variance,
       occurrenceVariance_overloads(args("dataSeriesName", "attribute", "dateFilter", "buffer", "restriction"),
                                    "Variance operator for occurrence"));
-
 }
 
 
@@ -268,7 +277,7 @@ void terrama2::services::analysis::core::python::MonitoredObject::registerOccurr
   scope occurrenceAggregationScope = occurrenceAggregationModule;
 
   def("count", terrama2::services::analysis::core::occurrence::zonal::aggregation::count,
-      occurrenceAggregationCount_overloads(args("dataSeriesName", "dateFilter", "aggregationBuffer", "buffer", "restriction"),
+      occurrenceAggregationCount_overloads(args("dataSeriesName", "dateFilter", "aggregationBuffer", "buffer", "restriction", "monitoredIdentifier", "additionalIdentifier"),
                                            "Count operator for occurrence aggregation"));
   def("min", terrama2::services::analysis::core::occurrence::zonal::aggregation::min,
       occurrenceAggregationMin_overloads(args("dataSeriesName", "dateFilter", "aggregationBuffer", "buffer", "restriction"), "Minimum operator for occurrence aggregation"));

@@ -1,5 +1,15 @@
 [
   {
+    "name": "Summary",
+    "children": [
+      {
+        "name": "Count",
+        "code": "occurrence.count(\"<dynamic_data_occurrence>\", \"<time>\", \"<monitored_identifier>\", \"<additional_identifier>\", [\"<restriction>\"])",
+        "description": "Count number of occurrence. It does not use spatial operator"
+      }
+    ]
+  },
+  {
     "name": "Zonal",
     "children": [
       {

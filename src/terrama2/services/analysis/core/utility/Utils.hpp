@@ -66,6 +66,14 @@ namespace terrama2
         };
 
         /*!
+         * \brief Retrieves a string representation of Statistic Operation to be used as Aggregated function in query statement.
+         *
+         * \param op Statistic operation
+         * \return Statistic operation as string
+         */
+        TMANALYSISEXPORT std::string operationAsString(StatisticOperation op);
+
+        /*!
           \brief Returns a enum with the type of the Analysis based on the given parameter.
 
           \param type Type of the Analysis.
