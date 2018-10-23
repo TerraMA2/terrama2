@@ -43,13 +43,15 @@
 #include <terralib/vp/BufferMemory.h>
 #include <terralib/geometry/MultiPolygon.h>
 #include <terralib/geometry/Utils.h>
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 
 double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terrama2::services::analysis::core::StatisticOperation statisticOperation,
                                                                            const std::string &dataSeriesName, terrama2::services::analysis::core::Buffer buffer,
                                                                            const std::string &dateFilterBegin, const std::string &dateFilterEnd,
                                                                            terrama2::services::analysis::core::Buffer aggregationBuffer, const std::string &attribute,
                                                                            terrama2::services::analysis::core::StatisticOperation aggregationStatisticOperation,
-                                                                           const std::string &restriction)
+                                                                           const std::string &restriction,
+                                                                           const std::string& monitoredIdentifier, const std::string& additionalIdentifier)
 {
 
   OperatorCache cache;
@@ -90,7 +92,6 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
     if(context->hasError())
       return std::nan("");
 
-
     bool hasData = false;
 
     auto dataManagerPtr = context->getDataManager().lock();
@@ -103,6 +104,7 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
     AnalysisPtr analysis = context->getAnalysis();
 
     std::shared_ptr<ContextDataSeries> moDsContext = context->getMonitoredObjectContextDataSeries();
+
     if(moDsContext->series.syncDataSet->size() == 0)
     {
       QString errMsg(QObject::tr("Could not recover monitored object data series."));
@@ -110,6 +112,7 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
     }
 
     auto moGeom = moDsContext->series.syncDataSet->getGeometry(cache.index, moDsContext->geometryPos);
+
     if(!moGeom.get())
     {
       QString errMsg(QObject::tr("Could not recover monitored object geometry."));
@@ -136,8 +139,32 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
         filter.discardBefore = context->getTimeFromString(dateFilterBegin);
         filter.discardAfter = context->getTimeFromString(dateFilterEnd);
         filter.byValue = restriction;
-        filter.region = geomResult;
 
+        /*
+         * When performing summarization, both modified and additional identifier must be
+         * supplied to skip filter by region.
+         */
+        if (monitoredIdentifier.empty() && additionalIdentifier.empty())
+        {
+          filter.region = geomResult;
+        }
+        else
+        {
+          auto monitoredDataSeries = dataManagerPtr->findDataSeries(moDsContext->series.dataSet->dataSeriesId);
+
+          filter.joinableTable = terrama2::core::getProperty(moDsContext->series.dataSet, monitoredDataSeries, "table_name");
+
+          // Make query fields
+          std::vector<std::string> fields;
+          // Retrieving operation for summarization
+
+          // TODO: Remove (*). Currently is only working with COUNT.
+          fields.push_back(operationAsString(statisticOperation)+ "(*)");
+          fields.push_back(filter.joinableTable + "." + monitoredIdentifier);
+          filter.fields = std::move(fields);
+          filter.monitoredIdentifier = monitoredIdentifier;
+          filter.additionalIdentifier = additionalIdentifier;
+        }
         auto dataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
         context->addDataSeries(dataSeries, filter, true);
 
@@ -152,7 +179,6 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
             continue;
           }
 
-
           uint32_t countValues = 0;
           std::vector<double> values;
 
@@ -164,103 +190,134 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
           }
           else
           {
-            // Converts the monitored object to the same srid of the occurrences
-            auto firstOccurrence = syncDs->getGeometry(0, contextDataSeries->geometryPos);
-            geomResult->transform(firstOccurrence->getSRID());
-
-            int attributeType = 0;
-            if(!attribute.empty())
+            /*
+             * Summarization executed only when both monitored identifier and
+             * additional identifier supplied.
+             * In this way, we must just perform count operation over monitored
+             * data series
+             *
+             */
+            if (!monitoredIdentifier.empty() && !additionalIdentifier.empty())
             {
-              auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
+              // Allocate memory for indexes size
+              values.reserve(syncDs->size());
 
-              // only operation COUNT can be done without attribute.
-              if(!property && statisticOperation != StatisticOperation::COUNT)
+              // Retrieve monitored value. Used in summarization
+              auto monitoredValue = moDsContext->series.syncDataSet->getAsString(cache.index, monitoredIdentifier);
+
+              for(uint32_t i = 0; i < syncDs->size(); ++i)
               {
-                return std::nan("");
-              }
-              attributeType = property->getType();
-            }
+                auto additionalValue = syncDs->getAsString(i, additionalIdentifier);
 
-            if(aggregationStatisticOperation != StatisticOperation::INVALID)
-            {
-              auto bufferDs = createAggregationBuffer(contextDataSeries, aggregationBuffer,
-                                                      aggregationStatisticOperation, attribute);
-
-              if(!bufferDs)
-              {
-                continue;
-              }
-
-              // Allocate memory for dataset size
-              values.reserve(bufferDs->size());
-              for(unsigned int i = 0; i < bufferDs->size(); ++i)
-              {
-                bufferDs->move(i);
-                auto occurrenceGeom = bufferDs->getGeometry(0);
-
-                if(occurrenceGeom->intersects(geomResult.get()))
+                if (monitoredValue == additionalValue)
                 {
-                  ++countValues;
+                  // Count is always first attribute
+                  countValues += syncDs->getInt64(i, 0);
 
-                  try
-                  {
-                    if(!attribute.empty())
-                    {
-                      hasData = true;
-                      // second column contains the value
-                      double value = bufferDs->getDouble(1);
-
-                      if(std::isnan(value))
-                        continue;
-
-                      values.push_back(value);
-                    }
-                  }
-                  catch(...)
-                  {
-                    // In case the dataset doesn't have the specified attribute
-                    continue;
-                  }
+                  values.push_back(0);
                 }
               }
             }
             else
             {
 
-              // Allocate memory for indexes size
-              values.reserve(syncDs->size());
-              for(uint32_t i = 0; i < syncDs->size(); ++i)
+              // Converts the monitored object to the same srid of the occurrences
+              auto firstOccurrence = syncDs->getGeometry(0, contextDataSeries->geometryPos);
+              geomResult->transform(firstOccurrence->getSRID());
+
+              int attributeType = 0;
+              if(!attribute.empty())
               {
-                // Verifies if the occurrence intersects the monitored object
-                auto occurrenceGeom = syncDs->getGeometry(i, contextDataSeries->geometryPos);
+                auto property = contextDataSeries->series.teDataSetType->getProperty(attribute);
 
-                if(occurrenceGeom->intersects(geomResult.get()))
+                // only operation COUNT can be done without attribute.
+                if(!property && statisticOperation != StatisticOperation::COUNT)
                 {
-                  ++countValues;
+                  return std::nan("");
+                }
+                attributeType = property->getType();
+              }
 
-                  try
+              if(aggregationStatisticOperation != StatisticOperation::INVALID)
+              {
+                auto bufferDs = createAggregationBuffer(contextDataSeries, aggregationBuffer,
+                                                        aggregationStatisticOperation, attribute);
+
+                if(!bufferDs)
+                {
+                  continue;
+                }
+
+                // Allocate memory for dataset size
+                values.reserve(bufferDs->size());
+                for(unsigned int i = 0; i < bufferDs->size(); ++i)
+                {
+                  bufferDs->move(i);
+                  auto occurrenceGeom = bufferDs->getGeometry(0);
+
+                  if(occurrenceGeom->intersects(geomResult.get()))
                   {
-                    if(!attribute.empty() && !syncDs->isNull(i, attribute))
+                    ++countValues;
+
+                    try
                     {
-                      hasData = true;
-                      double value = terrama2::services::analysis::core::getValue(syncDs, attribute, i, attributeType);
+                      if(!attribute.empty())
+                      {
+                        hasData = true;
+                        // second column contains the value
+                        double value = bufferDs->getDouble(1);
 
-                      if(std::isnan(value))
-                        continue;
+                        if(std::isnan(value))
+                          continue;
 
-                      values.push_back(value);
+                        values.push_back(value);
+                      }
+                    }
+                    catch(...)
+                    {
+                      // In case the dataset doesn't have the specified attribute
+                      continue;
                     }
                   }
-                  catch(...)
+                }
+              }
+              else
+              {
+                // Allocate memory for indexes size
+                values.reserve(syncDs->size());
+                {
+                  for(uint32_t i = 0; i < syncDs->size(); ++i)
                   {
-                    // In case the dataset doesn't have the specified attribute
-                    continue;
+                    // Verifies if the occurrence intersects the monitored object
+                    auto occurrenceGeom = syncDs->getGeometry(i, contextDataSeries->geometryPos);
+
+                    if(occurrenceGeom->intersects(geomResult.get()))
+                    {
+                      ++countValues;
+
+                      try
+                      {
+                        if(!attribute.empty() && !syncDs->isNull(i, attribute))
+                        {
+                          hasData = true;
+                          double value = terrama2::services::analysis::core::getValue(syncDs, attribute, i, attributeType);
+
+                          if(std::isnan(value))
+                            continue;
+
+                          values.push_back(value);
+                        }
+                      }
+                      catch(...)
+                      {
+                        // In case the dataset doesn't have the specified attribute
+                        continue;
+                      }
+                    }
                   }
                 }
               }
             }
-
-
 
             terrama2::services::analysis::core::calculateStatistics(values, cache);
 
@@ -341,10 +398,10 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
 }
 
 double terrama2::services::analysis::core::occurrence::zonal::count(const std::string& dataSeriesName,
-    const std::string& dateFilter, Buffer buffer, const std::string& restriction)
+    const std::string& dateFilter, Buffer buffer, const std::string& restriction, const std::string& monitoredIdentifier, const std::string& additionalIdentifier)
 {
   return operatorImpl(StatisticOperation::COUNT, dataSeriesName, buffer, dateFilter, "0s", Buffer(),
-                      "", StatisticOperation::INVALID, restriction);
+                      "", StatisticOperation::INVALID, restriction, monitoredIdentifier, additionalIdentifier);
 }
 
 double terrama2::services::analysis::core::occurrence::zonal::min(const std::string& dataSeriesName,

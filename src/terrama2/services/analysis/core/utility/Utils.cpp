@@ -360,3 +360,24 @@ std::pair<size_t, size_t> terrama2::services::analysis::core::getBandInterval(te
 
   return std::make_pair(bandBegin, bandEnd);
 }
+
+std::string terrama2::services::analysis::core::operationAsString(terrama2::services::analysis::core::StatisticOperation op)
+{
+  switch(op)
+  {
+    case StatisticOperation::SUM:
+      return "sum";
+    case StatisticOperation::MEAN:
+      return "avg";
+    case StatisticOperation::MIN:
+      return "min";
+    case StatisticOperation::MAX:
+      return "max";
+    case StatisticOperation::COUNT:
+      return "count";
+    case StatisticOperation::VARIANCE:
+      return "variance";
+    default:
+      return "";
+  }
+}
