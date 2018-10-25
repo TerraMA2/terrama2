@@ -3,17 +3,11 @@
 var ViewsHandlers = function(io) {
 
   var memberSockets = io.sockets;
-  // 'fs' module
-  var memberFs = require('fs');
-  // 'path' module
-  var memberPath = require('path');
   // 'request' module
   var memberRequest = require('request');
   // WebMonitor configuration
   var Application = require('./../core/Application');
   var memberConfig = Application.getContextConfig();
-
-  var userToken = require('../config/UserToken');
 
   // Socket connection event
   memberSockets.on('connection', function(client) {
@@ -44,8 +38,7 @@ var ViewsHandlers = function(io) {
 
       memberRequest.post(options, function(err, httpResponse, body) {
         if(err) {
-          console.error(err);
-          return client.emit(responseEvent, {});
+          return client.emit('retrieveViewsError', `Could not connect to WebApplication: ${err.code} - ${err.address}:${err.port}`);
         }
 
         try {
