@@ -139,7 +139,7 @@ var Service = module.exports = function(serviceInstance) {
           tempBuffer = new Buffer.from(tempBuffer.slice(1));
           bom = tempBuffer.toString('utf-8', 0, beginOfMessage.length);
         }
-        
+
         if(bom !== beginOfMessage) {
           // no begin of message header:
           //  - clear the buffer
@@ -174,7 +174,7 @@ var Service = module.exports = function(serviceInstance) {
         } else {
           extraData = undefined;
         }
-        
+
         // get only the first message for processing
         tempBuffer = new Buffer.from(tempBuffer.slice(beginOfMessage.length, expectedLength+beginOfMessage.length));
         const parsed = parseByteArray(tempBuffer);
@@ -269,7 +269,7 @@ var Service = module.exports = function(serviceInstance) {
     }
 
     self.answered = false;
-    self.writeData(buffer, 10000, function() {
+    self.writeData(buffer, 30000, function() {
       if (!self.answered) {
         self.emit("serviceError", new Error("Status Timeout exceeded."));
       }

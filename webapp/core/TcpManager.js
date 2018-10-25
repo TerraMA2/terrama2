@@ -266,7 +266,7 @@ TcpManager.prototype.startService = function(serviceInstance) {
 
     return instance.connect(serviceInstance).then(function() {
       return PromiseClass.all([
-        instance.adapter.execute(serviceInstance.pathToBinary, ['--version'], {}),
+        instance.adapter.execute(serviceInstance.pathToBinary, ['--version', '-platform', 'minimal'], {}),
         instance.startService()
       ]).spread(function(versionResponse, startResponse) {
         self.emit("serviceVersion", serviceInstance, versionResponse.data);
@@ -280,7 +280,7 @@ TcpManager.prototype.startService = function(serviceInstance) {
           serviceInstance.pathToBinary = (config.defaultExecutablePath.endsWith("/") ? config.defaultExecutablePath : config.defaultExecutablePath + "/") + config.defaultExecutableName;
 
           return PromiseClass.all([
-            instance.adapter.execute(serviceInstance.pathToBinary, ['--version'], {}),
+            instance.adapter.execute(serviceInstance.pathToBinary, ['--version', '-platform', 'minimal'], {}),
             instance.startService()
           ]).spread(function(versionResponse, startResponse) {
             self.emit("serviceVersion", serviceInstance, versionResponse.data);
