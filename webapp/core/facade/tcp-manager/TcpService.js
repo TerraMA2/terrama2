@@ -718,10 +718,18 @@ const repeatStatus = (service, times) => {
     times = 10;
   }
 
-  // Wrapper
+  const serviceClient = TcpManager.getService(service);
+
+  // Wrapper of repeat promiser
   const _repeat = () => {
+    // When done, finish promise chain
     if (--times < 1) {
       return Promise.resolve();
+    }
+    // When Service is offline, abort
+    // It seems to be an error
+    if (!serviceClient.isOpen()) {
+      return Promise.reject(new Error(`No connection`));
     }
     // Wait a second and then dispatches status signal
     return delay(1000)
@@ -747,11 +755,14 @@ function onStatusReceived(service, response) {
     // send updateService and Data
     TcpManager.updateService(service);
 
-    setTimeout(() => {
-      return Utils.prepareAddSignalMessage(DataManager)
-        .then(data => TcpManager.emit("sendData", service, data))
-        .finally(() => repeatStatus(service, 20));
-    }, 1000);
+    delay(1000)
+      .then(() => Utils.prepareAddSignalMessage(DataManager))
+      .then(data => TcpManager.emit("sendData", service, data))
+      .finally(() => repeatStatus(service, 20))
+      .catch(err => {
+        logger.error(`Error while checking TerraMA² status: ${err.toString()}`)
+      });
+
   } else {
     tcpService.emit("serviceStatus", {
       status: 200,
