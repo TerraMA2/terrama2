@@ -335,7 +335,16 @@ define(
         }
       });
 
+      Utils.getSocket().on('retrieveViewsError', (errMsg) => (
+        console.error(errMsg)
+      ));
+
       Utils.getSocket().on("retrieveViewsResponse", function(viewsData) {
+        if ($.isEmptyObject(viewsData)) {
+          console.error(`Could not retrieve views from WebApplication.`);
+          return;
+        }
+
         if(viewsData.projects) {
           $('#projects').empty();
 
