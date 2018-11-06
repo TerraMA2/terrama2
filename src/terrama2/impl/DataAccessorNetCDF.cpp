@@ -64,29 +64,6 @@ void terrama2::core::DataAccessorNetCDF::addToCompleteDataSet(DataSetPtr dataSet
 {
   completeDataSet->moveLast();
 
-//  std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make(dataSourceType(), filename));
-
-//  // get a transactor to interact to the data source
-//  std::shared_ptr<te::da::DataSourceTransactor> transactor(datasource->getTransactor());
-
-//  // Some drivers use the base name and other use filename with extension
-//  std::string dataSetName;
-//  std::vector<std::string> dataSetNames = transactor->getDataSetNames();
-
-//  for(const auto& dataSetName: dataSetNames)
-//  {
-//    std::shared_ptr<te::da::DataSet> datasetOrig(transactor->getDataSet(dataSetName));
-
-//    datasetOrig->
-//    std::cout << "NProps: " << datasetOrig->getNumProperties() << std::endl;
-
-//    size_t rasterColumn = te::da::GetFirstPropertyPos(datasetOrig.get(), te::dt::RASTER_TYPE);
-
-//    std::shared_ptr<te::rst::Raster> rst(datasetOrig->isNull(rasterColumn) ? nullptr : datasetOrig->getRaster(rasterColumn).release());
-
-//    std::cout << "NBands: " << rst->getNumberOfBands() << std::endl;
-//  }
-
   size_t rasterColumn = te::da::GetFirstPropertyPos(teDataSet.get(), te::dt::RASTER_TYPE);
   if(!isValidColumn(rasterColumn))
   {
@@ -114,89 +91,13 @@ void terrama2::core::DataAccessorNetCDF::addToCompleteDataSet(DataSetPtr dataSet
     completeDataSet->add(item.release());
 
 
-//    int outputSrid = -1;
-//    if(outputSrid > 0 && outputSrid != ncRaster->getSRID())
-//    {
+    int outputSrid = -1;
+    if(outputSrid > 0 && outputSrid != ncRaster->getSRID())
+    {
 
-//    }
-
-
-    for(auto it: ncRaster->getInfo())
-      std::cout << it.first << " - " << it.second << std::endl;
-
-//    std::shared_ptr<te::rst::Raster> gribRaster(teDataSet->isNull(rasterColumn) ? nullptr : teDataSet->getRaster(rasterColumn).release());
-//    auto raster = getRasterBand(dataSet, gribRaster);
-
-//    te::mem::DataSetItem* item = new te::mem::DataSetItem(completeDataSet.get());
-
-//    item->setRaster(rasterColumn, raster.release());
-//    if(isValidColumn(timestampColumn ))
-//      item->setDateTime(timestampColumn, fileTimestamp.get() ? static_cast<te::dt::DateTime*>(fileTimestamp->clone()) : nullptr);
-
-//    item->setString("filename", filename);
-//    completeDataSet->add(item);
+    }
   }
 }
-
-//  size_t rasterColumn = te::da::GetFirstPropertyPos(teDataSet.get(), te::dt::RASTER_TYPE);
-//  if(!isValidColumn(rasterColumn))
-//  {
-//    QString errMsg = QObject::tr("No raster attribute.");
-//    TERRAMA2_LOG_ERROR() << errMsg;
-//    throw DataStoragerException() << ErrorDescription(errMsg);
-//  }
-
-//  size_t timestampColumn = te::da::GetFirstPropertyPos(completeDataSet.get(), te::dt::DATETIME_TYPE);
-
-//  int outputSrid = -1;
-//  try
-//  {
-//    outputSrid = getSrid(dataSet, false);
-//    verify::srid(outputSrid);
-//  }
-//  catch (const UndefinedTagException&)
-//  {
-//    //SRID is an optional parameter
-//  }
-
-//  teDataSet->moveBeforeFirst();
-//  while(teDataSet->moveNext())
-//  {
-//    std::unique_ptr<te::rst::Raster> raster(teDataSet->isNull(rasterColumn) ? nullptr : teDataSet->getRaster(rasterColumn).release());
-
-//    if(outputSrid > 0 && outputSrid != raster->getSRID())
-//    {
-//      try
-//      {
-//        verify::srid(raster->getSRID(), false);
-//        std::map<std::string, std::string> map{{"RTYPE", "EXPANSIBLE"}};
-//        auto temp = raster->transform(outputSrid, map);
-//        if(!temp)
-//        {
-//          QString errMsg = QObject::tr("Null raster found.\nError during transform.");
-//          TERRAMA2_LOG_ERROR() << errMsg;
-//          continue;
-//        }
-//        else
-//          raster.reset(temp);
-//      }
-//      catch (...)
-//      {
-//        auto grid = raster->getGrid();
-//        grid->setSRID(outputSrid);
-//      }
-//    }
-
-//    te::mem::DataSetItem* item = new te::mem::DataSetItem(completeDataSet.get());
-
-//    item->setRaster(rasterColumn, raster.release());
-//    if(isValidColumn(timestampColumn ))
-//      item->setDateTime(timestampColumn, fileTimestamp.get() ? static_cast<te::dt::DateTime*>(fileTimestamp->clone()) : nullptr);
-
-//    item->setString("filename", filename);
-//    completeDataSet->add(item);
-//  }
-//}
 
 std::unique_ptr<te::rst::Raster> terrama2::core::DataAccessorNetCDF::getRasterBand(DataSetPtr dataSet, std::shared_ptr<te::rst::Raster> raster) const
 {
