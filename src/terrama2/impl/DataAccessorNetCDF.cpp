@@ -74,6 +74,17 @@ void terrama2::core::DataAccessorNetCDF::addToCompleteDataSet(DataSetPtr dataSet
 
   size_t timestampColumn = te::da::GetFirstPropertyPos(completeDataSet.get(), te::dt::DATETIME_TYPE);
 
+  int outputSrid = -1;
+  try
+  {
+    outputSrid = getSrid(dataSet, false);
+    verify::srid(outputSrid);
+  }
+  catch (const UndefinedTagException&)
+  {
+    //SRID is an optional parameter
+  }
+
   teDataSet->moveBeforeFirst();
   while(teDataSet->moveNext())
   {
@@ -82,6 +93,30 @@ void terrama2::core::DataAccessorNetCDF::addToCompleteDataSet(DataSetPtr dataSet
     auto raster = getRasterBand(dataSet, ncRaster);
 
     std::unique_ptr<te::mem::DataSetItem> item (new te::mem::DataSetItem(completeDataSet.get()));
+
+    if(outputSrid > 0 && outputSrid != ncRaster->getSRID())
+    {
+      try
+      {
+        verify::srid(raster->getSRID(), false);
+        std::map<std::string, std::string> map{{"RTYPE", "EXPANSIBLE"}};
+        auto temp = raster->transform(outputSrid, map);
+        if(!temp)
+        {
+          QString errMsg = QObject::tr("Null raster found.\nError during transform.");
+          TERRAMA2_LOG_ERROR() << errMsg;
+          continue;
+        }
+        else
+          raster.reset(temp);
+      }
+      catch (...)
+      {
+        auto grid = raster->getGrid();
+        grid->setSRID(outputSrid);
+      }
+    }
+
     item->setRaster(rasterColumn, raster.release());
 
     if(isValidColumn(timestampColumn))
@@ -89,13 +124,6 @@ void terrama2::core::DataAccessorNetCDF::addToCompleteDataSet(DataSetPtr dataSet
 
     item->setString("filename", filename);
     completeDataSet->add(item.release());
-
-
-    int outputSrid = -1;
-    if(outputSrid > 0 && outputSrid != ncRaster->getSRID())
-    {
-
-    }
   }
 }
 
