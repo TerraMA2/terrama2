@@ -196,31 +196,21 @@ define([
           form.$validators = {
             validateMask: function(value) {
               if(value) {
-                const posPercent = value.indexOf('%');
-                const { maskPattern } = form;
-
-                if (maskPattern && Array.isArray(maskPattern)) {
-                  if (posPercent > 0 && posPercent < value.length) {
-
-                    // While finding for percent, check for mask pattern. Skip unecessary chars
-                    for(let i = posPercent; i !== -1; i = value.indexOf('%', i+1)) {
-                      const subStr = value.substr(i, value.length - i);
-
-                      let count = 0;
-                      // Short-circuit evaluation.
-                      // When the expression contains the mask pattern (%YY,%JJJ,%DD, etc), we count
-                      // the occurrence &&
-                      const patternsFound = maskPattern.filter(pattern => subStr.includes(pattern) && ++count);
-
-                      if (patternsFound.length === 0 || patternsFound.length !== count){
-                        return false;
-                      }
-                    }
-                  }
-                }
-
                 for(var i = 0, valueLength = value.length; i < valueLength; i++) {
                   var charCode = value.charCodeAt(i);
+
+                  if(value[i] === "%") {
+                    if(
+                      value.substr(i, 5) === "%YYYY" ||
+                      value.substr(i, 4) === '%JJJ' ||
+                      value.substr(i, 3) === "%YY" || value.substr(i, 3) === "%MM" || value.substr(i, 3) === "%DD" ||
+                      value.substr(i, 3) === "%hh" || value.substr(i, 3) === "%mm" || value.substr(i, 3) === "%ss" ||
+                      value.substr(i, 2) === "%("
+                    )
+                      continue;
+
+                    return false;
+                  }
 
                   if(value[i] == "(" && i > 0 && value[i-1] === "%")
                   {
