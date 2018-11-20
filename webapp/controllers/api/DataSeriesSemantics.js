@@ -73,6 +73,11 @@ module.exports = function(app) {
           semanticsList.forEach(function(semantics) {
             var semanticsObject = makeMetadata(semantics.code, metadata);
             Object.assign(semantics, semanticsObject);
+            if (!semanticsObject) {
+              logger.warn(`Semantic ${semantics.code} not found. Skipping`);
+              return;
+            }
+
             if (filterByTemporality && semanticsObject.temporality.toLowerCase() != semanticsType.toLowerCase())
               return;
             else
