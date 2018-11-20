@@ -202,6 +202,7 @@ define([
                   if(value[i] === "%") {
                     if(
                       value.substr(i, 5) === "%YYYY" ||
+                      value.substr(i, 4) === '%JJJ' ||
                       value.substr(i, 3) === "%YY" || value.substr(i, 3) === "%MM" || value.substr(i, 3) === "%DD" ||
                       value.substr(i, 3) === "%hh" || value.substr(i, 3) === "%mm" || value.substr(i, 3) === "%ss" ||
                       value.substr(i, 2) === "%("
@@ -216,7 +217,7 @@ define([
                     let j = value.indexOf(")%", i);
                     if(j === -1)
                       return false;
-                    
+
                     i = j+1;
                     continue;
                   }

@@ -41,6 +41,7 @@
 #include <terralib/dataaccess/utils/Utils.h>
 
 //Qt
+#include <QDate>
 #include <QUrl>
 
 #include <boost/filesystem.hpp>
@@ -98,6 +99,7 @@ std::string terrama2::core::DataStoragerTiff::replaceMask(const std::string& mas
   long year = 0;
   long month = 0;
   long day = 0;
+  long day_of_year = 0;
   long hour = 0;
   long minutes = 0;
   long seconds = 0;
@@ -119,6 +121,9 @@ std::string terrama2::core::DataStoragerTiff::replaceMask(const std::string& mas
     year = date.getYear();
     month = date.getMonth().as_number();
     day = date.getDay().as_number();
+
+    QDate tempDate(year, month, day);
+    day_of_year = tempDate.dayOfYear();
 
     auto time = dateTime->getTime();
     hour = time.getHours();
@@ -157,6 +162,9 @@ std::string terrama2::core::DataStoragerTiff::replaceMask(const std::string& mas
     month = date.month().as_number();
     day = date.day();
 
+    QDate tempDate(year, month, day);
+    day_of_year = tempDate.dayOfYear();
+
     auto time = localTime.time_of_day();
     hour = time.hours();
     minutes = time.minutes();
@@ -186,6 +194,11 @@ std::string terrama2::core::DataStoragerTiff::replaceMask(const std::string& mas
 
     fileName.replace(pos, 3, zeroPadNumber(std::stol(fullYear), 2));
   }
+
+  // julian day
+  pos = fileName.find("%JJJ");
+  if (pos != std::string::npos)
+    fileName.replace(pos, 4, zeroPadNumber(day_of_year, 3));
 
   pos = fileName.find("%MM");
   if(pos != std::string::npos)
