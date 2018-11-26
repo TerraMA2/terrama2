@@ -40,10 +40,11 @@
 #include <boost/filesystem/operations.hpp>
 
 #include <terralib/Exception.h>
-#include <fstream>
 // STL
+#include <fstream>
 #include <iostream>
 #include <string>
+// Qt
 #include <QString>
 
 #include "../../Exception.hpp"
@@ -106,6 +107,11 @@ std::string terrama2::core::Unpack::decompress(std::string uri,
                                                const std::string& temporaryFolder)
 {
   QString unpackFolder = QString::fromStdString(getTemporaryFolder(remover, temporaryFolder));
+  // Its important to remove scheme from unpack folder due
+  // boost::iostreams does not seem to work with.
+  QUrl wrapUnpackFolder(unpackFolder);
+  unpackFolder = wrapUnpackFolder.toString(QUrl::RemoveScheme);
+
   try
   {
     QUrl url(uri.c_str());
