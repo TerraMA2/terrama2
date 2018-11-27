@@ -36,6 +36,7 @@
 #include "DataAccessorGDAL.hpp"
 #include "DataAccessorGrib.hpp"
 #include "DataAccessorGrADS.hpp"
+#include "DataAccessorNetCDF.hpp"
 #include "DataAccessorOccurrenceWfp.hpp"
 #include "DataAccessorOccurrenceLightning.hpp"
 #include "DataAccessorOccurrencePostGIS.hpp"
@@ -89,6 +90,9 @@ void terrama2::core::registerFactories()
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorWildFireEvent::dataAccessorType(), terrama2::core::DataAccessorWildFireEvent::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorDcpSingleTable::dataAccessorType(), terrama2::core::DataAccessorDcpSingleTable::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorJsonCemaden::dataAccessorType(), terrama2::core::DataAccessorJsonCemaden::make);
+
+  terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorNetCDF::dataAccessorType(),
+                                                         terrama2::core::DataAccessorNetCDF::make);
 
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorStaticDataOGR::dataAccessorType(), terrama2::core::DataAccessorStaticDataOGR::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorStaticDataPostGIS::dataAccessorType(), terrama2::core::DataAccessorStaticDataPostGIS::make);

@@ -794,6 +794,8 @@ terrama2::core::DataAccessorFile::readFile(DataSetSeries& series,
     dataSetName = completeBaseName;
   else if(itFileName != dataSetNames.cend())
     dataSetName = name;
+  else if(dataSetNames.size() >= 2)
+    dataSetName = dataSetNames[0];
   else
     dataSetName = name;
 
