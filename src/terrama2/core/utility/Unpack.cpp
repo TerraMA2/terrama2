@@ -109,8 +109,7 @@ std::string terrama2::core::Unpack::decompress(std::string uri,
   QString unpackFolder = QString::fromStdString(getTemporaryFolder(remover, temporaryFolder));
   // Its important to remove scheme from unpack folder due
   // boost::iostreams does not seem to work with.
-  QUrl wrapUnpackFolder(unpackFolder);
-  unpackFolder = wrapUnpackFolder.toString(QUrl::RemoveScheme);
+  unpackFolder = unpackFolder.replace("file://", "");
 
   try
   {
