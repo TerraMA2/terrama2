@@ -60,6 +60,7 @@
 #include <QFileInfo>
 #include <QUrl>
 #include <QDir>
+#include <QStringList>
 
 //Boost
 #include <boost/filesystem/operations.hpp>
@@ -231,10 +232,31 @@ void terrama2::core::DataAccessorGrADS::retrieveDataCallback(const terrama2::cor
   }
 
   std::string controlFileMask = getControlFileMask(dataSet);
-  dataRetriever->retrieveDataCallback(controlFileMask, filter, timezone, remover, "", controlFileFolderMask,[&](const std::string& uri){
-    QUrl url(QString::fromStdString(uri+"/"+controlFileFolderMask));
+
+//  QDir cfgFileURI(QString::fromStdString(controlFileFolderMask));
+//  auto controlFileMaskURI = cfgFileURI.filePath(QString::fromStdString(controlFileMask));
+
+  dataRetriever->retrieveDataCallback(controlFileMask/*controlFileMaskURI.toStdString()*/, filter, timezone, remover, "", controlFileFolderMask,[&](const std::string& uri){
+    QUrl url(QString::fromStdString(uri));
     QDir dir(url.path());
-    auto fileList = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot);
+
+    QDir temporaryDirectory(dir);
+    auto pathFragments = QString::fromStdString(controlFileFolderMask).split("/");
+
+    if (!pathFragments.empty())
+    {
+      for(const auto& fragment: pathFragments)
+      {
+        if (!fragment.isEmpty())
+          temporaryDirectory.cdUp();
+      }
+    }
+
+    QUrl temporaryDirectoryURI(temporaryDirectory.path());
+    temporaryDirectoryURI.setScheme("file");
+
+    auto fileList = dir.entryInfoList(QStringList("*.ctl"), QDir::Files | QDir::NoDotAndDotDot);
+
     for(const auto& ctlFile : fileList)
     {
       gradsDescriptor_ = readDataDescriptor(url.path().toStdString()+"/"+ctlFile.fileName().toStdString());
@@ -268,7 +290,7 @@ void terrama2::core::DataAccessorGrADS::retrieveDataCallback(const terrama2::cor
                                           filter,
                                           timezone,
                                           remover,
-                                          uri,
+                                          temporaryDirectoryURI.toString().toStdString(),
                                           completePath,
                                           [processFile, &completePath](const std::string& uri, const std::string& filename){
                                             processFile(uri);
@@ -594,17 +616,15 @@ void terrama2::core::GrADSDataDescriptor::setKeyValue(const std::string& key, co
 terrama2::core::GrADSDataDescriptor::TValueDef*
 terrama2::core::GrADSDataDescriptor::getTValueDef(const std::string& value)
 {
-  TValueDef* valueDef = new TValueDef;
-
   QStringList tokens = QString::fromStdString(value).split(" ");
   if(tokens.size() < 3)
   {
-    delete valueDef;
     QString errMsg = QObject::tr("Wrong number of fields in TDEF configuration, expected at least 3");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw DataAccessorException() << ErrorDescription(errMsg);
   }
 
+  std::unique_ptr<TValueDef> valueDef(new TValueDef);
   bool ok = true;
   valueDef->numValues_ = tokens[0].toInt(&ok);
   if(!ok)
@@ -620,7 +640,6 @@ terrama2::core::GrADSDataDescriptor::getTValueDef(const std::string& value)
     valueDef->dimensionType_ = LEVELS;
   else
   {
-    delete valueDef;
     QString errMsg = QObject::tr("Invalid mapping method for TDEF");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw DataAccessorException() << ErrorDescription(errMsg);
@@ -631,7 +650,7 @@ terrama2::core::GrADSDataDescriptor::getTValueDef(const std::string& value)
     valueDef->values_.push_back(tokens[i].toStdString());
   }
 
-  return valueDef;
+  return valueDef.release();
 }
 
 terrama2::core::GrADSDataDescriptor::ValueDef*
@@ -1212,6 +1231,16 @@ std::string terrama2::core::trim(const std::string& value)
   return QString::fromStdString(str).trimmed().toStdString();
 }
 
+QStringList getURIFragments(const std::string& uri)
+{
+  auto fragments = QString::fromStdString(uri).split("/");
+  QStringList output;
+  for(const auto& fragment: fragments)
+    if (!fragment.isEmpty())
+      output.append(fragment);
+  return std::move(output);
+}
+
 std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorGrADS::generateDataSet(const std::string& uri,
                                                                                      const terrama2::core::Filter& filter,
                                                                                      terrama2::core::DataSetPtr dataSet,
@@ -1224,7 +1253,23 @@ std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorGrADS::generateDat
 
   std::string controlFileMask = getControlFileMask(dataSet);
   std::string controlFileFolderMask = getControlFileFolderMask(dataSet);
-  auto ctlFileList = getFilesList(uri, controlFileMask, controlFileFolderMask, filter, timezone, remover);
+
+  QStringList abc = getURIFragments(controlFileFolderMask);
+  QStringList normalizedFragments = getURIFragments(uri);
+
+  const auto size = normalizedFragments.size();
+  QString wrapURI;
+  for(int i = 0; i <= normalizedFragments.size(); ++i)
+  {
+    if (i == size - abc.size())
+      break;
+    wrapURI += "/" + normalizedFragments.takeFirst();
+  }
+  wrapURI = wrapURI.replace("/file:", "file://");
+
+  controlFileFolderMask = "/" + normalizedFragments.join("/").toStdString();
+
+  auto ctlFileList = getFilesList(wrapURI.toStdString(), controlFileMask, controlFileFolderMask, filter, timezone, remover);
   for(const auto& ctlFile : ctlFileList)
   {
 
@@ -1239,7 +1284,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorGrADS::generateDat
                                "/" + extractBinaryFolderPathFromControlFile(dataSet, ctlFile.absoluteFilePath().toStdString()) +
                                "/" + binaryFolderMask + "/";
 
-    auto binaryFileList = getFilesList(uri, binaryFileMask, completePath, filter, timezone, remover);
+    auto binaryFileList = getFilesList(wrapURI.toStdString(), binaryFileMask, completePath, filter, timezone, remover);
     lastFileTimestamp = readFilesAndAddToDataset(series, completeDataset, binaryFileList, binaryFileMask, dataSet);
   }
 

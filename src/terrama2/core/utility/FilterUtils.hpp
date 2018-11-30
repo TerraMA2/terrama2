@@ -121,6 +121,8 @@ namespace terrama2
      * @return Regex style mask 
      */
     TMCOREEXPORT std::string terramaMask2Regex(const std::string& mask);
+
+    TMCOREEXPORT std::string applyRegexMask(const std::string& mask);
   } // end namespace core
 }   // end namespace terrama2
 
