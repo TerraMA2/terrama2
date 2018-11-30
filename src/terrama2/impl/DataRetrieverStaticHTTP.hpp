@@ -86,7 +86,7 @@ namespace terrama2
                                         std::shared_ptr<terrama2::core::FileRemover> remover,
                                         const std::string& temporaryFolderUri,
                                         const std::string& foldersMask,
-                                        std::function<void(const std::string& /*uri*/, const std::string& /*filename*/)> processFile) const override;
+                                        std::function<void(const std::string& /*uri*/, const std::string& /*filename*/, const std::string &)> processFile) const override;
 
         static DataRetrieverPtr make(DataProviderPtr dataProvider);
         static DataRetrieverType dataRetrieverType() { return "STATIC-HTTP"; }

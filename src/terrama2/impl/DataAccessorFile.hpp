@@ -69,7 +69,8 @@ namespace terrama2
                                           DataSetPtr dataset,
                                           const Filter& filter,
                                           std::shared_ptr<FileRemover> remover,
-                                          std::function<void(const std::string& /*uri*/)> processFile) const override;
+                                          std::function<void(const std::string& /*uri*/,
+                                                             const std::string& /*folderMatched*/)> processFile) const override;
         // Doc in base class
         virtual DataSetSeries getSeries(const std::string& uri, const Filter& filter, DataSetPtr dataSet, std::shared_ptr<terrama2::core::FileRemover> remover) const override;
 

@@ -209,7 +209,7 @@ void terrama2::core::DataAccessorGrADS::retrieveDataCallback(const terrama2::cor
                                                              terrama2::core::DataSetPtr dataSet,
                                                              const terrama2::core::Filter& filter,
                                                              std::shared_ptr<terrama2::core::FileRemover> remover,
-                                                             std::function<void (const std::string&)> processFile) const
+                                                             std::function<void(const std::string &, const std::string &)> processFile) const
 {
   std::string controlFileFolderMask = "";
   try
@@ -233,14 +233,11 @@ void terrama2::core::DataAccessorGrADS::retrieveDataCallback(const terrama2::cor
 
   std::string controlFileMask = getControlFileMask(dataSet);
 
-//  QDir cfgFileURI(QString::fromStdString(controlFileFolderMask));
-//  auto controlFileMaskURI = cfgFileURI.filePath(QString::fromStdString(controlFileMask));
-
-  dataRetriever->retrieveDataCallback(controlFileMask/*controlFileMaskURI.toStdString()*/, filter, timezone, remover, "", controlFileFolderMask,[&](const std::string& uri){
-    QUrl url(QString::fromStdString(uri));
+  dataRetriever->retrieveDataCallback(controlFileMask/*controlFileMaskURI.toStdString()*/, filter, timezone, remover, "", controlFileFolderMask,[&](const std::string& uri, const std::string & folderMatched){
+    QUrl url(QString::fromStdString(uri) + QString::fromStdString(folderMatched));
     QDir dir(url.path());
 
-    QDir temporaryDirectory(dir);
+    QDir temporaryDirectory(QString::fromStdString(uri) + QString::fromStdString(folderMatched));
     auto pathFragments = QString::fromStdString(controlFileFolderMask).split("/");
 
     if (!pathFragments.empty())
@@ -252,8 +249,7 @@ void terrama2::core::DataAccessorGrADS::retrieveDataCallback(const terrama2::cor
       }
     }
 
-    QUrl temporaryDirectoryURI(temporaryDirectory.path());
-    temporaryDirectoryURI.setScheme("file");
+    QUrl temporaryDirectoryURI(QString::fromStdString(uri));
 
     auto fileList = dir.entryInfoList(QStringList("*.ctl"), QDir::Files | QDir::NoDotAndDotDot);
 
@@ -293,7 +289,7 @@ void terrama2::core::DataAccessorGrADS::retrieveDataCallback(const terrama2::cor
                                           temporaryDirectoryURI.toString().toStdString(),
                                           completePath,
                                           [processFile, &completePath](const std::string& uri, const std::string& filename){
-                                            processFile(uri);
+                                            processFile(uri, "");
                                             QUrl url(QString::fromStdString(uri));
                                             // remove file on finish processing
                                             QString filePath = url.path()+QString::fromStdString("/"+completePath+"/"+filename);

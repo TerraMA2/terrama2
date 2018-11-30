@@ -99,12 +99,12 @@ namespace terrama2
                                          const std::string& foldersMask = "") const override;
 
         virtual void retrieveDataCallback(const std::string& mask,
-                                        const Filter& filter,
-                                        const std::string& timezone,
-                                        std::shared_ptr<terrama2::core::FileRemover> remover,
-                                        const std::string& temporaryFolderUri,
-                                        const std::string& foldersMask,
-                                        std::function<void(const std::string& /*uri*/, const std::string& /*filename*/)> processFile) const override;
+                                          const Filter& filter,
+                                          const std::string& timezone,
+                                          std::shared_ptr<terrama2::core::FileRemover> remover,
+                                          const std::string& temporaryFolderUri,
+                                          const std::string& foldersMask,
+                                          std::function<void(const std::string& /*uri*/, const std::string& /*filename*/, const std::string& folderMatched)> processFile) const override;
 
         /*!
          * \brief Check if the URIs and their subfolders matches the folders mask.

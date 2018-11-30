@@ -288,7 +288,7 @@ void terrama2::core::DataRetrieverFTP::retrieveDataCallback(const std::string& m
                                                             std::shared_ptr<terrama2::core::FileRemover> remover,
                                                             const std::string& temporaryFolderUri,
                                                             const std::string& foldersMask,
-                                                            std::function<void(const std::string&, const std::string&)> processFile) const
+                                                            std::function<void(const std::string &, const std::string &, const std::string&)> processFile) const
 {
   try
   {
@@ -362,7 +362,7 @@ void terrama2::core::DataRetrieverFTP::retrieveDataCallback(const std::string& m
         {
           curlwrapper_->downloadFile(uriOrigin, filePath);
           TERRAMA2_LOG_WARNING() << QObject::tr("Finished downloading file: %1").arg(QString::fromStdString(file));
-          processFile(saveDir.toStdString(), file);
+          processFile(temporaryDataDir, file, uriPath);
         }
         catch(const te::Exception& e)
         {

@@ -85,7 +85,7 @@ void terrama2::core::DataAccessorFile::retrieveDataCallback(const terrama2::core
                                                             terrama2::core::DataSetPtr dataset,
                                                             const terrama2::core::Filter& filter,
                                                             std::shared_ptr<terrama2::core::FileRemover> remover,
-                                                            std::function<void (const std::string&)> processFile) const
+                                                            std::function<void(const std::string &, const std::string &)> processFile) const
 {
   std::string mask = getFileMask(dataset);
   std::string folderPath = getFolderMask(dataset);
