@@ -287,9 +287,9 @@ void terrama2::core::DataAccessorGrADS::retrieveDataCallback(const terrama2::cor
                                           timezone,
                                           remover,
                                           temporaryDirectoryURI.toString(QUrl::NormalizePathSegments).toStdString(),
-                                          completePath,
-                                          [processFile, &completePath](const std::string& uri, const std::string& filename){
-                                            processFile(uri, "");
+                                          folderMatched,
+                                          [processFile, &completePath, &dir](const std::string& uri, const std::string& filename){
+                                            processFile(dir.path().toStdString(), "");
                                             QUrl url(QString::fromStdString(uri));
                                             // remove file on finish processing
                                             QString filePath = url.path()+QString::fromStdString("/"+completePath+"/"+filename);
