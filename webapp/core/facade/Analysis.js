@@ -6,18 +6,17 @@
  */
 var Analysis = module.exports = { };
 
-var DataManager = require("./../DataManager");
-var PromiseClass = require("./../Promise");
-var AnalysisError = require("./../Exceptions").AnalysisError;
-var Utils = require("./../Utils");
-var ScheduleType = require("./../Enums").ScheduleType;
-var TcpService = require("../../core/facade/tcp-manager/TcpService");
+const DataManager = require("./../DataManager");
+const PromiseClass = require("./../Promise");
+const Utils = require("./../Utils");
+const ScheduleType = require("./../Enums").ScheduleType;
+const TcpService = require("../../core/facade/tcp-manager/TcpService");
 // TerraMA² Analysis Simulator that generates a dummy analysis
-var AnalysisBuilder = require("./builder/AnalysisBuilder");
+const AnalysisBuilder = require("./builder/AnalysisBuilder");
 
 /**
  * It handles a Analysis Registration concept.
- * 
+ *
  * @param {Object} analysisObject - An analysis object structure
  * @param {Object} storager - A storager object
  * @param {Object} scheduleObject - An schedule object structure
@@ -62,7 +61,7 @@ Analysis.save = function(analysisObject, storager, scheduleObject, projectId) {
             data_series_id: analysisObject.data_series_id,
             type: analysisObject.type
           }, options)
-          
+
           .then(function(dataSeriesResult) {
             return DataManager.addSchedule(scheduleObject, options).then(function(scheduleResult) {
               // adding analysis
@@ -80,7 +79,7 @@ Analysis.save = function(analysisObject, storager, scheduleObject, projectId) {
                 } else if (scheduleObject.scheduleType == ScheduleType.SCHEDULE || scheduleObject.scheduleType == ScheduleType.REPROCESSING_HISTORICAL){
                   analysisResult.setSchedule(scheduleResult);
                 }
-                
+
                 analysisResult.setDataSeries(dataSeriesResult);
 
                 // async call. We should not wait for execution
@@ -96,7 +95,7 @@ Analysis.save = function(analysisObject, storager, scheduleObject, projectId) {
       })
 
       .then(function(analysis) {
-        return resolve(analysis);        
+        return resolve(analysis);
       })
 
       .catch(function(err) {
@@ -110,27 +109,18 @@ Analysis.save = function(analysisObject, storager, scheduleObject, projectId) {
 
 /**
  * It represents a common facade for retrieving analysis list
- * 
+ *
  * @param {Object} restriction - A query restriction
  * @return {Promise<Array<Analysis>>} a bluebird promise with Analysis instances
  */
-Analysis.list = function(restriction) {
-  return new PromiseClass(function(resolve, reject) {
-    DataManager.listAnalysis(restriction).then(function(analysisList) {
-      var output = [];
-      analysisList.forEach(function(analysis) {
-        output.push(analysis.rawObject());
-      });
-      return resolve(output);
-    }).catch(function(err) {
-      return reject(err);
-    });
-  });
+Analysis.list = (restriction) => {
+  return DataManager.listAnalysis(restriction)
+    .then(analysisList => analysisList.map(analysis => analysis.rawObject()));
 };
 
 /**
  * It represents a common facade for updating analysis instance
- * 
+ *
  * @param {number} analysisId - An analysis identifier to update
  * @param {number} projectId - A current project identifier
  * @param {Analysis | Object} analysisObject - An analysis object values to update
@@ -138,74 +128,57 @@ Analysis.list = function(restriction) {
  * @param {Object} storagerObject - A storager object values to update (dataseries)
  * @return {Promise<Analysis>} A bluebird promise with analysis instance
  */
-Analysis.update = function(analysisId, projectId, analysisObject, scheduleObject, storagerObject) {
-  return new PromiseClass(function(resolve, reject) {
-    DataManager.orm.transaction(function(t) {
-      var options = {
-        transaction: t
+Analysis.update = (analysisId, projectId, analysisObject, scheduleObject, storagerObject) => {
+  return DataManager.orm.transaction(
+    transaction => {
+      const options = {
+        transaction
       };
 
       return DataManager.updateAnalysis(analysisId, analysisObject, scheduleObject, storagerObject, options)
-        .then(function() {
-          return DataManager.getAnalysis({id: analysisId, project_id: projectId}, options);
-        })
-
-        .then(function(analysisInstance) {
-          TcpService.send({
-            "DataSeries": [analysisInstance.dataSeries.toObject()],
-            "Analysis": [analysisInstance.toObject()]
-          });
-
-          return analysisInstance;        
-        });
+        .then(() => DataManager.getAnalysis({id: analysisId, project_id: projectId}, options));
     })
     // on commit
-    .then(function(analysis) {
-      return resolve(analysis);
-    })
-    // on rollback
-    .catch(function(err) {
-      return reject(err);
+    .then((analysis) => {
+      TcpService.send({
+        "DataSeries": [analysis.dataSeries.toObject()],
+        "Analysis": [analysis.toObject()]
+      });
+
+      return analysis;
     });
-  });
 };
 
 /**
  * It represents a common facade for analysis remove performs.
- * 
+ *
  * @param {number} analysisId - An analysis identifier
  * @param {number} projectId - A current project identifier
  * @return {Promise<Analysis>} A bluebird promise result
  */
-Analysis.delete = function(analysisId, projectId) {
-  return new PromiseClass(function(resolve, reject) {
-    DataManager.getAnalysis({id: analysisId, project_id: projectId}).then(function(analysis) {
-      DataManager.removeAnalysis({id: analysisId}, null).then(function() {
-        var objectToSend = {
-          "Analysis": [analysis.id],
-          "DataSeries": [analysis.dataSeries.id]
-        };
+Analysis.delete = async (analysisId, projectId) => {
+  // Retrieve Analysis to notify which one has been removed
+  const analysis = await DataManager.getAnalysis({id: analysisId, project_id: projectId});
+  // Remove analysis from database
+  await DataManager.removeAnalysis({id: analysisId}, null);
+  // Prepare assignature to send C++
+  const objectToSend = {
+    "Analysis": [analysis.id],
+    "DataSeries": [analysis.dataSeries.id]
+  };
+  await TcpService.remove(objectToSend, analysisId);
 
-        TcpService.remove(objectToSend, analysisId);
-
-        return resolve(analysis);
-      }).catch(function(err) {
-        return reject(err);
-      });
-    }).catch(function(err) {
-      return reject(err);
-    });
-  });
+  return resolve(analysis);
 };
 
 /**
- * It handles a Analysis Validation. It emits a dummy analysis to C++ services in order to check if 
- * it will able to generate a result 
- * 
+ * It handles a Analysis Validation. It emits a dummy analysis to C++ services in order to check if
+ * it will able to generate a result
+ *
  * @param {Object} analysisObject - An analysis object structure
  * @param {Object} storager - A storager object
  * @param {Object} scheduleObject - An schedule object structure
- * @param {number} projectId - A current project id 
+ * @param {number} projectId - A current project id
  * @return {Promise<Analysis>} A promise with analysis sent
  */
 Analysis.validate = function(analysisObject, storagerObject, scheduleObject, projectId) {
@@ -236,7 +209,7 @@ Analysis.validate = function(analysisObject, storagerObject, scheduleObject, pro
 
         return resolve(dummyAnalysis);
       })
-      
+
       .catch(function(err) {
         return reject(err);
       });
@@ -245,21 +218,17 @@ Analysis.validate = function(analysisObject, storagerObject, scheduleObject, pro
 
 /**
  * It changes the status of a given analysis
- * 
+ *
  * @param {number} analysisId - Analysis Identifier
  * @returns {Promise<DataProvider>}
  */
-Analysis.changeStatus = function(analysisId) {
-  return new PromiseClass(function(resolve, reject) {
-    return DataManager.changeAnalysisStatus({ id: parseInt(analysisId) }).then(function(result) {
-      return TcpService.send({
-        "Analysis": [result.analysis.toObject()],
-        "DataSeries": [result.dataSeries.toObject()]
-      });
-    }).then(function() {
-      resolve();
-    }).catch(function(err) {
-      reject(err);
-    });
+Analysis.changeStatus = async (analysisId) => {
+  const result = await DataManager.changeAnalysisStatus({ id: parseInt(analysisId) });
+
+  await TcpService.send({
+    "Analysis": [result.analysis.toObject()],
+    "DataSeries": [result.dataSeries.toObject()]
   });
+
+  return null;
 };
