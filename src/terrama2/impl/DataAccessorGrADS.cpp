@@ -286,7 +286,7 @@ void terrama2::core::DataAccessorGrADS::retrieveDataCallback(const terrama2::cor
                                           filter,
                                           timezone,
                                           remover,
-                                          temporaryDirectoryURI.toString().toStdString(),
+                                          temporaryDirectoryURI.toString(QUrl::NormalizePathSegments).toStdString(),
                                           completePath,
                                           [processFile, &completePath](const std::string& uri, const std::string& filename){
                                             processFile(uri, "");
