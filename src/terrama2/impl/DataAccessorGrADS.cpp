@@ -268,10 +268,6 @@ void terrama2::core::DataAccessorGrADS::retrieveDataCallback(const terrama2::cor
       if(binaryFileMask.empty())
         binaryFileMask = extractBinaryFileMaskFromControlFile(dataSet, ctlFile.absoluteFilePath().toStdString());
 
-      std::string completePath = controlFileFolderMask +
-                                 "/" + extractBinaryFolderPathFromControlFile(dataSet, ctlFile.absoluteFilePath().toStdString()) +
-                                 "/" + binaryFolderMask + "/";
-
       std::string timezone = "";
       try
       {
@@ -288,11 +284,11 @@ void terrama2::core::DataAccessorGrADS::retrieveDataCallback(const terrama2::cor
                                           remover,
                                           temporaryDirectoryURI.toString(QUrl::NormalizePathSegments).toStdString(),
                                           folderMatched,
-                                          [processFile, &completePath, &dir](const std::string& uri, const std::string& filename){
+                                          [processFile, &dir](const std::string& uri, const std::string& filename){
                                             processFile(dir.path().toStdString(), "");
                                             QUrl url(QString::fromStdString(uri));
                                             // remove file on finish processing
-                                            QString filePath = url.path()+QString::fromStdString("/"+completePath+"/"+filename);
+                                            QString filePath = url.path()+QString::fromStdString("/"+filename);
                                             QFile oldFile(filePath);
                                             if(oldFile.exists())
                                               oldFile.remove();

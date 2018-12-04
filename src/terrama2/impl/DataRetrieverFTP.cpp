@@ -312,7 +312,14 @@ void terrama2::core::DataRetrieverFTP::retrieveDataCallback(const std::string& m
       baseUriList = uriList;
     }
 
-    auto temporaryDataDir = getTemporaryFolder(remover, temporaryFolderUri);
+    // Build URI to get PATH fragment
+    te::core::URI dataProviderURI(dataProvider_->uri);
+    // Set temporary directory. When empty, creates a new pointing to dataProvider Path.
+    // In this way, we will have something like "temporaryDir/dataProviderPath"
+    // It is important due the folder may contains temporal mask
+    std::string temporaryDataDir = temporaryFolderUri;
+    if (temporaryFolderUri.empty())
+      temporaryDataDir = getTemporaryFolder(remover, temporaryFolderUri) + dataProviderURI.path();
 
     // flag if there is any files for the dataset
     bool hasData = false;
@@ -339,8 +346,7 @@ void terrama2::core::DataRetrieverFTP::retrieveDataCallback(const std::string& m
       hasData = true;
 
       te::core::URI u(uri);
-      const auto uriPath = u.path();
-
+      std::string uriPath = QString::fromStdString(u.path()).replace(dataProviderURI.path().c_str(), "/").toStdString();
 
       // Performs the download of files in the vectorNames
       for(const auto& file: vectorNames)
