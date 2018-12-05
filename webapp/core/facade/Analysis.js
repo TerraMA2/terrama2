@@ -168,7 +168,7 @@ Analysis.delete = async (analysisId, projectId) => {
   };
   await TcpService.remove(objectToSend, analysisId);
 
-  return resolve(analysis);
+  return analysis;
 };
 
 /**
