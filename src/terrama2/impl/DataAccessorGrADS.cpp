@@ -237,18 +237,6 @@ void terrama2::core::DataAccessorGrADS::retrieveDataCallback(const terrama2::cor
     QUrl url(QString::fromStdString(uri) + QString::fromStdString(folderMatched));
     QDir dir(url.path());
 
-    QDir temporaryDirectory(QString::fromStdString(uri) + QString::fromStdString(folderMatched));
-    auto pathFragments = QString::fromStdString(controlFileFolderMask).split("/");
-
-    if (!pathFragments.empty())
-    {
-      for(const auto& fragment: pathFragments)
-      {
-        if (!fragment.isEmpty())
-          temporaryDirectory.cdUp();
-      }
-    }
-
     QUrl temporaryDirectoryURI(QString::fromStdString(uri));
 
     auto fileList = dir.entryInfoList(QStringList("*.ctl"), QDir::Files | QDir::NoDotAndDotDot);
