@@ -1246,14 +1246,14 @@ std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorGrADS::generateDat
   std::string controlFileMask = getControlFileMask(dataSet);
   std::string controlFileFolderMask = getControlFileFolderMask(dataSet);
 
-  QStringList abc = getURIFragments(controlFileFolderMask);
+  QStringList maskFolderFragments = getURIFragments(controlFileFolderMask);
   QStringList normalizedFragments = getURIFragments(uri);
 
   const auto size = normalizedFragments.size();
   QString wrapURI;
   for(int i = 0; i <= normalizedFragments.size(); ++i)
   {
-    if (i == size - abc.size())
+    if (i == size - maskFolderFragments.size())
       break;
     wrapURI += "/" + normalizedFragments.takeFirst();
   }
