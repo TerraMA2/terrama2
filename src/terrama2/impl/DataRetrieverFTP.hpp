@@ -99,12 +99,12 @@ namespace terrama2
                                          const std::string& foldersMask = "") const override;
 
         virtual void retrieveDataCallback(const std::string& mask,
-                                        const Filter& filter,
-                                        const std::string& timezone,
-                                        std::shared_ptr<terrama2::core::FileRemover> remover,
-                                        const std::string& temporaryFolderUri,
-                                        const std::string& foldersMask,
-                                        std::function<void(const std::string& /*uri*/, const std::string& /*filename*/)> processFile) const override;
+                                          const Filter& filter,
+                                          const std::string& timezone,
+                                          std::shared_ptr<terrama2::core::FileRemover> remover,
+                                          const std::string& temporaryFolderUri,
+                                          const std::string& foldersMask,
+                                          std::function<void(const std::string& /*uri*/, const std::string& /*filename*/, const std::string& folderMatched)> processFile) const override;
 
         /*!
          * \brief Check if the URIs and their subfolders matches the folders mask.
@@ -113,7 +113,9 @@ namespace terrama2
          * \return A list with the full path of the URIs that matched the folders mask.
          */
         virtual std::vector<std::string> getFoldersList(const std::vector<std::string>& uris,
-                                                        const std::string& foldersMask) const;
+                                                        const std::string& foldersMask,
+                                                        const std::string& timezone = "UTC+00",
+                                                        const terrama2::core::Filter& filter = terrama2::core::Filter()) const;
 
         /*!
          * \brief Receives a list of URIs, check if theirs subfolders match with the mask and returns
@@ -123,7 +125,9 @@ namespace terrama2
          * \return Returns the full path of the subfolders that match the mask.
          */
         virtual std::vector<std::string> checkSubfolders(const std::vector<std::string> baseURIs,
-                                                         const std::string mask) const;
+                                                         const std::string mask,
+                                                         const std::string& timezone = "UTC+00",
+                                                         const terrama2::core::Filter& filter = terrama2::core::Filter()) const;
 
         static DataRetrieverPtr make(DataProviderPtr dataProvider);
         static DataRetrieverType dataRetrieverType() { return "FTP"; }

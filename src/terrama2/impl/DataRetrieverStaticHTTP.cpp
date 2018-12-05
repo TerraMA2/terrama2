@@ -175,7 +175,7 @@ void terrama2::core::DataRetrieverStaticHTTP::retrieveDataCallback(const std::st
                                                              std::shared_ptr<terrama2::core::FileRemover> remover,
                                                              const std::string& temporaryFolderUri,
                                                              const std::string& /*foldersMask*/,
-                                                             std::function<void(const std::string& /*uri*/, const std::string& /*filename*/)> processFile) const
+                                                             std::function<void(const std::string &, const std::string &, const std::string &)> processFile) const
 {
   std::string downloadBaseFolderUri = getTemporaryFolder(remover, temporaryFolderUri);
 
@@ -200,7 +200,7 @@ void terrama2::core::DataRetrieverStaticHTTP::retrieveDataCallback(const std::st
     try
     {
       curlwrapper_->downloadFile(uriOrigin, filePath);
-      processFile(downloadBaseFolderUri, mask);
+      processFile(downloadBaseFolderUri, mask, "");
     }
     catch(const te::Exception& e)
     {
@@ -223,7 +223,7 @@ void terrama2::core::DataRetrieverStaticHTTP::retrieveDataCallback(const std::st
         {
           curlwrapper_->setAuthenticationMethod(te::ws::core::HTTP_DIGEST);
           curlwrapper_->downloadFile(uriOrigin, filePath);
-          processFile(downloadBaseFolderUri, mask);
+          processFile(downloadBaseFolderUri, mask, "");
         }
         catch(const te::Exception& e)
         {

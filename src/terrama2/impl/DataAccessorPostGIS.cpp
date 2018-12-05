@@ -222,7 +222,7 @@ void terrama2::core::DataAccessorPostGIS::retrieveDataCallback(const terrama2::c
                                                                terrama2::core::DataSetPtr /*dataset*/,
                                                                const terrama2::core::Filter& /*filter*/,
                                                                std::shared_ptr<terrama2::core::FileRemover> /*remover*/,
-                                                               std::function<void (const std::string&)> /*processFile*/) const
+                                                               std::function<void(const std::string &, const std::string &)> /*processFile*/) const
 {
   QString errMsg = QObject::tr("Non retrievable DataProvider.");
   TERRAMA2_LOG_ERROR() << errMsg;
