@@ -302,6 +302,8 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
                            tableInfo.tableName,
                            layerName,
                            modelDataSetType,
+                           logger,
+                           logId,
                            "",
                            SQL);
 
@@ -420,6 +422,8 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
                              tableName,
                              layerName,
                              modelDataSetType,
+                             logger,
+                             logId,
                              timestampPropertyName,
                              SQL);
 
@@ -746,6 +750,8 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const ViewP
                                                                      const std::string& tableName,
                                                                      const std::string& layerName,
                                                                      const std::unique_ptr<te::da::DataSetType>& dataSetType,
+                                                                     std::shared_ptr<terrama2::core::ProcessLogger> logger,
+                                                                     const RegisterId logId,
                                                                      const std::string& timestampPropertyName,
                                                                      const std::string& sql) const
 {
@@ -812,8 +818,20 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const ViewP
       srid = std::to_string(geomProperty->getSRID());
     }
 
-    // Configuring SRID on Root XML configuration
-    xml += "<srs>EPSG:" + srid + "</srs>";
+    if (!srid.empty() || srid == "0")
+    {
+      const std::string msg("The SRID of layer '"+ layerName +"' is " + srid + ".");
+
+      QString warnMsg = QObject::tr(msg.c_str());
+      TERRAMA2_LOG_WARNING() << warnMsg;
+
+      logger->log(terrama2::core::ProcessLogger::MessageType::WARNING_MESSAGE, warnMsg.toStdString(), logId);
+    }
+    else
+    {
+      // Configuring SRID on Root XML configuration
+      xml += "<srs>EPSG:" + srid + "</srs>";
+    }
 
     metadataSQL = "<entry key='JDBC_VIRTUAL_TABLE'>"
                   "<virtualTable>"
@@ -1898,7 +1916,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
       std::map<std::string, std::string> options;
       dataSource->add(layerName, ds.get(), options);
     }
-    
+
     // register datastore and layer if they don't exists
     registerMosaicCoverage(viewPtr, layerName, url.path().toStdString(), layerName, vecRasterInfo[0], "", "all");
 

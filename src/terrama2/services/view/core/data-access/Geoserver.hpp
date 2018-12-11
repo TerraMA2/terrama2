@@ -148,6 +148,8 @@ namespace terrama2
                                       const std::string& tableName,
                                       const std::string& layerName,
                                       const std::unique_ptr<te::da::DataSetType>& dataSetType,
+                                      std::shared_ptr<terrama2::core::ProcessLogger> logger,
+                                      const RegisterId logId,
                                       const std::string& timestampPropertyName = "",
                                       const std::string& sql = "") const;
 
