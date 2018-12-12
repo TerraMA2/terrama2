@@ -413,10 +413,12 @@ void terrama2::core::DataAccessorCSV::addGeomProperty(QJsonObject fieldGeomObj, 
 
     // get columns from converted dataset
     auto longRemovePos = converter->getResult()->getPropertyPosition(oldLongProp->getName());
-    auto latRemovePos = converter->getResult()->getPropertyPosition(oldLatProp->getName());
-
-    //remove column from converted dataset
+   //remove column from converted dataset
     converter->remove(longRemovePos);
+
+    // get columns from converted dataset
+    auto latRemovePos = converter->getResult()->getPropertyPosition(oldLatProp->getName());
+    //remove column from converted dataset
     converter->remove(latRemovePos);
   }
   else
