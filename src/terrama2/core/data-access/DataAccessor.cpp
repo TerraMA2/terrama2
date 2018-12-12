@@ -334,7 +334,7 @@ void terrama2::core::DataAccessor::getSeriesCallback(const terrama2::core::Filte
     if(dataRetriever->isRetrivable())
     {
       auto dataSetId = dataset->id;
-      retrieveDataCallback(dataRetriever, dataset, filter, remover, [&dataSetId, processFile](const std::string& uri){processFile(dataSetId, uri); });
+      retrieveDataCallback(dataRetriever, dataset, filter, remover, [&dataSetId, processFile](const std::string& uri, const std::string& folderMatched){processFile(dataSetId, uri); });
     }
     else
     {

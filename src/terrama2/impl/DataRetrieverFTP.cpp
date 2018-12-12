@@ -104,7 +104,9 @@ bool terrama2::core::DataRetrieverFTP::isRetrivable() const noexcept
 }
 
 std::vector<std::string> terrama2::core::DataRetrieverFTP::getFoldersList(const std::vector<std::string>& uris,
-                                                                          const std::string& foldersMask) const
+                                                                          const std::string& foldersMask,
+                                                                          const std::string& timezone,
+                                                                          const Filter &filter) const
 {
   std::vector<std::string> maskList = splitString(foldersMask, '/');
 
@@ -116,7 +118,7 @@ std::vector<std::string> terrama2::core::DataRetrieverFTP::getFoldersList(const 
   for(const auto& mask : maskList)
   {
     if(!mask.empty())
-      folders = checkSubfolders(folders, mask);
+      folders = checkSubfolders(folders, mask, timezone, filter);
   }
 
   if(folders.empty())
@@ -129,7 +131,7 @@ std::vector<std::string> terrama2::core::DataRetrieverFTP::getFoldersList(const 
   return folders;
 }
 
-std::vector<std::string> terrama2::core::DataRetrieverFTP::checkSubfolders(const std::vector<std::string> baseURIs, const std::string mask) const
+std::vector<std::string> terrama2::core::DataRetrieverFTP::checkSubfolders(const std::vector<std::string> baseURIs, const std::string mask, const std::string& timezone, const Filter &filter) const
 {
   std::vector<std::string> folders;
 
@@ -144,7 +146,9 @@ std::vector<std::string> terrama2::core::DataRetrieverFTP::checkSubfolders(const
 
     for(const auto& folder : dirList)
     {
-      if(!terramaMaskMatch(mask, folder))
+      std::shared_ptr< te::dt::TimeInstantTZ > timestamp;
+//      if(!terramaMaskMatch(mask, folder))
+      if(!isValidDataSetName(mask, filter, timezone, folder, timestamp))
         continue;
 
       folders.push_back(uri + "/" + folder + "/");
@@ -284,7 +288,7 @@ void terrama2::core::DataRetrieverFTP::retrieveDataCallback(const std::string& m
                                                             std::shared_ptr<terrama2::core::FileRemover> remover,
                                                             const std::string& temporaryFolderUri,
                                                             const std::string& foldersMask,
-                                                            std::function<void(const std::string&, const std::string&)> processFile) const
+                                                            std::function<void(const std::string &, const std::string &, const std::string&)> processFile) const
 {
   try
   {
@@ -292,9 +296,11 @@ void terrama2::core::DataRetrieverFTP::retrieveDataCallback(const std::string& m
     std::vector< std::string > baseUriList;
     baseUriList.push_back(dataProvider_->uri);
 
+    auto tz = timezone.empty() ? "UTC+00" : timezone;
+
     if(!foldersMask.empty())
     {
-      auto uriList = getFoldersList(baseUriList, foldersMask);
+      auto uriList = getFoldersList(baseUriList, foldersMask, tz, filter);
 
       if(uriList.empty())
       {
@@ -305,6 +311,15 @@ void terrama2::core::DataRetrieverFTP::retrieveDataCallback(const std::string& m
 
       baseUriList = uriList;
     }
+
+    // Build URI to get PATH fragment
+    te::core::URI dataProviderURI(dataProvider_->uri);
+    // Set temporary directory. When empty, creates a new pointing to dataProvider Path.
+    // In this way, we will have something like "temporaryDir/dataProviderPath"
+    // It is important due the folder may contains temporal mask
+    std::string temporaryDataDir = temporaryFolderUri;
+    if (temporaryFolderUri.empty())
+      temporaryDataDir = getTemporaryFolder(remover, temporaryFolderUri) + dataProviderURI.path();
 
     // flag if there is any files for the dataset
     bool hasData = false;
@@ -319,7 +334,7 @@ void terrama2::core::DataRetrieverFTP::retrieveDataCallback(const std::string& m
       {
         // FIXME: use timestamp
         std::shared_ptr< te::dt::TimeInstantTZ > timestamp;
-        if(terrama2::core::isValidDataSetName(mask,filter, timezone.empty() ? "UTC+00" : timezone, fileName,timestamp))
+        if(terrama2::core::isValidDataSetName(mask,filter, tz, fileName,timestamp))
           vectorNames.push_back(fileName);
       }
 
@@ -330,15 +345,14 @@ void terrama2::core::DataRetrieverFTP::retrieveDataCallback(const std::string& m
 
       hasData = true;
 
+      te::core::URI u(uri);
+      std::string uriPath = QString::fromStdString(u.path()).replace(dataProviderURI.path().c_str(), "/").toStdString();
 
       // Performs the download of files in the vectorNames
       for(const auto& file: vectorNames)
       {
-
-        auto temporaryDataDir = getTemporaryFolder(remover, temporaryFolderUri);
-
         // Create directory struct
-        QString saveDir(QString::fromStdString(temporaryDataDir+ "/" + foldersMask));
+        QString saveDir(QString::fromStdString(temporaryDataDir+ "/" + uriPath));
         QString savePath = QUrl(saveDir).toLocalFile();
         QDir dir(savePath);
         if(!dir.exists())
@@ -354,7 +368,7 @@ void terrama2::core::DataRetrieverFTP::retrieveDataCallback(const std::string& m
         {
           curlwrapper_->downloadFile(uriOrigin, filePath);
           TERRAMA2_LOG_WARNING() << QObject::tr("Finished downloading file: %1").arg(QString::fromStdString(file));
-          processFile(temporaryDataDir, file);
+          processFile(temporaryDataDir, file, uriPath);
         }
         catch(const te::Exception& e)
         {

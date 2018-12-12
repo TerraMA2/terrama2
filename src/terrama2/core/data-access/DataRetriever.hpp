@@ -136,7 +136,8 @@ namespace terrama2
                                   std::shared_ptr<terrama2::core::FileRemover> remover,
                                   const std::string& temporaryFolderUri,
                                   const std::string& foldersMask,
-                                  std::function<void(const std::string& /*uri*/)> processFile) const;
+                                  std::function<void(const std::string& /*uri*/,
+                                                     const std::string&)> processFile) const;
 
       /*!
         \brief Downloads the remote file to a temporary location.
@@ -156,7 +157,9 @@ namespace terrama2
                                           std::shared_ptr<terrama2::core::FileRemover> /*remover*/,
                                           const std::string& /*temporaryFolderUri*/,
                                           const std::string& /*foldersMask*/,
-                                          std::function<void(const std::string& /*uri*/, const std::string& /*filename*/)> /*processFile*/) const;
+                                          std::function<void(const std::string& /*uri*/,
+                                                             const std::string& /*filename*/,
+                                                             const std::string& /*folderMatched*/)> /*processFile*/) const;
 
         //! Returns the last data timestamp found on last access.
         virtual te::dt::TimeInstantTZ lastDateTime() const;

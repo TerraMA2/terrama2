@@ -138,6 +138,14 @@ namespace terrama2
     TECOREEXPORT std::string getProperty(DataSetPtr dataSet, DataSeriesPtr dataSeries, std::string tag, bool logErrors = true);
 
     /*!
+     * \brief Retrieves table name from TerraMA2 DataSet
+     * \throws UndefinedTagException when table_name not found
+     * \param dataSet TerraMA2 dataset
+     * \return Table name from given dataset
+     */
+    TECOREEXPORT std::string getTableNameProperty(DataSetPtr dataSet);
+
+    /*!
       \brief Remove complex characters from the string
 
       This method remove any non-alphanumeric character:

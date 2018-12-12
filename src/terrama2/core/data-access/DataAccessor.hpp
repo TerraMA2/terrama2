@@ -265,7 +265,8 @@ namespace terrama2
                                           DataSetPtr dataset,
                                           const Filter& filter,
                                           std::shared_ptr<FileRemover> remover,
-                                          std::function<void(const std::string& /*uri*/)> processFile) const = 0;
+                                          std::function<void(const std::string& /*uri*/,
+                                                             const std::string& /*folderMatched*/)> processFile) const = 0;
 
         /*!
            \brief Get a memory dataset of the terrama2::core::DataSet.

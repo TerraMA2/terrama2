@@ -75,7 +75,7 @@ namespace terrama2
         virtual void retrieveDataCallback(const DataRetrieverPtr dataRetriever,
                                           DataSetPtr dataset,
                                           const Filter& filter,
-                                          std::shared_ptr<FileRemover> remover, std::function<void(const std::string& /*uri*/)>) const override;
+                                          std::shared_ptr<FileRemover> remover, std::function<void(const std::string &, const std::string &)>) const override;
 
         virtual std::string whereConditions(terrama2::core::DataSetPtr dataSet,
                                             const std::string datetimeColumnName,

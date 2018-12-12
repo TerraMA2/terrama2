@@ -89,7 +89,8 @@ namespace terrama2
                                            DataSetPtr dataset,
                                            const Filter& filter,
                                            std::shared_ptr<FileRemover> remover,
-                                           std::function<void(const std::string& /*uri*/)> processFile) const override;
+                                           std::function<void(const std::string& /*uri*/,
+                                                              const std::string &)> processFile) const override;
         /*!
           \brief Convert number to TimeInstantTZ.
         */

@@ -45,6 +45,7 @@
 
 // TerraLib
 #include <terralib/core/uri/URI.h>
+#include <terralib/core/uri/Utils.h>
 #include <terralib/core/Exception.h>
 
 // Libcurl
@@ -167,8 +168,7 @@ std::string terrama2::core::DataRetrieverHTTP::retrieveData(const std::string& m
         std::string uriOrigin = dataProvider_->uri + "/" + foldersMask + "/" + file;
         std::string filePath = savePath.toStdString() + "/" + file;
 
-        te::core::URI uri(uriOrigin);
-
+        te::core::URI uri(te::core::URIDecode(uriOrigin));
         std::string user = uri.user();
         std::string password = uri.password();
 
@@ -259,7 +259,7 @@ void terrama2::core::DataRetrieverHTTP::retrieveDataCallback(const std::string& 
                                                              std::shared_ptr<terrama2::core::FileRemover> remover,
                                                              const std::string& temporaryFolderUri,
                                                              const std::string& foldersMask,
-                                                             std::function<void(const std::string& /*uri*/, const std::string& /*filename*/)> processFile) const
+                                                             std::function<void(const std::string &, const std::string &, const std::string &)> processFile) const
 {
   try
   {
@@ -293,7 +293,7 @@ void terrama2::core::DataRetrieverHTTP::retrieveDataCallback(const std::string& 
         std::string uriOrigin = dataProvider_->uri + "/" + foldersMask + "/" + file;
         std::string filePath = savePath.toStdString() + "/" + file;
 
-        te::core::URI uri(uriOrigin);
+        te::core::URI uri(te::core::URIDecode(uriOrigin));
 
         std::string user = uri.user();
         std::string password = uri.password();
@@ -308,7 +308,7 @@ void terrama2::core::DataRetrieverHTTP::retrieveDataCallback(const std::string& 
         try
         {
           curlwrapper_->downloadFile(uriOrigin, filePath);
-          processFile(temporaryDataDir, file);
+          processFile(temporaryDataDir, file, "");
         }
         catch(const te::Exception& e)
         {
@@ -330,7 +330,7 @@ void terrama2::core::DataRetrieverHTTP::retrieveDataCallback(const std::string& 
             {
               curlwrapper_->setAuthenticationMethod(te::ws::core::HTTP_DIGEST);
               curlwrapper_->downloadFile(uriOrigin, filePath);
-              processFile(temporaryDataDir, file);
+              processFile(temporaryDataDir, file, "");
             }
             catch(const te::Exception& e)
             {
