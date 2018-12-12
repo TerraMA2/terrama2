@@ -30,9 +30,11 @@
 // TerraMA2
 
 #include "AnalysisExecutor.hpp"
-#include "python/PythonInterpreter.hpp"
-#include "DataManager.hpp"
 #include "ContextManager.hpp"
+#include "DataManager.hpp"
+#include "GeometryIntersectionContext.hpp"
+#include "GridContext.hpp"
+#include "python/PythonInterpreter.hpp"
 #include "utility/Verify.hpp"
 #include "../../../core/data-access/SynchronizedDataSet.hpp"
 #include "../../../core/utility/Logger.hpp"
@@ -40,7 +42,9 @@
 #include "../../../core/utility/TimeUtils.hpp"
 #include "../../../core/utility/StoragerManager.hpp"
 #include "../../../core/data-model/DataProvider.hpp"
-#include "GridContext.hpp"
+
+
+#include "BufferMemory.hpp"
 
 // STL
 #include <thread>
@@ -121,6 +125,11 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
       case AnalysisType::GRID_TYPE:
       {
         runGridAnalysis(dataManager, storagerManager, analysis, startTime, threadPool, mainThreadState);
+        break;
+      }
+      case AnalysisType::GEOMETRIC_INTERSECTION_TYPE:
+      {
+        runGeometricIntersectionAnalysis(dataManager, storagerManager, analysis, startTime, threadPool);
         break;
       }
     }
@@ -358,6 +367,87 @@ void terrama2::services::analysis::core::AnalysisExecutor::runMonitoredObjectAna
     // delete my thread state object
     PyThreadState_Delete(state);
   }
+}
+
+void terrama2::services::analysis::core::AnalysisExecutor::runGeometricIntersectionAnalysis(terrama2::services::analysis::core::DataManagerPtr dataManager,
+                                                                                            terrama2::core::StoragerManagerPtr storagerManager,
+                                                                                            terrama2::services::analysis::core::AnalysisPtr analysis,
+                                                                                            std::shared_ptr<te::dt::TimeInstantTZ> startTime,
+                                                                                            ThreadPoolPtr /*threadPool*/)
+{
+  auto context = std::make_shared<terrama2::services::analysis::core::GeometryIntersectionContext>(dataManager, analysis, startTime);
+  ContextManager::getInstance().addGeometryContext(analysis->hashCode(startTime), context);
+
+  std::vector<std::future<void> > futures;
+
+  try
+  {
+    // Load DataSet
+    context->load();
+
+    size_t size = 0;
+    for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
+    {
+      if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
+      {
+        auto moDataSeries = context->getStaticDataSeries();
+        size = moDataSeries->series.syncDataSet->size();
+        break;
+      }
+    }
+
+    if(size == 0)
+    {
+      QString errMsg = QObject::tr("Could not recover monitored object dataset.");
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
+
+    auto staticDS = context->getStaticDataSeries();
+    auto geometryStaticDS = staticDS->series.syncDataSet->getGeometry(0, staticDS->geometryPos);
+    auto geomResult = createBuffer(BufferType::NONE, geometryStaticDS);
+
+    auto dynamicDS = context->getDynamicDataSeries();
+    auto dynamicGeometry = dynamicDS->series.syncDataSet->getGeometry(0, dynamicDS->geometryPos);
+    geomResult->transform(dynamicGeometry->getSRID());
+
+    if (geomResult->intersects(dynamicGeometry.get()))
+    {
+
+    }
+
+//    storeMonitoredObjectAnalysisResult(dataManager, storagerManager, context);
+  }
+  catch(const terrama2::Exception& e)
+  {
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f)
+    {
+      if(f.valid())
+        f.get();
+    });
+  }
+  catch(const std::exception& e)
+  {
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, e.what());
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f)
+    {
+      if(f.valid())
+        f.get();
+    });
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("An unknown exception occurred.");
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
+    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f)
+    {
+      if(f.valid())
+        f.get();
+    });
+  }
+
+
+
 }
 
 void terrama2::services::analysis::core::AnalysisExecutor::runDCPAnalysis(DataManagerPtr dataManager,
