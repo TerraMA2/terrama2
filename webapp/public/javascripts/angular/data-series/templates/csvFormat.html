@@ -15,6 +15,13 @@
     </div>
   </div>
 
+  <div class="col-md-1 col-sm-2 col-xs-3">
+    <div class="form-group" terrama2-show-errors>
+      <label ng-bind="$ctrl.i18n.__('Delimiter')+':'"></label>
+      <input class="form-control" id="delimiter" name="delimiter" type="text" ng-model="$ctrl.csvFormatData.delimiter" ng-value="','" required>
+    </div>
+  </div>
+
   <div class="col-md-2">
     <div class="form-group">
       <div class="checkbox">

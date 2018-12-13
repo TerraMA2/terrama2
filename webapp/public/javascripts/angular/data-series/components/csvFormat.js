@@ -19,7 +19,7 @@ define([],function(){
    * 
    * @param {any} i18n - TerraMA² Internationalization module
    */
-  function CsvFormatController($scope, $element, $attrs, i18n) {
+  function CsvFormatController(i18n, $timeout) {
     var ctrl = this;
     ctrl.i18n = i18n;
 
@@ -45,8 +45,16 @@ define([],function(){
         ctrl.csvFormatData.fields.splice(idx, 1);
       }
     };
+
+    $timeout(() => {
+      const { csvFormatData } = this;
+
+      if (csvFormatData) {
+        csvFormatData.delimiter = csvFormatData.delimiter || ',';
+      }
+    });
   }
 
-  CsvFormatController.$inject = ['$scope', '$element', '$attrs', 'i18n']; 
+  CsvFormatController.$inject = ['i18n', '$timeout']; 
   return terrama2CsvFormatComponent;
 })
