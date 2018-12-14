@@ -671,6 +671,23 @@ define([], function() {
             success: false
           };
 
+          $scope.uploaded = false;
+
+          const modal = $("#shapefileModal");
+          // Remove previous listenet to avoid call function save twice
+          modal.off();
+
+          /**
+           * Event listener when upload shapefile call save method automatically
+           *
+           * @todo Review this directive and refactory to work as component style, attaching function callback on
+           */
+          modal.on('hidden.bs.modal', () => {
+            if ($scope.uploaded) {
+              $scope.save();
+            }
+          });
+
           $scope.openImportShapefileModal = function() {
             $scope.shpImport.srid = null;
             $scope.shpImport.encoding = "latin1";
@@ -701,6 +718,9 @@ define([], function() {
                     mask: $scope.model['mask'],
                     dataProviderId: $scope.dataSeries.data_provider_id
                   }
+                })
+                .then(() => {
+                  $scope.uploaded = true;
                 });
 
                 file.upload.then(function(response) {
