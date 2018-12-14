@@ -206,6 +206,15 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
         if(executionPackage.registerId != 0)
           logger->log(CollectorLogger::MessageType::WARNING_MESSAGE, errMsg, executionPackage.registerId);
       }
+      catch(const terrama2::core::DataAccessorException& e)
+      {
+        status = CollectorLogger::ProcessLogger::Status::ERROR;
+        std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+        TERRAMA2_LOG_INFO() << errMsg;
+
+        if(executionPackage.registerId != 0)
+          logger->log(CollectorLogger::MessageType::ERROR_MESSAGE, errMsg, executionPackage.registerId);
+      }
       catch(const terrama2::Exception& e)
       {
         status = CollectorLogger::ProcessLogger::Status::ERROR;
