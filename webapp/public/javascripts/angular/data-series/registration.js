@@ -56,7 +56,7 @@ define([], function() {
       metadata: true,
       type: $scope.isDynamic ? "dynamic" : "static"
     };
-    $scope.csvFormatData = { fields: [{type: "DATETIME"}], convert_all: false};
+    $scope.csvFormatData = { fields: [{type: "DATETIME"}], convert_all: false, delimiter: ',' };
     // defining box
     $scope.cssBoxSolid = {
       boxType: "box-solid"
@@ -500,7 +500,7 @@ define([], function() {
         $scope.semanticsCode = $scope.dataSeries.semantics.code;
 
         if (!$scope.isUpdating){
-          $scope.csvFormatData = { fields: [{type: "DATETIME"}], convert_all: false};
+          $scope.csvFormatData = { fields: [{type: "DATETIME"}], convert_all: false, delimiter: ',' };
           clearStoreForm();
         }
         $scope.custom_format = $scope.dataSeries.semantics.custom_format;
@@ -719,6 +719,7 @@ define([], function() {
                   $scope.csvFormatData.default_type = inputDataSeries.dataSets[i].format.default_type;
                   $scope.csvFormatData.convert_all = (inputDataSeries.dataSets[i].format.convert_all == "true");
                   $scope.csvFormatData.properties_names_line = parseInt(inputDataSeries.dataSets[i].format.properties_names_line);
+                  $scope.csvFormatData.delimiter = inputDataSeries.dataSets[i].format.delimiter;
                 }
               } // end for
 
@@ -751,6 +752,7 @@ define([], function() {
               if(inputDataSeries.data_series_semantics.custom_format) {
                 $scope.csvFormatData.fields = JSON.parse(dataSetFormat.fields)
                 $scope.csvFormatData.header_size = parseInt(dataSetFormat.header_size);
+                $scope.csvFormatData.delimiter = dataSetFormat.delimiter;
                 $scope.csvFormatData.default_type = dataSetFormat.default_type;
                 $scope.csvFormatData.convert_all = (dataSetFormat.convert_all == "true");
                 $scope.csvFormatData.properties_names_line = parseInt(dataSetFormat.properties_names_line);
