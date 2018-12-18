@@ -552,10 +552,14 @@ void terrama2::core::Service::startProcess(ProcessId processId, std::shared_ptr<
   catch(const terrama2::InvalidArgumentException& /*e*/)
   {
     // It is not required to log since the children already did it
+    // TODO: Remove throw to avoid program crash and ask for ADD_DATA_SIGNAL again
+    // since sometimes the server does not initialize properly datamanager.
+    // And you may face the user trying to start a process that was not added in DataManager.
+    throw;
   }
   catch(...)
   {
-    QString errMsg = tr("Unknown error: Could not start process '%1'").arg(processId);
+     QString errMsg = tr("Unknown error: Could not start process '%1'").arg(processId);
     TERRAMA2_LOG_ERROR() << errMsg;
     throw;
   }
