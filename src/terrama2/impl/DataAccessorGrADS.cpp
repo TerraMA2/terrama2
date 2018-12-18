@@ -284,7 +284,7 @@ void terrama2::core::DataAccessorGrADS::retrieveDataCallback(const terrama2::cor
                                           temporaryDirectoryURI.toString(QUrl::NormalizePathSegments).toStdString(),
                                           folderMatched,
                                           [processFile, &dir](const std::string& uri, const std::string& filename){
-                                            processFile(dir.path().toStdString(), "");
+                                            processFile(uri, filename);
                                             QUrl url(QString::fromStdString(uri));
                                             // remove file on finish processing
                                             QString filePath = url.path()+QString::fromStdString("/"+filename);
@@ -1222,16 +1222,6 @@ std::string terrama2::core::trim(const std::string& value)
   return QString::fromStdString(str).trimmed().toStdString();
 }
 
-QStringList getURIFragments(const std::string& uri)
-{
-  auto fragments = QString::fromStdString(uri).split("/");
-  QStringList output;
-  for(const auto& fragment: fragments)
-    if (!fragment.isEmpty())
-      output.append(fragment);
-  return std::move(output);
-}
-
 std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorGrADS::generateDataSet(const std::string& uri,
                                                                                      const terrama2::core::Filter& filter,
                                                                                      terrama2::core::DataSetPtr dataSet,
@@ -1245,22 +1235,8 @@ std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorGrADS::generateDat
   std::string controlFileMask = getControlFileMask(dataSet);
   std::string controlFileFolderMask = getControlFileFolderMask(dataSet);
 
-  QStringList maskFolderFragments = getURIFragments(controlFileFolderMask);
-  QStringList normalizedFragments = getURIFragments(uri);
+  auto ctlFileList = getFilesList(uri, controlFileMask, controlFileFolderMask, filter, timezone, remover);
 
-  const auto size = normalizedFragments.size();
-  QString wrapURI;
-  for(int i = 0; i <= normalizedFragments.size(); ++i)
-  {
-    if (i == size - maskFolderFragments.size())
-      break;
-    wrapURI += "/" + normalizedFragments.takeFirst();
-  }
-  wrapURI = wrapURI.replace("/file:", "file://");
-
-  controlFileFolderMask = "/" + normalizedFragments.join("/").toStdString();
-
-  auto ctlFileList = getFilesList(wrapURI.toStdString(), controlFileMask, controlFileFolderMask, filter, timezone, remover);
   for(const auto& ctlFile : ctlFileList)
   {
 
@@ -1275,7 +1251,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorGrADS::generateDat
                                "/" + extractBinaryFolderPathFromControlFile(dataSet, ctlFile.absoluteFilePath().toStdString()) +
                                "/" + binaryFolderMask + "/";
 
-    auto binaryFileList = getFilesList(wrapURI.toStdString(), binaryFileMask, completePath, filter, timezone, remover);
+    auto binaryFileList = getFilesList(uri, binaryFileMask, completePath, filter, timezone, remover);
     lastFileTimestamp = readFilesAndAddToDataset(series, completeDataset, binaryFileList, binaryFileMask, dataSet);
   }
 
