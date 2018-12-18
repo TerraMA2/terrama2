@@ -540,10 +540,23 @@ void terrama2::core::Service::addToQueue(ProcessPtr process, std::shared_ptr<te:
 
 void terrama2::core::Service::startProcess(ProcessId processId, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
 {
-  auto process = getProcess(processId);
+  try
+  {
+    auto process = getProcess(processId);
 
-  if(process->schedule.reprocessingHistoricalData)
-    addReprocessingToQueue(process);
-  else
-    addToQueue(process, startTime);
+    if(process->schedule.reprocessingHistoricalData)
+      addReprocessingToQueue(process);
+    else
+      addToQueue(process, startTime);
+  }
+  catch(const terrama2::InvalidArgumentException& /*e*/)
+  {
+    // It is not required to log since the children already did it
+  }
+  catch(...)
+  {
+    QString errMsg = tr("Unknown error: Could not start process '%1'").arg(processId);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw;
+  }
 }
