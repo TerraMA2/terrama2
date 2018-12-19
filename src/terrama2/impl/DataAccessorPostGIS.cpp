@@ -176,6 +176,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
   if (!filter.monitoredIdentifier.empty())
     query += " GROUP BY " + filter.joinableTable + "." + filter.monitoredIdentifier;
 
+  std::cout << query << std::endl;
 //  TERRAMA2_LOG_DEBUG() << query;
 
   std::shared_ptr<te::da::DataSet> tempDataSet = transactor->query(query);
@@ -295,6 +296,14 @@ void terrama2::core::DataAccessorPostGIS::updateLastTimestamp(DataSetPtr dataSet
   else if(lastDateTime->getDateTimeType() == te::dt::TIME_INSTANT_TZ)
   {
     lastDateTimeTz = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(lastDateTime);
+  }
+  else if(lastDateTime->getDateTimeType() == te::dt::DATE)
+  {
+    auto dateString = lastDateTime->toString();
+    boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateString +" 23:59:59"));
+    boost::local_time::local_date_time boostLocalTime(boostDate, nullptr);
+
+    lastDateTimeTz = std::make_shared<te::dt::TimeInstantTZ>(boostLocalTime);
   }
   else
   {

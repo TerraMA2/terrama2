@@ -412,7 +412,12 @@ void terrama2::services::analysis::core::AnalysisExecutor::runGeometricIntersect
 
     if (geomResult->intersects(dynamicGeometry.get()))
     {
-
+      std::cout << "Bate" << std::endl;
+      auto intersection = geomResult->intersection(dynamicGeometry.get());
+    }
+    else
+    {
+      std::cout << "NAO DEU" << std::endl;
     }
 
 //    storeMonitoredObjectAnalysisResult(dataManager, storagerManager, context);
@@ -420,30 +425,18 @@ void terrama2::services::analysis::core::AnalysisExecutor::runGeometricIntersect
   catch(const terrama2::Exception& e)
   {
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f)
-    {
-      if(f.valid())
-        f.get();
-    });
+    throw;
   }
   catch(const std::exception& e)
   {
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, e.what());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f)
-    {
-      if(f.valid())
-        f.get();
-    });
+    throw;
   }
   catch(...)
   {
     QString errMsg = QObject::tr("An unknown exception occurred.");
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
-    std::for_each(futures.begin(), futures.end(), [](std::future<void>& f)
-    {
-      if(f.valid())
-        f.get();
-    });
+    throw;
   }
 
 

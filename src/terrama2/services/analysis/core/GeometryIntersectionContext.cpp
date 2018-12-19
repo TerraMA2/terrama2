@@ -110,7 +110,50 @@ void terrama2::services::analysis::core::GeometryIntersectionContext::load()
     }
     else // Dynamic Data Series
     {
+      assert(datasets.size() == 1);
+      auto dataset = datasets[0];
 
+      auto dataProvider = dataManagerPtr->findDataProvider(dataSeriesPtr->dataProviderId);
+      terrama2::core::Filter filter;
+      filter.discardAfter = getStartTime();
+      filter.lastValues = std::make_shared<size_t>(1);
+
+      //accessing data
+      terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeriesPtr);
+      auto seriesMap = accessor->getSeries(filter, remover_);
+      auto series = seriesMap[dataset];
+
+      std::string identifier;
+      try
+      {
+        identifier = analysisDataSeries.metadata.at("identifier");
+      }
+      catch (...)
+      {
+        /* code */
+      }
+
+      auto dataSeriesContext = std::make_shared<GeoIntersectionDataSeries>();
+
+      if(!series.syncDataSet)
+      {
+        QString errMsg(QObject::tr("No data available for DataSeries %1").arg(dataSeriesPtr->id));
+        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+      }
+
+      if(!series.syncDataSet->dataset())
+      {
+        QString errMsg(QObject::tr("Adding an invalid dataset to the analysis context: DataSeries %1").arg(dataSeriesPtr->id));
+        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
+      }
+
+      std::size_t geomPropertyPosition = te::da::GetFirstPropertyPos(series.syncDataSet->dataset().get(), te::dt::GEOMETRY_TYPE);
+
+      dataSeriesContext->series = series;
+      dataSeriesContext->identifier = identifier;
+      dataSeriesContext->geometryPos = geomPropertyPosition;
+
+      dynamicDataSeries_ = dataSeriesContext;
     }
   }
 }
