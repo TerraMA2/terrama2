@@ -27,7 +27,7 @@ var ServicePortChecker = function(io) {
         client.emit('testPortNumberResponse', response);
       })
     });
-    
+
     // Postgis connection request event
     client.on('suggestPortNumber', function(json) {
       var returnObject = {
@@ -60,10 +60,6 @@ var ServicePortChecker = function(io) {
         client.emit('suggestPortNumberResponse', returnObject);
       })
     });
-
-    client.on('disconnect', function() {
-      console.log("ServicePortChecker disconnected");
-    })
   });
 };
 
