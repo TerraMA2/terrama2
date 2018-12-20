@@ -126,33 +126,37 @@ TcpService.prototype.constructor = TcpService;
  * @returns {Promise}
  */
 TcpService.prototype.init = async function() {
-  // register listeners
-  const instances = await DataManager.listServiceInstances()
-  // TODO: throw exception
-  var promises = [];
-  if (!this.$loaded) {
-    // registering tcp manager listener
-    TcpManager.on("statusReceived", onStatusReceived);
-    TcpManager.on("logReceived", onLogReceived);
-    TcpManager.on("stop", onStop);
-    TcpManager.on("close", onClose);
-    TcpManager.on("tcpError", onError);
-    TcpManager.on("processFinished", onProcessFinished);
-    TcpManager.on("serviceVersion", onServiceVersionReceived);
-    TcpManager.on("processValidated", onProcessValidated);
-    TcpManager.on("notifyView", onNotifyView);
+  try {
+    // register listeners
+    const instances = await DataManager.listServiceInstances()
+    // TODO: throw exception
+    var promises = [];
+    if (!this.$loaded) {
+      // registering tcp manager listener
+      TcpManager.on("statusReceived", onStatusReceived);
+      TcpManager.on("logReceived", onLogReceived);
+      TcpManager.on("stop", onStop);
+      TcpManager.on("close", onClose);
+      TcpManager.on("tcpError", onError);
+      TcpManager.on("processFinished", onProcessFinished);
+      TcpManager.on("serviceVersion", onServiceVersionReceived);
+      TcpManager.on("processValidated", onProcessValidated);
+      TcpManager.on("notifyView", onNotifyView);
 
-    this.$loaded = true;
+      this.$loaded = true;
 
-    for(let instance of instances) {
-      // register cache
-      this.register(instance);
-      // tries to connect automatically on running services
-      promises.push(this.$sendStatus(instance));
+      for(let instance of instances) {
+        // register cache
+        this.register(instance);
+        // tries to connect automatically on running services
+        promises.push(this.$sendStatus(instance));
+      }
     }
-  }
 
-  return await PromiseClass.all(promises);
+    await PromiseClass.all(promises);
+  } finally {
+    return null;
+  }
 };
 
 /**
