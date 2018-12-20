@@ -137,7 +137,7 @@ namespace terrama2
           /*!
             \brief Extracts the error message from Python interpreter.
           */
-          std::string extractException();
+          std::string extractException(terrama2::services::analysis::core::AnalysisPtr analysis = nullptr);
 
           /*!
             \brief Insert the analysis script in a function.
@@ -146,7 +146,9 @@ namespace terrama2
           std::string prepareScript(AnalysisPtr analysis);
 
           /*!
-            \brief Validates an analysis script
+            \brief Load Analysis scripts in Python Interpreter and apply statically validation
+            \todo Since we are working with interpreted language, most of errors occurs in runtime.
+                  In this way, we must apply other validations, such ZeroDivisionError, etc.
             \param analysis Pointer to the analysis object.
             \param validateResult Reference to the object containing the result of all validations.
           */
