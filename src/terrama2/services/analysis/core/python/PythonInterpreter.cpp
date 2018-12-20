@@ -498,8 +498,7 @@ BOOST_PYTHON_MODULE(terrama2)
   .value("Level", terrama2::services::analysis::core::LEVEL);
 
   // Export class Buffer enum to python
-  // Export class Buffer enum to python
-class_<terrama2::services::analysis::core::Buffer>("Buffer", init<>())
+  class_<terrama2::services::analysis::core::Buffer>("Buffer", init<>())
   .def(init<terrama2::services::analysis::core::BufferType>())
   .def(init<terrama2::services::analysis::core::BufferType, double, std::string>())
   .def(init<terrama2::services::analysis::core::BufferType, double, std::string, double, std::string>())
