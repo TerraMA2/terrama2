@@ -132,7 +132,7 @@
             <span class="loading ng-hide" ng-show="extra.isImporting">
               <i class="fa fa-refresh fa-spin"></i>
             </span>
-            <i class="fa fa-upload"></i>
+            <i class="fa fa-download"></i>
           </a>
           <a ng-href="{{ extra.canRemove ? linkToAdd : ''}}"
             ng-show="!extra.importFromAnotherProject"
@@ -281,7 +281,7 @@
               <span class="loading ng-hide" ng-show="extra.isExporting">
                 <i class="fa fa-refresh fa-spin"></i>
               </span>
-              <i class="fa fa-download" ng-show="!extra.isExporting"></i>
+              <i class="fa fa-upload" ng-show="!extra.isExporting"></i>
             </button>
           </td>
 
