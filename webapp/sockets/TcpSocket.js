@@ -273,19 +273,22 @@ var TcpSocket = function(io) {
     /**
      * Listener for handling status signal when try to delete an object.
      *
+     * **This method does not throw exception.**
+     *
+     * @emits #statusToDeleteResponse
      * @param {Object} json - A given arguments sent by client
      * @param {number} json.service - A TerraMA² service instance id
      */
-    function onStatusToDeleteRequest(json){
-      TcpService.statusToDelete(json).then(function(result){
-        iosocket.emit("statusToDeleteResponse", result);
-      });
+    async function onStatusToDeleteRequest(json){
+      const result = await TcpService.statusToDelete(json);
+
+      client.emit("statusToDeleteResponse", result);
     }
 
     /**
      * Listener for handling STOP service signal. When called, it sends a STOP_SERVICE signal followed by a STATUS_SERVICE.
-     * Once TerraMA² executable receives STOP_SERVICE, it starts changing shutdown the running active processes, so it may
-     * take a few seconds/minutes to finish.
+     * Once TerraMA² executable receives STOP_SERVICE, the thread handler waits for the completition and the internal state
+     * will be changed to "shutting down", so it may take a few minutes to finalize properly.
      *
      * @param {Object} json - A given arguments sent by client
      * @param {number} json.service - A TerraMA² service instance id

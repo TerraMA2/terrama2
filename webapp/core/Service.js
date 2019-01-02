@@ -222,7 +222,7 @@ var Service = module.exports = function(serviceInstance) {
     }
   });
 
-  self.socket.on('drain', function() {
+  self.socket.on('drain', () => {
     logger.debug('drained');
   });
 
@@ -296,9 +296,7 @@ var Service = module.exports = function(serviceInstance) {
     // tmp.set(new Buffer.from(buffer), beginOfMessage.length);
     // tmp.set(new Buffer.from(endOfMessage), buffer.length+beginOfMessage.length);
 
-    self.writeData(buffer, null, null, function() {
-      logger.debug("Sent all");
-    });
+    self.writeData(buffer, null, null, () => { });
   };
 
   self.stop = function(buffer) {

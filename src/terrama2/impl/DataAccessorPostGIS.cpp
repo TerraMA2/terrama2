@@ -178,7 +178,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
   {
     query += " GROUP BY " + filter.joinableTable + "." + filter.monitoredIdentifier;
 
-    for(int i = 3; i <= filter.fields.size(); ++i)
+    for(std::size_t i = 3; i <= filter.fields.size(); ++i)
       query += ", " + std::to_string(i);
   }
 

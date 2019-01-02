@@ -123,47 +123,40 @@ TcpService.prototype.constructor = TcpService;
 /**
  * It initializes service listeners based on database service
  *
- * @param {boolean} shouldConnect - Flag to determine if tries to connect on running service
  * @returns {Promise}
  */
-TcpService.prototype.init = function(shouldConnect) {
-  var self = this;
-  return new PromiseClass(function(resolve) {
+TcpService.prototype.init = async function() {
+  try {
     // register listeners
-    return DataManager.listServiceInstances()
-      .then(function(instances) {
-        // TODO: throw exception
-        var promises = [];
-        if (!self.$loaded) {
-          // registering tcp manager listener
-          TcpManager.on("statusReceived", onStatusReceived);
-          TcpManager.on("logReceived", onLogReceived);
-          TcpManager.on("stop", onStop);
-          TcpManager.on("close", onClose);
-          TcpManager.on("tcpError", onError);
-          TcpManager.on("processFinished", onProcessFinished);
-          TcpManager.on("serviceVersion", onServiceVersionReceived);
-          TcpManager.on("processValidated", onProcessValidated);
-          TcpManager.on("notifyView", onNotifyView);
+    const instances = await DataManager.listServiceInstances()
+    // TODO: throw exception
+    var promises = [];
+    if (!this.$loaded) {
+      // registering tcp manager listener
+      TcpManager.on("statusReceived", onStatusReceived);
+      TcpManager.on("logReceived", onLogReceived);
+      TcpManager.on("stop", onStop);
+      TcpManager.on("close", onClose);
+      TcpManager.on("tcpError", onError);
+      TcpManager.on("processFinished", onProcessFinished);
+      TcpManager.on("serviceVersion", onServiceVersionReceived);
+      TcpManager.on("processValidated", onProcessValidated);
+      TcpManager.on("notifyView", onNotifyView);
 
-          self.$loaded = true;
-          instances.forEach(function(instance) {
-            // register cache
-            self.register(instance);
-            // tries to connect automatically on running services
-            promises.push(self.$sendStatus(instance));
-          });
-        }
+      this.$loaded = true;
 
-        return PromiseClass.all(promises)
-          .then(function() {
-            return resolve();
-          })
-          .catch(function(err) {
-            return resolve();
-          });
-      });
-  });
+      for(let instance of instances) {
+        // register cache
+        this.register(instance);
+        // tries to connect automatically on running services
+        promises.push(this.$sendStatus(instance));
+      }
+    }
+
+    await PromiseClass.all(promises);
+  } finally {
+    return null;
+  }
 };
 
 /**
@@ -171,27 +164,24 @@ TcpService.prototype.init = function(shouldConnect) {
  *
  * @returns {Promise}
  */
-TcpService.prototype.finalize = function() {
-  var self = this;
-  return new PromiseClass(function(resolve) {
-    if (self.$loaded) {
-      // remove TcpManager listener
-      TcpManager.removeListener("statusReceived", onStatusReceived);
-      TcpManager.removeListener("logReceived", onLogReceived);
-      TcpManager.removeListener("stop", onStop);
-      TcpManager.removeListener("close", onClose);
-      TcpManager.removeListener("tcpError", onError);
-      TcpManager.removeListener("processFinished", onProcessFinished);
-      TcpManager.removeListener("serviceVersion", onServiceVersionReceived);
-      TcpManager.removeListener("processValidated", onProcessValidated);
-      TcpManager.removeListener("notifyView", onNotifyView);
-      self.$loaded = false;
-    }
-    // resetting cache
-    self.$setRegisteredServices([]);
+TcpService.prototype.finalize = async function() {
+  if (this.$loaded) {
+    // remove TcpManager listener
+    TcpManager.removeListener("statusReceived", onStatusReceived);
+    TcpManager.removeListener("logReceived", onLogReceived);
+    TcpManager.removeListener("stop", onStop);
+    TcpManager.removeListener("close", onClose);
+    TcpManager.removeListener("tcpError", onError);
+    TcpManager.removeListener("processFinished", onProcessFinished);
+    TcpManager.removeListener("serviceVersion", onServiceVersionReceived);
+    TcpManager.removeListener("processValidated", onProcessValidated);
+    TcpManager.removeListener("notifyView", onNotifyView);
+    this.$loaded = false;
+  }
+  // resetting cache
+  this.$setRegisteredServices([]);
 
-    return resolve();
-  });
+  return null;
 };
 
 /**
