@@ -18,8 +18,8 @@
       new (winston.transports.Console)({
         timestamp: format,
         colorize: true,
-        level: "debug", // defining debug to log console
-        formatter: loggerFormat 
+        level: process.env.NODE_ENV === 'PRODUCTION' ? 'info' : 'debug', // defining debug to log console
+        formatter: loggerFormat
       })
     ],
     exitOnError: false
@@ -51,7 +51,7 @@
 
   /**
    * It performs a Logger format stream.
-   * 
+   *
    * @param {any} args - A Winston Logger arguments
    * @param {string} args.level - A logger level
    * @param {string} args.timestamp - A logger timestamp
@@ -64,9 +64,9 @@
 
   /**
    * Attempts to add file and line number info to the given log arguments.
-   * 
+   *
    * @param {...any} args - Logger arguments given
-   * @return {any[]} 
+   * @return {any[]}
    */
   function formatLogArguments (args) {
     args = Array.prototype.slice.call(args);
@@ -76,7 +76,7 @@
     if (stackInfo) {
       // get file path relative to project root
       var calleeStr = '(' + stackInfo.relativePath + ':' + stackInfo.line + ')';
-      
+
       if (typeof (args[0]) === 'string') {
         args[0] = calleeStr + ' ' + args[0];
       } else if (args[0] instanceof Error) {
@@ -103,7 +103,7 @@
 
   /**
    * Parses and returns info about the call stack at the given index.
-   * 
+   *
    * @param {number} stackIndex - Stack trace index
    */
   function getStackInfo (stackIndex) {

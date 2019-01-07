@@ -85,7 +85,7 @@ void terrama2::core::DataAccessorFile::retrieveDataCallback(const terrama2::core
                                                             terrama2::core::DataSetPtr dataset,
                                                             const terrama2::core::Filter& filter,
                                                             std::shared_ptr<terrama2::core::FileRemover> remover,
-                                                            std::function<void (const std::string&)> processFile) const
+                                                            std::function<void(const std::string &, const std::string &)> processFile) const
 {
   std::string mask = getFileMask(dataset);
   std::string folderPath = getFolderMask(dataset);
@@ -543,7 +543,7 @@ std::shared_ptr<te::da::DataSet> terrama2::core::DataAccessorFile::getTerraLibDa
 
 
 std::vector<std::string>  terrama2::core::DataAccessorFile::getFoldersList(const std::vector<std::string>& uris,
-                                                                           const std::string& foldersMask) const
+                                                                           const std::string& foldersMask,const std::string& timezone, const terrama2::core::Filter& filter) const
 {
   std::vector<std::string> maskList = splitString(foldersMask, '/');
 
@@ -555,7 +555,7 @@ std::vector<std::string>  terrama2::core::DataAccessorFile::getFoldersList(const
   for(const auto& mask : maskList)
   {
     if(!mask.empty())
-      folders = checkSubfolders(folders, mask);
+      folders = checkSubfolders(folders, mask, timezone, filter);
   }
 
   if(folders.empty())
@@ -569,7 +569,7 @@ std::vector<std::string>  terrama2::core::DataAccessorFile::getFoldersList(const
 }
 
 
-std::vector<std::string> terrama2::core::DataAccessorFile::checkSubfolders(const std::vector<std::string>& baseURIs, const std::string& mask) const
+std::vector<std::string> terrama2::core::DataAccessorFile::checkSubfolders(const std::vector<std::string>& baseURIs, const std::string& mask, const std::string& timezone, const terrama2::core::Filter& filter) const
 {
   std::vector<std::string> folders;
 
@@ -588,7 +588,9 @@ std::vector<std::string> terrama2::core::DataAccessorFile::checkSubfolders(const
 
       std::string folder = folderPath.substr(folderPath.find_last_of('/')+1);
 
-      if(!terramaMaskMatch(mask, folder))
+      std::shared_ptr< te::dt::TimeInstantTZ > timestamp;
+      if(!isValidDataSetName(mask, filter, timezone, folder, timestamp))
+//      if(!terramaMaskMatch(mask, folder))
         continue;
 
       folders.push_back(fileInfo.absoluteFilePath().toStdString());
@@ -794,6 +796,8 @@ terrama2::core::DataAccessorFile::readFile(DataSetSeries& series,
     dataSetName = completeBaseName;
   else if(itFileName != dataSetNames.cend())
     dataSetName = name;
+  else if(dataSetNames.size() >= 2)
+    dataSetName = dataSetNames[0];
   else
     dataSetName = name;
 
@@ -983,7 +987,7 @@ QFileInfoList terrama2::core::DataAccessorFile::getFilesList(const std::string& 
 
   if(!folderMask.empty())
   {
-    std::vector<std::string> foldersList = getFoldersList(basePathList, folderMask);
+    std::vector<std::string> foldersList = getFoldersList(basePathList, folderMask, timezone, filter);
 
     if(foldersList.empty())
     {

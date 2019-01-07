@@ -68,6 +68,16 @@
 #include <terralib/raster/RasterProperty.h>
 #include <terralib/dataaccess/utils/Utils.h>
 
+#include <terralib/dataaccess/datasource/DataSource.h>
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+
+#include <QFile>
+#include <QTextStream>
+
+//#include "../../../core/data-access/DataAccessor.hpp"
+//#include "../../../core/utility/DataAccessorFactory.hpp"
+
 terrama2::services::analysis::core::AnalysisExecutor::AnalysisExecutor()
 {
   qRegisterMetaType<std::shared_ptr<te::dt::TimeInstantTZ>>("std::shared_ptr<te::dt::TimeInstantTZ>");
@@ -370,7 +380,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runMonitoredObjectAna
 }
 
 void terrama2::services::analysis::core::AnalysisExecutor::runGeometricIntersectionAnalysis(terrama2::services::analysis::core::DataManagerPtr dataManager,
-                                                                                            terrama2::core::StoragerManagerPtr storagerManager,
+                                                                                            terrama2::core::StoragerManagerPtr /*storagerManager*/,
                                                                                             terrama2::services::analysis::core::AnalysisPtr analysis,
                                                                                             std::shared_ptr<te::dt::TimeInstantTZ> startTime,
                                                                                             ThreadPoolPtr /*threadPool*/)
@@ -403,22 +413,94 @@ void terrama2::services::analysis::core::AnalysisExecutor::runGeometricIntersect
     }
 
     auto staticDS = context->getStaticDataSeries();
-    auto geometryStaticDS = staticDS->series.syncDataSet->getGeometry(0, staticDS->geometryPos);
-    auto geomResult = createBuffer(BufferType::NONE, geometryStaticDS);
-
     auto dynamicDS = context->getDynamicDataSeries();
-    auto dynamicGeometry = dynamicDS->series.syncDataSet->getGeometry(0, dynamicDS->geometryPos);
-    geomResult->transform(dynamicGeometry->getSRID());
 
-    if (geomResult->intersects(dynamicGeometry.get()))
+    auto staticGeometryName = staticDS->series.syncDataSet->dataset()->getPropertyName(staticDS->geometryPos);
+    auto dynamicGeometryName = dynamicDS->series.syncDataSet->dataset()->getPropertyName(dynamicDS->geometryPos);
+
+    auto staticTableName = terrama2::core::getTableNameProperty(staticDS->series.dataSet);
+    auto dynamicTableName = terrama2::core::getTableNameProperty(dynamicDS->series.dataSet);
+    const std::string columns = "(" + staticTableName + "." + staticGeometryName + ", "
+                                    + dynamicTableName + "." + dynamicGeometryName + ")";
+
+    std::string query = "SELECT ST_Intersection" + columns + " FROM " + staticTableName;
+
+    query += ", " + dynamicTableName + " WHERE ST_Intersects" + columns;
+
+    auto dataSeriesPtr = dataManager->findDataSeries(dynamicDS->series.dataSet->dataSeriesId);
+    auto dataProvider = dataManager->findDataProvider(dataSeriesPtr->dataProviderId);
+
+    std::cout << dynamicDS->series.syncDataSet->getAsString(0, "view_date") << " + " << dynamicDS->series.syncDataSet->getAsString(1, "view_date") << std::endl;
+
+    te::core::URI postgisURI(dataProvider->uri);
+    std::shared_ptr<te::da::DataSource> dataSource = te::da::DataSourceFactory::make("POSTGIS", postgisURI);
+    // RAII for open/closing the datasource
+    terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource>> openClose(dataSource);
+
+    if(!dataSource->isOpened())
     {
-      std::cout << "Bate" << std::endl;
-      auto intersection = geomResult->intersection(dynamicGeometry.get());
+      QString errMsg = QObject::tr("DataProvider could not be opened.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
+    }
+
+    // get a transactor to interact to the data source
+    std::unique_ptr<te::da::DataSourceTransactor> transactor(dataSource->getTransactor());
+
+    std::cout << query << std::endl;
+
+    auto intersectionDataSet = transactor->query(query);
+
+    if (intersectionDataSet->size() == 0)
+    {
+      std::cout << "Oops... nao tem interseção" << std::endl;
     }
     else
     {
-      std::cout << "NAO DEU" << std::endl;
+      std::cout << "Tem Interseção" << std::endl;
     }
+
+//    std::vector<std::string> fields;
+//    fields.push_back("ST_Intersection" + columns);
+//    terrama2::core::Filter filter;
+//    filter.fields = std::move(fields);
+
+//    auto dataSeriesPtr = dataManager->findDataSeries(dynamicDS->series.dataSet->dataSeriesId);
+//    auto dataProvider = dataManager->findDataProvider(dataSeriesPtr->dataProviderId);
+
+//    terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeriesPtr);
+//    auto seriesMap = accessor->getSeries(filter, remover_);
+//    auto series = seriesMap[dataset];
+
+
+//    auto geometryStaticDS = staticDS->series.syncDataSet->getGeometry(0, staticDS->geometryPos);
+//    auto geomResult = createBuffer(BufferType::NONE, geometryStaticDS);
+
+//    auto dynamicDS = context->getDynamicDataSeries();
+//    auto dynamicGeometry = dynamicDS->series.syncDataSet->getGeometry(0, dynamicDS->geometryPos);
+//    geomResult->transform(dynamicGeometry->getSRID());
+
+//    QFile tmp("/tmp/abacate.txt");
+
+//    if (tmp.open(QIODevice::Text| QIODevice::ReadWrite))
+//    {
+//      const std::string wkt = geomResult->toString();
+//      QTextStream out(&tmp);
+
+//      out << wkt.c_str();
+
+//      tmp.close();
+//    }
+
+//    if (geomResult->intersects(dynamicGeometry.get()))
+//    {
+//      std::cout << "Bate" << std::endl;
+//      auto intersection = geomResult->intersection(dynamicGeometry.get());
+//    }
+//    else
+//    {
+//      std::cout << "NAO DEU" << std::endl;
+//    }
 
 //    storeMonitoredObjectAnalysisResult(dataManager, storagerManager, context);
   }

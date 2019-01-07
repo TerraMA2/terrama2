@@ -119,7 +119,7 @@ void terrama2::core::DataAccessorGeometricObjectOGR::retrieveDataCallback (const
                                                                       DataSetPtr dataset,
                                                                       const Filter& filter,
                                                                       std::shared_ptr<FileRemover> remover,
-                                                                      std::function<void(const std::string& /*uri*/)> processFile) const
+                                                                      std::function<void(const std::string &, const std::string &)> processFile) const
 {
   std::string mask = getFileMask(dataset);
   std::string folderPath = getFolderMask(dataset);
@@ -135,14 +135,14 @@ void terrama2::core::DataAccessorGeometricObjectOGR::retrieveDataCallback (const
   }
 
   //download shp files
-  dataRetriever->retrieveDataCallback(mask, filter, timezone, remover, "", folderPath, [&](const std::string& tempFolder, const std::string& filename) {
+  dataRetriever->retrieveDataCallback(mask, filter, timezone, remover, "", folderPath, [&](const std::string& tempFolder, const std::string& filename, const std::string&) {
     //download auxiliary files
     std::string dbfFile = std::string{filename.cbegin(), filename.cend()-3}+"dbf";
     std::string prjFile = std::string{filename.cbegin(), filename.cend()-3}+"prj";
     std::string shxFile = std::string{filename.cbegin(), filename.cend()-3}+"shx";
 
-    dataRetriever->retrieveDataCallback(dbfFile, filter, timezone, remover, tempFolder, folderPath, [](const std::string&){});
-    dataRetriever->retrieveDataCallback(prjFile, filter, timezone, remover, tempFolder, folderPath, [](const std::string&){});
+    dataRetriever->retrieveDataCallback(dbfFile, filter, timezone, remover, tempFolder, folderPath, [](const std::string&, const std::string &){});
+    dataRetriever->retrieveDataCallback(prjFile, filter, timezone, remover, tempFolder, folderPath, [](const std::string&, const std::string &){});
     dataRetriever->retrieveDataCallback(shxFile, filter, timezone, remover, tempFolder, folderPath, processFile);
   });
 }

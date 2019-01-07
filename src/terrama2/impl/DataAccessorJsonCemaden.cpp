@@ -254,11 +254,11 @@ std::string terrama2::core::DataAccessorJsonCemaden::retrieveData(const DataRetr
   return dataRetriever->retrieveData(mask, filter, timezone, remover, "", folderPath);
 }
 
-void terrama2::core::DataAccessorJsonCemaden::retrieveDataCallback( const DataRetrieverPtr /*dataRetriever*/,
+void terrama2::core::DataAccessorJsonCemaden::retrieveDataCallback(const DataRetrieverPtr /*dataRetriever*/,
                                                                     DataSetPtr /*dataSet*/,
                                                                     const Filter& /*filter*/,
                                                                     std::shared_ptr<FileRemover> /*remover*/,
-                                                                    std::function<void(const std::string& /*uri*/)> /*processFile*/) const
+                                                                    std::function<void(const std::string &, const std::string &)> /*processFile*/) const
 {
   QString errMsg = QObject::tr("Invalid method call.");
   throw NotRetrivableException() << ErrorDescription(errMsg);

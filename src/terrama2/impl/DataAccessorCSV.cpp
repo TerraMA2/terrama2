@@ -110,6 +110,18 @@ QFileInfo terrama2::core::DataAccessorCSV::filterTxt(QFileInfo& fileInfo, QTempo
   std::string line = "";
   int lineNumber = 1;
 
+  std::string delimiter(",");
+
+  try
+  {
+    // Retrieve Attribute Delimiter from GUI interface
+    // Default: comma (,)
+    delimiter = terrama2::core::getProperty(dataSet, dataSeries_, "delimiter");
+  }
+  catch(...)
+  {
+  }
+
   while(std::getline(file, line))
   {
     if(lineNumber <= header && lineNumber != columnsLine)
@@ -118,7 +130,26 @@ QFileInfo terrama2::core::DataAccessorCSV::filterTxt(QFileInfo& fileInfo, QTempo
       continue;
     }
 
-    outputFile << line << "\n";
+    auto fragments = terrama2::core::splitString(line, *delimiter.c_str());
+
+    if (fragments.size() <= 1)
+    {
+      auto errMsg = QObject::tr("Could parse CSV file '%1' with delimiter %2.").arg(fileInfo.absoluteFilePath()).arg(delimiter.c_str());
+      TERRAMA2_LOG_WARNING() << errMsg;
+      throw terrama2::core::UndefinedTagException() << ErrorDescription(errMsg);
+    }
+
+    std::string csvLine;
+
+    for(const auto& fragment: fragments)
+    {
+      if (!csvLine.empty())
+        csvLine += ",";
+      csvLine += fragment;
+    }
+
+    // Write output CSV with common standard (comma)
+    outputFile << csvLine << "\n";
 
     if(!outputFile)
     {
@@ -413,10 +444,12 @@ void terrama2::core::DataAccessorCSV::addGeomProperty(QJsonObject fieldGeomObj, 
 
     // get columns from converted dataset
     auto longRemovePos = converter->getResult()->getPropertyPosition(oldLongProp->getName());
-    auto latRemovePos = converter->getResult()->getPropertyPosition(oldLatProp->getName());
-
-    //remove column from converted dataset
+   //remove column from converted dataset
     converter->remove(longRemovePos);
+
+    // get columns from converted dataset
+    auto latRemovePos = converter->getResult()->getPropertyPosition(oldLatProp->getName());
+    //remove column from converted dataset
     converter->remove(latRemovePos);
   }
   else

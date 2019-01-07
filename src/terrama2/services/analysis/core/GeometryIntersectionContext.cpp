@@ -33,6 +33,22 @@
 // TerraLib
 #include <terralib/dataaccess/utils/Utils.h>
 
+std::string getIdentifierProperty(const terrama2::services::analysis::core::AnalysisDataSeries& analysisDataSeries)
+{
+  std::string identifier;
+  try
+  {
+    identifier = analysisDataSeries.metadata.at("identifier");
+  }
+  catch (...)
+  {
+    /* code */
+  }
+
+  return identifier;
+}
+
+
 terrama2::services::analysis::core::GeometryIntersectionContext::GeometryIntersectionContext(terrama2::services::analysis::core::DataManagerPtr dataManager,
                                                                                              terrama2::services::analysis::core::AnalysisPtr analysis,
                                                                                              std::shared_ptr<te::dt::TimeInstantTZ> startTime)
@@ -75,15 +91,7 @@ void terrama2::services::analysis::core::GeometryIntersectionContext::load()
         auto seriesMap = accessor->getSeries(filter, remover_);
         auto series = seriesMap[dataset];
 
-        std::string identifier;
-        try
-        {
-          identifier = analysisDataSeries.metadata.at("identifier");
-        }
-        catch (...)
-        {
-          /* code */
-        }
+        std::string identifier = getIdentifierProperty(analysisDataSeries);
 
         auto dataSeriesContext = std::make_shared<GeoIntersectionDataSeries>();
 
@@ -123,15 +131,7 @@ void terrama2::services::analysis::core::GeometryIntersectionContext::load()
       auto seriesMap = accessor->getSeries(filter, remover_);
       auto series = seriesMap[dataset];
 
-      std::string identifier;
-      try
-      {
-        identifier = analysisDataSeries.metadata.at("identifier");
-      }
-      catch (...)
-      {
-        /* code */
-      }
+      std::string identifier = getIdentifierProperty(analysisDataSeries);
 
       auto dataSeriesContext = std::make_shared<GeoIntersectionDataSeries>();
 

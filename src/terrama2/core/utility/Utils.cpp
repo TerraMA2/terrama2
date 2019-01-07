@@ -575,18 +575,7 @@ void terrama2::core::erasePreviousResult(DataManagerPtr dataManager, DataSeriesI
   if(outputDataProvider->dataProviderType == "POSTGIS")
   {
     auto dataset = outputDataSeries->datasetList[0];
-    std::string tableName;
-
-    try
-    {
-      tableName = dataset->format.at("table_name");
-    }
-    catch(...)
-    {
-      QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataset->id);
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw terrama2::core::UndefinedTagException() << ErrorDescription(errMsg);
-    }
+    std::string tableName = getTableNameProperty(dataset);
 
     std::shared_ptr<te::da::DataSource> datasource(te::da::DataSourceFactory::make("POSTGIS", outputDataProvider->uri));
 
@@ -638,4 +627,18 @@ std::string terrama2::core::getTemporaryFolder( std::shared_ptr<terrama2::core::
     }
 
     return tempTerraMAFolder;
+}
+
+std::string terrama2::core::getTableNameProperty(terrama2::core::DataSetPtr dataSet)
+{
+  try
+  {
+    return dataSet->format.at("table_name");
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataSet->id);
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw UndefinedTagException() << ErrorDescription(errMsg);
+  }
 }

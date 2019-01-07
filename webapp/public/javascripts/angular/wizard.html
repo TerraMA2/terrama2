@@ -95,7 +95,7 @@
     <wz-step wz-title="{{ i18n.__('CSV Format') }}" canexit="validateSteps" wz-disabled="{{!custom_format}}" wz-data="wizard.csvFormat">
       <div class="col-md-12">
         <form name="forms.csvFormatForm">
-          <csv-format csv-format-data="csvFormatData" semantics="semantics"></csv-format>
+          <csv-format ng-if="csvFormatData.fields" csv-format-data="csvFormatData" semantics="semantics"></csv-format>
         </form>
       </div>
 

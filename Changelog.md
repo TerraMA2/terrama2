@@ -4,8 +4,17 @@
 
 ## Enhancements:
 - Update INPE wild fire program access driver
+- Up Python operator for Summarization
+- Up NetCDF semantics driver
+- Update date parser to support julian day
 
 ## Bugfix:
+- Fix update schedule on collector data series
+- Fix URI collect of compressed data
+- Fix Occurrence Fire Semantics json - bioma_id
+- Fix webapp crash while checking FTP data provider
+- Fix webmonitor shapefile exportation on occurrence data
+- Fix component renderization for start and stop TerraMA² Services
 
 # 4.0.7
 
