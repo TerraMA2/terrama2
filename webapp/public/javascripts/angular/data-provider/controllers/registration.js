@@ -226,6 +226,15 @@ define(function() {
         return MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this data server. He belongs to a protected project!"));
       }
 
+      if ($scope.dataProvider.protocol === "FILE")
+      {
+        var pathname = $scope.model.pathname;
+        var defaultPathName = pathname.indexOf($scope.configuration.defaultFilePath);
+  
+        if (defaultPathName == -1)
+          return MessageBoxService.danger(i18n.__("Permission"), i18n.__("The path informed is invalid."));
+      }
+
       $scope.$broadcast("formFieldValidation");
 
       // calling auto generate form validation

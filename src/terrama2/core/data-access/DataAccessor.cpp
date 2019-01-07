@@ -36,6 +36,7 @@
 #include <terralib/datatype/SimpleData.h>
 #include <terralib/datatype/TimeInstantTZ.h>
 #include <terralib/dataaccess/dataset/DataSet.h>
+#include <terralib/core/uri/Utils.h>
 #include <QObject>
 #include <QString>
 //STL
@@ -237,6 +238,7 @@ terrama2::core::DataAccessor::getSeries(const std::map<DataSetId, std::string> u
 
       try
       {
+        te::core::URI decodedURI(te::core::URIDecode(uriMap.at(dataset->id)));
         DataSetSeries tempSeries = getSeries(uriMap.at(dataset->id), filter, dataset, remover);
         series.emplace(dataset, tempSeries);
       }
@@ -334,7 +336,7 @@ void terrama2::core::DataAccessor::getSeriesCallback(const terrama2::core::Filte
     if(dataRetriever->isRetrivable())
     {
       auto dataSetId = dataset->id;
-      retrieveDataCallback(dataRetriever, dataset, filter, remover, [&dataSetId, processFile](const std::string& uri){processFile(dataSetId, uri); });
+      retrieveDataCallback(dataRetriever, dataset, filter, remover, [&dataSetId, processFile](const std::string& uri, const std::string& folderMatched){processFile(dataSetId, uri); });
     }
     else
     {

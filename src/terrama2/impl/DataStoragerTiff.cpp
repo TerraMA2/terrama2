@@ -244,10 +244,6 @@ void terrama2::core::DataStoragerTiff::store(DataSetSeries series, DataSetPtr ou
     // nothing to be done
   }
 
-  QUrl uri(outputURI.c_str());
-  std::string path = uri.path().toStdString();
-
-
   std::string mask = terrama2::core::getFileMask(outputDataSet);
   if(mask.empty())
   {
@@ -277,6 +273,8 @@ void terrama2::core::DataStoragerTiff::store(DataSetSeries series, DataSetPtr ou
   }
 
   size_t timestampColumn = te::da::GetFirstPropertyPos(dataset.get(), te::dt::DATETIME_TYPE);
+
+  QUrl uri(outputURI.c_str());
 
   dataset->moveBeforeFirst();
   while(dataset->moveNext())
@@ -326,6 +324,7 @@ void terrama2::core::DataStoragerTiff::store(DataSetSeries series, DataSetPtr ou
     }
 
     std::string filename = replaceMask(mask, timestamp, outputDataSet);
+    std::string path = replaceMask(uri.path().toStdString(), timestamp, outputDataSet);
 
     //Terralib cant understand .tiff extension
     std::string oddSuffix(".tiff");

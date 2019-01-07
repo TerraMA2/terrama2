@@ -67,6 +67,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
+#include <QUrl>
 
 void terrama2::services::view::core::registerFactories()
 {
@@ -287,4 +288,11 @@ void terrama2::services::view::core::removeFile(const std::string& filepath)
       throw Exception() << ErrorDescription(errMsg);
     }
   }
+}
+
+te::core::URI terrama2::services::view::core::normalizeURI(const std::string &uri)
+{
+  QUrl wrapURI(QString::fromStdString(uri));
+
+  return te::core::URI(wrapURI.toString(QUrl::NormalizePathSegments).toStdString());
 }

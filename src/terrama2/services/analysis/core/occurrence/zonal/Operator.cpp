@@ -140,6 +140,8 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
         filter.discardAfter = context->getTimeFromString(dateFilterEnd);
         filter.byValue = restriction;
 
+        auto dataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
+
         /*
          * When performing summarization, both modified and additional identifier must be
          * supplied to skip filter by region.
@@ -152,7 +154,7 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
         {
           auto monitoredDataSeries = dataManagerPtr->findDataSeries(moDsContext->series.dataSet->dataSeriesId);
 
-          filter.joinableTable = terrama2::core::getProperty(moDsContext->series.dataSet, monitoredDataSeries, "table_name");
+          filter.joinableTable = terrama2::core::getTableNameProperty(moDsContext->series.dataSet);
 
           // Make query fields
           std::vector<std::string> fields;
@@ -161,11 +163,12 @@ double terrama2::services::analysis::core::occurrence::zonal::operatorImpl(terra
           // TODO: Remove (*). Currently is only working with COUNT.
           fields.push_back(operationAsString(statisticOperation)+ "(*)");
           fields.push_back(filter.joinableTable + "." + monitoredIdentifier);
+          fields.push_back("t." + additionalIdentifier);
           filter.fields = std::move(fields);
           filter.monitoredIdentifier = monitoredIdentifier;
           filter.additionalIdentifier = additionalIdentifier;
         }
-        auto dataSeries = dataManagerPtr->findDataSeries(analysis->id, dataSeriesName);
+
         context->addDataSeries(dataSeries, filter, true);
 
         auto datasets = dataSeries->datasetList;

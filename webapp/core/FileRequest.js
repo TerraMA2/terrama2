@@ -7,6 +7,7 @@ var fs = require('fs');
 var Form = require("./Enums").Form;
 var UriPattern = require("./Enums").Uri;
 var Utils = require("./Utils");
+var Application = require("../core/Application");
 
 var FileRequest = function(params) {
   AbstractRequest.apply(this, arguments);
@@ -76,9 +77,12 @@ FileRequest.prototype.request = function() {
 FileRequest.fields = function() {
   var properties = {};
 
+  var configFile = Application.getContextConfig();
+  
   properties[UriPattern.PATHNAME] = {
     title: "Path",
-    type: Form.Field.TEXT
+    type: Form.Field.TEXT,
+    default: configFile.defaultFilePath
   };
 
   properties['file_explorer_button'] = {};

@@ -68,30 +68,104 @@
 
 using namespace boost::python;
 
+//! Structure of TerraMA2 python script to inject with analysis script
+//! Whenever customize the tab or even module loader, check also #extractException
+static const std::string TERRAMA2_PYTHON_SCRIPT = "from terrama2 import *\n"
+                                                  "import json\n"
+                                                  "import datetime\n"
+                                                  "def get_value(attr):\n"
+                                                  "    answer = get_attribute_value_as_json(attr)\n"
+                                                  "    if(answer):\n"
+                                                  "        attr_json = json.loads(answer)\n"
+                                                  "        value = attr_json[attr]\n"
+                                                  "        if isinstance(value, unicode):\n"
+                                                  "            return value.encode('UTF-8')\n"
+                                                  "        else:\n"
+                                                  "            return value\n"
+                                                  "    else:\n"
+                                                  "        return None\n\n"
+                                                  "def get_analysis_date():\n"
+                                                  "    iso_string_date = get_current_execution_date()\n"
+                                                  "    iso_string_date = iso_string_date[0:15]+'Z'\n"
+                                                  "    return datetime.datetime.strptime(iso_string_date.translate(None, ':-'), '%Y%m%dT%H%M%SZ')\n\n"
+                                                  "def analysis():\n"
+                                                  "    ";
 
-std::string terrama2::services::analysis::core::python::extractException()
+std::string
+terrama2::services::analysis::core::python::extractException(terrama2::services::analysis::core::AnalysisPtr analysis)
 {
-  using namespace boost::python;
+  PyObject *typePtr = NULL, *valuePtr = NULL, *tracebackPtr = NULL;
+  // Fetch python exception as PyObject
+  PyErr_Fetch(&typePtr, &valuePtr, &tracebackPtr);
 
-  PyObject* exc,*val,*tb;
-  PyErr_Fetch(&exc,&val,&tb);
-  PyErr_NormalizeException(&exc,&val,&tb);
-  handle<> hexc(exc),hval(allow_null(val)),htb(allow_null(tb));
-  if(!hval)
-  {
-    return extract<std::string>(str(hexc));
+  // Fallback error
+  std::string output("Could not fetch Python error");
+
+  // When fetch a type pointer, parse the type into the exception string
+  if(typePtr != NULL){
+    boost::python::handle<> handleType(typePtr);
+    boost::python::str typePstr(handleType);
+    // Extract the string from the boost::python object
+    boost::python::extract<std::string> exceptionTypeStr(typePstr);
+    // When valid exception type, retrieve exception type
+    if(exceptionTypeStr.check())
+      output = exceptionTypeStr();
+    else
+      output = "Unknown exception type";
   }
-  else
-  {
-    object traceback(import("traceback"));
-    object format_exception(traceback.attr("format_exception"));
-    object formatted_list(format_exception(hexc,hval,htb));
-    object formatted(str("").join(formatted_list));
-    std::string errMsg = extract<std::string>(formatted);
-    boost::replace_all(errMsg, "\"", "");
-    boost::replace_all(errMsg, "\'", "");
-    return errMsg;
+  // Do the same for the exception value (the stringification of the exception)
+  if(valuePtr != NULL){
+    boost::python::handle<> handleVal(valuePtr);
+    boost::python::list formatedExceptionList(handleVal);
+    boost::python::extract<std::string> exceptionText(formatedExceptionList[0]);
+    boost::python::extract<std::size_t> lineNumber(formatedExceptionList[1][1]);
+    boost::python::extract<std::size_t> charPosition(formatedExceptionList[1][2]);
+
+    if(exceptionText.check())
+      output += ": " + exceptionText();
+    else
+      output += std::string(": Unknown Exception: ");
+
+    if(lineNumber.check())
+    {
+      unsigned long scriptLines = 0;
+      unsigned long lineOffset = 0;
+      // When analysis supplied, we must remove the difference from
+      // line number to avoid display wrong line
+      if (analysis != nullptr)
+      {
+        // Retrieve fake script
+        const auto script = TERRAMA2_PYTHON_SCRIPT;
+        // Retrieve number of end line (\n)
+        scriptLines = static_cast<unsigned long>(std::count_if(script.begin(), script.end(), [](char c) { return c == '\n'; }));
+        // Line offset (tab)
+        lineOffset = 4;
+      }
+      // Write the line number error based in User script
+      output +=  ": Line " + std::to_string(lineNumber() - scriptLines);
+
+      if(charPosition.check())
+        output +=  ": Position " + std::to_string(charPosition() - lineOffset);
+    }
   }
+  // Parse lines from the traceback using the Python traceback module
+  if(tracebackPtr != NULL){
+    boost::python::handle<> handleTraceback(tracebackPtr);
+    // Load the traceback module and the format_tb function
+    boost::python::object traceback(boost::python::import("traceback"));
+    boost::python::object formatTraceback(traceback.attr("format_tb"));
+    // Call format_tb to get a list of traceback strings
+    boost::python::object tracebackList(formatTraceback(handleTraceback));
+    // Join the traceback strings into a single string
+    boost::python::object tracebackStr(boost::python::str("\n").join(tracebackList));
+    // Extract the string, check the extraction, and fallback in necessary
+    boost::python::extract<std::string> returned(tracebackStr);
+    if(returned.check())
+      output += ": " + returned();
+    else
+      output += std::string(": Unknown Python traceback");
+  }
+  return output;
 }
 
 void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThreadState* state, MonitoredObjectContextPtr context, std::vector<uint32_t> indexes)
@@ -175,7 +249,7 @@ void terrama2::services::analysis::core::python::runMonitoredObjectScript(PyThre
   }
   catch(const error_already_set&)
   {
-    std::string errMsg = extractException();
+    std::string errMsg = extractException(context->getAnalysis());
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg);
   }
   catch(const terrama2::Exception& e)
@@ -273,7 +347,7 @@ void terrama2::services::analysis::core::python::runScriptGridAnalysis(PyThreadS
   }
   catch(error_already_set)
   {
-    std::string errMsg = extractException();
+    std::string errMsg = extractException(context->getAnalysis());
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg);
   }
   catch(const terrama2::Exception& e)
@@ -321,7 +395,7 @@ void terrama2::services::analysis::core::python::runScriptDCPAnalysis(PyThreadSt
   }
   catch(error_already_set)
   {
-    std::string errMsg = extractException();
+    std::string errMsg = extractException(context->getAnalysis());
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg);
   }
 }
@@ -542,26 +616,7 @@ std::string terrama2::services::analysis::core::python::prepareScript(AnalysisPt
   }
 
 //TODO: The functions get_string_value and get_numeric_value can be improved with a simple python dict populated in the c++
-  formatedScript = "from terrama2 import *\n"
-                   "import json\n"
-                   "import datetime\n"
-                   "def get_value(attr):\n"
-                   "    answer = get_attribute_value_as_json(attr)\n"
-                   "    if(answer):\n"
-                   "        attr_json = json.loads(answer)\n"
-                   "        value = attr_json[attr]\n"
-                   "        if isinstance(value, unicode):\n"
-                   "            return value.encode('UTF-8')\n"
-                   "        else:\n"
-                   "            return value\n"
-                   "    else:\n"
-                   "        return None\n\n"
-                   "def get_analysis_date():\n"
-                   "    iso_string_date = get_current_execution_date()\n"
-                   "    iso_string_date = iso_string_date[0:15]+'Z'\n"
-                   "    return datetime.datetime.strptime(iso_string_date.translate(None, ':-'), '%Y%m%dT%H%M%SZ')\n\n"
-                   "def analysis():\n"
-                   "    "  + formatedScript;
+  formatedScript = TERRAMA2_PYTHON_SCRIPT + formatedScript;
 
   return formatedScript;
 }
@@ -571,25 +626,29 @@ void terrama2::services::analysis::core::python::validateAnalysisScript(Analysis
   try
   {
     std::string script = prepareScript(analysis);
+    PyObject* evalObject = nullptr;
     PyObject *pCompiledFn = Py_CompileString(script.c_str(), "", Py_file_input);
-    if (pCompiledFn == NULL)
+    if (pCompiledFn != nullptr)
     {
-      QString errMsg(QObject::tr("Invalid script."));
+      // create a module
+      evalObject = PyImport_ExecCodeModule(const_cast<char *>("analysis"), pCompiledFn);
+    }
+
+    if (!pCompiledFn || !evalObject)
+    {
+      auto errorMessage = extractException(analysis);
+
+      QString errMsg(QObject::tr(errorMessage.c_str()));
       validateResult.messages.insert(validateResult.messages.end(), errMsg.toStdString());
       return;
     }
 
-    // create a module
-    PyObject *pModule = PyImport_ExecCodeModule((char *) "analysis", pCompiledFn);
-    if (pModule == NULL)
-    {
-      QString errMsg(QObject::tr("Could not register the analysis function."));
-      validateResult.messages.insert(validateResult.messages.end(), errMsg.toStdString());
-      return;
-    }
+    Py_XDECREF(pCompiledFn);
+    Py_XDECREF(evalObject);
 
     boost::python::object analysisModule = boost::python::import("analysis");
     boost::python::object analysisFunction = analysisModule.attr("analysis");
+
   }
   catch (const error_already_set &)
   {
