@@ -785,12 +785,9 @@ define([], function() {
           }
 
           if($scope.tableFields.length > 0) {
-            // When GUI is for Update, render DCP table
-            if ($scope.isUpdating)
-              $timeout(() => $scope.createDataTable(), 10);
-            // When GUI is for Registration, do not render DCP table for Cemaden type due table incompatibility
-            else if (!$scope.isCemadenType())
-              $timeout(() => $scope.createDataTable(), 10);
+            // Render DCP table when updating or it is not Cemaden Type due table incopatibility
+            if ($scope.isUpdating || !$scope.isCemadenType())
+              $timeout(() => $scope.createDataTable(), 1000);
           }
 
           $scope.isChecking.value = false;
