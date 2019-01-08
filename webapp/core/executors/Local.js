@@ -12,12 +12,12 @@ var LocalSystemAdapter = require("./adapters/LocalSystemAdapter");
 /**
  * This class allows to run commands like terminal style (local).
  * - For Linux enviroment, it uses screen command by default.
- * 
+ *
  * - For MacOSX enviroment, screen command does not work properly since the version is different than Linux Version. So, by default,
  * LocalSystemAdapter is applied in order to start TerraMA² service.
- * 
+ *
  * - For Windows enviroment, it uses LocalSystemAdapter in order to execute "start PATH_TO/terrama2_service".
- * 
+ *
  * @class LocalExecutor
  *
  * @author Raphael Willian da Costa
@@ -32,7 +32,7 @@ var LocalExecutor = module.exports = function(adapter) {
 
 /**
  * It pretends to make a connection.
- * 
+ *
  * @param {Service} serviceInstance - TerraMA² Service instance where to run
  * @returns {Promise<null>}
  */
@@ -52,8 +52,8 @@ LocalExecutor.prototype.connect = function(serviceInstance) {
   });
 };
 /**
- * It executes a string command in process. 
- * 
+ * It executes a string command in process.
+ *
  * @param {string} command - Command to execute
  * @returns {Promise<string>}
  */
@@ -63,14 +63,14 @@ LocalExecutor.prototype.execute = function(command, commandArgs, options) {
     options.detached = true;
 
     /**
-     * It defines a executor type handler. For SSH, use exec. For nohup, use spawn 
+     * It defines a executor type handler. For SSH, use exec. For nohup, use spawn
      * @type {Executor}
      */
     var child;
 
     /**
      * Helper to define platform and respective adapter
-     * 
+     *
      * @param {string} data - Command execution output
      */
     var defineAdapter = function(data) {
@@ -94,7 +94,7 @@ LocalExecutor.prototype.execute = function(command, commandArgs, options) {
     if (self.adapter instanceof LocalSystemAdapter) {
 
       child = spawnAsync(command, commandArgs, options);
-      
+
       if (options.stdio != 'ignore'){
         var responseMessage = "";
 
@@ -105,7 +105,7 @@ LocalExecutor.prototype.execute = function(command, commandArgs, options) {
         child.on('close', function(code, signal) {
           logger.debug("LocalExecutor close ", code, signal);
           if (code !== 0) {
-            return reject(new Error("Error: exit code " + code));
+            return reject(new Error("Exit code " + code));
           }
           return resolve({code: code, data: responseMessage.replace("\n", "")});
         });
@@ -128,14 +128,14 @@ LocalExecutor.prototype.execute = function(command, commandArgs, options) {
       child.on('close', function(code, signal) {
         logger.debug("LocalExecutor close ", code, signal);
         if (code !== 0) {
-          return reject(new Error("Error: exit code " + code));
+          return reject(new Error(`${responseMessage} - Exit code ${code}`));
         }
 
         return resolve({code: code, data: responseMessage.replace("\n", "")});
       });
 
       child.on('error', function(err) {
-        logger.error(err);
+        logger.debug(err);
       });
 
       child.stdout.on('data', function(data) {
@@ -148,15 +148,15 @@ LocalExecutor.prototype.execute = function(command, commandArgs, options) {
 
       // stream for handling errors data
       child.stderr.on('data', function(data) {
-        logger.error("LocalExecutor Error: ", data.toString());
+        logger.debug("LocalExecutor Error: ", data.toString());
         responseMessage = data.toString();
       });
-    } 
+    }
   });
 };
 /**
  * It executes a command in child process in order to start a TerraMA² service
- * 
+ *
  * @param {string} command - A TerraMA² command service to execute
  * @returns {Promise<number>} A promise with exit code
  */
@@ -175,7 +175,7 @@ LocalExecutor.prototype.startService = function(command) {
 };
 /**
  * It simulates LocalExecutor disconnect
- * 
+ *
  * @returns {Promise<null>}
  */
 LocalExecutor.prototype.disconnect = function() {
