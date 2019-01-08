@@ -93,7 +93,7 @@ QFileInfo terrama2::core::DataAccessorCSV::filterTxt(QFileInfo& fileInfo, QTempo
 
   if(!file.is_open())
   {
-    QString errMsg = QObject::tr("Could not open file!");
+    QString errMsg = QObject::tr("Could not open file: %1").arg(fileInfo.fileName());
     TERRAMA2_LOG_WARNING() << errMsg;
     throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
@@ -427,7 +427,7 @@ void terrama2::core::DataAccessorCSV::addGeomProperty(QJsonObject fieldGeomObj, 
     if(longPos == std::numeric_limits<size_t>::max() ||
        latPos == std::numeric_limits<size_t>::max())
     {
-      QString errMsg = QObject::tr("Could not find the point complete information!");
+      QString errMsg = QObject::tr("Could not find the point complete information(%1, %2)!").arg(latPos).arg(longPos);
       TERRAMA2_LOG_WARNING() << errMsg;
       throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
     }
@@ -469,11 +469,15 @@ void terrama2::core::DataAccessorCSV::adapt(DataSetPtr dataSet, std::shared_ptr<
 
   QJsonArray fieldsArray = getFields(dataSet);
 
-  if(!checkOriginFields(converter, fieldsArray))
+  try
   {
-    QString errMsg = QObject::tr("Field not present in input dataset.");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::UndefinedTagException() << ErrorDescription(errMsg);
+      checkOriginFields(converter, fieldsArray);
+  }
+  catch(DataAccessorException& e)
+  {
+      QString errMsg = QObject::tr("Field not present in input dataset: %1").arg(*boost::get_error_info<terrama2::ErrorDescription>(e));
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::core::UndefinedTagException() << ErrorDescription(errMsg);
   }
 
   std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
@@ -547,7 +551,7 @@ bool terrama2::core::DataAccessorCSV::checkOriginFields(std::shared_ptr<te::da::
       {
         if(!(checkProperty(converter->getConvertee(), field.value(JSON_LATITUDE_PROPERTY_NAME).toString().toStdString())
                 && checkProperty(converter->getConvertee(), field.value(JSON_LONGITUDE_PROPERTY_NAME).toString().toStdString())))
-          return false;
+            throw terrama2::core::UndefinedTagException() << ErrorDescription("GEOMETRY_POINT");
       }
     }
     else
@@ -555,7 +559,7 @@ bool terrama2::core::DataAccessorCSV::checkOriginFields(std::shared_ptr<te::da::
       if(field.contains(JSON_PROPERTY_NAME))
       {
         if(!checkProperty(converter->getConvertee(), field.value(JSON_PROPERTY_NAME).toString().toStdString()))
-          return false;
+            throw terrama2::core::DataAccessorException() << ErrorDescription(field.value(JSON_PROPERTY_NAME).toString());
       }
     }
   }
