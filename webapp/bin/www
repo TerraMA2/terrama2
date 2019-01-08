@@ -73,7 +73,7 @@ var server = HTTPFactory.create(app, settings);
 if (debugMessage) {
   logger.debug(debugMessage);
 }
-logger.info("Initializing TerraMA2 on port " + port);
+logger.info("Initializing TerraMA² on port " + port);
 /**
  * Listen on provided port, on all network interfaces.
  */
@@ -94,13 +94,14 @@ server.on('listening', onListening);
 
 // detecting sigint error and then close server
 process.on('SIGINT', async () => {
+  logger.info('Finalizing TerraMA²...')
   await DataManager.finalize();
 
   TcpService.finalize();
   TcpService.disconnect();
 
   server.close(() => {
-    logger.info("TerraMA2 finalized");
+    logger.info('TerraMA² finalized');
 
     process.exit(0);
   });
@@ -184,8 +185,18 @@ return DataManager.init(null, async function (error) {
     // Listing Service Instances in order to start automatically on startup
     const services = await DataManager.listServiceInstances();
 
+    logger.info('Trying to start TerraMA² services...');
+    let hasError = false;
     for(let service of services) {
-      TcpService.start({ service: service.id });
+      try {
+        await TcpService.start({ service: service.id });
+      } catch (err) {
+        hasError = true;
+        // logger.error(`Could not start service ${service.name}: ${err.message}.`);
+      }
+    }
+    if (hasError) {
+      logger.warn('TerraMA² services have not started properly. Check the parameters on Administration Page.');
     }
   } catch (error) {
     throw new Error("Failed to update database.\n"+error);
