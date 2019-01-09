@@ -269,7 +269,7 @@ define([
               status: logMessage.status,
               type: targetMessage,
               service: service,
-              url: url.replace("$id", logProcess.process_id)
+              url: url.replace("$id", configuration.collectors.find(collector=>collector.id === logProcess.process_id).output_data_series)
             };
 
             var currentProcess = _findOne(targetArray, logProcess.process_id, logProcess.instance_id);
