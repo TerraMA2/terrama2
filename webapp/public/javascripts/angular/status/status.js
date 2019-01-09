@@ -261,6 +261,17 @@ define([
           }
         });
 
+        var urlHandler = function(logProcess) {
+          let url = "";
+
+          const found = configuration.collectors.find(collector => collector.id === logProcess.process_id);
+          
+          if(found)
+            url = found.output_data_series;
+          
+          return url
+        }
+
         logArray.forEach(function(logProcess) {
           $scope.logSize += logProcess.log.length;
           logProcess.log.forEach(function(logMessage) {
@@ -269,7 +280,7 @@ define([
               status: logMessage.status,
               type: targetMessage,
               service: service,
-              url: url.replace("$id", configuration.collectors.find(collector=>collector.id === logProcess.process_id).output_data_series)
+              url: url.replace("$id", urlHandler(logProcess))
             };
 
             var currentProcess = _findOne(targetArray, logProcess.process_id, logProcess.instance_id);
