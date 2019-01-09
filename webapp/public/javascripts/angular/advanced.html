@@ -83,7 +83,10 @@
     </div>
     <div style="display: block;" class="box-body">
       <form name="forms.csvFormatForm">
-        <csv-format csv-format-data="csvFormatData"></csv-format>
+        <csv-format csv-format-data="csvFormatData"
+                    on-item-added="detectChanges(item)"
+                    on-item-removed="detectChanges(item)"
+                    on-item-changed="detectChanges(item)"></csv-format>
       </form>
     </div>
   </div>
