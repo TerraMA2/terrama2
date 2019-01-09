@@ -124,6 +124,41 @@ define([
       });
     return defer.promise;
   };
+
+  /**
+   * Retrieves icon information of DataSeries based in semantics
+   *
+   * @param {object} dataSeries - DataSeries metadata to compose icon
+   * @returns {string} icon path
+   */
+  DataSeriesService.prototype.getIcon = function(dataSeries) {
+    const dataSeriesTypeName = dataSeries.data_series_semantics.data_series_type_name;
+    const { DataSeriesType } = globals.enums;
+
+    switch(dataSeriesTypeName) {
+      case DataSeriesType.ANALYSIS_MONITORED_OBJECT:
+        return `${BASE_URL}images/analysis/monitored-object/monitored-object_analysis.png`;
+      case DataSeriesType.GRID:
+        if (dataSeries.isAnalysis){
+          return `${BASE_URL}images/analysis/grid/grid_analysis.png`;
+        }
+
+        if (dataSeries.isInterpolator) {
+          return `${BASE_URL}images/interpolation/grid/grid.png`;
+        }
+
+        return `${BASE_URL}images/dynamic-data-series/grid/grid.png`;
+      case DataSeriesType.OCCURRENCE:
+        return `${BASE_URL}images/dynamic-data-series/occurrence/occurrence.png`;
+      case DataSeriesType.GEOMETRIC_OBJECT:
+        if (dataSeries.data_series_semantics.temporality === 'STATIC') {
+          return `${BASE_URL}images/static-data-series/vetorial/vetorial.png`;
+        }
+        return `${BASE_URL}images/dynamic-data-series/geometric-object/geometric-object.png`;
+      default:
+        return `${BASE_URL}images/dynamic-data-series/dcp/dcp.png`;
+    }
+  };
   /**
    * It duplicates a Data Series of another project on remote API
    *

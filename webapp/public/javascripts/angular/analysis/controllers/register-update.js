@@ -1,8 +1,8 @@
 define([], function() {
   'use strict';
-  
+
   function RegisterUpdateController($scope, $q, $log, i18n, Service, DataSeriesService,
-                                    DataSeriesSemanticsService, AnalysisService, DataProviderService, 
+                                    DataSeriesSemanticsService, AnalysisService, DataProviderService,
                                     Socket, DateParser, MessageBoxService, Polygon, $http, $window, $timeout, FormTranslator) {
     var self = this;
     $scope.i18n = i18n;
@@ -38,7 +38,7 @@ define([], function() {
 
     /**
      * It defines a options to use angular tree control directive. It is customized with bootstrap layout
-     * 
+     *
      * @type {Object}
      */
     self.treeOptions = {
@@ -58,6 +58,17 @@ define([], function() {
     };
 
     /**
+     * Utility to display DataSeries icon from semantics
+     *
+     * When no semantics found, set to none
+     */
+    self.getDataSeriesIcon = (node) => {
+      if (node.data_series_semantics)
+        return DataSeriesService.getIcon(node);
+      return "";
+    }
+
+    /**
      * It defines TerraMA² Schedule values. Used to build terrama2-schedule directive
      * @type {Schedule}
      */
@@ -65,7 +76,7 @@ define([], function() {
 
     /**
      * It defines Options to build terrama2-schedule directive
-     * 
+     *
      * @param {Object}
      */
     self.scheduleOptions = {
@@ -85,14 +96,14 @@ define([], function() {
 
     /**
      * It defines a TerraMA² MessageBox Service for handling alert box
-     * 
+     *
      * @type {MessageBoxService}
      */
     self.MessageBoxService = MessageBoxService;
 
     /**
      * TerraMA² Analysis Object to be created
-     * 
+     *
      * @type {Object}
      */
     self.analysis = {
@@ -169,16 +180,16 @@ define([], function() {
          */
         self.AnalysisService = AnalysisService;
 
-        /** 
+        /**
          * flag to handling script status
-         * 
+         *
          * @type {boolean}
-         */ 
+         */
         self.testingScript = false;
 
         /**
          * It defines a TerraMA² box name when selecting a Analysis Type
-         * 
+         *
          * @type {string}
          */
         self.dataSeriesBoxName =  i18n.__('Additional Data');
@@ -186,7 +197,7 @@ define([], function() {
         /**
          * It defines Selected Semantics (Format Store)
          * Used to filter data providers
-         * 
+         *
          * @type {DataSeriesSemantics}
          */
         self.currentSemantics = {};
@@ -207,14 +218,14 @@ define([], function() {
 
         /**
          * It defines a target data series that should be monitored/grid or even DCP
-         * 
+         *
          * @type {DataSeries}
          */
         self.targetDataSeries = {};
 
         /**
          * It used to add identifier in Analysis Data Series result
-         * 
+         *
          * @type {string}
          */
         self.identifier = "";
@@ -268,7 +279,7 @@ define([], function() {
         });
         /**
          * Socket listener for script validation. It just display the script state in result div.
-         * 
+         *
          * @param {Object} result - A object received
          * @param {boolean} result.hasError - Flag to determine if if there error in request
          * @param {boolean} result.hasPythonError - Flag to determine if script is invalid
@@ -297,7 +308,7 @@ define([], function() {
 
         /**
          * It fills out GUI interface with analysis object. Used when updating analysis
-         * 
+         *
          * @returns {void}
          */
         function fillGUI() {
@@ -365,7 +376,7 @@ define([], function() {
 
                   /**
                    * Defines target analysis data series identifier
-                   * @type {string}   
+                   * @type {string}
                    */
                   self.identifier = analysisDs.metadata.identifier;
                   return true;
@@ -439,9 +450,9 @@ define([], function() {
 
         /**
          * Define dataseries selected to analysis
-         * 
+         *
          * @type {Object[]}
-         */ 
+         */
         self.selectedDataSeriesList = [];
         self.metadata = {};
 
@@ -449,7 +460,7 @@ define([], function() {
         self.storager = {};
         /**
          * It defines a local cache buffers with data series to help #dataSeriesGroups in Additional Groups (Static/Dynamic).
-         * 
+         *
          * @type {Object}
          */
         self.buffers = {
@@ -460,7 +471,7 @@ define([], function() {
         // filter for dataseries basead analysis type. If obj monitored, then this list will be list of obj monitored and occurrences
         self.filteredDataSeries = [];
 
-        /** 
+        /**
          * Helper of selected semantics to display in gui "terrama2-box": Object Monitored, Dcp, Grid, etc.
          * @type {string}
          */
@@ -468,7 +479,7 @@ define([], function() {
 
         /**
          * It defines a groups of additional data series
-         * 
+         *
          * @type {Object[]}
          */
         self.dataSeriesGroups = [
@@ -491,7 +502,7 @@ define([], function() {
 
         /**
          * It will re-map available data series in buffers (additional data) depending analysis type.
-         * 
+         *
          * For GRID data series, only dynamic data series is displayed (TODO: check it, since GRID static should exists soon in TerraMA²)
          * For Monitored Object, both dynamic as static data series may be selected
          */
@@ -547,7 +558,7 @@ define([], function() {
         /**
          * It checks if there is any data series dcp in Analysis Data Series list. If found, return true.
          * It set on template. Angular call it whenever scope cycle iteration done ($digest)
-         * 
+         *
          * @returns {boolean}
          */
         self.hasDcp = function() {
@@ -571,7 +582,7 @@ define([], function() {
 
         /**
          * It handles analysis validation signal. Once received, it tries to notify the user with callback state
-         * 
+         *
          * @param {Object} resp - Service response
          */
         Socket.on("processValidated", function(resp) {
@@ -587,14 +598,14 @@ define([], function() {
 
         /**
          * It handles validate analysis error
-         * 
+         *
          * @param {Object} resp - Response Object
          * @param {string} resp.message - Error Message
          */
         Socket.on("processValidatedError", function(resp) {
           MessageBoxService.danger(i18n.__("Analysis"), resp.message);
         });
-        
+
         // Object of function button operators
         self.operators = {
           utilities: {
@@ -968,14 +979,14 @@ define([], function() {
 
         /*
          * DCP metadata (radius format - km, m...)
-         */ 
+         */
         self.onMetadataFormatClick = function(format) {
           self.analysis.metadata.INFLUENCE_RADIUS_UNIT = format;
         };
 
         /**
          * It prepares analysis object to send via API
-         * 
+         *
          * @throws Error when there invalid values
          * @returns {Analysis} Front-end Analysis to send
          */
@@ -996,7 +1007,7 @@ define([], function() {
           var scheduleForm = angular.element('form[name="scheduleForm"]').scope().scheduleForm;
           if ($scope.forms.generalDataForm.$invalid ||
               $scope.forms.storagerDataForm.$invalid ||
-              $scope.forms.storagerForm.$invalid || 
+              $scope.forms.storagerForm.$invalid ||
               scheduleForm.$invalid ||
               $scope.forms.targetDataSeriesForm.$invalid ||
               $scope.forms.scriptForm.$invalid) {
@@ -1198,7 +1209,7 @@ define([], function() {
             $timeout(function() {
               self.validating = false;
             }, 2000);
-            
+
           } catch(err) {
             self.validating = false;
             MessageBoxService.danger(i18n.__("Analysis"), err.toString());
