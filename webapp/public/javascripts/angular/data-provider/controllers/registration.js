@@ -231,7 +231,7 @@ define(function() {
         let pathname = $scope.model.pathname;
         let isValidPath = false;
 
-        $scope.configuration.defaultFilePath.forEach((path) => {
+        $scope.configuration.defaultFilePathList.forEach((path) => {
           if(pathname.startsWith(path))
             isValidPath = true;
         });

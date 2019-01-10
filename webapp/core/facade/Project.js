@@ -64,10 +64,10 @@
           var configFile = Application.getContextConfig();
 
           // File data provider object
-          // configFile.defaultFilePath - The first list position returns the default file path.
+          // configFile.defaultFilePathList - The first list position returns the default file path.
           var DefaultFileProvider = {
             name: "Local Folder",
-            uri: "file://" + configFile.defaultFilePath[0],
+            uri: "file://" + configFile.defaultFilePathList[0],
             description: "Local Folder data server",
             data_provider_intent_id: 1,
             data_provider_type_id: 1,

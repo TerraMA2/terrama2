@@ -109,7 +109,7 @@ define([], function() {
               tempCurrentPath = tempCurrentPath.substring(3);
 
             if($scope.dataProvider.protocol == "FILE") {
-              var pathSelected = getPathFromTheList($scope.configuration.defaultFilePath, tempCurrentPath);
+              var pathSelected = getPathFromTheList($scope.configuration.defaultFilePathList, tempCurrentPath);
 
               if(pathSelected == undefined || pathSelected == "")
               {
@@ -118,7 +118,7 @@ define([], function() {
               }
 
               tempCurrentPath = $scope.basePath + tempCurrentPath;
-              var isWindowsPathResult = verifyPath($scope.configuration.defaultFilePath);
+              var isWindowsPathResult = verifyPath($scope.configuration.defaultFilePathList);
               var terrama2DataPath = (isWindowsPathResult ? isWindowsPathResult + pathSelected.substring(3) : pathSelected).replace(/\\/g, '/');
               $scope.basePath = terrama2DataPath;
 

@@ -79,12 +79,12 @@ FileRequest.fields = function() {
 
   var configFile = Application.getContextConfig();
 
-  // configFile.defaultFilePath - The first list position returns the default file path.
+  // configFile.defaultFilePathList - The first list position returns the default file path.
 
   properties[UriPattern.PATHNAME] = {
     title: "Path",
     type: Form.Field.TEXT,
-    default: configFile.defaultFilePath[0]
+    default: configFile.defaultFilePathList[0]
   };
 
   properties['file_explorer_button'] = {};
