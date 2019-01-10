@@ -472,7 +472,7 @@ void terrama2::core::DataAccessorCSV::addGeomProperty(QJsonObject fieldGeomObj, 
     if(longPos == std::numeric_limits<size_t>::max() ||
        latPos == std::numeric_limits<size_t>::max())
     {
-      QString errMsg = QObject::tr("Could not find the point complete information!");
+      QString errMsg = QObject::tr("Could not find the point complete information(%1, %2)!").arg(latPos).arg(longPos);
       TERRAMA2_LOG_WARNING() << errMsg;
       throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
     }
