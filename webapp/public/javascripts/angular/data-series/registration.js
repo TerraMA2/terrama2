@@ -2198,12 +2198,12 @@ define([], function() {
 
       var getAliasFromCsvFields = function(fieldType, fields){
         var fieldAlias;
-        fields.forEach(function(field){
-          if (field.type == fieldType){
-            fieldAlias = field.alias;
-            return;
+	for (var field in fields){
+          if (fields[field].type == fieldType){
+            fieldAlias = fields[field].alias;
+        	break;
           }
-        });
+        }
         return fieldAlias;
       }
 
