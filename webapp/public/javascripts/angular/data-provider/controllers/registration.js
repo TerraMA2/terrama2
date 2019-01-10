@@ -228,10 +228,15 @@ define(function() {
 
       if ($scope.dataProvider.protocol === "FILE")
       {
-        var pathname = $scope.model.pathname;
-        var defaultPathName = pathname.indexOf($scope.configuration.defaultFilePath);
-  
-        if (defaultPathName == -1)
+        let pathname = $scope.model.pathname;
+        let isValidPath = false;
+
+        $scope.configuration.defaultFilePathList.forEach((path) => {
+          if(pathname.startsWith(path))
+            isValidPath = true;
+        });
+          
+        if (!isValidPath)
           return MessageBoxService.danger(i18n.__("Permission"), i18n.__("The path informed is invalid."));
       }
 
