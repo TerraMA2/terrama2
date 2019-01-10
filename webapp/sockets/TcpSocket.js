@@ -12,19 +12,15 @@
 var TcpSocket = function(io) {
 
   // Sockets object
-  var iosocket = io.sockets;
-
-  // TerraMA2 Utils
-  var Utils = require('./../core/Utils');
-
-  // TerraMA2 Enums
-  var ServiceType = require('./../core/Enums').ServiceType;
+  const iosocket = io.sockets;
 
   // common TcpService module
-  var TcpService = require("./../core/facade/tcp-manager/TcpService");
+  const TcpService = require("./../core/facade/tcp-manager/TcpService");
 
   // TODO: remove it, since It also include TcpService. It must be changed
-  var AnalysisFacade = require("./../core/facade/Analysis");
+  const AnalysisFacade = require("./../core/facade/Analysis");
+  // Logger module
+  const logger = require('./../core/Logger');
 
   /**
    * It describes when service is ready to start and notify all listeners
@@ -267,7 +263,10 @@ var TcpSocket = function(io) {
      * @param {number} json.service - A TerraMA² service instance id
      */
     function onStatusRequest(json) {
-      return TcpService.status(json);
+      return TcpService.status(json)
+        .catch((/*err*/) => {
+          logger.warn(`Could not connect to the service "${json.service}"`);
+        });
     }
 
     /**
