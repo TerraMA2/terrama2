@@ -517,7 +517,11 @@ define([], function() {
         $scope.semanticsCode = $scope.dataSeries.semantics.code;
 
         if (!$scope.isUpdating){
-          $scope.csvFormatData = { fields: [{type: "DATETIME"}], convert_all: false, delimiter: ',' };
+          $scope.csvFormatData = { fields: [{ type: "DATETIME", readonly: true }], convert_all: false, delimiter: ',' };
+
+          if ($scope.dataSeries.semantics.data_series_type_name === "OCCURRENCE") {
+            $scope.csvFormatData.fields.push({ type: 'GEOMETRY_POINT', readonly: true });
+          }
           clearStoreForm();
         }
         $scope.custom_format = $scope.dataSeries.semantics.custom_format;
