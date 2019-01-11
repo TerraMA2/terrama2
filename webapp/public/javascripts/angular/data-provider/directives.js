@@ -114,7 +114,7 @@ define([], function() {
               if(pathSelected == undefined || pathSelected == "")
               {
                 $scope.isChecking = false;
-                return MessageBoxService.danger(i18n.__(title), i18n.__("Invalid path."));
+                return MessageBoxService.danger(i18n.__(title), i18n.__("Invalid path. This path can not be listed."));
               }
 
               tempCurrentPath = $scope.basePath + tempCurrentPath;
@@ -175,7 +175,7 @@ define([], function() {
             let selectedPath = "";
 
             pathList.forEach((path) => {
-              if(currentPath.startsWith(path))
+              if(path && currentPath.startsWith(path))
                 selectedPath = path;
             });
 
