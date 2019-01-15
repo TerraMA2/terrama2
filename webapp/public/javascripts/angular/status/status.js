@@ -261,14 +261,21 @@ define([
           }
         });
 
-        var urlHandler = function(logProcess) {
+        var urlHandler = function(logProcess, elements) {
           let url = "";
 
-          const found = configuration.collectors.find(collector => collector.id === logProcess.process_id);
+          const found = elements.find(elm => elm.id === logProcess.process_id);
           
-          if(found)
-            url = found.output_data_series;
-          
+          if(found) {
+            switch(serviceType) {
+              case Globals.enums.ServiceType.COLLECTOR :
+                url = found.output_data_series;
+                break;
+              default:
+                url = found.id;
+                break;
+            }
+          }
           return url
         }
 
@@ -280,7 +287,7 @@ define([
               status: logMessage.status,
               type: targetMessage,
               service: service,
-              url: url.replace("$id", urlHandler(logProcess))
+              url: url.replace("$id", urlHandler(logProcess, targetArray))
             };
 
             var currentProcess = _findOne(targetArray, logProcess.process_id, logProcess.instance_id);
