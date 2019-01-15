@@ -1,7 +1,7 @@
 define([],function(){
   /**
    * It defines a Component structure for handling CSV Field form on Dynamic data registration
-   * 
+   *
    * @property {Object} bindings - Defines component bindings to work
    */
 
@@ -10,6 +10,7 @@ define([],function(){
       field: '<',
       fieldsType: '<',
       onDelete: '&',
+      onChange: '&',
       semantics: '<'
     },
     templateUrl: BASE_URL + 'dist/templates/data-series/templates/csvFieldDetail.html',
@@ -18,7 +19,7 @@ define([],function(){
 
   /**
    * It handles component behavior
-   * 
+   *
    * @param {any} i18n - TerraMA² Internationalization module
    */
   function FieldDetailController(i18n) {
@@ -30,6 +31,10 @@ define([],function(){
       ctrl.onDelete({field: ctrl.field});
     };
 
+    ctrl.onChangeField = field => {
+      ctrl.onChange({ field });
+    }
+
     // Reset field model on type change
     ctrl.onFieldTypeChange = function(valueType){
       delete ctrl.field.latitude_property_name;
@@ -39,7 +44,7 @@ define([],function(){
       delete ctrl.field.format;
     }
   }
-  
-  FieldDetailController.$inject = ['i18n']; 
+
+  FieldDetailController.$inject = ['i18n'];
   return terrama2CsvFieldDetailComponent;
 })

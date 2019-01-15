@@ -65,6 +65,7 @@ define([], function() {
     $scope.dataSeriesSemantics = [];
     $scope.storeOptions = {};
     $scope.storeOptions.isDynamic = $scope.isDynamic;
+    $scope.dcpCsvFormatChanged = false;
 
     // Flag to verify if can not save if the service is not running
     var canSave = true;
@@ -200,6 +201,22 @@ define([], function() {
         openForm: openIntersectionForm,
         optional: true,
         message: i18n.__("Must have a valid store values to create an intersection")
+      }
+    };
+
+    /**
+     * Detect when a DCP CSV Format changed.
+     *
+     * This function is attached to the following component listener:
+     *   - onItemAdded
+     *   - onItemRemoved
+     *   - onItemChanged
+     *
+     * Whenever user acted in component using one of above interaction, set interface behavior as dcpChanged
+     */
+    $scope.detectChanges = (/*item*/) => {
+      if ($scope.isDCP() && $scope.isUpdating) {
+        $scope.dcpCsvFormatChanged = true;
       }
     };
 
@@ -785,12 +802,9 @@ define([], function() {
           }
 
           if($scope.tableFields.length > 0) {
-            // When GUI is for Update, render DCP table
-            if ($scope.isUpdating)
-              $timeout(() => $scope.createDataTable(), 10);
-            // When GUI is for Registration, do not render DCP table for Cemaden type due table incompatibility
-            else if (!$scope.isCemadenType())
-              $timeout(() => $scope.createDataTable(), 10);
+            // Render DCP table when updating or it is not Cemaden Type due table incopatibility
+            if ($scope.isUpdating || !$scope.isCemadenType())
+              $timeout(() => $scope.createDataTable(), 1000);
           }
 
           $scope.isChecking.value = false;
@@ -2097,6 +2111,10 @@ define([], function() {
               };
 
               dataToSend.dataSets.push(dataSetStructure);
+
+              if ($scope.dcpCsvFormatChanged) {
+                $scope.insertEditedDcp($scope.dcpsObject[dcpKey]._id);
+              }
 
               for(var j = 0, editedDcpsLength = $scope.editedDcps.length; j < editedDcpsLength; j++) {
                 if($scope.editedDcps[j] == $scope.dcpsObject[dcpKey]._id) {

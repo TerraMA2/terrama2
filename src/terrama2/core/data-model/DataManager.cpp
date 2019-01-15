@@ -178,7 +178,7 @@ void terrama2::core::DataManager::add(terrama2::core::ProjectPtr project)
     {
       projects_.at(project->id);
 
-      QString errMsg = QObject::tr("Project already registered.");
+      QString errMsg = QObject::tr("Project already registered: %1").arg(project->id);
       TERRAMA2_LOG_ERROR() << errMsg;
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }

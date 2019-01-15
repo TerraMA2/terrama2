@@ -193,71 +193,63 @@ TcpService.prototype.finalize = async function() {
  * @param {Object} json - A given arguments sent by client
  * @param {number} json.service - A TerraMA² service instance id
  */
-TcpService.prototype.start = function(json) {
-  return new PromiseClass((resolve, reject) => {
-    return DataManager.getServiceInstance({id: json.service})
-      .then((instance) => {
-        // emitting service starting
-        this.emit("serviceStarting", {service: instance.id});
+TcpService.prototype.start = async function(json) {
+  let instance = null;
+  try {
+    instance = await DataManager.getServiceInstance({id: json.service})
+    // emitting service starting
+    this.emit("serviceStarting", {service: instance.id});
 
-        // spreading all promises in order to retrieve service instance and promise result in two vars
-        return PromiseClass.all([instance, TcpManager.startService(instance)]);
-      })
-      // on sucess, pass the service and code execution value
-      .then(([service, exitCode]) => {
-        if (exitCode !== 0) {
-          throw new Error(Utils.format("Not executed successfully. Exit Code: %s", exitCode));
-        }
+    // spreading all promises in order to retrieve service instance and promise result in two vars
+    const [ service, exitCode ] = await PromiseClass.all([instance, TcpManager.startService(instance)]);
 
-        /**
-         * It defines how many times NodeJS tried to connect in service
-         * @type {number}
-         */
-        var times = 0;
+    if (exitCode !== 0) {
+      throw new Error(Utils.format("Not executed successfully. Exit Code: %s", exitCode));
+    }
 
-        /**
-         * It handles service connection. By default, when OS starts, the virtual memory is too low. It turns out
-         * low performance during process execution. In this case, the TerraMA² wont initialize properly. We tried to increase timeout,
-         * but sometimes it occurs. In order to avoid it, we try to connect three times with default interval.
-         * If connection success, resolve promise chain. Otherwise, break recursion, rejecting promise error chain.
-         * @returns {Promise}
-         */
-        const connectionRepeat = () => (
-          // delay to start service. We are not able to detect if service is already running,
-          // since it depends OS calls. Ok, exit code is 0, but we must ensure that is available
-          delay(3000)
-            .then(() => TcpManager.connect(service))
-            .then(() => TcpManager.statusService(service))
-            .catch(err => {
-              // once tried three times, throw err in order to continue promise chain
-              if (times === 3) {
-                logger.error(Utils.format("TerraMA² Service %s is not running.", service.name));
-                throw err;
-              }
-              times += 1;
-              logger.warn(Utils.format("Failed to connect %s. Retrying... %s", service.name, times));
-              // auto call
-              return connectionRepeat();
-            })
-        );
-
-        return connectionRepeat();
-      })
-      // on sucess starting, resolve promise
-      .then(() => resolve())
-      // on any error
-      .catch((err) => {
-        var exception = new Error(Utils.format("Error occurred during the service startup. %s", err.toString()));
-        logger.error(exception);
-        // emits exception before reject promise
-        this.emit("serviceError", {
-          exception: exception,
-          message: exception.toString(),
-          service: json.service
-        });
-        return reject(exception);
-      });
-  });
+    /**
+     * It defines how many times NodeJS tried to connect in service
+     * @type {number}
+     */
+    let times = 0;
+    /**
+     * It handles service connection. By default, when OS starts, the virtual memory is too low. It turns out
+     * low performance during process execution. In this case, the TerraMA² wont initialize properly. We tried to increase timeout,
+     * but sometimes it occurs. In order to avoid it, we try to connect three times with default interval.
+     * If connection success, resolve promise chain. Otherwise, break recursion, rejecting promise error chain.
+     * @returns {Promise}
+     */
+    const connectionRepeat = () => (
+      // delay to start service. We are not able to detect if service is already running,
+      // since it depends OS calls. Ok, exit code is 0, but we must ensure that is available
+      delay(3000)
+        .then(() => TcpManager.connect(service))
+        .then(() => TcpManager.statusService(service))
+        .catch(err => {
+          // once tried three times, throw err in order to continue promise chain
+          if (times === 3) {
+            logger.error(Utils.format("TerraMA² Service %s is not running.", service.name));
+            throw err;
+          }
+          times += 1;
+          logger.warn(Utils.format("Failed to connect %s. Retrying... %s", service.name, times));
+          // auto call
+          return connectionRepeat();
+        })
+    );
+    // on sucess starting, resolve promise
+    return await connectionRepeat();
+  } catch (err) {
+    var exception = new Error(`Error occurred during the service "${instance ? instance.name : ''}" startup. ${err.message}`);
+    logger.error(exception);
+    // emits exception before reject promise
+    this.emit("serviceError", {
+      exception: exception,
+      message: exception.toString(),
+      service: json.service
+    });
+    throw exception;
+  }
 }; // end client start listener
 
 /**
@@ -268,59 +260,35 @@ TcpService.prototype.start = function(json) {
  * @param {number} processObject.service_instance - A TerraMA² service instance id
  * @returns {Promise}
  */
-TcpService.prototype.run = function(processObject) {
-  var self = this;
-  return new PromiseClass(function(resolve, reject) {
-    /**
-     * Service id to run
-     * @type {number}
-     */
-    var service = processObject.service_instance;
-    // remove service id from object
-    delete processObject.service_instance;
-    return DataManager.getServiceInstance({id: service})
-      .then(function(instance) {
-        // If alert service, check if have a view to start first
-        if (instance.service_type_id == ServiceType.ALERT){
-          return DataManager.getAlert({id: processObject.ids[0]}).then(function(alert){
-            // if alert has view, start the view process
-            if (alert.view && alert.view.id){
-              return DataManager.getView({id: alert.view.id}).then(function(view){
-                return DataManager.getServiceInstance({id: view.serviceInstanceId}).then(function(view_instance){
-                  var viewProcessObject = {
-                    execution_date: processObject.execution_date,
-                    ids: [view.id]
-                  };
-                  startProcess(view_instance, viewProcessObject);
-                  // Notify children listeners the process has been scheduled
-                  self.emit("processRun", viewProcessObject);
-                  return resolve();
-                })
-              });
-            // else start alert process normally
-            } else {
-              startProcess(instance, processObject);
-              // Notify children listeners the process has been scheduled
-              self.emit("processRun", processObject);
-              return resolve();
-            }
-          })
-          .catch(function(err) {
-            logger.debug(err);
-            return reject(err);
-          });
-        }
+TcpService.prototype.run = async function(processObject) {
+  /**
+   * Service id to run
+   * @type {number}
+   */
+  const service = processObject.service_instance;
+  // remove service id from object
+  delete processObject.service_instance;
+  let instance = await DataManager.getServiceInstance({id: service});
+  // If alert service, check if have a view to start first
+  if (instance.service_type_id == ServiceType.ALERT){
+    const alert = await DataManager.getAlert({id: processObject.ids[0]});
+    // if alert has view, start the view process
+    if (alert.view && alert.view.id) {
+      const view = await DataManager.getView({id: alert.view.id});
+      instance = await DataManager.getServiceInstance({id: view.serviceInstanceId});
 
-        startProcess(instance, processObject);
-        // Notify children listeners the process has been scheduled
-        self.emit("processRun", processObject);
-        return resolve();
-      })
-      .catch(function(err) {
-        logger.debug(err);
-        return reject(err);
-      });
-  });
+      processObject = {
+        execution_date: processObject.execution_date,
+        ids: [ view.id ]
+      };
+    }
+  }
+
+  startProcess(instance, processObject);
+  // Notify children listeners the process has been scheduled
+  this.emit("processRun", processObject);
+
+  return null;
 }; // end run
 
 /**

@@ -32,7 +32,7 @@ module.exports = function(app) {
           method: "POST"
         },
         redirectTo: redirectTo,
-        defaultFilePath: configFile.defaultFilePath
+        defaultFilePathList: configFile.defaultFilePathList
       });
     },
 
@@ -64,7 +64,7 @@ module.exports = function(app) {
           },
           fields: requester.constructor.fields(),
           redirectTo: redirectTo,
-          defaultFilePath: configFile.defaultFilePath,
+          defaultFilePathList: configFile.defaultFilePathList,
           hasProjectPermission: hasProjectPermission
         });
       }).catch(function(err) {
