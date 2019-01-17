@@ -209,7 +209,7 @@
   "Could not save data series due:  project_id: project_id must be unique,\nname: name must be unique": "Não foi possível salvar a série de dados, já existe um registro com o nome inserido, e o nome deve ser único.",
   "Could not save project: name must be unique": "Não foi possível salvar o projeto, já existe um registro com o nome inserido, e o nome deve ser único.",
   "Count": "Contagem",
-  "Counties": "Municípios",
+  "Cities": "Municípios",
   "Countries": "Países",
   "Create View": "Criar Visualização",
   "Creation Type": "Tipo de criação",
