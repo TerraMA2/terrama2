@@ -78,12 +78,14 @@ namespace terrama2
 
         QJsonArray getFields(DataSetPtr dataSet) const;
 
-        QJsonObject getFieldObj(const QJsonArray& array, const std::string& fieldName, const size_t position) const;
+        QJsonObject getFieldObj(const QJsonArray& array,  const std::string& fieldName, const size_t position, std::vector<te::dt::Property*>& properties) const;
 
         te::dt::AbstractData* stringToTimestamp(te::da::DataSet* dataset,
                                                 const std::vector<std::size_t>& indexes,
                                                 int /*dstType*/,
-                                                const std::string& timezone, std::string& dateTimeFormat) const;
+                                                const std::string& timezone,
+                                                const std::string& attributeName,
+                                                std::string& dateTimeFormat) const;
 
         bool getConvertAll(DataSetPtr dataSet) const;
 
