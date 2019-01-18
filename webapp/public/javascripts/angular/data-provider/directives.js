@@ -109,12 +109,20 @@ define([], function() {
               tempCurrentPath = tempCurrentPath.substring(3);
 
             if($scope.dataProvider.protocol == "FILE") {
+              var pathSelected = getPathFromTheList($scope.configuration.defaultFilePathList, tempCurrentPath);
+
+              if(pathSelected == undefined || pathSelected == "")
+              {
+                $scope.isChecking = false;
+                return MessageBoxService.danger(i18n.__(title), i18n.__("Invalid path. This path can not be listed."));
+              }
+
               tempCurrentPath = $scope.basePath + tempCurrentPath;
-              var isWindowsPathResult = isWindowsPath($scope.configuration.defaultFilePath);
-              var terrama2DataPath = (isWindowsPathResult ? isWindowsPathResult + $scope.configuration.defaultFilePath.substring(3) : $scope.configuration.defaultFilePath).replace(/\\/g, '/');
+              var isWindowsPathResult = verifyPath($scope.configuration.defaultFilePathList);
+              var terrama2DataPath = (isWindowsPathResult ? isWindowsPathResult + pathSelected.substring(3) : pathSelected).replace(/\\/g, '/');
               $scope.basePath = terrama2DataPath;
 
-              $scope.terrama2DefaultFilePath = (isWindowsPathResult ? $scope.configuration.defaultFilePath.replace(/\//g, '\\') : $scope.configuration.defaultFilePath);
+              $scope.terrama2DefaultFilePath = (isWindowsPathResult ? pathSelected.replace(/\//g, '\\') : pathSelected);
 
               if(tempCurrentPath.indexOf(terrama2DataPath) !== -1)
                 $scope.currentPath = tempCurrentPath.replace(terrama2DataPath, '').split('/').filter(function(a) { return a != '' });
@@ -149,6 +157,29 @@ define([], function() {
               $scope.isChecking = false;
               return MessageBoxService.danger(i18n.__(title), ($scope.dataProvider.protocol == "FILE" ? i18n.__("Invalid configuration for the TerraMA² data directory") : err.error));
             });
+          };
+
+          var verifyPath = function(pathList) {
+
+            let isValidPath = true;
+
+            pathList.forEach((path) => {
+              if(!isWindowsPath(path))
+                isValidPath = false;
+            });
+
+            return isValidPath;
+          };
+
+          var getPathFromTheList = function(pathList, currentPath) {
+            let selectedPath = "";
+
+            pathList.forEach((path) => {
+              if(path && currentPath.startsWith(path))
+                selectedPath = path;
+            });
+
+            return selectedPath;
           };
 
           /**

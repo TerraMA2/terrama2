@@ -32,7 +32,6 @@ Application.setCurrentContext(nodeContext);
 /**
  * Module dependencies.
  */
-var Database = require('./../config/Database');
 var PluginLoader = require("../core/PluginLoader");
 var DataManager = require("../core/DataManager");
 var HTTPFactory = require("./../config/HTTPFactory");
@@ -74,7 +73,7 @@ var server = HTTPFactory.create(app, settings);
 if (debugMessage) {
   logger.debug(debugMessage);
 }
-logger.info("Initializing TerraMA2 on port " + port);
+logger.info("Initializing TerraMA² on port " + port);
 /**
  * Listen on provided port, on all network interfaces.
  */
@@ -92,25 +91,23 @@ server.on('connection', function (conn) {
 
 server.on('error', onError);
 server.on('listening', onListening);
-server.on('close', onClose);
 
 // detecting sigint error and then close server
-process.on('SIGINT', function () {
-  DataManager.finalize().then(function () {
-    var _closeServer = function () {
-      server.close(function () {
-        logger.info("TerraMA2 finalized");
-      });
+process.on('SIGINT', async () => {
+  logger.info('Finalizing TerraMA²...')
+  await DataManager.finalize();
 
-      for (var key in connections)
-        connections[key].destroy();
-    };
+  TcpService.finalize();
+  TcpService.disconnect();
 
-    TcpService.finalize();
-    TcpService.disconnect();
+  server.close(() => {
+    logger.info('TerraMA² finalized');
 
-    _closeServer();
+    process.exit(0);
   });
+
+  for (var key in connections)
+    connections[key].destroy();
 });
 
 /**
@@ -158,13 +155,6 @@ function onError(error) {
 }
 
 /**
- * Event listener for server close. It unloads plugins
- */
-function onClose() {
-  PluginLoader.plugin.unloadAll();
-}
-
-/**
  * Event listener for HTTP server "listening" event.
  */
 function onListening() {
@@ -178,7 +168,7 @@ io.attach(server);
 load('sockets').into(io);
 
 // getting db configuration and initializes data manager
-return DataManager.init(null, function (error) {
+return DataManager.init(null, async function (error) {
   if (error) {
     logger.error(error);
     return process.exit(1);
@@ -189,16 +179,25 @@ return DataManager.init(null, function (error) {
     child_process.execSync("python " + applicationPath + "/share/terrama2/scripts/update_database.py " + applicationPath);
 
     // loading terrama2 data
-    return DataManager.load().then(function () {
+    await DataManager.load();
+    // initialize service listeners
+    await TcpService.init();
+    // Listing Service Instances in order to start automatically on startup
+    const services = await DataManager.listServiceInstances();
 
-      // initialize service listeners
-      TcpService.init().finally(function () {
-        return PluginLoader.initialize(__dirname + "/../plugins/");
-      });
-    }).catch(function (err) {
-      logger.error("Could not load datamanager: " + err.message);
-      process.exit(1);
-    });
+    logger.info('Trying to start TerraMA² services...');
+    let hasError = false;
+    for(let service of services) {
+      try {
+        await TcpService.start({ service: service.id });
+      } catch (err) {
+        hasError = true;
+        // logger.error(`Could not start service ${service.name}: ${err.message}.`);
+      }
+    }
+    if (hasError) {
+      logger.warn('TerraMA² services have not started properly. Check the parameters on Administration Page.');
+    }
   } catch (error) {
     throw new Error("Failed to update database.\n"+error);
   }

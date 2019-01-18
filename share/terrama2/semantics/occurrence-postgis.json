@@ -7,6 +7,9 @@
     "temporality": "DYNAMIC",
     "format": "POSTGIS",
     "providers_type_list": ["POSTGIS"],
+    "metadata": {
+      "timezone": "UTM+00"
+    },
     "allow_storage": true,
     "gui": {
       "schema": {

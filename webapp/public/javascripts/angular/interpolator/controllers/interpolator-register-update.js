@@ -39,7 +39,7 @@ define([], function(){
 
       if (timeInterval) {
         config.interpolator.metadata.time_interval = parseInt(timeInterval.match(/\d+/g)[0]);
-        config.interpolator.intervalType = timeInterval[timeInterval.length - 1];
+        config.interpolator.intervalType = timeInterval.replace(config.interpolator.metadata.time_interval, "");
       }
     }
 

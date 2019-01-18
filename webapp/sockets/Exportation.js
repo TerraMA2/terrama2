@@ -49,6 +49,9 @@ var Exportation = function(io) {
       options.Schema = json.schema;
       options.TableName = json.table;
 
+      // Remove special chars
+      const normalizedFileName = json.fileName.replace(/[^a-zA-Z0-9]/g,'_');
+
       if(json.dateTimeField !== undefined && json.dateTimeFrom !== undefined && json.dateTimeTo !== undefined) {
         options.dateTimeField = json.dateTimeField;
         options.dateTimeFrom = json.dateTimeFrom;
@@ -56,14 +59,14 @@ var Exportation = function(io) {
 
         var dataTimeFrom = json.dateTimeFrom.split(' ');
         var dataTimeTo = json.dateTimeTo.split(' ');
-        var fileName = json.fileName + '.' + dataTimeFrom[0] + '.' + dataTimeTo[0];
+        var fileName = normalizedFileName + '.' + dataTimeFrom[0] + '.' + dataTimeTo[0];
       } else if(json.dateTimeField !== undefined && json.date !== undefined) {
         options.dateTimeField = json.dateTimeField;
         options.date = json.date;
 
-        var fileName = json.fileName + '.' + json.date;
+        var fileName = normalizedFileName + '.' + json.date;
       } else {
-        var fileName = json.fileName;
+        var fileName = normalizedFileName;
       }
 
       var separator = (options.fieldSeparator !== undefined && options.fieldSeparator == "semicolon" ? "SEMICOLON" : "COMMA");
@@ -113,7 +116,7 @@ var Exportation = function(io) {
             });
 
             spawnCommand.stderr.on('data', function(data) {
-              console.error(data);
+              console.error(data.toString());
             });
 
             spawnCommand.on('error', function(err) {
@@ -130,7 +133,7 @@ var Exportation = function(io) {
                     var finalPath = memberPath.join(__dirname, '../tmp/' + filesFolder) + "/" + fileName + format.fileExtention + (requestFormats[0] == 'shapefile' ? '.zip' : '');
                     var finalFileName = fileName + format.fileExtention + (requestFormats[0] == 'shapefile' ? '.zip' : '');
 
-                    client.emit('generateFileResponse', { 
+                    client.emit('generateFileResponse', {
                       folder: filesFolder,
                       file: finalFileName
                     });
@@ -143,7 +146,7 @@ var Exportation = function(io) {
                     memberExec(zipGenerationCommand, function(zipGenerationCommandErr, zipGenerationCommandOut, zipGenerationCommandCode) {
                       if(zipGenerationCommandErr) return console.error(zipGenerationCommandErr);
 
-                      client.emit('generateFileResponse', { 
+                      client.emit('generateFileResponse', {
                         folder: filesFolder,
                         file: finalFileName
                       });

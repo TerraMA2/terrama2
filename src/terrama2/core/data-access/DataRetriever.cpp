@@ -73,9 +73,11 @@ void terrama2::core::DataRetriever::retrieveDataCallback(const std::string& mask
                                                          std::shared_ptr<terrama2::core::FileRemover> remover,
                                                          const std::string& temporaryFolderUri,
                                                          const std::string& foldersMask,
-                                                         std::function<void (const std::string&)> processFile) const
+                                                         std::function<void(const std::string &, const std::string &)> processFile) const
 {
-  retrieveDataCallback(mask, filter, timezone, remover, temporaryFolderUri, foldersMask, [processFile](const std::string& uri, const std::string&){processFile(uri);});
+  retrieveDataCallback(mask, filter, timezone, remover, temporaryFolderUri, foldersMask, [processFile](const std::string& uri, const std::string&, const std::string& folderMatched){
+    processFile(uri, folderMatched);
+  });
 }
 
 void terrama2::core::DataRetriever::retrieveDataCallback(const std::string& /*mask*/,
@@ -84,7 +86,7 @@ void terrama2::core::DataRetriever::retrieveDataCallback(const std::string& /*ma
                                                          std::shared_ptr<terrama2::core::FileRemover> /*remover*/,
                                                          const std::string& /*temporaryFolderUri*/,
                                                          const std::string& /*foldersMask*/,
-                                                         std::function<void (const std::string&, const std::string&)> /*processFile*/) const
+                                                         std::function<void (const std::string&, const std::string&, const std::string&)> /*processFile*/) const
 {
   QString errMsg = QObject::tr("Non retrievable DataRetriever.");
   throw NotRetrivableException() << ErrorDescription(errMsg);

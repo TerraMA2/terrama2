@@ -176,7 +176,7 @@ namespace terrama2
                                           DataSetPtr dataSet,
                                           const Filter& filter,
                                           std::shared_ptr<FileRemover> remover,
-                                          std::function<void(const std::string& /*uri*/)> processFile) const override;
+                                          std::function<void(const std::string& /*uri*/, const std::string &)> processFile) const override;
         /*
          \brief Returns a smart pointer to a DataAccessorGrADS.
          \param dataProvider The data provider to be accessed.

@@ -56,7 +56,7 @@ define([], function() {
       metadata: true,
       type: $scope.isDynamic ? "dynamic" : "static"
     };
-    $scope.csvFormatData = { fields: [{type: "DATETIME"}], convert_all: false};
+    $scope.csvFormatData = { fields: [{type: "DATETIME"}], convert_all: false, delimiter: ',' };
     // defining box
     $scope.cssBoxSolid = {
       boxType: "box-solid"
@@ -65,6 +65,7 @@ define([], function() {
     $scope.dataSeriesSemantics = [];
     $scope.storeOptions = {};
     $scope.storeOptions.isDynamic = $scope.isDynamic;
+    $scope.dcpCsvFormatChanged = false;
 
     // Flag to verify if can not save if the service is not running
     var canSave = true;
@@ -200,6 +201,22 @@ define([], function() {
         openForm: openIntersectionForm,
         optional: true,
         message: i18n.__("Must have a valid store values to create an intersection")
+      }
+    };
+
+    /**
+     * Detect when a DCP CSV Format changed.
+     *
+     * This function is attached to the following component listener:
+     *   - onItemAdded
+     *   - onItemRemoved
+     *   - onItemChanged
+     *
+     * Whenever user acted in component using one of above interaction, set interface behavior as dcpChanged
+     */
+    $scope.detectChanges = (/*item*/) => {
+      if ($scope.isDCP() && $scope.isUpdating) {
+        $scope.dcpCsvFormatChanged = true;
       }
     };
 
@@ -500,7 +517,11 @@ define([], function() {
         $scope.semanticsCode = $scope.dataSeries.semantics.code;
 
         if (!$scope.isUpdating){
-          $scope.csvFormatData = { fields: [{type: "DATETIME"}], convert_all: false};
+          $scope.csvFormatData = { fields: [{ type: "DATETIME", readonly: true }], convert_all: false, delimiter: ',' };
+
+          if ($scope.dataSeries.semantics.data_series_type_name === "OCCURRENCE") {
+            $scope.csvFormatData.fields.push({ type: 'GEOMETRY_POINT', readonly: true });
+          }
           clearStoreForm();
         }
         $scope.custom_format = $scope.dataSeries.semantics.custom_format;
@@ -719,6 +740,7 @@ define([], function() {
                   $scope.csvFormatData.default_type = inputDataSeries.dataSets[i].format.default_type;
                   $scope.csvFormatData.convert_all = (inputDataSeries.dataSets[i].format.convert_all == "true");
                   $scope.csvFormatData.properties_names_line = parseInt(inputDataSeries.dataSets[i].format.properties_names_line);
+                  $scope.csvFormatData.delimiter = inputDataSeries.dataSets[i].format.delimiter;
                 }
               } // end for
 
@@ -751,6 +773,7 @@ define([], function() {
               if(inputDataSeries.data_series_semantics.custom_format) {
                 $scope.csvFormatData.fields = JSON.parse(dataSetFormat.fields)
                 $scope.csvFormatData.header_size = parseInt(dataSetFormat.header_size);
+                $scope.csvFormatData.delimiter = dataSetFormat.delimiter;
                 $scope.csvFormatData.default_type = dataSetFormat.default_type;
                 $scope.csvFormatData.convert_all = (dataSetFormat.convert_all == "true");
                 $scope.csvFormatData.properties_names_line = parseInt(dataSetFormat.properties_names_line);
@@ -783,12 +806,9 @@ define([], function() {
           }
 
           if($scope.tableFields.length > 0) {
-            // When GUI is for Update, render DCP table
-            if ($scope.isUpdating)
-              $timeout(() => $scope.createDataTable(), 10);
-            // When GUI is for Registration, do not render DCP table for Cemaden type due table incompatibility
-            else if (!$scope.isCemadenType())
-              $timeout(() => $scope.createDataTable(), 10);
+            // Render DCP table when updating or it is not Cemaden Type due table incopatibility
+            if ($scope.isUpdating || !$scope.isCemadenType())
+              $timeout(() => $scope.createDataTable(), 1000);
           }
 
           $scope.isChecking.value = false;
@@ -2096,6 +2116,10 @@ define([], function() {
 
               dataToSend.dataSets.push(dataSetStructure);
 
+              if ($scope.dcpCsvFormatChanged) {
+                $scope.insertEditedDcp($scope.dcpsObject[dcpKey]._id);
+              }
+
               for(var j = 0, editedDcpsLength = $scope.editedDcps.length; j < editedDcpsLength; j++) {
                 if($scope.editedDcps[j] == $scope.dcpsObject[dcpKey]._id) {
                   tempEditedDcps.push(dataSetStructure);
@@ -2178,12 +2202,12 @@ define([], function() {
 
       var getAliasFromCsvFields = function(fieldType, fields){
         var fieldAlias;
-        fields.forEach(function(field){
-          if (field.type == fieldType){
-            fieldAlias = field.alias;
-            return;
+	for (var field in fields){
+          if (fields[field].type == fieldType){
+            fieldAlias = fields[field].alias;
+        	break;
           }
-        });
+        }
         return fieldAlias;
       }
 

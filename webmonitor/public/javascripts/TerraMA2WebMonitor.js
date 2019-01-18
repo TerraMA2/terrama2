@@ -335,7 +335,16 @@ define(
         }
       });
 
+      Utils.getSocket().on('retrieveViewsError', (errMsg) => (
+        console.error(errMsg)
+      ));
+
       Utils.getSocket().on("retrieveViewsResponse", function(viewsData) {
+        if ($.isEmptyObject(viewsData)) {
+          console.error(`Could not retrieve views from WebApplication.`);
+          return;
+        }
+
         if(viewsData.projects) {
           $('#projects').empty();
 
@@ -846,6 +855,19 @@ define(
         });
         Layers.addLayer(layerObject);
         LayerStatus.addLayerStatusIcon("gebco_08_grid");
+      }
+
+      var sentinelURL = "https://b.s2maps-tiles.eu/wms?";
+      if(TerraMA2WebComponents.MapDisplay.addTileWMSLayer("s2cloudless", "Sentinel 2", "Sentinel 2", sentinelURL, "mapserver", false, false, "terrama2-layerexplorer", { version: "1.1.1", format: "image/jpeg" })){
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("s2cloudless", "template", null, "treeview unsortable terrama2-truncate-text template", null);
+        var layerObject = Layers.createLayerObject({
+          layers: ["s2cloudless"],
+          name: "Senrinel 2",
+          type: "template",
+          description: null
+        });
+        Layers.addLayer(layerObject);
+        LayerStatus.addLayerStatusIcon("s2cloudless");
       }
 
       addTreeviewMenuClass();

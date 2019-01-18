@@ -12,23 +12,19 @@
 var TcpSocket = function(io) {
 
   // Sockets object
-  var iosocket = io.sockets;
-
-  // TerraMA2 Utils
-  var Utils = require('./../core/Utils');
-
-  // TerraMA2 Enums
-  var ServiceType = require('./../core/Enums').ServiceType;
+  const iosocket = io.sockets;
 
   // common TcpService module
-  var TcpService = require("./../core/facade/tcp-manager/TcpService");
+  const TcpService = require("./../core/facade/tcp-manager/TcpService");
 
   // TODO: remove it, since It also include TcpService. It must be changed
-  var AnalysisFacade = require("./../core/facade/Analysis");
+  const AnalysisFacade = require("./../core/facade/Analysis");
+  // Logger module
+  const logger = require('./../core/Logger');
 
   /**
    * It describes when service is ready to start and notify all listeners
-   * 
+   *
    * @param {Object} resp - Response object
    * @param {number} resp.service - TerraMA² Service ID
    */
@@ -42,8 +38,8 @@ var TcpSocket = function(io) {
 
   /**
    * Defines a status listener. Once received, it emits to front end socket.
-   * 
-   * @param {Object} resp - A response object with these values 
+   *
+   * @param {Object} resp - A response object with these values
    * @param {number} resp.status - A code status
    * @param {number} resp.service - A TerraMA² Service identifier
    * @param {boolean} resp.shutting_down - Flag to handle if service is stopping
@@ -56,8 +52,8 @@ var TcpSocket = function(io) {
 
   /**
    * Defines log listener, containing the log array and service metadata
-   * 
-   * @param {Object} resp - A response object with these values 
+   *
+   * @param {Object} resp - A response object with these values
    * @param {number} resp.status - A code status
    * @param {number} resp.service - A TerraMA² Service identifier
    * @param {any[]} resp.logs - Log values
@@ -69,7 +65,7 @@ var TcpSocket = function(io) {
   /**
    * Defines stop listener. It does not represents that TerraMA² C++ has been closed. It defines that TERMINATE signal were sent
    * and C++ service replied successfully. To ensure service stopped, send status service after that.
-   * 
+   *
    * @param {Object} resp - Response object
    */
   TcpService.on("serviceStop", function(resp) {
@@ -78,8 +74,8 @@ var TcpSocket = function(io) {
 
   /**
    * Defines listener when socket closes
-   * 
-   * @param {Object} resp - A response object with these values 
+   *
+   * @param {Object} resp - A response object with these values
    * @param {number} resp.status - A code status
    * @param {number} resp.service - A TerraMA² Service identifier
    * @param {boolean} resp.loading - Flag to indicates service loading. Always false
@@ -91,8 +87,8 @@ var TcpSocket = function(io) {
 
   /**
    * Defines socket error listener. If there is any error during commutication, this listener will be triggered.
-   * 
-   * @param {Object} resp - A response object with these values 
+   *
+   * @param {Object} resp - A response object with these values
    * @param {number} resp.status - A code status
    * @param {number} resp.service - A TerraMA² Service identifier
    * @param {string} resp.message - An error message
@@ -121,7 +117,7 @@ var TcpSocket = function(io) {
             errMessageResponse.message = "Permission denied to service!";
             break;
           case "ETIMEDOUT":
-            errMessageResponse.message = "Service connection time out!";            
+            errMessageResponse.message = "Service connection time out!";
           default:
             break;
         }
@@ -129,14 +125,14 @@ var TcpSocket = function(io) {
         if(err.message)
           errMessageResponse.message = err.message;
       }
-    } 
+    }
     return errMessageResponse;
   }
 
   /**
    * Defines a status listener to broadcast everyone.
-   * 
-   * @param {Object} resp - A response object with these values 
+   *
+   * @param {Object} resp - A response object with these values
    * @param {number} resp.status - A code status
    * @param {number} resp.service - A TerraMA² Service identifier
    * @param {boolean} resp.checking - Identifies if service is checking
@@ -155,7 +151,7 @@ var TcpSocket = function(io) {
 
   /**
    * It defines a listener to broadcast everyone when a process has been finished. It also retrieves a metadata of process.
-   * 
+   *
    * @param {any}                resp - A Response object
    * @param {string}             resp.name - Context Name. Use it to display in GUI interface
    * @param {number}             resp.service - TerraMA² Service identifier
@@ -176,7 +172,7 @@ var TcpSocket = function(io) {
 
     /**
      * Listener for handling Process Run from TerraMA² TcpService.
-     * 
+     *
      * @todo It will emits serviceError in order to notify user that service is not running.
      * @param {Object} resp - A response object
      * @param {number} resp.service - TerraMA² service identifier
@@ -187,7 +183,7 @@ var TcpSocket = function(io) {
 
     /**
      * Listener for handling Analysis Validation from Front-User user. It emits signal to C++ TcpService in order to validate
-     * 
+     *
      * @param {Object} json - TerraMA² Api request
      * @param {Object} json.analysis - TerraMA² Analysis Instance Values
      * @param {Object} json.storager - TerraMA² Analysis Storager
@@ -213,13 +209,13 @@ var TcpSocket = function(io) {
         });
     }
 
-    /** 
+    /**
      * Register the process run listener. It is the only one listener registered on each user, since it does not need to notify all
      * It must be removed on socket disconnection
      */
     TcpService.on("processRun", onProcessRun);
 
-    /** 
+    /**
      * Register the analysis validation listener.
      * It must be removed on socket disconnection
      */
@@ -227,7 +223,7 @@ var TcpSocket = function(io) {
 
     /**
      * It just define on front-end socket disconnection. It remove a process run listener due it is the only one registered each one user
-     * 
+     *
      * @returns {void}
      */
     function onDisconnect() {
@@ -240,7 +236,7 @@ var TcpSocket = function(io) {
      * it retrieves a service instance and tries to start TerraMA² service executable.
      * Once success during start, it performs a socket connection using Service configurations.
      * After that, it sends status service signal to communicate
-     * 
+     *
      * @param {Object} json - A given arguments sent by client
      * @param {number} json.service - A TerraMA² service instance id
      */
@@ -251,7 +247,7 @@ var TcpSocket = function(io) {
     /**
      * Listener for handling start process signal. When it called, it tries to send START_PROCESS signal
      * in order to forcing a process to execute in TerraMA².
-     * 
+     *
      * @param {Object} processObject - A given arguments sent by client
      * @param {number} processObject.service_instance - A TerraMA² service instance id
      */
@@ -262,31 +258,37 @@ var TcpSocket = function(io) {
     /**
      * Listener for handling status signal. When it called, it tries to connect to the socket and retrieve a
      * life time using STATUS_SIGNAL.
-     * 
+     *
      * @param {Object} json - A given arguments sent by client
      * @param {number} json.service - A TerraMA² service instance id
      */
     function onStatusRequest(json) {
-      return TcpService.status(json);
+      return TcpService.status(json)
+        .catch((/*err*/) => {
+          logger.warn(`Could not connect to the service "${json.service}"`);
+        });
     }
 
     /**
-     * Listener for handling status signal when try to delete an object. 
-     * 
+     * Listener for handling status signal when try to delete an object.
+     *
+     * **This method does not throw exception.**
+     *
+     * @emits #statusToDeleteResponse
      * @param {Object} json - A given arguments sent by client
      * @param {number} json.service - A TerraMA² service instance id
      */
-    function onStatusToDeleteRequest(json){
-      TcpService.statusToDelete(json).then(function(result){
-        iosocket.emit("statusToDeleteResponse", result);
-      });
+    async function onStatusToDeleteRequest(json){
+      const result = await TcpService.statusToDelete(json);
+
+      client.emit("statusToDeleteResponse", result);
     }
 
     /**
      * Listener for handling STOP service signal. When called, it sends a STOP_SERVICE signal followed by a STATUS_SERVICE.
-     * Once TerraMA² executable receives STOP_SERVICE, it starts changing shutdown the running active processes, so it may
-     * take a few seconds/minutes to finish. 
-     * 
+     * Once TerraMA² executable receives STOP_SERVICE, the thread handler waits for the completition and the internal state
+     * will be changed to "shutting down", so it may take a few minutes to finalize properly.
+     *
      * @param {Object} json - A given arguments sent by client
      * @param {number} json.service - A TerraMA² service instance id
      */
@@ -297,7 +299,7 @@ var TcpSocket = function(io) {
     /**
      * Listener for handling Log request signal. When called, it maps the cached logs and if necessary request
      * for others through LOG_SIGNAL in socket communication.
-     * 
+     *
      * @param {Object} json - A given arguments sent by client
      * @param {number} json.begin - A begin offset to retrieve logs
      * @param {number} json.end - An end offset to retrieve logs

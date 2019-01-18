@@ -7,6 +7,7 @@ var fs = require('fs');
 var Form = require("./Enums").Form;
 var UriPattern = require("./Enums").Uri;
 var Utils = require("./Utils");
+var Application = require("../core/Application");
 
 var FileRequest = function(params) {
   AbstractRequest.apply(this, arguments);

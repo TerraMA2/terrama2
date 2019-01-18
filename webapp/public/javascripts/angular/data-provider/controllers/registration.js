@@ -110,6 +110,8 @@ define(function() {
     };
 
     var hasProjectPermission = conf.hasProjectPermission;
+
+    $scope.filePathList = conf.defaultFilePathList;
     
     if ($scope.isEditing && !hasProjectPermission){
       MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this data server. He belongs to a protected project!"));
@@ -160,6 +162,11 @@ define(function() {
             if($scope.dataProvider.protocol === "POSTGIS") {
               var databaseInput = angular.element("#database");
               databaseInput.attr("list", "databaseList");
+            }
+
+            if($scope.dataProvider.protocol === "FILE") {
+              var pathInput = angular.element("#pathname");
+              pathInput.attr("list", "filePathList");
             }
           });
         }
@@ -224,6 +231,20 @@ define(function() {
 
       if ($scope.isEditing && !hasProjectPermission){
         return MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this data server. He belongs to a protected project!"));
+      }
+
+      if ($scope.dataProvider.protocol === "FILE")
+      {
+        let pathname = $scope.model.pathname;
+        let isValidPath = false;
+
+        $scope.configuration.defaultFilePathList.forEach((path) => {
+          if(pathname.startsWith(path))
+            isValidPath = true;
+        });
+          
+        if (!isValidPath)
+          return MessageBoxService.danger(i18n.__("Permission"), i18n.__("The path informed is invalid."));
       }
 
       $scope.$broadcast("formFieldValidation");

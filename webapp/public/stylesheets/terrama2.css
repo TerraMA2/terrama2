@@ -422,7 +422,7 @@ table.scroll thead th {
   float: left;
 }
 
-thead tr th { 
+thead tr th {
   height: 30px;
   line-height: 30px;
   /*text-align: left;*/
@@ -443,7 +443,7 @@ tbody td:last-child, thead th:last-child {
 }
 
 .service-warning {
-  color: red; 
+  color: red;
   border-color: red;
 }
 
@@ -491,7 +491,6 @@ md-autocomplete, md-autocomplete md-autocomplete-wrap {
     */
     .enable-button-click {
       cursor: pointer !important;
-      margin-top: -20px !important;
     }
 }
 

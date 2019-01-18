@@ -30,7 +30,7 @@
     saveConfig: {[ saveConfig|json|safe ]},
     fields: {[ fields|json|safe || {} ]},
     redirectTo: {[ (redirectTo || {})|json|safe ]},
-    defaultFilePath: "{[ defaultFilePath ]}",
+    defaultFilePathList: {[ defaultFilePathList|json|safe ]},
     hasProjectPermission: {[ hasProjectPermission|json|safe ]}
   };
 </script>
@@ -120,6 +120,10 @@
   <!-- List with database of postgis -->
   <datalist id='databaseList'>
       <option ng-repeat="db in dbList" value="{{db}}">
+  </datalist>
+
+  <datalist id='filePathList'>
+      <option ng-repeat="path in filePathList" value="{{path}}">
   </datalist>
 
 </div> <!-- end col md 12 -->

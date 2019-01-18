@@ -190,31 +190,39 @@ define([
         var targetArray = [];
         var targetMessage = "";
         var targetKey = "";
+        var url = BASE_URL;
+        var id = "$id";
+
         switch(serviceType) {
           case Globals.enums.ServiceType.COLLECTOR:
             targetArray = config.collectors;
             targetMessage = "Collector";
             targetKey = "dataSeriesOutput";
+            url += `configuration/dynamic/dataseries/${id}`;
             break;
           case Globals.enums.ServiceType.ANALYSIS:
             targetArray = config.analysis;
             targetMessage = "Analysis";
             targetKey = "dataSeries";
+            url += `configuration/analysis/${id}/edit`;
             break;
           case Globals.enums.ServiceType.VIEW:
             targetArray = config.views;
             targetMessage = "View";
             targetKey = "";
+            url += `configuration/views/edit/${id}`;
             break;
           case Globals.enums.ServiceType.ALERT:
             targetArray = config.alerts;
             targetMessage = "Alert";
             targetKey = "";
+            url += `configuration/alerts/edit/${id}`;
             break;
           case Globals.enums.ServiceType.INTERPOLATION:
             targetArray = config.interpolators;
             targetMessage = "Interpolator";
             targetKey = "dataSeriesOutput";
+            url += `configuration/interpolator/new/${id}`;
             break;
         }
 
@@ -253,6 +261,24 @@ define([
           }
         });
 
+        var urlHandler = function(logProcess, elements) {
+          let url = "";
+
+          const found = elements.find(elm => elm.id === logProcess.process_id);
+          
+          if(found) {
+            switch(serviceType) {
+              case Globals.enums.ServiceType.COLLECTOR :
+                url = found.output_data_series;
+                break;
+              default:
+                url = found.id;
+                break;
+            }
+          }
+          return url
+        }
+
         logArray.forEach(function(logProcess) {
           $scope.logSize += logProcess.log.length;
           logProcess.log.forEach(function(logMessage) {
@@ -260,7 +286,8 @@ define([
               date: moment(logMessage.last_process_timestamp, "YYYY-MM-DDThh:mm:ss.SSSSSSZ"),
               status: logMessage.status,
               type: targetMessage,
-              service: service
+              service: service,
+              url: url.replace("$id", urlHandler(logProcess, targetArray))
             };
 
             var currentProcess = _findOne(targetArray, logProcess.process_id, logProcess.instance_id);

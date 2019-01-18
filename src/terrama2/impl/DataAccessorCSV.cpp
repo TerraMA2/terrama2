@@ -48,6 +48,7 @@
 
 // Boost
 #include <boost/bind.hpp>
+#include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/trim.hpp>
 
 // STL
@@ -93,7 +94,7 @@ QFileInfo terrama2::core::DataAccessorCSV::filterTxt(QFileInfo& fileInfo, QTempo
 
   if(!file.is_open())
   {
-    QString errMsg = QObject::tr("Could not open file!");
+    QString errMsg = QObject::tr("Could not open file: %1").arg(fileInfo.fileName());
     TERRAMA2_LOG_WARNING() << errMsg;
     throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
   }
@@ -110,6 +111,18 @@ QFileInfo terrama2::core::DataAccessorCSV::filterTxt(QFileInfo& fileInfo, QTempo
   std::string line = "";
   int lineNumber = 1;
 
+  std::string delimiter(",");
+
+  try
+  {
+    // Retrieve Attribute Delimiter from GUI interface
+    // Default: comma (,)
+    delimiter = terrama2::core::getProperty(dataSet, dataSeries_, "delimiter");
+  }
+  catch(...)
+  {
+  }
+
   while(std::getline(file, line))
   {
     if(lineNumber <= header && lineNumber != columnsLine)
@@ -118,7 +131,26 @@ QFileInfo terrama2::core::DataAccessorCSV::filterTxt(QFileInfo& fileInfo, QTempo
       continue;
     }
 
-    outputFile << line << "\n";
+    auto fragments = terrama2::core::splitString(line, *delimiter.c_str());
+
+    if (fragments.size() <= 1)
+    {
+      auto errMsg = QObject::tr("Could parse CSV file '%1' with delimiter %2.").arg(fileInfo.absoluteFilePath()).arg(delimiter.c_str());
+      TERRAMA2_LOG_WARNING() << errMsg;
+      throw terrama2::core::UndefinedTagException() << ErrorDescription(errMsg);
+    }
+
+    std::string csvLine;
+
+    for(const auto& fragment: fragments)
+    {
+      if (!csvLine.empty())
+        csvLine += ",";
+      csvLine += fragment;
+    }
+
+    // Write output CSV with common standard (comma)
+    outputFile << csvLine << "\n";
 
     if(!outputFile)
     {
@@ -137,16 +169,35 @@ QFileInfo terrama2::core::DataAccessorCSV::filterTxt(QFileInfo& fileInfo, QTempo
 
 
 te::dt::AbstractData* terrama2::core::DataAccessorCSV::stringToTimestamp(te::da::DataSet* dataset,
-                                                                             const std::vector<std::size_t>& indexes,
-                                                                             int /*dstType*/,
-                                                                             const std::string& timezone,
-                                                                             std::string& dateTimeFormat) const
+                                                                         const std::vector<std::size_t>& indexes,
+                                                                         int /*dstType*/,
+                                                                         const std::string& timezone,
+                                                                         const std::string& attributeName,
+                                                                         std::string& dateTimeFormat) const
 {
   assert(indexes.size() == 1);
 
   try
   {
-    std::string dateTime = dataset->getAsString(indexes[0]);
+    auto fieldsToComposeDate = splitString(attributeName, ',');
+
+    std::string dateTime;
+
+    // When the user informs a field containing "," the TerraMA2 must split the string
+    // and compose date based in multiple fields using date format
+    // for example: "year,month,day" and format "%YYYY%MM%DD" should be parsed as "20001010"
+    if (fieldsToComposeDate.size() > 1)
+    {
+      for(const auto& field: fieldsToComposeDate)
+      {
+        dateTime += dataset->getAsString(field);
+      }
+    }
+    else
+    {
+      dateTime = dataset->getAsString(indexes[0]);
+    }
+
     boost::posix_time::ptime boostDate;
 
     std::string boostFormat = TimeUtils::terramaDateMask2BoostFormat(dateTimeFormat);
@@ -222,7 +273,8 @@ te::dt::AbstractData* terrama2::core::DataAccessorCSV::stringToPoint(te::da::Dat
 
 
 QJsonObject terrama2::core::DataAccessorCSV::getFieldObj(const QJsonArray& array,
-                                                             const std::string& fieldName, const size_t position) const
+                                                         const std::string& fieldName, const size_t position,
+                                                         std::vector<te::dt::Property*>& properties) const
 {
   for(const auto& item : array)
     {
@@ -263,6 +315,28 @@ QJsonObject terrama2::core::DataAccessorCSV::getFieldObj(const QJsonArray& array
         if(propertyName == fieldName || propertyPosition == position)
         {
           return obj;
+        }
+
+        if (QString(propertyName.c_str()).startsWith(fieldName.c_str()))
+        {
+          auto fields = splitString(propertyName, ',');
+          // When field contains "," we should parse it and read each one of
+          // delimited field in dataset
+          // Once got fields, all of them must exists in data set properties
+          // Otherwise, skip
+          if (fields.size() > 1)
+          {
+            std::vector<std::string> found;
+            std::copy_if(fields.begin(), fields.end(), std::back_inserter(found), [&properties](const std::string& in) {
+              auto r = std::find_if(properties.begin(), properties.end(), [&in](te::dt::Property* prop) {
+                return prop->getName() == in;
+              });
+              return r != properties.end();
+            });
+
+            if (found.size() == fields.size())
+              return obj;
+          }
         }
       }
     }
@@ -338,7 +412,9 @@ void terrama2::core::DataAccessorCSV::addPropertyByType(std::shared_ptr<te::da::
       std::string format = TimeUtils::terramaDateMask2BoostFormat(fieldObj.value(JSON_FORMAT).toString().toStdString());
 
       te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(alias, te::dt::TIME_INSTANT_TZ);
-      converter->add(pos, dtProperty, boost::bind(&terrama2::core::DataAccessorCSV::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet), format));
+
+      auto propertyName = fieldObj.value(JSON_PROPERTY_NAME).toString().toStdString();
+      converter->add(pos, dtProperty, boost::bind(&terrama2::core::DataAccessorCSV::stringToTimestamp, this, _1, _2, _3, getTimeZone(dataSet), propertyName, format));
 
       break;
     }
@@ -396,7 +472,7 @@ void terrama2::core::DataAccessorCSV::addGeomProperty(QJsonObject fieldGeomObj, 
     if(longPos == std::numeric_limits<size_t>::max() ||
        latPos == std::numeric_limits<size_t>::max())
     {
-      QString errMsg = QObject::tr("Could not find the point complete information!");
+      QString errMsg = QObject::tr("Could not find the point complete information(%1, %2)!").arg(latPos).arg(longPos);
       TERRAMA2_LOG_WARNING() << errMsg;
       throw terrama2::core::DataAccessorException() << ErrorDescription(errMsg);
     }
@@ -413,10 +489,12 @@ void terrama2::core::DataAccessorCSV::addGeomProperty(QJsonObject fieldGeomObj, 
 
     // get columns from converted dataset
     auto longRemovePos = converter->getResult()->getPropertyPosition(oldLongProp->getName());
-    auto latRemovePos = converter->getResult()->getPropertyPosition(oldLatProp->getName());
-
-    //remove column from converted dataset
+   //remove column from converted dataset
     converter->remove(longRemovePos);
+
+    // get columns from converted dataset
+    auto latRemovePos = converter->getResult()->getPropertyPosition(oldLatProp->getName());
+    //remove column from converted dataset
     converter->remove(latRemovePos);
   }
   else
@@ -436,11 +514,15 @@ void terrama2::core::DataAccessorCSV::adapt(DataSetPtr dataSet, std::shared_ptr<
 
   QJsonArray fieldsArray = getFields(dataSet);
 
-  if(!checkOriginFields(converter, fieldsArray))
+  try
   {
-    QString errMsg = QObject::tr("Field not present in input dataset.");
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw terrama2::core::UndefinedTagException() << ErrorDescription(errMsg);
+      checkOriginFields(converter, fieldsArray);
+  }
+  catch(DataAccessorException& e)
+  {
+      QString errMsg = QObject::tr("Field not present in input dataset: %1").arg(*boost::get_error_info<terrama2::ErrorDescription>(e));
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::core::UndefinedTagException() << ErrorDescription(errMsg);
   }
 
   std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
@@ -448,7 +530,7 @@ void terrama2::core::DataAccessorCSV::adapt(DataSetPtr dataSet, std::shared_ptr<
   {
     te::dt::Property* property = properties.at(i);
 
-    QJsonObject fieldObj = getFieldObj(fieldsArray, property->getName(), i);
+    QJsonObject fieldObj = getFieldObj(fieldsArray, property->getName(), i, properties);
 
     if(fieldObj.empty())
     {
@@ -514,15 +596,30 @@ bool terrama2::core::DataAccessorCSV::checkOriginFields(std::shared_ptr<te::da::
       {
         if(!(checkProperty(converter->getConvertee(), field.value(JSON_LATITUDE_PROPERTY_NAME).toString().toStdString())
                 && checkProperty(converter->getConvertee(), field.value(JSON_LONGITUDE_PROPERTY_NAME).toString().toStdString())))
-          return false;
+            throw terrama2::core::UndefinedTagException() << ErrorDescription("GEOMETRY_POINT");
       }
     }
     else
     {
       if(field.contains(JSON_PROPERTY_NAME))
       {
-        if(!checkProperty(converter->getConvertee(), field.value(JSON_PROPERTY_NAME).toString().toStdString()))
-          return false;
+        const std::string value = field.value(JSON_PROPERTY_NAME).toString().toStdString();
+        auto propFields = splitString(value, ',');
+
+        if (propFields.size() > 1)
+        {
+          for(const auto& propField: propFields)
+          {
+            // When field does not exist, throw field error
+            if(!checkProperty(converter->getConvertee(), propField))
+              throw terrama2::core::UndefinedTagException() << ErrorDescription(propField.c_str());
+          }
+        }
+        else
+        {
+          if(!checkProperty(converter->getConvertee(), value))
+            throw terrama2::core::DataAccessorException() << ErrorDescription(value.c_str());
+        }
       }
     }
   }

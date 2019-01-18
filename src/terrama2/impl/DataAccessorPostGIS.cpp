@@ -30,6 +30,7 @@
 #include "DataAccessorPostGIS.hpp"
 #include "../core/utility/Raii.hpp"
 #include "../core/utility/TimeUtils.hpp"
+#include "../core/utility/Utils.hpp"
 #include "../core/data-access/SynchronizedDataSet.hpp"
 
 // TerraLib
@@ -44,6 +45,7 @@
 #include <QObject>
 
 //boost
+#include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
 std::string terrama2::core::DataAccessorPostGIS::whereConditions(terrama2::core::DataSetPtr dataSet,
@@ -53,7 +55,10 @@ std::string terrama2::core::DataAccessorPostGIS::whereConditions(terrama2::core:
   std::vector<std::string> whereConditions;
   addExtraConditions(dataSet, whereConditions);
   addDateTimeFilter(datetimeColumnName, filter, whereConditions);
+
   addGeometryFilter(dataSet, filter, whereConditions);
+
+  addConstraintFilter(filter, whereConditions);
 
   std::string conditions;
   if(!whereConditions.empty())
@@ -87,6 +92,14 @@ void terrama2::core::DataAccessorPostGIS::addValueFilter(const terrama2::core::F
     else
       conditions = condition;
   }
+}
+
+void terrama2::core::DataAccessorPostGIS::addConstraintFilter(const terrama2::core::Filter& filter, std::vector<std::string>& whereConditions) const
+{
+  if(filter.joinableTable.empty())
+    return;
+
+  whereConditions.push_back(filter.joinableTable + "."+filter.monitoredIdentifier+"::varchar = t." + filter.additionalIdentifier + "::varchar");
 }
 
 terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(const std::string& uri, const terrama2::core::Filter& filter,
@@ -143,11 +156,33 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
   }
 
   std::string query = "SELECT ";
-  query+="* ";
-  query+= "FROM "+tableName+" AS t";
+
+  // When filter fields provided, use it to select. Otherwize, default all
+  if (filter.fields.empty())
+    query+="* ";
+  else
+    query += boost::algorithm::join(filter.fields, ", ");
+
+  query+= " FROM "+tableName+" AS t";
+
+  // Check table join
+  if (!filter.joinableTable.empty())
+  {
+    query += ", " + filter.joinableTable;
+  }
+
   query += whereConditions(dataSet, datetimeColumnName, filter);
 
-  //  TERRAMA2_LOG_DEBUG() << query;
+  // When monitored identifier supplied, add GROUP BY clause
+  if (!filter.monitoredIdentifier.empty())
+  {
+    query += " GROUP BY " + filter.joinableTable + "." + filter.monitoredIdentifier;
+
+    for(std::size_t i = 3; i <= filter.fields.size(); ++i)
+      query += ", " + std::to_string(i);
+  }
+
+//  TERRAMA2_LOG_DEBUG() << query;
 
   std::shared_ptr<te::da::DataSet> tempDataSet = transactor->query(query);
 
@@ -170,16 +205,7 @@ terrama2::core::DataSetSeries terrama2::core::DataAccessorPostGIS::getSeries(con
 
 std::string terrama2::core::DataAccessorPostGIS::getDataSetTableName(DataSetPtr dataSet) const
 {
-  try
-  {
-    return dataSet->format.at("table_name");
-  }
-  catch(...)
-  {
-    QString errMsg = QObject::tr("Undefined table name in dataset: %1.").arg(dataSet->id);
-    TERRAMA2_LOG_ERROR() << errMsg;
-    throw UndefinedTagException() << ErrorDescription(errMsg);
-  }
+  return terrama2::core::getTableNameProperty(dataSet);
 }
 
 std::string terrama2::core::DataAccessorPostGIS::retrieveData(const DataRetrieverPtr /*dataRetriever*/, DataSetPtr /*dataSet*/, const Filter& /*filter*/, std::shared_ptr<terrama2::core::FileRemover> /*remover*/) const
@@ -193,7 +219,7 @@ void terrama2::core::DataAccessorPostGIS::retrieveDataCallback(const terrama2::c
                                                                terrama2::core::DataSetPtr /*dataset*/,
                                                                const terrama2::core::Filter& /*filter*/,
                                                                std::shared_ptr<terrama2::core::FileRemover> /*remover*/,
-                                                               std::function<void (const std::string&)> /*processFile*/) const
+                                                               std::function<void(const std::string &, const std::string &)> /*processFile*/) const
 {
   QString errMsg = QObject::tr("Non retrievable DataProvider.");
   TERRAMA2_LOG_ERROR() << errMsg;

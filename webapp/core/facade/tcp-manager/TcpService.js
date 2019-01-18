@@ -50,7 +50,7 @@ var versionData = require("../../../../share/terrama2/version.json");
 
 /**
  * It handles TCP service manipulation. Use  it to be pipe between front-end and back-end application
- * 
+ *
  * @class TcpService
  * @emits #serviceStarting When a service is ready to start. Useful for notify all listeners. Remember that it does not represent that service will be executed successfully.
  * @emits #serviceStatus When user request for service status in order to determines if service is running properly
@@ -75,7 +75,7 @@ function TcpService() {
 
   /**
    * It register a service with listener and append it into registered service list
-   * 
+   *
    * @param {Service} service - TerraMA² Service instance
    * @returns {Promise} When finishes
    */
@@ -122,76 +122,66 @@ TcpService.prototype.constructor = TcpService;
 
 /**
  * It initializes service listeners based on database service
- * 
- * @param {boolean} shouldConnect - Flag to determine if tries to connect on running service
+ *
  * @returns {Promise}
  */
-TcpService.prototype.init = function(shouldConnect) {
-  var self = this;
-  return new PromiseClass(function(resolve) {
+TcpService.prototype.init = async function() {
+  try {
     // register listeners
-    return DataManager.listServiceInstances()
-      .then(function(instances) {
-        // TODO: throw exception
-        var promises = [];
-        if (!self.$loaded) {
-          // registering tcp manager listener
-          TcpManager.on("statusReceived", onStatusReceived);
-          TcpManager.on("logReceived", onLogReceived);
-          TcpManager.on("stop", onStop);
-          TcpManager.on("close", onClose);
-          TcpManager.on("tcpError", onError);
-          TcpManager.on("processFinished", onProcessFinished);
-          TcpManager.on("serviceVersion", onServiceVersionReceived);
-          TcpManager.on("processValidated", onProcessValidated);
-          TcpManager.on("notifyView", onNotifyView);
+    const instances = await DataManager.listServiceInstances()
+    // TODO: throw exception
+    var promises = [];
+    if (!this.$loaded) {
+      // registering tcp manager listener
+      TcpManager.on("statusReceived", onStatusReceived);
+      TcpManager.on("logReceived", onLogReceived);
+      TcpManager.on("stop", onStop);
+      TcpManager.on("close", onClose);
+      TcpManager.on("tcpError", onError);
+      TcpManager.on("processFinished", onProcessFinished);
+      TcpManager.on("serviceVersion", onServiceVersionReceived);
+      TcpManager.on("processValidated", onProcessValidated);
+      TcpManager.on("notifyView", onNotifyView);
 
-          self.$loaded = true;
-          instances.forEach(function(instance) {
-            // register cache
-            self.register(instance);
-            // tries to connect automatically on running services
-            promises.push(self.$sendStatus(instance));
-          });
-        }
+      this.$loaded = true;
 
-        return PromiseClass.all(promises)
-          .then(function() {
-            return resolve();
-          })
-          .catch(function(err) {
-            return resolve();
-          });
-      });
-  });
+      for(let instance of instances) {
+        // register cache
+        this.register(instance);
+        // tries to connect automatically on running services
+        promises.push(this.$sendStatus(instance));
+      }
+    }
+
+    await PromiseClass.all(promises);
+  } finally {
+    return null;
+  }
 };
 
 /**
  * It finalizes TcpService session, resetting registered services cache and removing TcpManager listeners
- * 
+ *
  * @returns {Promise}
  */
-TcpService.prototype.finalize = function() {
-  var self = this;
-  return new PromiseClass(function(resolve) {
-    if (self.$loaded) {
-      // remove TcpManager listener
-      TcpManager.removeListener("statusReceived", onStatusReceived);
-      TcpManager.removeListener("logReceived", onLogReceived);
-      TcpManager.removeListener("stop", onStop);
-      TcpManager.removeListener("close", onClose);
-      TcpManager.removeListener("tcpError", onError);
-      TcpManager.removeListener("processFinished", onProcessFinished);
-      TcpManager.removeListener("serviceVersion", onServiceVersionReceived);
-      TcpManager.removeListener("processValidated", onProcessValidated);
-      TcpManager.removeListener("notifyView", onNotifyView);
-      self.$loaded = false;
-    }
-    // resetting cache
-    self.$setRegisteredServices([]);
+TcpService.prototype.finalize = async function() {
+  if (this.$loaded) {
+    // remove TcpManager listener
+    TcpManager.removeListener("statusReceived", onStatusReceived);
+    TcpManager.removeListener("logReceived", onLogReceived);
+    TcpManager.removeListener("stop", onStop);
+    TcpManager.removeListener("close", onClose);
+    TcpManager.removeListener("tcpError", onError);
+    TcpManager.removeListener("processFinished", onProcessFinished);
+    TcpManager.removeListener("serviceVersion", onServiceVersionReceived);
+    TcpManager.removeListener("processValidated", onProcessValidated);
+    TcpManager.removeListener("notifyView", onNotifyView);
+    this.$loaded = false;
+  }
+  // resetting cache
+  this.$setRegisteredServices([]);
 
-    return resolve();
-  });
+  return null;
 };
 
 /**
@@ -199,155 +189,113 @@ TcpService.prototype.finalize = function() {
  * it retrieves a service instance and tries to start TerraMA² service executable.
  * Once success during start, it performs a socket connection using Service configurations.
  * After that, it sends status service signal to communicate
- * 
+ *
  * @param {Object} json - A given arguments sent by client
  * @param {number} json.service - A TerraMA² service instance id
  */
-TcpService.prototype.start = function(json) {
-  /**
-   * @type {TcpService}
-   */
-  var self = this;
-  return new PromiseClass(function(resolve, reject) {
-    return DataManager.getServiceInstance({id: json.service})
-      .then(function(instance) {
-        // emitting service starting
-        self.emit("serviceStarting", {service: instance.id});
+TcpService.prototype.start = async function(json) {
+  let instance = null;
+  try {
+    instance = await DataManager.getServiceInstance({id: json.service})
+    // emitting service starting
+    this.emit("serviceStarting", {service: instance.id});
 
-        // spreading all promises in order to retrieve service instance and promise result in two vars
-        return PromiseClass.all([instance, TcpManager.startService(instance)]);
-      })
-      // on sucess, pass the service and code execution value
-      .spread(function(service, exitCode) {
-        if (exitCode !== 0) {
-          throw new Error(Utils.format("Not executed successfully. Exit Code: %s", exitCode));
-        }
+    // spreading all promises in order to retrieve service instance and promise result in two vars
+    const [ service, exitCode ] = await PromiseClass.all([instance, TcpManager.startService(instance)]);
 
-        /**
-         * It defines how many times NodeJS tried to connect in service
-         * @type {number}
-         */
-        var times = 0;
-        
-        /**
-         * It handles service connection. By default, when OS starts, the virtual memory is too low. It turns out
-         * low performance during process execution. In this case, the TerraMA² wont initialize properly. We tried to increase timeout, 
-         * but sometimes it occurs. In order to avoid it, we try to connect three times with default interval. 
-         * If connection success, resolve promise chain. Otherwise, break recursion, rejecting promise error chain.
-         * @returns {Promise}
-         */
-        var connectionRepeat = function() {
-          // delay to start service. We are not able to detect if service is already running, 
-          // since it depends OS calls. Ok, exit code is 0, but we must ensure that is available
-          return PromiseClass.delay(3000)
-            .then(function() {
-              return TcpManager.connect(service)
-                .then(function() {
-                  return TcpManager.statusService(service);
-                })
-                .catch(function(err) {
-                  // once tried three times, throw err in order to continue promise chain
-                  if (times === 3) {
-                    logger.error(Utils.format("TerraMA² Service %s is not running.", service.name));
-                    throw err;
-                  }
-                  times += 1;
-                  logger.warn(Utils.format("Failed to connect %s. Retrying... %s", service.name, times));
-                  // auto call
-                  return connectionRepeat();
-                });
-            });
-        };
+    if (exitCode !== 0) {
+      throw new Error(Utils.format("Not executed successfully. Exit Code: %s", exitCode));
+    }
 
-        return connectionRepeat();
-      })
-      // on sucess starting, resolve promise
-      .then(function() {
-        return resolve();
-      })
-      // on any error
-      .catch(function(err) {
-        var exception = new Error(Utils.format("Error occurred during the service startup. %s", err.toString()));
-        logger.error(exception);
-        // emits exception before reject promise
-        self.emit("serviceError", {
-          exception: exception,
-          message: exception.toString(),
-          service: json.service  
-        });
-        return reject(exception);
-      });
-  });
+    /**
+     * It defines how many times NodeJS tried to connect in service
+     * @type {number}
+     */
+    let times = 0;
+    /**
+     * It handles service connection. By default, when OS starts, the virtual memory is too low. It turns out
+     * low performance during process execution. In this case, the TerraMA² wont initialize properly. We tried to increase timeout,
+     * but sometimes it occurs. In order to avoid it, we try to connect three times with default interval.
+     * If connection success, resolve promise chain. Otherwise, break recursion, rejecting promise error chain.
+     * @returns {Promise}
+     */
+    const connectionRepeat = () => (
+      // delay to start service. We are not able to detect if service is already running,
+      // since it depends OS calls. Ok, exit code is 0, but we must ensure that is available
+      delay(3000)
+        .then(() => TcpManager.connect(service))
+        .then(() => TcpManager.statusService(service))
+        .catch(err => {
+          // once tried three times, throw err in order to continue promise chain
+          if (times === 3) {
+            logger.error(Utils.format("TerraMA² Service %s is not running.", service.name));
+            throw err;
+          }
+          times += 1;
+          logger.warn(Utils.format("Failed to connect %s. Retrying... %s", service.name, times));
+          // auto call
+          return connectionRepeat();
+        })
+    );
+    // on sucess starting, resolve promise
+    return await connectionRepeat();
+  } catch (err) {
+    var exception = new Error(`Error occurred during the service "${instance ? instance.name : ''}" startup. ${err.message}`);
+    logger.error(exception);
+    // emits exception before reject promise
+    this.emit("serviceError", {
+      exception: exception,
+      message: exception.toString(),
+      service: json.service
+    });
+    throw exception;
+  }
 }; // end client start listener
 
 /**
  * Listener for handling start process signal. When it called, it tries to send START_PROCESS signal
  * in order to forcing a process to execute in TerraMA².
- * 
+ *
  * @param {Object} processObject - A given arguments sent by client
  * @param {number} processObject.service_instance - A TerraMA² service instance id
  * @returns {Promise}
  */
-TcpService.prototype.run = function(processObject) {
-  var self = this;
-  return new PromiseClass(function(resolve, reject) {
-    /**
-     * Service id to run
-     * @type {number}
-     */
-    var service = processObject.service_instance;
-    // remove service id from object
-    delete processObject.service_instance;
-    return DataManager.getServiceInstance({id: service})
-      .then(function(instance) {
-        // If alert service, check if have a view to start first
-        if (instance.service_type_id == ServiceType.ALERT){
-          return DataManager.getAlert({id: processObject.ids[0]}).then(function(alert){
-            // if alert has view, start the view process
-            if (alert.view && alert.view.id){
-              return DataManager.getView({id: alert.view.id}).then(function(view){
-                return DataManager.getServiceInstance({id: view.serviceInstanceId}).then(function(view_instance){
-                  var viewProcessObject = {
-                    execution_date: processObject.execution_date,
-                    ids: [view.id]
-                  };
-                  startProcess(view_instance, viewProcessObject);
-                  // Notify children listeners the process has been scheduled
-                  self.emit("processRun", viewProcessObject);
-                  return resolve();
-                })
-              });
-            // else start alert process normally
-            } else {
-              startProcess(instance, processObject);
-              // Notify children listeners the process has been scheduled
-              self.emit("processRun", processObject);
-              return resolve();
-            }
-          })
-          .catch(function(err) {
-            logger.debug(err);
-            return reject(err);
-          });
-        }
-        
-        startProcess(instance, processObject);
-        // Notify children listeners the process has been scheduled
-        self.emit("processRun", processObject);
-        return resolve();
-      })
-      .catch(function(err) {
-        logger.debug(err);
-        return reject(err);
-      });
-  });
+TcpService.prototype.run = async function(processObject) {
+  /**
+   * Service id to run
+   * @type {number}
+   */
+  const service = processObject.service_instance;
+  // remove service id from object
+  delete processObject.service_instance;
+  let instance = await DataManager.getServiceInstance({id: service});
+  // If alert service, check if have a view to start first
+  if (instance.service_type_id == ServiceType.ALERT){
+    const alert = await DataManager.getAlert({id: processObject.ids[0]});
+    // if alert has view, start the view process
+    if (alert.view && alert.view.id) {
+      const view = await DataManager.getView({id: alert.view.id});
+      instance = await DataManager.getServiceInstance({id: view.serviceInstanceId});
+
+      processObject = {
+        execution_date: processObject.execution_date,
+        ids: [ view.id ]
+      };
+    }
+  }
+
+  startProcess(instance, processObject);
+  // Notify children listeners the process has been scheduled
+  this.emit("processRun", processObject);
+
+  return null;
 }; // end run
 
 /**
  * It performs service status through TcpManager.
- * 
+ *
  * @private
- * @param {Service} service - TerraMA² service instance to send 
+ * @param {Service} service - TerraMA² service instance to send
  * @returns {Promise}
  */
 TcpService.prototype.$sendStatus = function(service) {
@@ -407,7 +355,7 @@ TcpService.prototype.stopAll = function stopAll() {
 /**
  * Listener for handling status signal. When it called, it tries to connect to the socket and retrieve a
  * life time using STATUS_SIGNAL.
- * 
+ *
  * @param {Object} json - A given arguments sent by client
  * @param {number} json.service - A TerraMA² service instance id
  */
@@ -434,8 +382,8 @@ TcpService.prototype.status = function(json) {
 }; // end client status listener
 
 /**
- * Listener for handling status signal when try to delete an object. 
- * 
+ * Listener for handling status signal when try to delete an object.
+ *
  * @param {Object} json - A given arguments sent by client
  * @param {number} json.service - A TerraMA² service instance id
  */
@@ -466,8 +414,8 @@ TcpService.prototype.statusToDelete = function(json) {
 /**
  * Listener for handling STOP service signal. When called, it sends a STOP_SERVICE signal followed by a STATUS_SERVICE.
  * Once TerraMA² executable receives STOP_SERVICE, it starts changing shutdown the running active processes, so it may
- * take a few seconds/minutes to finish. 
- * 
+ * take a few seconds/minutes to finish.
+ *
  * @param {Object} json - A given arguments sent by client
  * @param {number} json.service - A TerraMA² service instance id
  */
@@ -496,7 +444,7 @@ TcpService.prototype.stop = function(json) {
 
 /**
  * Listener for handling data to be sent to C++ services. It does not emits signal.
- * 
+ *
  * @param {Object} data - A given arguments sent by client
  * @param {Analysis[]} data.Analysis - A list of Analysis to send
  * @param {Collectors[]} data.Collectors - A list of Collectors to send
@@ -543,7 +491,7 @@ TcpService.prototype.send = function(data, serviceId) {
 
 /**
  * Emits a given event sending a given object.
- * 
+ *
  * @param {String} event - Event to be emitted
  * @param {Object} data - Data to be sent
  */
@@ -585,7 +533,7 @@ TcpService.prototype.remove = function(data, serviceId) {
 /**
  * Listener for handling Log request signal. When called, it maps the cached logs and if necessary request
  * for others through LOG_SIGNAL in socket communication.
- * 
+ *
  * @param {Object} json - A given arguments sent by client
  * @param {number} json.begin - A begin offset to retrieve logs
  * @param {number} json.end - An end offset to retrieve logs
@@ -657,7 +605,7 @@ TcpService.prototype.log = function(json) {
 
 /**
  * It performs TerraMA² validate process in C++ services
- * 
+ *
  * @param {Object} data - A data to send via Tcp
  * @param {number} serviceId - TerraMA² Service identifier
  * @return {Promise}
@@ -678,7 +626,7 @@ TcpService.prototype.disconnect = function() {
 
 /**
  * Send signal to monitor remove a layer
- * 
+ *
  * @param {Object} registeredView - View info to remove
  * @return {Promise}
  */
@@ -697,11 +645,62 @@ TcpService.prototype.removeView = function(registeredView){
  * TcpService Singleton. It will be exported
  * @type {TcpService}
  */
-var tcpService = new TcpService();
+
+const tcpService = new TcpService();
+
+/**
+ * Delay a promise handling for time provided
+ *
+ * @param {number} milliseconds Number of milliseconds to delay
+ * @return {Promise}
+ */
+function delay(milliseconds) {
+  return PromiseClass.delay(milliseconds);
+};
+
+/**
+ * This method send status signal to the TerraMA² service
+ *
+ * Due complexity of wait for TerraMA² status signal, this method just
+ * sends status pack every second to help display
+ *
+ * @todo Once TerraMA² Services wait signal, this method will be deprecated
+ *
+ * @param {Service} service TerraMA² Service instance
+ * @param {number} times Number of times to repeat
+ * @returns {Promise}
+ */
+const repeatStatus = (service, times) => {
+  // Setting default time
+  if (!times) {
+    times = 10;
+  }
+
+  const serviceClient = TcpManager.getService(service);
+
+  // Wrapper of repeat promiser
+  const _repeat = () => {
+    // When done, finish promise chain
+    if (--times < 1) {
+      return Promise.resolve();
+    }
+    // When Service is offline, abort
+    // It seems to be an error
+    if (!serviceClient.isOpen()) {
+      return Promise.reject(new Error(`No connection`));
+    }
+    // Wait a second and then dispatches status signal
+    return delay(1000)
+      .then(() => TcpManager.emit("statusService", service))
+      .then(() => _repeat());
+  }
+
+  return _repeat();
+};
 
 /**
  * Listener for handling TerraMA² TcpManager Service Status
- * 
+ *
  * @emits #serviceStatus When TerraMA² C++ Service is already loaded
  * @emits #statusService When TerraMA² C++ Service is not loaded yet
  * @param {Service} service - TerraMA² service
@@ -714,14 +713,14 @@ function onStatusReceived(service, response) {
     // send updateService and Data
     TcpManager.updateService(service);
 
-    setTimeout(function() {
-      return Utils.prepareAddSignalMessage(DataManager).then(function(data) {
-        TcpManager.emit("sendData", service, data);
-      }).finally(function() {
-        // checking status again
-        TcpManager.emit("statusService", service);
+    delay(1000)
+      .then(() => Utils.prepareAddSignalMessage(DataManager))
+      .then(data => TcpManager.emit("sendData", service, data))
+      .finally(() => repeatStatus(service, 20))
+      .catch(err => {
+        logger.error(`Error while checking TerraMA² status: ${err.toString()}`)
       });
-    }, 1000);
+
   } else {
     tcpService.emit("serviceStatus", {
       status: 200,
@@ -741,9 +740,9 @@ function onStatusReceived(service, response) {
 /**
  * It handles TerraMA² Process validation retrieved from C++ Services. Once received, it notifies all TcpService listeners.
  * It must not broadcast everyone in TcpSocket, since it is independent of each user
- * 
+ *
  * Listener for handling TerraMA² TcpManager Service Status
- * 
+ *
  * @emits #serviceStatus When TerraMA² C++ Service is already loaded
  * @emits #statusService When TerraMA² C++ Service is not loaded yet
  * @param {Service} service - TerraMA² service
@@ -756,7 +755,7 @@ function onProcessValidated(service, response) {
 
 /**
  * It handles service version retrieved during TerraMA² C++ service initialization. It emits #serviceVersion with service and response
- * 
+ *
  * @param {Service} service - TerraMA² service
  * @param {string} response - Response version
  */
@@ -771,9 +770,9 @@ function onServiceVersionReceived(service, response) {
 }
 
 /**
- * It emits a signal depending Process. 
+ * It emits a signal depending Process.
  * If service is View, it emits #viewReceived with the registered view object.
- * 
+ *
  * @param {Object} resp - Process Object
  * @param {any} resp.process - Process Metadata
  * @param {RegisteredView?} resp.view - TerraMA² Registered View
@@ -799,15 +798,15 @@ function onProcessFinished(resp) {
       .catch(function(){
         logger.debug("Dont have alert of the view");
       });
-  } 
+  }
   // Notifies that process finished
   tcpService.emit("processFinished", resp.process);
 }
 
 /**
- * It emits a signal to nofity webMonitor. 
+ * It emits a signal to nofity webMonitor.
  * If service has a view, it emits #notifyView with the registered view object.
- * 
+ *
  * @param {Object} resp - Process Object
  * @param {RegisteredView?} resp.registeredView - TerraMA² Registered View
  * @returns {void}
@@ -824,8 +823,8 @@ function onNotifyView(resp) {
 }
 
 /**
- * It emits a signal to nofity webMonitor to remove a layer. 
- * 
+ * It emits a signal to nofity webMonitor to remove a layer.
+ *
  * @param {Object} resp - Process Object
  * @param {RegisteredView?} resp.registeredView - TerraMA² Registered View
  * @returns {void}
@@ -841,8 +840,8 @@ function RemoveView(registeredView){
 
 /**
  * Start process
- * @param {*} instance 
- * @param {*} processObject 
+ * @param {*} instance
+ * @param {*} processObject
  */
 function startProcess(instance, processObject){
   // Forcing a process to run
@@ -855,7 +854,7 @@ function startProcess(instance, processObject){
  * Listener for handling TerraMA² TcpManager Log values
  * If the service is View and log is done, create a link to geoserver layer created
  *
- * @emits #serviceLog 
+ * @emits #serviceLog
  * @param {Service} service - TerraMA² service
  * @param {Object} response - Response object with log values from respective service
  */
@@ -901,9 +900,9 @@ function onLogReceived(service, response) {
 }
 
 /**
- * Listener for handling Service Stopping. Once called, it will emit object determining service is stopping, 
+ * Listener for handling Service Stopping. Once called, it will emit object determining service is stopping,
  * but you must call STATUS to ensure service is stopped.
- * 
+ *
  * @emits #serviceStop
  * @param {Service} service - TerraMA² Service
  */
@@ -918,7 +917,7 @@ function onStop(service) {
 
 /**
  * Listener for handling socket connection close.
- * 
+ *
  * @emits #serviceStop
  * @param {Service} service - TerraMA² Service
  * @param {Object} response - Socket Response Object
@@ -935,7 +934,7 @@ function onClose(service, response) {
 
 /**
  * Listener for handlign any error during socket communication.
- * 
+ *
  * @emits #serviceError
  * @param {Service} service - TerraMA² Service
  * @param {Error} err - Socket error
@@ -950,7 +949,7 @@ function onError(service, err) {
 
 /**
  * Function to create the link to geoserver layer
- * 
+ *
  * @param registeredView - Registered View with server information
  * @returns link - link to server layer
  */
