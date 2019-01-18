@@ -114,22 +114,9 @@ BEGIN
     temporary_table := format('%s_%s', monitored_dataseries, additional_dataseries);
     EXECUTE format('CREATE TABLE %s ( monitored_id VARCHAR, additional_id VARCHAR, intersection_geom GEOMETRY(MULTIPOLYGON, 4674) )', temporary_table);
 
-
     FOR result in EXECUTE 'SELECT * FROM retrieve_intersection($1, $2, $3, $4, ''1=1'')' USING monitored_dataseries, monitored_geometry_column, additional_dataseries, additional_dataseries_geometry_column LOOP
         EXECUTE format('INSERT INTO %s VALUES ($1, $2, ST_Multi($3))', temporary_table) USING result.monitored_id, result.additional_id, result.intersection_geom;
     END LOOP;
-
-    -- IF result IS NULL THEN
-    --     RAISE EXCEPTION 'No intersection';
-    -- END IF;
-    -- RAISE NOTICE 'Ok. Got intersection. Creating temporary table %', temporary_table;
-
-
-
-    -- FOR row_data IN SELECT d FROM unnest(result)
-    -- LOOP
-    --     EXECUTE format('INSERT INTO %s VALUES ($1, $2, ST_GeomFromWKT(%3))', temporary_table) USING monitored_id, additional_id, intersection_geom;
-    -- END LOOP;
 
     FOREACH additional_dataseries IN ARRAY additional_dataseries_list
     LOOP
@@ -138,15 +125,20 @@ BEGIN
         -- Retrieves Geometry column name of current additional data series
         EXECUTE 'SELECT get_geometry_column($1)' INTO additional_dataseries_geometry_column USING additional_dataseries;
 
-        query_helper := format('(%s.%s, %s.%s)', monitored_dataseries, monitored_geometry_column, additional_dataseries, additional_dataseries_geometry_column);
+        -- query_helper := format('(%s.%s, %s.%s)', monitored_dataseries, monitored_geometry_column, additional_dataseries, additional_dataseries_geometry_column);
 
-        query := format('SELECT ST_Intersection' || query_helper ||' FROM %s, %s', monitored_dataseries, additional_dataseries);
-        query := format(query || ' WHERE ST_Intersects'|| query_helper ||' AND ', monitored_geometry_column, additional_dataseries_geometry_column);
-        query := query || condition;
+        -- query := format('SELECT ST_Intersection' || query_helper ||' FROM %s, %s', monitored_dataseries, additional_dataseries);
+        -- query := format(query || ' WHERE ST_Intersects'|| query_helper ||' AND ', monitored_geometry_column, additional_dataseries_geometry_column);
+        -- query := query || condition;
+
+        EXECUTE format('ALTER TABLE temporary_table ADD COLUMN %s_%s', additional_dataseries, '_id')
+        EXECUTE format('ALTER TABLE temporary_table ADD COLUMN %s_%s', additional_dataseries, '_intersection_geom')
+
+        FOR result in EXECUTE 'SELECT * FROM retrieve_intersection($1, $2, $3, $4, ''1=1'')' USING temporary_table, 'intersection_geom', additional_dataseries, additional_dataseries_geometry_column LOOP
+            EXECUTE format('INSERT INTO %s VALUES ($1, $2, ST_Multi($3))', temporary_table) USING result.monitored_id, result.additional_id, result.intersection_geom;
+        END LOOP;
 
         RAISE NOTICE 'Query %', query;
-
-        -- EXECUTE 'ALTER TABLE temporary_table ADD COLUMN '
 
         EXECUTE query INTO result;
 
