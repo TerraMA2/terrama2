@@ -84,6 +84,7 @@ $$
 DECLARE
     additional_dataseries VARCHAR;
     additional_dataseries_geometry_column VARCHAR;
+    additional_dataseries_pk VARCHAR;
     monitored_geometry_column VARCHAR;
     temporary_table VARCHAR;
     query text;
@@ -112,7 +113,7 @@ BEGIN
     EXECUTE 'SELECT get_geometry_column($1)' INTO additional_dataseries_geometry_column USING additional_dataseries;
 
     temporary_table := format('%s_%s', monitored_dataseries, additional_dataseries);
-    EXECUTE format('CREATE TABLE %s ( id SERIAL PRIMARY KEY, monitored_id VARCHAR, additional_id VARCHAR, intersection_geom GEOMETRY(MULTIPOLYGON, 4674) )', temporary_table);
+    EXECUTE format('CREATE TABLE IF NOT EXISTS %s ( id SERIAL PRIMARY KEY, monitored_id VARCHAR, additional_id VARCHAR, intersection_geom GEOMETRY(MULTIPOLYGON, 4674) )', temporary_table);
 
     FOR result in EXECUTE 'SELECT * FROM retrieve_intersection($1, $2, $3, $4, ''1=1'')' USING monitored_dataseries, monitored_geometry_column, additional_dataseries, additional_dataseries_geometry_column LOOP
         EXECUTE 'SELECT ST_GeometryType($1) AS geom' INTO row_data USING result.intersection_geom ;
@@ -129,17 +130,54 @@ BEGIN
         additional_dataseries = additional_dataseries_list[i];
 
         -- Retrieves Geometry column name of current additional data series
-        EXECUTE 'SELECT get_geometry_column($1)' INTO additional_dataseries_geometry_column USING additional_dataseries;
+        EXECUTE 'SELECT get_geometry_column($1) as geom, get_primary_key($1) as pk' INTO row_data USING additional_dataseries;
 
-        additional_column_id := format('%s_%s', additional_dataseries, 'id');
-        additional_geometry_column := format('%s_%s', additional_dataseries, 'intersection_geom');
+        additional_dataseries_geometry_column := row_data.geom;
+        additional_dataseries_pk := row_data.pk;
 
-        EXECUTE format('ALTER TABLE %s ADD COLUMN %s VARCHAR', temporary_table, additional_column_id);
-        EXECUTE format('ALTER TABLE %s ADD COLUMN %s GEOMETRY(MULTIPOLYGON, 4674)', temporary_table, additional_geometry_column);
+        -- additional_column_id := format('%s_%s', additional_dataseries, 'id');
+        -- additional_geometry_column := format('%s_%s', additional_dataseries, 'intersection_geom');
 
-        -- EXECUTE format('SELECT ST_GeometryType(intersection_geom) FROM %s', temporary_table) INTO row_data;
+        -- EXECUTE format('ALTER TABLE %s ADD COLUMN %s VARCHAR', temporary_table, additional_column_id);
+        -- EXECUTE format('ALTER TABLE %s ADD COLUMN %s GEOMETRY(MULTIPOLYGON, 4674)', temporary_table, additional_geometry_column);
 
-        -- CREATE TEMPORARY TABLE temp_polygons ( id SERIAL PRIMARY KEY, geom GEOMETRY(POLYGON, 4674) );
+        EXECUTE format('CREATE TABLE IF NOT EXISTS %s_%s (
+                            id SERIAL PRIMARY KEY,
+                            monitored_id VARCHAR,
+                            additional_id VARCHAR,
+                            intersection_geom GEOMETRY(MultiPolygon, 4674)
+                        )', monitored_dataseries, additional_dataseries);
+
+        EXECUTE format('WITH dumped AS (
+                            SELECT %s as id, (ST_Dump(%s)).geom as geom FROM %s
+                        )
+                        INSERT INTO %s_%s (monitored_id, additional_id, intersection_geom)
+                            SELECT t.monitored_id, d.id as additional_id, ST_Multi(ST_Intersection(t.intersection_geom, d.geom)) as intersection_geom FROM %s t, dumped d
+                             WHERE ST_Intersects(t.intersection_geom, d.geom) AND (ST_GeometryType(ST_Intersection(t.intersection_geom, d.geom)) = ''ST_MultiPolygon'' OR
+                                                                                   ST_GeometryType(ST_Intersection(t.intersection_geom, d.geom)) = ''ST_Polygon'')',
+                        additional_dataseries_pk, additional_dataseries_geometry_column, additional_dataseries,
+                        monitored_dataseries, additional_dataseries,
+                        temporary_table);
+
+--         FOR result in EXECUTE format('WITH dumped AS (
+--                                           SELECT fid, (ST_Dump(%s)).geom as geom FROM %s
+--                                       )
+--                                       SELECT d.fid::VARCHAR as additional_id, ST_Intersection(t.intersection_geom, d.geom) as geom FROM %s t, dumped d
+--                                        WHERE ST_Intersects(t.intersection_geom, d.geom) AND (ST_GeometryType(ST_Intersection(t.intersection_geom, d.geom)) = ''ST_MultiPolygon'' OR
+--                                                                                              ST_GeometryType(ST_Intersection(t.intersection_geom, d.geom)) = ''ST_Polygon'')',
+--                                       additional_dataseries_geometry_column, additional_dataseries, temporary_table) LOOP
+--             query := format('UPDATE %s SET %s = $1, %s = ST_Multi($2) WHERE id::VARCHAR = $3', temporary_table, additional_column_id, additional_geometry_column);
+
+--             cont := cont + 1;
+--             RAISE NOTICE 'Q => %, id -> %, %', query, result.id, cont;
+
+--             EXECUTE query USING result.additional_id, result.geom, result.id;
+--         END LOOP;
+
+-- -- WITH dumped AS (
+-- --   SELECT fid, (ST_Dump(ogr_geometry)).geom as geom FROM app
+-- -- )                                                                              _column VARCHAR,
+-- -- SELECT ST_GeometryType(ST_Intersection(c.geom, d.geom)), c.monitored, c.additional, c.geom as inter_geom, d.fid, ST_Intersection(c.geom, d.geom) as geom FROM car_alerta c, dumped d WHERE ST_Intersects(c.geom, d.geom) AND (ST_GeometryType(ST_Intersection(c.geom, d.geom)) = 'ST_MultiPolygon' OR ST_GeometryType(ST_Intersection(c.geom, d.geom)) = 'ST_Polygon');
 
         -- FOR row_data IN EXECUTE format('SELECT ST_NumGeometries(%s) as npolygon, %s as geom FROM %s', additional_dataseries_geometry_column, additional_dataseries_geometry_column, additional_dataseries) LOOP
         --     FOR j IN 1..row_data.npolygon LOOP
@@ -154,28 +192,29 @@ BEGIN
         -- EXECUTE format('INSERT INTO temp_polygons (geom) SELECT ST_Dump(%s) as geom FROM %s
         --                  WHERE ST_GeometryType(%s) = ''ST_Polygon''', additional_dataseries_geometry_column, additional_dataseries, additional_dataseries_geometry_column);
 
-        FOR result in EXECUTE 'SELECT * FROM retrieve_intersection($1, $2, $3, $4, ''1=1'')' USING temporary_table, 'intersection_geom', 'temp_polygons', 'geom' LOOP
-            EXECUTE 'SELECT ST_GeometryType($1) AS geom' INTO row_data USING result.intersection_geom ;
+--         FOR result in EXECUTE 'SELECT * FROM retrieve_intersection($1, $2, $3, $4, ''1=1'')' USING temporary_table, 'intersection_geom', 'temp_polygons', 'geom' LOOP
+--         -- FOR result in EXECUTE 'SELECT * FROM retrieve_intersection($1, $2, $3, $4, ''1=1'')' USING temporary_table, 'intersection_geom', additional_dataseries, 'geom' LOOP
+--             EXECUTE 'SELECT ST_GeometryType($1) AS geom' INTO row_data USING result.intersection_geom ;
 
-            -- RAISE NOTICE '%', ST_AsText(result.intersection_geom);
+--             -- RAISE NOTICE '%', ST_AsText(result.intersection_geom);
 
-            -- RAISE NOTICE 'ID %, A_id % - % ', result.monitored_id, result.additional_id, ST_AsText(result.intersection_geom);
-            IF row_data.geom = 'ST_Polygon' THEN
-                query := format('UPDATE %s SET %s = $1, %s = ST_Multi($2) WHERE id::VARCHAR = $3', temporary_table, additional_column_id, additional_geometry_column, 'intersection_geom');
-            ELSE IF row_data.geom = 'ST_MultiPolygon' THEN
-                query := format('UPDATE %s SET %s = $1, %s = $2 WHERE id::VARCHAR = $3', temporary_table, additional_column_id, additional_geometry_column, 'intersection_geom');
-            ELSE
-                RAISE NOTICE 'Invalid geometry. %', row_data.geom;
-                CONTINUE;
-            END IF;
-            END IF;
--- query := format('UPDATE %s SET %s = $1, %s = (CASE WHEN ST_GeometryType(%s) = ''ST_Polygon'' THEN ST_Multi($2) ELSE $2 END) WHERE id::VARCHAR = $3', temporary_table, additional_column_id, additional_geometry_column, 'intersection_geom');
+--             -- RAISE NOTICE 'ID %, A_id % - % ', result.monitored_id, result.additional_id, ST_AsText(result.intersection_geom);
+--             IF row_data.geom = 'ST_Polygon' THEN
+--                 query := format('UPDATE %s SET %s = $1, %s = ST_Multi($2) WHERE id::VARCHAR = $3', temporary_table, additional_column_id, additional_geometry_column, 'intersection_geom');
+--             ELSE IF row_data.geom = 'ST_MultiPolygon' THEN
+--                 query := format('UPDATE %s SET %s = $1, %s = $2 WHERE id::VARCHAR = $3', temporary_table, additional_column_id, additional_geometry_column, 'intersection_geom');
+--             ELSE
+--                 RAISE NOTICE 'Invalid geometry. %', row_data.geom;
+--                 CONTINUE;
+--             END IF;
+--             END IF;
+-- -- query := format('UPDATE %s SET %s = $1, %s = (CASE WHEN ST_GeometryType(%s) = ''ST_Polygon'' THEN ST_Multi($2) ELSE $2 END) WHERE id::VARCHAR = $3', temporary_table, additional_column_id, additional_geometry_column, 'intersection_geom');
 
-            RAISE NOTICE 'ID CAR/Alerta % , ID APP %', result.monitored_id, result.additional_id;
-            -- RAISE NOTICE 'Query Update %', query;
+--             RAISE NOTICE 'ID CAR/Alerta % , ID APP %', result.monitored_id, result.additional_id;
+--             -- RAISE NOTICE 'Query Update %', query;
 
-            EXECUTE query USING result.additional_id, result.intersection_geom, result.monitored_id;
-        END LOOP;
+--             EXECUTE query USING result.additional_id, result.intersection_geom, result.monitored_id;
+--         END LOOP;
 -- ST_Multi(ST_ConcaveHull($2, 1))
 
     END LOOP;
