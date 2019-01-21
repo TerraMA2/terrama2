@@ -41,20 +41,19 @@ LANGUAGE 'plpgsql';
 
 CREATE OR REPLACE FUNCTION retrieve_intersection(monitored_dataseries VARCHAR,
                                                  monitored_geometry_column VARCHAR,
+                                                 monitored_srid INTEGER,
                                                  additional_dataseries VARCHAR,
                                                  additional_dataseries_geometry_column VARCHAR,
                                                  condition VARCHAR)
     RETURNS TABLE(monitored_id VARCHAR, additional_id VARCHAR, intersection_geom GEOMETRY) AS
 $$
 DECLARE
-    query TEXT;
-    query_helper TEXT;
-
-    monitored_str TEXT;
     additional_str TEXT;
-
+    monitored_str TEXT;
     pk_monitored TEXT;
     pk_additional TEXT;
+    query TEXT;
+    query_helper TEXT;
 BEGIN
 
     monitored_str := format('%s.%s', monitored_dataseries, monitored_geometry_column);
@@ -65,8 +64,14 @@ BEGIN
     EXECUTE 'SELECT get_primary_key($1)' INTO pk_monitored USING monitored_dataseries;
     EXECUTE 'SELECT get_primary_key($1)' INTO pk_additional USING additional_dataseries;
 
-    query := format('SELECT %s.%s::VARCHAR as monitored_id, %s.%s::VARCHAR AS additional_id, ST_Intersection' || query_helper ||' FROM %s, %s', monitored_dataseries, pk_monitored, additional_dataseries, pk_additional, monitored_dataseries, additional_dataseries);
-    query := format(query || ' WHERE ST_Intersects'|| query_helper ||' AND ', monitored_str, additional_str);
+    query := format('SELECT %s.%s::VARCHAR as monitored_id,
+                            %s.%s::VARCHAR AS additional_id,
+                            ST_Intersection(%s, ST_Transform(%s, %s)) FROM %s, %s
+                      WHERE ST_Intersects(%s, ST_Transform(%s, %s)) AND ',
+                      monitored_dataseries, pk_monitored,
+                      additional_dataseries, pk_additional,
+                      monitored_str, additional_str, monitored_srid, monitored_dataseries, additional_dataseries,
+                      monitored_str, additional_str, monitored_srid);
     query := query || condition;
 
     -- RAISE NOTICE 'SQL %', query;
@@ -86,13 +91,22 @@ DECLARE
     additional_dataseries_geometry_column VARCHAR;
     additional_dataseries_pk VARCHAR;
     monitored_geometry_column VARCHAR;
-    temporary_table VARCHAR;
-    query text;
+    query TEXT;
     result RECORD;
     row_data RECORD;
+    temporary_table VARCHAR;
+    monitored_srid INTEGER;
 BEGIN
     -- Retrieves Geometry Column Name from Monitored Data Series
     EXECUTE 'SELECT get_geometry_column($1)' INTO monitored_geometry_column USING monitored_dataseries;
+    RAISE NOTICE '%', monitored_geometry_column;
+    EXECUTE format('SELECT ST_SRID(%s) FROM %s LIMIT 1', monitored_geometry_column, monitored_dataseries) INTO monitored_srid;
+
+    IF monitored_srid <= 0 THEN
+        RAISE NOTICE 'The table "%" has no SRID "%". Using "4326" as default.', monitored_dataseries, monitored_srid;
+
+        monitored_srid := 4326;
+    END IF;
 
     IF (array_length(additional_dataseries_list, 1) = 0) THEN
         RAISE EXCEPTION 'Invalid additional data series list argument.';
@@ -104,9 +118,9 @@ BEGIN
     EXECUTE 'SELECT get_geometry_column($1)' INTO additional_dataseries_geometry_column USING additional_dataseries;
 
     temporary_table := format('%s_%s', monitored_dataseries, additional_dataseries);
-    EXECUTE format('CREATE TABLE IF NOT EXISTS %s ( id SERIAL PRIMARY KEY, monitored_id VARCHAR, additional_id VARCHAR, intersection_geom GEOMETRY(MULTIPOLYGON, 4674) )', temporary_table);
+    EXECUTE format('CREATE TABLE IF NOT EXISTS %s ( id SERIAL PRIMARY KEY, monitored_id VARCHAR, additional_id VARCHAR, intersection_geom GEOMETRY(MULTIPOLYGON, %s) )', temporary_table, monitored_srid);
 
-    FOR result in EXECUTE 'SELECT * FROM retrieve_intersection($1, $2, $3, $4, ''1=1'')' USING monitored_dataseries, monitored_geometry_column, additional_dataseries, additional_dataseries_geometry_column LOOP
+    FOR result in EXECUTE format('SELECT * FROM retrieve_intersection($1, $2, %s, $3, $4, ''1=1'')', monitored_srid) USING monitored_dataseries, monitored_geometry_column, additional_dataseries, additional_dataseries_geometry_column LOOP
         EXECUTE 'SELECT ST_GeometryType($1) AS geom' INTO row_data USING result.intersection_geom ;
 
         IF row_data.geom = 'ST_MultiPolygon' OR row_data.geom = 'ST_Polygon' THEN
@@ -130,17 +144,17 @@ BEGIN
                             id SERIAL PRIMARY KEY,
                             monitored_id VARCHAR,
                             additional_id VARCHAR,
-                            intersection_geom GEOMETRY(MultiPolygon, 4674)
-                        )', monitored_dataseries, additional_dataseries);
+                            intersection_geom GEOMETRY(MultiPolygon, %s)
+                        )', monitored_dataseries, additional_dataseries, monitored_srid);
 
         EXECUTE format('WITH dumped AS (
-                            SELECT %s as id, (ST_Dump(%s)).geom as geom FROM %s
+                            SELECT %s as id, (ST_Dump(ST_Transform(%s, %s))).geom as geom FROM %s
                         )
                         INSERT INTO %s_%s (monitored_id, additional_id, intersection_geom)
                             SELECT t.monitored_id, d.id as additional_id, ST_Multi(ST_Intersection(t.intersection_geom, d.geom)) as intersection_geom FROM %s t, dumped d
                              WHERE ST_Intersects(t.intersection_geom, d.geom) AND (ST_GeometryType(ST_Intersection(t.intersection_geom, d.geom)) = ''ST_MultiPolygon'' OR
                                                                                    ST_GeometryType(ST_Intersection(t.intersection_geom, d.geom)) = ''ST_Polygon'')',
-                        additional_dataseries_pk, additional_dataseries_geometry_column, additional_dataseries,
+                        additional_dataseries_pk, additional_dataseries_geometry_column, monitored_srid, additional_dataseries,
                         monitored_dataseries, additional_dataseries,
                         temporary_table);
     END LOOP;
@@ -151,4 +165,4 @@ $$
 LANGUAGE 'plpgsql';
 
 DROP TABLE IF EXISTS car_area_imovel_alertas_mpmt;
- SELECT vectorial_processing_intersection('car_area_imovel', ARRAY['alertas_mpmt', 'app', 'reserva_legal', 'area_topo_morro', 'uso_restrito'], '1=1');
+SELECT vectorial_processing_intersection('car_area_imovel', ARRAY['alertas_mpmt', 'app', 'reserva_legal', 'area_topo_morro', 'uso_restrito', 'vegetacao_nativa'], '1=1');
