@@ -192,6 +192,8 @@ namespace terrama2
            */
            void storeMonitoredObjectAnalysisResult(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, MonitoredObjectContextPtr context);
 
+           void storeGeometricIntersection(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr, GeometryIntersectionContextPtr context);
+
            /*!
              \brief Reads the analysis result from context and stores it to the configured output dataset.
              \param dataManager A smart pointer to the data manager.

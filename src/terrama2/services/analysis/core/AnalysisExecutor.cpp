@@ -380,27 +380,33 @@ void terrama2::services::analysis::core::AnalysisExecutor::runMonitoredObjectAna
 }
 
 void terrama2::services::analysis::core::AnalysisExecutor::runGeometricIntersectionAnalysis(terrama2::services::analysis::core::DataManagerPtr dataManager,
-                                                                                            terrama2::core::StoragerManagerPtr /*storagerManager*/,
+                                                                                            terrama2::core::StoragerManagerPtr storagerManager,
                                                                                             terrama2::services::analysis::core::AnalysisPtr analysis,
                                                                                             std::shared_ptr<te::dt::TimeInstantTZ> startTime,
                                                                                             ThreadPoolPtr /*threadPool*/)
 {
-  auto context = std::make_shared<terrama2::services::analysis::core::GeometryIntersectionContext>(dataManager, analysis, startTime);
-  ContextManager::getInstance().addGeometryContext(analysis->hashCode(startTime), context);
+//  auto context = std::make_shared<terrama2::services::analysis::core::GeometryIntersectionContext>(dataManager, analysis, startTime);
+//  ContextManager::getInstance().addGeometryContext(analysis->hashCode(startTime), context);
 
-  std::vector<std::future<void> > futures;
+//  std::vector<std::future<void> > futures;
+
+//  try
+//  {
+//    // Load DataSet
+//    context->load();
+  auto context = std::make_shared<terrama2::services::analysis::core::MonitoredObjectContext>(dataManager, analysis, startTime);
+  ContextManager::getInstance().addMonitoredObjectContext(analysis->hashCode(startTime), context);
 
   try
   {
-    // Load DataSet
-    context->load();
+    context->loadMonitoredObject();
 
     size_t size = 0;
     for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
     {
       if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
       {
-        auto moDataSeries = context->getStaticDataSeries();
+        auto moDataSeries = context->getMonitoredObjectContextDataSeries();
         size = moDataSeries->series.syncDataSet->size();
         break;
       }
@@ -412,30 +418,55 @@ void terrama2::services::analysis::core::AnalysisExecutor::runGeometricIntersect
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
-    auto staticDS = context->getStaticDataSeries();
-    auto dynamicDS = context->getDynamicDataSeries();
-
-    auto staticGeometryName = staticDS->series.syncDataSet->dataset()->getPropertyName(staticDS->geometryPos);
-    auto dynamicGeometryName = dynamicDS->series.syncDataSet->dataset()->getPropertyName(dynamicDS->geometryPos);
-
-    auto staticTableName = terrama2::core::getTableNameProperty(staticDS->series.dataSet);
-    auto dynamicTableName = terrama2::core::getTableNameProperty(dynamicDS->series.dataSet);
-    const std::string columns = "(" + staticTableName + "." + staticGeometryName + ", "
-                                    + dynamicTableName + "." + dynamicGeometryName + ")";
-
-    std::string query = "SELECT ST_Intersection" + columns + " FROM " + staticTableName;
-
-    query += ", " + dynamicTableName + " WHERE ST_Intersects" + columns;
-
-    auto dataSeriesPtr = dataManager->findDataSeries(dynamicDS->series.dataSet->dataSeriesId);
+    auto dataSeriesPtr = dataManager->findDataSeries(moDS->series.dataSet->dataSeriesId);
     auto dataProvider = dataManager->findDataProvider(dataSeriesPtr->dataProviderId);
-
-    std::cout << dynamicDS->series.syncDataSet->getAsString(0, "view_date") << " + " << dynamicDS->series.syncDataSet->getAsString(1, "view_date") << std::endl;
 
     te::core::URI postgisURI(dataProvider->uri);
     std::shared_ptr<te::da::DataSource> dataSource = te::da::DataSourceFactory::make("POSTGIS", postgisURI);
     // RAII for open/closing the datasource
     terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource>> openClose(dataSource);
+
+    std::map<std::string, std::string> mapTableNameTimeField;
+    for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
+    {
+      if(analysisDataSeries.type == AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE)
+      {
+        auto dataSeries = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
+        auto dataSet = dataSeries->datasetList[0];
+
+        const auto tableName = terrama2::core::getTableNameProperty(dataSet);
+        std::string temporalField;
+
+        // todo validation?
+        if (dataSeries->semantics.temporality == terrama2::core::DataSeriesTemporality::DYNAMIC)
+        {
+          std::unique_ptr<te::da::DataSetType> dataSetType = dataSource->getDataSetType(tableName);
+
+          auto property = dataSetType->findFirstPropertyOfType(te::dt::DATETIME_TYPE);
+
+          if(property)
+            temporalField = property->getName();
+        }
+
+        mapTableNameTimeField.insert(std::make_pair(tableName, temporalField));
+      }
+    }
+
+    auto moDS = context->getMonitoredObjectContextDataSeries();
+//    auto dynamicDS = context->getAuxiliaryDataSeries();
+
+//    auto moGeometryName = moDS->series.syncDataSet->dataset()->getPropertyName(moDS->geometryPos);
+//    auto dynamicGeometryName = dynamicDS->series.syncDataSet->dataset()->getPropertyName(dynamicDS->geometryPos);
+
+//    auto staticTableName = terrama2::core::getTableNameProperty(moDS->series.dataSet);
+//    auto dynamicTableName = terrama2::core::getTableNameProperty(dynamicDS->series.dataSet);
+//    const std::string columns = "(" + staticTableName + "." + moGeometryName + ", "
+//                                    + dynamicTableName + "." + dynamicGeometryName + ")";
+
+//    std::string query = "SELECT ST_Intersection" + columns + " FROM " + staticTableName;
+
+//    query += ", " + dynamicTableName + " WHERE ST_Intersects" + columns; // + " AND " + timeProperty->getName() + " > '" + lastExecution->toString() + "'";
+//    // query += " AND " + timeProperty->getName() + " < " + "'" + startTime_.toString() + "'";
 
     if(!dataSource->isOpened())
     {
@@ -444,21 +475,26 @@ void terrama2::services::analysis::core::AnalysisExecutor::runGeometricIntersect
       throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
     }
 
+    // SELECT vectorial_processing_intersection('car_area_imovel', ARRAY['alertas_mpmt', 'app', 'reserva_legal', 'area_topo_morro', 'uso_restrito', 'vegetacao_nativa'], '1=1');
+
     // get a transactor to interact to the data source
     std::unique_ptr<te::da::DataSourceTransactor> transactor(dataSource->getTransactor());
 
-    std::cout << query << std::endl;
+//    std::cout << query << std::endl;
 
-    auto intersectionDataSet = transactor->query(query);
+//    auto intersectionDataSet = transactor->query(query);
 
-    if (intersectionDataSet->size() == 0)
-    {
-      std::cout << "Oops... nao tem interseção" << std::endl;
-    }
-    else
-    {
-      std::cout << "Tem Interseção" << std::endl;
-    }
+//    if (intersectionDataSet->size() == 0)
+//    {
+//      std::cout << "Oops... nao tem interseção" << std::endl;
+//    }
+//    else
+//    {
+//      std::cout << "Tem Interseção" << std::endl;
+//    }
+
+//    storeMonitoredObjectAnalysisResult(dataManager, storagerManager, context);
+//    storeGeometricIntersection(dataManager, storagerManager, context);
 
 //    std::vector<std::string> fields;
 //    fields.push_back("ST_Intersection" + columns);
@@ -836,6 +872,28 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
   {
     QString errMsg = QObject::tr("Could not store the result of the analysis: %1").arg(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString().c_str());
     throw Exception() << ErrorDescription(errMsg);
+  }
+
+}
+
+void terrama2::services::analysis::core::AnalysisExecutor::storeGeometricIntersection(terrama2::services::analysis::core::DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr, terrama2::services::analysis::core::GeometryIntersectionContextPtr context)
+{
+  if(context->hasError())
+    return;
+
+  auto resultMap = context->analysisResult();
+
+  if(resultMap.empty())
+  {
+    QString errMsg = QObject::tr("Empty result.");
+    throw EmptyResultException() << ErrorDescription(errMsg);
+  }
+
+  auto analysis = context->getAnalysis();
+  if(!analysis)
+  {
+    QString errMsg = QObject::tr("Could not recover the analysis configuration.");
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
 }

@@ -599,7 +599,8 @@ void terrama2::services::analysis::core::python::readInfoFromDict(OperatorCache&
       Py_DECREF(columnKey);
       break;
     }
-
+    default:
+      break;
   }
 
   Py_DECREF(analysisKey);
