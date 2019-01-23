@@ -15,7 +15,7 @@ define([],()=> {
       css: "<"
     },
     controller: VectorProcessingComponent,
-    template: `<div class="col-md-12">
+    template: `<div class="col-md-6">
                  <div class="col-align-self-start">
                    <div class="form-group has-feedback" terrama2-show-errors>
                      <label>{{$ctrl.title}}:</label>
