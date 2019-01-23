@@ -258,6 +258,7 @@ var DataManager = module.exports = {
         inserts.push(models.db.AnalysisType.create({id: Enums.AnalysisType.DCP, name: "Dcp", description: "Description Dcp"}));
         inserts.push(models.db.AnalysisType.create({id: Enums.AnalysisType.GRID, name: "Grid", description: "Description Grid"}));
         inserts.push(models.db.AnalysisType.create({id: Enums.AnalysisType.MONITORED, name: "Monitored Object", description: "Description Monitored"}));
+        inserts.push(models.db.AnalysisType.create({id: Enums.AnalysisType.VP, name: "Monitored Object", description: "Description Monitored"}));
 
         // analysis data series type
         inserts.push(models.db.AnalysisDataSeriesType.create({
