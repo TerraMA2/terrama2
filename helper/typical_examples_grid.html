@@ -183,62 +183,62 @@
             <div class="main-content">
                 
 <p></p>
-<p class="rvps22"><a class="rvts37" href="operators.html#lista_op_grades">Lista de Operadores sobre Grades</a><span class="rvts36"> &nbsp;</span><img alt="" style="vertical-align: middle; padding : 1px;" src="lib/lista.jpg"></p>
+<p class="rvps22"><a class="rvts37" href="Operadores.html#lista_op_grades">Lista de Operadores sobre Grades</a><span class="rvts36"> &nbsp;</span><img alt="" style="vertical-align: middle; padding : 1px;" src="lib/lista.jpg"></p>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
-<p class="rvps37"><span class="rvts22">Em geral, análises baseadas em grade são comparadas as técnicas de inferência espacial realizadas em SIG como cruzamentos de mapas por regras booleanas, ponderadas, entre outras. A diferença desses cruzamentos feitos num SIG tradicional (eminentemente estático) e a plataforma TerraMA</span><span class="rvts48">2</span><span class="rvts22"> é que neste último pelo menos um dos mapas pode ser um dado ambiental coletado dinamicamente na forma de matrizes (grades retangulares). As grades estáticas como dados adicionais também podem ser utilizadas. A saída será uma nova matriz criada na mesma frequência dos dados dinâmicos ou com programação definida pelo usuário.</span></p>
+<p class="rvps23"><span class="rvts22">Em geral, análises baseadas em grade são comparadas as técnicas de inferência espacial realizadas em SIG como cruzamentos de mapas por regras booleanas, ponderadas, entre outras. A diferença desses cruzamentos feitos num SIG tradicional (eminentemente estático) e a plataforma TerraMA</span><span class="rvts49">2</span><span class="rvts22"> é que neste último pelo menos um dos mapas pode ser um dado ambiental coletado dinamicamente na forma de matrizes (grades retangulares). As grades estáticas como dados adicionais também podem ser utilizadas. A saída será uma nova matriz criada na mesma frequência dos dados dinâmicos ou com programação definida pelo usuário.</span></p>
 <p class="rvps2"><span class="rvts11"><br/></span></p>
-<p class="rvps37"><span class="rvts22">A seguir apresentamos um exemplo típico da utilização de análise baseada em grades que faz o cruzamento entre quatro mapas matriciais (grades) estáticos e uma grade de precipitação por satélite GOES dinamicamente coletada (Figura 3.26). Assim, no exemplo abaixo considere o seguinte cenário: </span></p>
+<p class="rvps23"><span class="rvts22">A seguir apresentamos um exemplo típico da utilização de análise baseada em grades que faz o cruzamento entre quatro mapas matriciais (grades) estáticos e uma grade de precipitação por satélite GOES dinamicamente coletada (Figura 3.26). Assim, no exemplo abaixo considere o seguinte cenário: </span></p>
 <ol style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: decimal;">
-<li value="1" style="margin-left: 0px" class="rvps110"><span class="rvts22">Os mapas temáticos de </span><span class="rvts38">geologia</span><span class="rvts22">, </span><span class="rvts38">geomorfologia</span><span class="rvts22">, </span><span class="rvts38">solos</span><span class="rvts22"> e </span><span class="rvts38">uso_terra</span><span class="rvts22"> foram criados em um Sistema de Informações Geográficas (SIG) e convertidos para grades numéricas com valores (pesos) entre 1 e 3. Os pesos atribuídos às classes de cada mapa temático foram definidos em função da vulnerabilidade a deslizamentos (escorregamentos) de terra em encostas.</span></li>
-<li value="2" style="margin-left: 0px" class="rvps111"><span class="rvts22">Os dados matriciais das grades ponderadas dos mapas temáticos estão disponíveis em uma base de dados na forma de arquivos que são identificados como dados adicionais estáticos.</span></li>
-<li value="3" style="margin-left: 0px" class="rvps111"><span class="rvts22">A variável ambiental dinâmica a ser cruzada com os mapas temáticos é a precipitação acumulada diária (‘</span><span class="rvts38">hidro’</span><span class="rvts22">), que também é ponderada com valores entre 1 a 3.</span></li>
-<li value="4" style="margin-left: 0px" class="rvps111"><span class="rvts22">A soma ponderada entre os cinco mapas (4 estáticos e 1 dinâmico) foi estabelecida utilizando pesos definidos com ajuda da técnica AHP (Processo Analítico Hierárquico), sendo 0.4 x uso_solo + 0.33 x geologia + 0.65 x geomorfologia + 0.75 x solo + 0.87 x chuva_ponderada, de modo que os valores da grade final fiquem também entre 1 a 3.</span></li>
+<li value="1" style="margin-left: 0px" class="rvps108"><span class="rvts22">Os mapas temáticos de </span><span class="rvts38">geologia</span><span class="rvts22">, </span><span class="rvts38">geomorfologia</span><span class="rvts22">, </span><span class="rvts38">solos</span><span class="rvts22"> e </span><span class="rvts38">uso_terra</span><span class="rvts22"> foram criados em um Sistema de Informações Geográficas (SIG) e convertidos para grades numéricas com valores (pesos) entre 1 e 3. Os pesos atribuídos às classes de cada mapa temático foram definidos em função da vulnerabilidade a deslizamentos (escorregamentos) de terra em encostas.</span></li>
+<li value="2" style="margin-left: 0px" class="rvps109"><span class="rvts22">Os dados matriciais das grades ponderadas dos mapas temáticos estão disponíveis em uma base de dados na forma de arquivos que são identificados como dados adicionais estáticos.</span></li>
+<li value="3" style="margin-left: 0px" class="rvps109"><span class="rvts22">A variável ambiental dinâmica a ser cruzada com os mapas temáticos é a precipitação acumulada diária (‘</span><span class="rvts38">hidro’</span><span class="rvts22">), que também é ponderada com valores entre 1 a 3.</span></li>
+<li value="4" style="margin-left: 0px" class="rvps109"><span class="rvts22">A soma ponderada entre os cinco mapas (4 estáticos e 1 dinâmico) foi estabelecida utilizando pesos definidos com ajuda da técnica AHP (Processo Analítico Hierárquico), sendo 0.4 x uso_solo + 0.33 x geologia + 0.65 x geomorfologia + 0.75 x solo + 0.87 x chuva_ponderada, de modo que os valores da grade final fiquem também entre 1 a 3.</span></li>
 </ol>
-<p class="rvps108"><span class="rvts18"><br/></span></p>
-<p class="rvps109"><img alt="" style="padding : 1px;" src="lib/Fig3_26_web.png"></p>
-<p class="rvps109"><span class="rvts20">Figura 3.26 – </span><span class="rvts21">Exemplo de análise baseada em grades (dinâmicas + estáticas).</span></p>
+<p class="rvps54"><span class="rvts18"><br/></span></p>
+<p class="rvps107"><img alt="" style="padding : 1px;" src="lib/Fig3_26_web.png"></p>
+<p class="rvps107"><span class="rvts20">Figura 3.26 – </span><span class="rvts21">Exemplo de análise baseada em grades (dinâmicas + estáticas).</span></p>
 <p class="rvps9"><span class="rvts18"><br/></span></p>
-<p class="rvps37"><span class="rvts22">Para uma melhor compreensão da regra de análise do exemplo vamos analisá-la por partes.</span></p>
-<p class="rvps112"><span class="rvts46">vuso = grid.sample(</span><span class="rvts96">“V_Uso_Terra”</span><span class="rvts46">) or 0</span></p>
-<p class="rvps112"><span class="rvts46">vgeo = grid.sample(</span><span class="rvts96">“V_Geologia”</span><span class="rvts46">) or 0</span></p>
-<p class="rvps112"><span class="rvts46">vgeom = grid.sample(</span><span class="rvts96">“V_Geomorfologia”</span><span class="rvts46">) or 0</span></p>
-<p class="rvps112"><span class="rvts46">vsolo = grid.sample(</span><span class="rvts96">“V_Solos”</span><span class="rvts46">) or 0</span></p>
-<p class="rvps37"><span class="rvts22">Estas linhas definem uma variável para cada grade numérica correspondente aos mapas temáticos (geologia, geomorfologia, solo e uso da terra) que foram ponderados em um SIG. As variáveis “</span><span class="rvts38">vuso</span><span class="rvts22">”, “</span><span class="rvts38">vgeo</span><span class="rvts22">”, “</span><span class="rvts38">vgeom</span><span class="rvts22">” e “</span><span class="rvts38">vsolo</span><span class="rvts22">” recebem os valores dos pontos de cada grade através do operador “</span><span class="rvts38">grid</span><span class="rvts46">.</span><span class="rvts38">sample</span><span class="rvts22">”.</span></p>
-<p class="rvps112"><span class="rvts46">chuva = amostra(</span><span class="rvts96">“hidro”</span><span class="rvts46">) or 0 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts91"># Dado Dinâmico</span></p>
-<p class="rvps112"><span class="rvts46">pchuva = 0</span></p>
-<p class="rvps37"><span class="rvts22">O conteúdo da variável “</span><span class="rvts38">chuva</span><span class="rvts22">” receberá os valores dos pontos da grade do último dado ambiental coletado, no caso, a precipitação acumulada em 24 horas por satélite (fonte de nome “hidro”). Uma outra variável de nome “</span><span class="rvts38">pchuva</span><span class="rvts22">” será inicializada com valor 0 (zero) para receber o resultado da ponderação a seguir.</span></p>
-<p class="rvps112"><span class="rvts91"># Pondera o dado de chuva coletado</span></p>
-<p class="rvps112"><span class="rvts97">if</span><span class="rvts46"> &nbsp; &nbsp;chuva &lt; 10:</span></p>
-<p class="rvps112"><span class="rvts46"> &nbsp; &nbsp; &nbsp; &nbsp;pchuva = 1</span></p>
-<p class="rvps112"><span class="rvts97">elif</span><span class="rvts46"> chuva &lt; 20:</span></p>
-<p class="rvps112"><span class="rvts97"> &nbsp; &nbsp;&nbsp;</span><span class="rvts46"> &nbsp; pchuva = 1.5</span></p>
-<p class="rvps112"><span class="rvts97">elif</span><span class="rvts46"> chuva &lt; 45:</span></p>
-<p class="rvps112"><span class="rvts46"> &nbsp; &nbsp; &nbsp; &nbsp;pchuva = 1.7</span></p>
-<p class="rvps112"><span class="rvts97">elif</span><span class="rvts46"> chuva &lt; 60: &nbsp;</span></p>
-<p class="rvps112"><span class="rvts46"> &nbsp; &nbsp; &nbsp; &nbsp;pchuva = 2.2</span></p>
-<p class="rvps112"><span class="rvts97">elif</span><span class="rvts46"> chuva &lt; 80: </span></p>
-<p class="rvps112"><span class="rvts97"> &nbsp; &nbsp; &nbsp;</span><span class="rvts46"> &nbsp; pchuva = 2.6</span></p>
-<p class="rvps112"><span class="rvts97">else</span><span class="rvts46">:</span></p>
-<p class="rvps112"><span class="rvts46"> &nbsp; &nbsp; &nbsp; &nbsp;pchuva = 3</span></p>
-<p class="rvps37"><span class="rvts22">Nas linhas acima, utilizamos o comando “if” para realizar a ponderação dos valores de chuva. Se a chuva for &lt; 10 o peso será 1, se chuva for &lt; 20 ou &gt;= 10 o peso será 1.5, &nbsp;se chuva for &lt; 45 ou &gt;= 20 o peso será 1.7, se chuva for &lt; 60 ou &gt;= 45 o peso será 2.2, se chuva for &lt; 80 ou &gt;= 60 o peso será 2.6 e &nbsp;qualquer valor de chuva &gt; 80 o peso será 3.</span></p>
-<p class="rvps112"><span class="rvts91"># Realiza o cruzamento ponderado</span></p>
-<p class="rvps112"><span class="rvts46">return = return 0.4 &nbsp;* vuso &nbsp;+ 0.33 &nbsp;* &nbsp;vgeo + 0.65 * vgeom + </span></p>
-<p class="rvps112"><span class="rvts46"> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0.75 * vsolo + 0.87 &nbsp;* pchuva</span></p>
-<p class="rvps37"><span class="rvts22">Na linha acima utilizamos o comando “return” para criar a grade de saída ponderada. Note que cada mapa receberá um peso diferente dependendo do propósito do cruzamento, neste caso, o risco a deslizamento de terra. A definição dos pesos pode ser realizada por meio da técnica AHP (Analytic Hierarchy Process) muito comum em sistemas de geoprocessamento.</span></p>
-<p class="rvps37"><span class="rvts22"><br/></span></p>
+<p class="rvps23"><span class="rvts22">Para uma melhor compreensão da regra de análise do exemplo vamos analisá-la por partes.</span></p>
+<p class="rvps110"><span class="rvts47">vuso = grid.sample(</span><span class="rvts97">“V_Uso_Terra”</span><span class="rvts47">) or 0</span></p>
+<p class="rvps110"><span class="rvts47">vgeo = grid.sample(</span><span class="rvts97">“V_Geologia”</span><span class="rvts47">) or 0</span></p>
+<p class="rvps110"><span class="rvts47">vgeom = grid.sample(</span><span class="rvts97">“V_Geomorfologia”</span><span class="rvts47">) or 0</span></p>
+<p class="rvps110"><span class="rvts47">vsolo = grid.sample(</span><span class="rvts97">“V_Solos”</span><span class="rvts47">) or 0</span></p>
+<p class="rvps23"><span class="rvts22">Estas linhas definem uma variável para cada grade numérica correspondente aos mapas temáticos (geologia, geomorfologia, solo e uso da terra) que foram ponderados em um SIG. As variáveis “</span><span class="rvts38">vuso</span><span class="rvts22">”, “</span><span class="rvts38">vgeo</span><span class="rvts22">”, “</span><span class="rvts38">vgeom</span><span class="rvts22">” e “</span><span class="rvts38">vsolo</span><span class="rvts22">” recebem os valores dos pontos de cada grade através do operador “</span><span class="rvts38">grid</span><span class="rvts47">.</span><span class="rvts38">sample</span><span class="rvts22">”.</span></p>
+<p class="rvps110"><span class="rvts47">chuva = amostra(</span><span class="rvts97">“hidro”</span><span class="rvts47">) or 0 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts92"># Dado Dinâmico</span></p>
+<p class="rvps110"><span class="rvts47">pchuva = 0</span></p>
+<p class="rvps23"><span class="rvts22">O conteúdo da variável “</span><span class="rvts38">chuva</span><span class="rvts22">” receberá os valores dos pontos da grade do último dado ambiental coletado, no caso, a precipitação acumulada em 24 horas por satélite (fonte de nome “hidro”). Uma outra variável de nome “</span><span class="rvts38">pchuva</span><span class="rvts22">” será inicializada com valor 0 (zero) para receber o resultado da ponderação a seguir.</span></p>
+<p class="rvps110"><span class="rvts92"># Pondera o dado de chuva coletado</span></p>
+<p class="rvps110"><span class="rvts98">if</span><span class="rvts47"> &nbsp; &nbsp;chuva &lt; 10:</span></p>
+<p class="rvps110"><span class="rvts47"> &nbsp; &nbsp; &nbsp; &nbsp;pchuva = 1</span></p>
+<p class="rvps110"><span class="rvts98">elif</span><span class="rvts47"> chuva &lt; 20:</span></p>
+<p class="rvps110"><span class="rvts98"> &nbsp; &nbsp;&nbsp;</span><span class="rvts47"> &nbsp; pchuva = 1.5</span></p>
+<p class="rvps110"><span class="rvts98">elif</span><span class="rvts47"> chuva &lt; 45:</span></p>
+<p class="rvps110"><span class="rvts47"> &nbsp; &nbsp; &nbsp; &nbsp;pchuva = 1.7</span></p>
+<p class="rvps110"><span class="rvts98">elif</span><span class="rvts47"> chuva &lt; 60: &nbsp;</span></p>
+<p class="rvps110"><span class="rvts47"> &nbsp; &nbsp; &nbsp; &nbsp;pchuva = 2.2</span></p>
+<p class="rvps110"><span class="rvts98">elif</span><span class="rvts47"> chuva &lt; 80: </span></p>
+<p class="rvps110"><span class="rvts98"> &nbsp; &nbsp; &nbsp;</span><span class="rvts47"> &nbsp; pchuva = 2.6</span></p>
+<p class="rvps110"><span class="rvts98">else</span><span class="rvts47">:</span></p>
+<p class="rvps110"><span class="rvts47"> &nbsp; &nbsp; &nbsp; &nbsp;pchuva = 3</span></p>
+<p class="rvps23"><span class="rvts22">Nas linhas acima, utilizamos o comando “if” para realizar a ponderação dos valores de chuva. Se a chuva for &lt; 10 o peso será 1, se chuva for &lt; 20 ou &gt;= 10 o peso será 1.5, &nbsp;se chuva for &lt; 45 ou &gt;= 20 o peso será 1.7, se chuva for &lt; 60 ou &gt;= 45 o peso será 2.2, se chuva for &lt; 80 ou &gt;= 60 o peso será 2.6 e &nbsp;qualquer valor de chuva &gt; 80 o peso será 3.</span></p>
+<p class="rvps110"><span class="rvts92"># Realiza o cruzamento ponderado</span></p>
+<p class="rvps110"><span class="rvts47">return = return 0.4 &nbsp;* vuso &nbsp;+ 0.33 &nbsp;* &nbsp;vgeo + 0.65 * vgeom + </span></p>
+<p class="rvps110"><span class="rvts47"> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 0.75 * vsolo + 0.87 &nbsp;* pchuva</span></p>
+<p class="rvps23"><span class="rvts22">Na linha acima utilizamos o comando “return” para criar a grade de saída ponderada. Note que cada mapa receberá um peso diferente dependendo do propósito do cruzamento, neste caso, o risco a deslizamento de terra. A definição dos pesos pode ser realizada por meio da técnica AHP (Analytic Hierarchy Process) muito comum em sistemas de geoprocessamento.</span></p>
+<p class="rvps23"><span class="rvts22"><br/></span></p>
 <p class="rvps43"><span class="rvts38">NOTA: </span><span class="rvts22">Ao criar uma nova grade dinâmica como resultado desse tipo de análise, o usuário deverá informar na interface qual o sistema de projeção, qual o tamanho (retângulo envolvente) e qual a resolução espacial dessa grade. O dado dinâmico resultante dessa análise poderá ser utilizado em outras análises como qualquer outro dado coletado externamente.</span></p>
-<p class="rvps37"><span class="rvts46"><br/></span></p>
-<div class="rvps107"><table width="756" border="0" cellpadding="4" cellspacing="0" style="border-width: 0px; border-spacing: 0px;">
+<p class="rvps23"><span class="rvts47"><br/></span></p>
+<div class="rvps106"><table width="756" border="0" cellpadding="4" cellspacing="0" style="border-width: 0px; border-spacing: 0px;">
 <tr valign="top">
 <td width="76" height="105" valign="top" style="padding: 0px 9px;"><p class="rvps2"><img width="88" height="88" alt="" style="padding : 1px;" src="lib/Logo_Python.png"></p>
 </td>
-<td width="644" height="105" valign="top" style="padding: 0px 9px;"><p class="rvps106"><span class="rvts22">Para uma maior compreensão da sintaxe da linguagem ou uso de opções avançadas, recomenda-se a leitura do anexo A2, a documentação disponível em português em </span><a class="rvts34" href="https://wiki.python.org.br">https://wiki.python.org.br</a><span class="rvts22"> ou site oficial em &nbsp;</span><a class="rvts39" href="https://www.python.org/">https://www.python.org/</a><span class="rvts40"> .</span></p>
+<td width="644" height="105" valign="top" style="padding: 0px 9px;"><p class="rvps105"><span class="rvts22">Para uma maior compreensão da sintaxe da linguagem ou uso de opções avançadas, recomenda-se a leitura do anexo A2, a documentação disponível em português em </span><a class="rvts34" href="https://wiki.python.org.br">https://wiki.python.org.br</a><span class="rvts22"> ou site oficial em &nbsp;</span><a class="rvts40" href="https://www.python.org/">https://www.python.org/</a><span class="rvts41"> .</span></p>
 </td>
 </tr>
 </table>
 </div>
-<p class="rvps37"><span class="rvts46"><br/></span></p>
-<p class="rvps37"><span class="rvts6"><br/></span></p>
+<p class="rvps23"><span class="rvts47"><br/></span></p>
+<p class="rvps23"><span class="rvts6"><br/></span></p>
 <p></p>
 
             </div>

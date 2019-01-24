@@ -184,127 +184,79 @@
                 
 <p></p>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
-<p class="rvps12"><span class="rvts23">Todo dado dinâmico para ser armazenado e posteriormente acessado pelos modelos de análise tem de ter as propriedades de </span><span class="rvts24">data</span><span class="rvts23">, </span><span class="rvts24">hora</span><span class="rvts23"> e o </span><span class="rvts24">fuzo horário</span><span class="rvts23"> adotado. Seja na forma de arquivos ou tabelas de banco de dados, tais propriedades devem estar presentes. Para dados dinâmicos na forma de arquivos de serão coletados, caracteres especiais devem ser utilizados na máscara desses arquivos para os números referentes da data e hora.</span></p>
-<p class="rvps12"><span class="rvts23">Utilizar %YYYY para anos de 4 dígitos, %YY para anos de 2 dígitos, %MM para mês, %DD para dia, %hh para hora, %mm para minutos e %ss para segundos. Caracteres que não mudam podem ser mantidos ou substituídos por * (asterisco). Note que ano, mês e dia as letras devem ser </span><span class="rvts24">maiúsculas</span><span class="rvts23"> e para hora, minuto e segundo as letras devem ser </span><span class="rvts24">minúsculas</span><span class="rvts42">.</span></p>
-<p class="rvps12"><span class="rvts23">Arquivos que estão compactados na fonte de origem podem estar de duas formas:</span></p>
+<p class="rvps23"><span class="rvts22">Todo dado dinâmico para ser armazenado e posteriormente acessado pelos modelos de análise tem de ter as propriedades de </span><span class="rvts38">data</span><span class="rvts22">, </span><span class="rvts38">hora</span><span class="rvts22"> e o </span><span class="rvts38">fuzo horário</span><span class="rvts22"> adotado. Seja na forma de arquivos ou tabelas de banco de dados, tais propriedades devem estar presentes. Para dados dinâmicos na forma de arquivos de serão coletados, caracteres especiais devem ser utilizados na máscara desses arquivos para os números referentes da data e hora.</span></p>
+<p class="rvps23"><span class="rvts22">Para data com </span><span class="rvts38">ano, mês e dia</span><span class="rvts22"> utilize </span><span class="rvts38">%YYYY</span><span class="rvts22"> para anos de 4 dígitos ou </span><span class="rvts38">%YY</span><span class="rvts22"> para anos de 2 dígitos, </span><span class="rvts38">%MM</span><span class="rvts22"> para mês e </span><span class="rvts38">%DD</span><span class="rvts22"> para dia. Para data com </span><span class="rvts38">ano e dia juliano</span><span class="rvts22"> utilize </span><span class="rvts38">%YYYY</span><span class="rvts22"> para anos de 4 dígitos ou </span><span class="rvts38">%YY</span><span class="rvts22"> para anos de 2 dígitos e </span><span class="rvts38">%JJJ</span><span class="rvts22"> para o dia juliano. Para valores de hora utilize </span><span class="rvts38">%hh</span><span class="rvts22"> para hora, </span><span class="rvts38">%mm</span><span class="rvts22"> para minutos e </span><span class="rvts38">%ss</span><span class="rvts22"> para segundos. Caracteres que não mudam podem ser mantidos ou substituídos por * (asterisco). Note que ano, mês e dia ou dia juliano as letras devem ser </span><span class="rvts38">maiúsculas</span><span class="rvts22"> e para hora, minuto e segundo as letras devem ser </span><span class="rvts38">minúsculas</span><span class="rvts47">.</span></p>
+<p class="rvps23"><span class="rvts22">Arquivos que estão compactados na fonte de origem podem estar de duas formas:</span></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 54px; list-style-position: outside; list-style-type: disc;">
-<li style="margin-left: 0px" class="rvps31"><span class="rvts23">Com a extensão do formato + &nbsp;caracteres da compactação, por exemplo: “radar200805281030.tif.gz”, isto é, a extensão do arquivo a ser descompactado faz parte do próprio arquivo *.gz. Neste caso, pode-se optar por não declarar a extensão “gz” pois a extensão “tif” já é conhecida. </span></li>
-<li style="margin-left: 0px" class="rvps31"><span class="rvts23">Extensão oculta do formato + caracteres da compactação, por exemplo: “radar200805281030.gz”. Neste caso a extensão somente será conhecida após descompactar o arquivo. Para tal, deve-se utilizar uma lista das extensões entre parênteses “%( &nbsp;| &nbsp;)%” separadas de uma barra vertical, que para o exemplo seria “%(tif|gz)%”. A máscara completa deve ser “radar%YYYY%MM%DD%hh%mm.%(tif|gz)%.</span></li>
+<li style="margin-left: 0px" class="rvps36"><span class="rvts22">Com a extensão do formato + &nbsp;caracteres da compactação, por exemplo: “radar200805281030.tif.gz”, isto é, a extensão do arquivo a ser descompactado faz parte do próprio arquivo *.gz. Neste caso, pode-se optar por não declarar a extensão “gz” pois a extensão “tif” já é conhecida. </span></li>
+<li style="margin-left: 0px" class="rvps36"><span class="rvts22">Extensão oculta do formato + caracteres da compactação, por exemplo: “radar200805281030.gz”. Neste caso a extensão somente será conhecida após descompactar o arquivo. Para tal, deve-se utilizar uma lista das extensões entre parênteses “%( &nbsp;| &nbsp;)%” separadas de uma barra vertical, que para o exemplo seria “%(tif|gz)%”. A máscara completa deve ser “radar%YYYY%MM%DD%hh%mm.%(tif|gz)%.</span></li>
 </ul>
-<p class="rvps12"><span class="rvts42"><br/></span></p>
-<p class="rvps12"><span class="rvts23">A seguir exemplos de alguns arquivos a serem lidos pela plataforma.</span></p>
-<div class="rvps57"><table border="1" cellpadding="4" cellspacing="-1" style="border-width: 0px; border-collapse: collapse;">
+<p class="rvps23"><span class="rvts47"><br/></span></p>
+<p class="rvps23"><span class="rvts22">A seguir exemplos de alguns arquivos a serem lidos pela plataforma.</span></p>
+<div class="rvps56"><table border="1" cellpadding="4" cellspacing="-1" style="border-width: 0px; border-collapse: collapse;">
 <tr valign="top">
-<td width="252" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps54"><span class="rvts62">Arquivos</span></p>
+<td width="252" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps53"><span class="rvts60">Arquivos</span></p>
 </td>
-<td width="465" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps54"><span class="rvts62">Máscara dos arquivos / *comentários</span></p>
+<td width="465" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps53"><span class="rvts60">Máscara dos arquivos / *comentários</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="252" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps55"><span class="rvts23">Hidro.20180525.230500.bin</span></p>
-<p class="rvps55"><span class="rvts23">Hidro.20180525.231000.bin</span></p>
-<p class="rvps55"><span class="rvts23">Hidro.20180525.231500.bin</span></p>
-<p class="rvps55"><span class="rvts23">Hidro.20180525.232000.bin</span></p>
-<p class="rvps55"><span class="rvts23">Hidro.20180525.232500.bin</span></p>
-<p class="rvps55"><span class="rvts23">...</span></p>
+<td width="252" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps54"><span class="rvts22">Hidro.20180525.230500.bin</span></p>
+<p class="rvps54"><span class="rvts22">Hidro.20180525.231000.bin</span></p>
+<p class="rvps54"><span class="rvts22">Hidro.20180525.231500.bin</span></p>
+<p class="rvps54"><span class="rvts22">Hidro.20180525.232000.bin</span></p>
+<p class="rvps54"><span class="rvts22">Hidro.20180525.232500.bin</span></p>
+<p class="rvps54"><span class="rvts22">...</span></p>
 </td>
-<td width="465" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps56"><span class="rvts23">Hidro.%YYYY%MM%DD.%hh%mm%ss.bin</span></p>
-<p class="rvps56"><span class="rvts63">*arquivos disponíveis a cada 5 minutos. Note que ano tem 4 dígitos </span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="252" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps55"><span class="rvts23">Hidro.180525.230500.bin.gz</span></p>
-<p class="rvps55"><span class="rvts23">Hidro.180525.231000.bin.gz</span></p>
-<p class="rvps55"><span class="rvts23">Hidro.180525.231500.bin.gz</span></p>
-<p class="rvps55"><span class="rvts23">Hidro.180525.232000.bin.gz</span></p>
-<p class="rvps55"><span class="rvts23">Hidro.180525.232500.bin.gz</span></p>
-<p class="rvps55"><span class="rvts23">...</span></p>
-</td>
-<td width="465" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps56"><span class="rvts23">Hidro.%YY%MM%DD.%hh%mm%ss.bin</span></p>
-<p class="rvps56"><span class="rvts63">*arquivos compactados disponíveis a cada 5 minutos. Note que o ano tem 2 dígitos. Não é necessário informar a extensão “gz” para arquivos compactados. Neste caso, a extensão “bin” é apresentada mesmo sem descompactar cada arquivo.</span></p>
+<td width="465" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps55"><span class="rvts22">Hidro.%YYYY%MM%DD.%hh%mm%ss.bin</span></p>
+<p class="rvps55"><span class="rvts39">*arquivos disponíveis a cada 5 minutos. Note que ano tem 4 dígitos </span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="252" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps55"><span class="rvts23">radar.180525_2305.zip</span></p>
-<p class="rvps55"><span class="rvts23">radar.180525_2310.zip</span></p>
-<p class="rvps55"><span class="rvts23">radar.180525_2315.zip</span></p>
-<p class="rvps55"><span class="rvts23">radar.180525_2320.zip</span></p>
-<p class="rvps55"><span class="rvts23">radar.180525_2325.zip</span></p>
-<p class="rvps55"><span class="rvts23">...</span></p>
+<td width="252" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps54"><span class="rvts22">Hidro.180525.230500.bin.gz</span></p>
+<p class="rvps54"><span class="rvts22">Hidro.180525.231000.bin.gz</span></p>
+<p class="rvps54"><span class="rvts22">Hidro.180525.231500.bin.gz</span></p>
+<p class="rvps54"><span class="rvts22">Hidro.180525.232000.bin.gz</span></p>
+<p class="rvps54"><span class="rvts22">Hidro.180525.232500.bin.gz</span></p>
+<p class="rvps54"><span class="rvts22">...</span></p>
 </td>
-<td width="465" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps56"><span class="rvts23">radar.%YY%MM%DD_%hh%mm.%(tif|zip)%</span></p>
-<p class="rvps56"><span class="rvts63">*arquivos compactados disponíveis a cada 5 minutos. Note que o ano tem 2 dígitos. Extensão “tif” só será conhecida após descompactar o arquivo ‘zip”.</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="252" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps55"><span class="rvts23">A.180525_12_deterA_inpe.zip</span></p>
-<p class="rvps55"><span class="rvts23">A.180526_12_deterB_inpe.zip</span></p>
-<p class="rvps55"><span class="rvts23">A.180527_12_deterA_inpe.zip</span></p>
-<p class="rvps55"><span class="rvts23">A.180528_12_deterB_inpe.zip</span></p>
-<p class="rvps55"><span class="rvts23">A.180529_12_deterC_inpe.zip</span></p>
-<p class="rvps55"><span class="rvts42">...</span></p>
-</td>
-<td width="465" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps56"><span class="rvts23">A.%YY%MM%DD_%hh*.%(shp|zip)%</span></p>
-<p class="rvps56"><span class="rvts63">*arquivos compactados disponíveis a cada dia, sempre as 12h. Note que o ano tem 2 dígitos. Extensão “shp” só será conhecida após descompactar o arquivo ‘zip”. O caractere “*” substitui a sequência “_deterA_inpe”, “_deterB_inpe” ou “_deterC_inpe” em todos arquivos</span></p>
-</td>
-</tr>
-</table>
-</div>
-<p class="rvps12"><span class="rvts42"><br/></span></p>
-<p class="rvps30"><span class="rvts24">NOTA</span><span class="rvts23">: Somente caracteres numéricos são válidos. Use somente números para indicar o mês. Não serão reconhecidos valores como “jan”, “fev” ou “mar” para “janeiro”, “fevereiro” ou “março”. Para os valores de horas, somente valores entre 0 e 24 são válidos.</span></p>
-<p class="rvps12"><span class="rvts23">Para arquivos de dados dinâmicos </span><span class="rvts24">matriciais</span><span class="rvts23"> que terão acesso direto (item 2.4.5), estes não podem estar compactados e somente arquivos compatíveis com a biblioteca GDAL, como GeoTiff e HDF5 devem estar disponíveis.</span></p>
-<p class="rvps30"><span class="rvts24">NOTA</span><span class="rvts23">: O valor do Fuso Horário para arquivos (vetoriais ou matriciais) deve ser informado na própria interface do arquivo a ser lido na aba “Parâmetros” e na aba “Armazenar”.</span></p>
-<p class="rvps12"><span class="rvts42"><br/></span></p>
-<p class="rvps58"><span class="rvts24">NOTA: </span><span class="rvts23">A máscara no nome dos diretórios também é permitida. Alguns dados podem estar organizados em pastas referentes a cada mês de cada ano. Como exemplo, para dados em uma pasta correspondente ao ano “2015” e outra para o mês “02” como &nbsp;“radar_SR/2015/02/radar201809240830.tif” utilize &nbsp;“radar_SR/%YYYY/%MM/radar%YYYY%MM%DD%hh%mm.tif”</span></p>
-<p class="rvps12"><span class="rvts42"><br/></span></p>
-<p class="rvps12"><span class="rvts23">Para dados de </span><span class="rvts24">Ocorrência</span><span class="rvts23"> ou de </span><span class="rvts24">PCD</span><span class="rvts23"> onde arquivos no formato ASCII (texto) ou CSV podem conter várias ocorrências ou várias leituras das PCD num mesmo arquivo, os valores de </span><span class="rvts24">data e hora</span><span class="rvts23"> devem estar necessariamente numa mesma comuna. O exemplo a seguir mostra configurar a máscara de um arquivo CSV de ocorrências e máscara dos atributos de um desses arquivos.</span></p>
-<div class="rvps57"><table border="1" cellpadding="4" cellspacing="-1" style="border-width: 0px; border-collapse: collapse;">
-<tr valign="top">
-<td width="252" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps54"><span class="rvts62">Arquivos</span></p>
-</td>
-<td width="465" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps54"><span class="rvts62">Máscara dos arquivos / *comentários</span></p>
+<td width="465" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps55"><span class="rvts22">Hidro.%YY%MM%DD.%hh%mm%ss.bin</span></p>
+<p class="rvps55"><span class="rvts39">*arquivos compactados disponíveis a cada 5 minutos. Note que o ano tem 2 dígitos. Não é necessário informar a extensão “gz” para arquivos compactados. Neste caso, a extensão “bin” é apresentada mesmo sem descompactar cada arquivo.</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="252" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps55"><span class="rvts23">focos.20180525.230500.csv</span></p>
-<p class="rvps55"><span class="rvts23">focos.20180525.231000.csv</span></p>
-<p class="rvps55"><span class="rvts23">focos.20180525.231500.csv</span></p>
-<p class="rvps55"><span class="rvts23">focos.20180525.232000.csv</span></p>
-<p class="rvps55"><span class="rvts23">focos.20180525.232500.csv</span></p>
-<p class="rvps55"><span class="rvts23">...</span></p>
+<td width="252" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps54"><span class="rvts22">radar.180525_2305.zip</span></p>
+<p class="rvps54"><span class="rvts22">radar.180525_2310.zip</span></p>
+<p class="rvps54"><span class="rvts22">radar.180525_2315.zip</span></p>
+<p class="rvps54"><span class="rvts22">radar.180525_2320.zip</span></p>
+<p class="rvps54"><span class="rvts22">radar.180525_2325.zip</span></p>
+<p class="rvps54"><span class="rvts22">...</span></p>
 </td>
-<td width="465" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps56"><span class="rvts23">focos.%YYYY%MM%DD.%hh%mm%ss.bin</span></p>
-<p class="rvps56"><span class="rvts63">*arquivos disponíveis a cada 5 minutos. Note que ano tem 4 dígitos </span></p>
+<td width="465" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps55"><span class="rvts22">radar.%YY%MM%DD_%hh%mm.%(tif|zip)%</span></p>
+<p class="rvps55"><span class="rvts39">*arquivos compactados disponíveis a cada 5 minutos. Note que o ano tem 2 dígitos. Extensão “tif” só será conhecida após descompactar o arquivo ‘zip”.</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="252" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps54"><span class="rvts22">A.180525_12_deterA_inpe.zip</span></p>
+<p class="rvps54"><span class="rvts22">A.180526_12_deterB_inpe.zip</span></p>
+<p class="rvps54"><span class="rvts22">A.180527_12_deterA_inpe.zip</span></p>
+<p class="rvps54"><span class="rvts22">A.180528_12_deterB_inpe.zip</span></p>
+<p class="rvps54"><span class="rvts22">A.180529_12_deterC_inpe.zip</span></p>
+<p class="rvps54"><span class="rvts47">...</span></p>
+</td>
+<td width="465" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps55"><span class="rvts22">A.%YY%MM%DD_%hh*.%(shp|zip)%</span></p>
+<p class="rvps55"><span class="rvts39">*arquivos compactados disponíveis a cada dia, sempre as 12h. Note que o ano tem 2 dígitos. Extensão “shp” só será conhecida após descompactar o arquivo ‘zip”. O caractere “*” substitui a sequência “_deterA_inpe”, “_deterB_inpe” ou “_deterC_inpe” em todos arquivos</span></p>
 </td>
 </tr>
 </table>
 </div>
-<p class="rvps12"><span class="rvts42"><br/></span></p>
-<div class="rvps57"><table width="756" border="1" cellpadding="4" cellspacing="-1" style="border-width: 0px; border-collapse: collapse;">
-<tr valign="top">
-<td width="737" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps54"><span class="rvts62">Arquivos &nbsp; </span><span class="rvts23">focos.20180525.230500.csv</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="737" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps55"><span class="rvts23">latitude; longitude; satelite; data_aquisicao; hora_aquisicao, risco, data_hora</span></p>
-<p class="rvps55"><span class="rvts23">-23.34; &nbsp;-45.21; GOES; 2018-05-25; &nbsp;23:05:00; 0.34; D2018-05-25_T23:05:00</span></p>
-<p class="rvps55"><span class="rvts23">-21.24; &nbsp;-42.54; GOES; 2018-05-25; &nbsp;23:05:10; 0.34; D2018-05-25_T23:05:10</span></p>
-<p class="rvps55"><span class="rvts23">-22.51; &nbsp;-46.34; GOES; 2018-05-25; &nbsp;23:05:20; 0.34; D2018-05-25_T23:05:20</span></p>
-<p class="rvps55"><span class="rvts23">...</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="737" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps59"><span class="rvts62">Máscara do atributo “data_hora” que define a data e hora da aquisição</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="737" valign="top" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px 9px;"><p class="rvps59"><span class="rvts23">D%YYYY-%MM-%DD_T%hh:%mm:%ss</span></p>
-<p class="rvps59"><span class="rvts42"><br/></span></p>
-<p class="rvps60"><span class="rvts63">* note que as colunas “data_aquisicao” e “hora_aquisicao” não servem para identificar data/hora. A máscara foi definida sobre o atributo “data_hora”. As letras “D” e “T” na sequência de caracteres devem ser declarados na máscara.</span></p>
-</td>
-</tr>
-</table>
-</div>
+<p class="rvps23"><span class="rvts47"><br/></span></p>
+<p class="rvps43"><span class="rvts38">NOTA</span><span class="rvts22">: Somente caracteres numéricos são válidos. Use somente números para indicar o mês. Não serão reconhecidos valores como “jan”, “fev” ou “mar” para “janeiro”, “fevereiro” ou “março”. Para os valores de horas, somente valores entre 0 e 24 são válidos.</span></p>
+<p class="rvps23"><span class="rvts22">Para arquivos de dados dinâmicos </span><span class="rvts38">matriciais</span><span class="rvts22"> que terão acesso direto (item 2.4.5), estes não podem estar compactados e somente arquivos compatíveis com a biblioteca GDAL, como GeoTiff e HDF5 devem estar disponíveis.</span></p>
+<p class="rvps43"><span class="rvts38">NOTA</span><span class="rvts22">: O valor do Fuso Horário para arquivos (vetoriais ou matriciais) deve ser informado na própria interface do arquivo a ser lido na aba “Parâmetros” e na aba “Armazenar”.</span></p>
+<p class="rvps23"><span class="rvts47"><br/></span></p>
+<p class="rvps57"><span class="rvts38">NOTA: </span><span class="rvts22">A máscara no nome dos diretórios também é permitida. Alguns dados podem estar organizados em pastas referentes a cada mês de cada ano. Como exemplo, para dados em uma pasta correspondente ao ano “2015” e outra para o mês “02” como &nbsp;“radar_SR/2015/02/radar201809240830.tif” utilize &nbsp;“radar_SR/%YYYY/%MM/radar%YYYY%MM%DD%hh%mm.tif”</span></p>
+<p class="rvps23"><span class="rvts6"><br/></span></p>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
 <p></p>
 
