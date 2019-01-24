@@ -3,7 +3,7 @@
 			<div class="col-md-2">
 				<div class="form-group" terrama2-show-errors>
 					<label ng-bind="$ctrl.i18n.__('Type')+':'"></label>
-					<select name="type" class="form-control" ng-model="$ctrl.field.type" ng-change="$ctrl.onFieldTypeChange()" required>
+					<select name="type" class="form-control" ng-model="$ctrl.field.type" ng-change="$ctrl.onFieldTypeChange()" required ng-disabled="$ctrl.field.readonly">
 						<option ng-repeat="type in $ctrl.fieldsType" ng-if="$ctrl.semantics == 'OCCURRENCE' || type.value != 'GEOMETRY_POINT' " value="{{type.value}}">{{$ctrl.i18n.__(type.title)}}</option>
 					</select>
 				</div>
@@ -118,7 +118,7 @@
 
 			<div class="col-md-1">
 				<div style="margin-top: 24px;" class="row">
-					<button class="btn btn-danger" ng-click="$ctrl.delete()"> {{$ctrl.i18n.__('Remove')}}</button>
+					<button class="btn btn-danger" ng-hide="$ctrl.field.readonly" ng-click="$ctrl.delete()"> {{$ctrl.i18n.__('Remove')}}</button>
 				</div>
 			</div>
 	</div>

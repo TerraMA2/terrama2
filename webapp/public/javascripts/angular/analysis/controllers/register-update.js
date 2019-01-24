@@ -387,6 +387,8 @@ define([], function() {
             self.metadata[ds.name] = Object.assign({id: analysisDs.id, alias: analysisDs.alias}, analysisDs.metadata);
           });
 
+          self.analysis.metadata = analysisInstance.metadata;
+
           if (analysisInstance.type.id === Globals.enums.AnalysisType.GRID) {
             // fill interpolation
             self.analysis.grid = {
@@ -426,6 +428,7 @@ define([], function() {
               };
             }
           } else { // if  monitored object or dcp
+            self.analysis.metadata.operationType = !isNaN(Number(analysisInstance.metadata.operationType)) ? Number(analysisInstance.metadata.operationType) : undefined;
             self.analysis.metadata.INFLUENCE_TYPE = analysisInstance.metadata.INFLUENCE_TYPE;
             self.analysis.metadata.INFLUENCE_RADIUS = !isNaN(Number(analysisInstance.metadata.INFLUENCE_RADIUS)) ? Number(analysisInstance.metadata.INFLUENCE_RADIUS) : undefined;
             self.analysis.metadata.INFLUENCE_RADIUS_UNIT = analysisInstance.metadata.INFLUENCE_RADIUS_UNIT;
@@ -693,6 +696,12 @@ define([], function() {
               self.semanticsSelected = "Object Monitored";
               dataseriesFilterType = 'GEOMETRIC_OBJECT';
               break;
+            case AnalysisService.types.VP:
+              semanticsType = DataSeriesService.DataSeriesType.ANALYSIS_MONITORED_OBJECT;
+              self.semanticsSelected = "Vector Processing";
+              self.dataSeriesBoxName = i18n.__("Vector Processing");
+              dataseriesFilterType = 'GEOMETRIC_OBJECT';
+              break;
             default:
               $log.log("Invalid analysis type ID");
               return;
@@ -710,7 +719,7 @@ define([], function() {
 
           self.onTargetDataSeriesChange = function() {
             if (self.targetDataSeries && self.targetDataSeries.name) {
-              if(parseInt(self.analysis.type_id) === AnalysisService.types.MONITORED || parseInt(self.analysis.type_id) === AnalysisService.types.DCP)
+              if(parseInt(self.analysis.type_id) !== AnalysisService.types.GRID)
                 self.analysis.data_provider_id = self.targetDataSeries.data_provider_id;
 
               self.metadata[self.targetDataSeries.name] = {
@@ -1020,33 +1029,37 @@ define([], function() {
            * It retrieves a dom element #scriptCheckResult in order to append script feedback message
            * @type {DOM}
            */
-          var checkResult = angular.element("#scriptCheckResult");
 
-          var hasScriptError = function(expression, message) {
-            var output = false;
-            if (!self.analysis.script || self.analysis.script.indexOf(expression) < 0) {
-              self.analysis_script_error = true;
-              self.analysis_script_error_message = i18n.__("Analysis will not able to generate a output data. ") + message;
-              output = true;
+          if (typeId !== AnalysisService.types.VP)
+          {
+            var checkResult = angular.element("#scriptCheckResult");
+
+            var hasScriptError = function(expression, message) {
+              var output = false;
+              if (!self.analysis.script || self.analysis.script.indexOf(expression) < 0) {
+                self.analysis_script_error = true;
+                self.analysis_script_error_message = i18n.__("Analysis will not able to generate a output data. ") + message;
+                output = true;
+              } else {
+                self.analysis_script_error_message = "";
+                self.analysis_script_error = false;
+              }
+              checkResult.html(self.analysis_script_error_message);
+              return output;
+            };
+
+            var expression, message;
+
+            if (typeId === AnalysisService.types.GRID) {
+              expression = "return";
+              message = "Grid analysis script must end with 'return' statement";
             } else {
-              self.analysis_script_error_message = "";
-              self.analysis_script_error = false;
+              expression = "add_value";
+              message = "Please fill at least a add_value() in script field.";
             }
-            checkResult.html(self.analysis_script_error_message);
-            return output;
-          };
-
-          var expression, message;
-
-          if (typeId === AnalysisService.types.GRID) {
-            expression = "return";
-            message = "Grid analysis script must end with 'return' statement";
-          } else {
-            expression = "add_value";
-            message = "Please fill at least a add_value() in script field.";
-          }
-          if (hasScriptError(expression, i18n.__(message))) {
-            throw new Error(self.analysis_script_error_message);
+            if (hasScriptError(expression, i18n.__(message))) {
+              throw new Error(self.analysis_script_error_message);
+            }
           }
 
           // checking dataseries analysis
@@ -1110,6 +1123,7 @@ define([], function() {
               analysisTypeId = Globals.enums.AnalysisDataSeriesType.DATASERIES_GRID_TYPE;
               break;
             case Globals.enums.AnalysisType.MONITORED:
+            case Globals.enums.AnalysisType.VP:
               analysisTypeId = Globals.enums.AnalysisDataSeriesType.DATASERIES_MONITORED_OBJECT_TYPE;
               self.metadata[self.targetDataSeries.name]['identifier'] = self.identifier;
               // setting monitored object id in output data series format

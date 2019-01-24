@@ -168,7 +168,8 @@ module.exports = {
   AnalysisType: {
     DCP: 1,
     MONITORED: 2,
-    GRID: 3
+    GRID: 3,
+    VP: 4
   },
 
   AnalysisDataSeriesType: {
@@ -443,7 +444,7 @@ module.exports = {
   },
 
   /**
-   * List of source type to create view 
+   * List of source type to create view
    */
   ViewSourceType: {
     STATIC: 1,

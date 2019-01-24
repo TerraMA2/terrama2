@@ -84,6 +84,8 @@ qt5_use_modules(terrama2_service Core Widgets)
 target_link_libraries(terrama2_service terrama2_core
                                        terrama2_impl
                                        ${PYTHON_LIBRARIES}
+                                       ${Boost_LOG_LIBRARY_RELEASE}
+                                       ${Boost_LOG_SETUP_LIBRARY_RELEASE}
                                        ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
 IF(TERRAMA2_COLLECTOR_ENABLED)
