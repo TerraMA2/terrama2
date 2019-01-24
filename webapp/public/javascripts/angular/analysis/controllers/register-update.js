@@ -387,6 +387,8 @@ define([], function() {
             self.metadata[ds.name] = Object.assign({id: analysisDs.id, alias: analysisDs.alias}, analysisDs.metadata);
           });
 
+          self.analysis.metadata = analysisInstance.metadata;
+
           if (analysisInstance.type.id === Globals.enums.AnalysisType.GRID) {
             // fill interpolation
             self.analysis.grid = {
@@ -426,6 +428,7 @@ define([], function() {
               };
             }
           } else { // if  monitored object or dcp
+            self.analysis.metadata.operationType = !isNaN(Number(analysisInstance.metadata.operationType)) ? Number(analysisInstance.metadata.operationType) : undefined;
             self.analysis.metadata.INFLUENCE_TYPE = analysisInstance.metadata.INFLUENCE_TYPE;
             self.analysis.metadata.INFLUENCE_RADIUS = !isNaN(Number(analysisInstance.metadata.INFLUENCE_RADIUS)) ? Number(analysisInstance.metadata.INFLUENCE_RADIUS) : undefined;
             self.analysis.metadata.INFLUENCE_RADIUS_UNIT = analysisInstance.metadata.INFLUENCE_RADIUS_UNIT;
@@ -1120,6 +1123,7 @@ define([], function() {
               analysisTypeId = Globals.enums.AnalysisDataSeriesType.DATASERIES_GRID_TYPE;
               break;
             case Globals.enums.AnalysisType.MONITORED:
+            case Globals.enums.AnalysisType.VP:
               analysisTypeId = Globals.enums.AnalysisDataSeriesType.DATASERIES_MONITORED_OBJECT_TYPE;
               self.metadata[self.targetDataSeries.name]['identifier'] = self.identifier;
               // setting monitored object id in output data series format

@@ -314,7 +314,7 @@
           <form name="forms.targetDataSeriesForm">
 
             <vector-processing css="ctrl.css"
-                   model="ctrl.vectorProcessing"
+                   model="ctrl.analysis.metadata.operationType"
                    ng-show="ctrl.analysis.type_id === '{[ Enums.AnalysisType.VP ]}' && forms.generalDataForm.type.$valid">
             </vector-processing>
 
@@ -408,7 +408,7 @@
     </terrama2-box>
 
     <query-builder css="ctrl.css"
-                   model="ctrl.analysis.queryBuilder"
+                   model="ctrl.analysis.metadata.queryBuilder"
                    ng-show="ctrl.analysis.type_id == {[ Enums.AnalysisType.VP ]} && forms.generalDataForm.type.$valid">
     </query-builder>
 
