@@ -68,7 +68,8 @@ target_link_libraries(terrama2_core terralib_mod_memory
                                         ${Boost_REGEX_LIBRARY}
                                         ${Boost_PYTHON_LIBRARY}
                                         ${PYTHON_LIBRARIES}
-                                        ${QUAZIP_LIBRARIES})
+                                        ${QUAZIP_LIBRARIES}
+                                        ${CURL_LIBRARY})
 
 set_target_properties(terrama2_core
                       PROPERTIES VERSION ${TERRAMA2_VERSION_MAJOR}.${TERRAMA2_VERSION_MINOR}

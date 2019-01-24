@@ -60,8 +60,10 @@ namespace terrama2
           public:
             void addMonitoredObjectContext(const AnalysisHashCode analysisHashCode, MonitoredObjectContextPtr context);
             void addGridContext(const AnalysisHashCode analysisHashCode, GridContextPtr context);
+            void addGeometryContext(const AnalysisHashCode analysisHashCode, GeometryIntersectionContextPtr context);
 
             MonitoredObjectContextPtr getMonitoredObjectContext(const AnalysisHashCode analysisHashCode) const;
+            GeometryIntersectionContextPtr getGeometryContext(const AnalysisHashCode analysisHashCode) const;
             GridContextPtr getGridContext(const AnalysisHashCode analysisHashCode) const;
             AnalysisPtr getAnalysis(const AnalysisHashCode analysisHashCode) const;
 
@@ -76,6 +78,7 @@ namespace terrama2
 
             std::unordered_map<AnalysisHashCode, MonitoredObjectContextPtr> monitoredObjectContextMap_;
             std::unordered_map<AnalysisHashCode, GridContextPtr> gridContextMap_;
+            std::unordered_map<AnalysisHashCode, GeometryIntersectionContextPtr> geometryContextMap_;
 
             std::unordered_map<AnalysisHashCode, std::set<std::string> > analysisErrorMap_;
             mutable std::recursive_mutex mutex_; //!< A mutex to synchronize all operations.

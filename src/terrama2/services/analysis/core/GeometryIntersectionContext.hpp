@@ -20,40 +20,22 @@
 */
 
 /*!
-  \file terrama2/services/analysis/core/occurrence/Context.hpp
+  \file terrama2/services/analysis/core/GeometryIntersectionContext.hpp
 
-  \brief Contains occurrence analysis context.
-
-  \author Jano Simas
+  \brief Contains Geometric Intersection analysis context object
 */
 
 
-#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_MONITORED_OBJECT_CONTEXT_HPP__
-#define __TERRAMA2_SERVICES_ANALYSIS_CORE_MONITORED_OBJECT_CONTEXT_HPP__
+#ifndef __TERRAMA2_SERVICES_ANALYSIS_CORE_GEOMETRY_INTERSECTION_CONTEXT_HPP__
+#define __TERRAMA2_SERVICES_ANALYSIS_CORE_GEOMETRY_INTERSECTION_CONTEXT_HPP__
 
 // TerraMa2
 #include "../../Config.hpp"
 #include "Analysis.hpp"
 #include "BaseContext.hpp"
-#include "../../../core/utility/Utils.hpp"
-#include "../../../core/data-access/DataSetSeries.hpp"
-#include "../../../core/data-model/Filter.hpp"
-
-// TerraLib
-#include <terralib/geometry/Coord2D.h>
-#include <terralib/sam/kdtree.h>
 
 // Boost
 #include <boost/any.hpp>
-
-// Forward declaration
-namespace te
-{
-  namespace rst
-  {
-    class Raster;
-  }
-}
 
 namespace terrama2
 {
@@ -66,36 +48,33 @@ namespace terrama2
         /*!
           \brief Contains additional information about a DataSeries to be used in an analysis.
         */
-        struct ContextDataSeries
+        struct GeoIntersectionDataSeries
         {
           terrama2::core::DataSetSeries series; //!< Dataset information.
           std::string identifier; //!< Identifier column.
-          std::size_t geometryPos = -1; //!< Geometry column position.
+          std::size_t geometryPos = std::numeric_limits<std::size_t>::max(); //!< Geometry column position.
           te::sam::rtree::Index<uint32_t, 8> rtree; //!< Spatial index in memory
-
         };
 
-        class TMANALYSISEXPORT MonitoredObjectContext : public BaseContext
+        class TMANALYSISEXPORT GeometryIntersectionContext : public BaseContext
         {
           public:
-            MonitoredObjectContext(DataManagerPtr dataManager,  AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime);
+            GeometryIntersectionContext(DataManagerPtr dataManager,  AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime);
 
-            ~MonitoredObjectContext() = default;
-            MonitoredObjectContext(const MonitoredObjectContext& other) = default;
-            MonitoredObjectContext(MonitoredObjectContext&& other) = default;
-            MonitoredObjectContext& operator=(const MonitoredObjectContext& other) = default;
-            MonitoredObjectContext& operator=(MonitoredObjectContext&& other) = default;
+            ~GeometryIntersectionContext() = default;
+            GeometryIntersectionContext(const GeometryIntersectionContext& other) = default;
+            GeometryIntersectionContext(GeometryIntersectionContext&& other) = default;
+            GeometryIntersectionContext& operator=(const GeometryIntersectionContext& other) = default;
+            GeometryIntersectionContext& operator=(GeometryIntersectionContext&& other) = default;
 
-            void loadMonitoredObject();
+            void load();
 
-            void addDCPDataSeries(terrama2::core::DataSeriesPtr dataSeries,
-                                  const terrama2::core::Filter& filter);
             /*!
               \brief Returns the set of attributes that compose the analysis result.
 
               \param analysisHashCode Hash code of the analysis.
             */
-            std::set<std::pair<std::string, int> > getAttributes() const { return attributes_;}
+            std::set<std::pair<std::string, int>> getAttributes() const { return attributes_; }
             /*!
             \brief Reads the DataSeries that fits the date filter and adds it to the context.
 
@@ -104,7 +83,6 @@ namespace terrama2
             \param createSpatialIndex Defines if a spatial index should be created to optimize data access.
             */
             void addDataSeries(terrama2::core::DataSeriesPtr dataSeries,
-                               const terrama2::core::Filter& filter,
                                bool createSpatialIndex);
             /*!
               \brief Returns a smart pointer that contains the TerraLib DataSet for the given DataSetId.
@@ -114,8 +92,7 @@ namespace terrama2
 
               \return A smart pointer to the context data series.
             */
-            std::shared_ptr<ContextDataSeries> getContextDataset(const DataSetId datasetId,
-                                                                 const terrama2::core::Filter& filter) const;
+            std::shared_ptr<GeoIntersectionDataSeries> getContextDataset(const DataSetId datasetId) const;
 
             /*!
               \brief Returns true if the given dataset has already been loaded into the context.
@@ -124,7 +101,7 @@ namespace terrama2
               \param filter The filter to be applied and used as key.
               \return True if the given dataset has already been loaded into the context.
             */
-            bool exists(const DataSetId datasetId, const terrama2::core::Filter& filter) const;
+            bool exists(const DataSetId datasetId) const;
 
             /*!
               \brief Returns the map with the result for the given analysis.
@@ -156,41 +133,24 @@ namespace terrama2
               \param dataManagerPtr Smart pointer to the data manager.
               \return The ContextDataSeries of the monitored object.
             */
-            std::shared_ptr<ContextDataSeries> getMonitoredObjectContextDataSeries();
+            std::shared_ptr<GeoIntersectionDataSeries> getStaticDataSeries();
 
             /*!
-              \brief Returns the DCP buffer for the given dataset identifier.
-              \note It will return an empty smart pointer if none buffer is found.
-
-              \param datasetId The DataSet identifier.
-              \param filter The filter to be used as key.
-              \return The DCP buffer.
+              \brief
+              \return
             */
-            std::shared_ptr<te::gm::Geometry> getDCPBuffer(const DataSetId datasetId);
-
-            /*!
-              \brief Adds the given DCP buffer to the context.
-
-              \param buffer The DCP buffer to be added.
-              \param datasetId The DataSet identifier.
-              \param filter The filter to be used as key.
-
-            */
-            void addDCPBuffer(const DataSetId datasetId, std::shared_ptr<te::gm::Geometry> buffer);
-
+            std::shared_ptr<GeoIntersectionDataSeries> getDynamicDataSeries() { return dynamicDataSeries_; }
 
           protected:
-            const int DCP_ANALYSIS_DATASET = 0;
-            std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> monitoredObjectDataSeries_;
-            std::vector<std::shared_ptr<ContextDataSeries>> dataSeriesList_; //!< Used in GeometricIntersection
+            std::shared_ptr<terrama2::services::analysis::core::GeoIntersectionDataSeries> staticDataSeries_;
+            std::shared_ptr<terrama2::services::analysis::core::GeoIntersectionDataSeries> dynamicDataSeries_;
             std::set<std::pair<std::string, int> > attributes_; //!< Set of attributes and datatypes
             std::unordered_map<int, std::map<std::string, boost::any> >  analysisResult_;
-            std::unordered_map<ObjectKey, std::shared_ptr<ContextDataSeries>, ObjectKeyHash, EqualKeyComparator > datasetMap_; //!< Map containing all loaded datasets.
-            std::unordered_map<ObjectKey, std::shared_ptr<te::gm::Geometry>, ObjectKeyHash, EqualKeyComparator > bufferDcpMap_; //!< Map containing DCP buffers.
+            std::unordered_map<ObjectKey, std::shared_ptr<GeoIntersectionDataSeries>, ObjectKeyHash, EqualKeyComparator > datasetMap_; //!< Map containing all loaded datasets.
         };
       }
     }
   }
 }
 
-#endif //__TERRAMA2_SERVICES_ANALYSIS_CORE_MONITORED_OBJECT_CONTEXT_HPP__
+#endif //__TERRAMA2_SERVICES_ANALYSIS_CORE_GEOMETRY_INTERSECTION_CONTEXT_HPP__

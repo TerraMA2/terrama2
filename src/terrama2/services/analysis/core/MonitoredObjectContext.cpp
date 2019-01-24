@@ -61,6 +61,22 @@
 
 #include <utility>
 
+std::string getIdentifierProperty(const terrama2::services::analysis::core::AnalysisDataSeries& analysisDataSeries)
+{
+  std::string identifier;
+  try
+  {
+    identifier = analysisDataSeries.metadata.at("identifier");
+  }
+  catch (...)
+  {
+    /* code */
+  }
+
+  return identifier;
+}
+
+
 terrama2::services::analysis::core::MonitoredObjectContext::MonitoredObjectContext(terrama2::services::analysis::core::DataManagerPtr dataManager, terrama2::services::analysis::core::AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime)
   : BaseContext(dataManager, analysis, startTime)
 {
@@ -84,7 +100,8 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
     auto datasets = dataSeriesPtr->datasetList;
     if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
     {
-      if(analysis->type == AnalysisType::MONITORED_OBJECT_TYPE)
+      if(analysis->type == AnalysisType::MONITORED_OBJECT_TYPE ||
+         analysis->type == AnalysisType::GEOMETRIC_INTERSECTION_TYPE)
       {
         assert(datasets.size() == 1);
         auto dataset = datasets[0];
@@ -99,15 +116,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
         auto seriesMap = accessor->getSeries(filter, remover_);
         auto series = seriesMap[dataset];
 
-        std::string identifier;
-        try
-        {
-          identifier = analysisDataSeries.metadata.at("identifier");
-        }
-        catch (...)
-        {
-          /* code */
-        }
+        std::string identifier = getIdentifierProperty(analysisDataSeries);
 
         std::shared_ptr<ContextDataSeries> dataSeriesContext(new ContextDataSeries);
 

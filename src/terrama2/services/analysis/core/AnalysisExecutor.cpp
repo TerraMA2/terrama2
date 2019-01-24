@@ -30,9 +30,11 @@
 // TerraMA2
 
 #include "AnalysisExecutor.hpp"
-#include "python/PythonInterpreter.hpp"
-#include "DataManager.hpp"
 #include "ContextManager.hpp"
+#include "DataManager.hpp"
+#include "GeometryIntersectionContext.hpp"
+#include "GridContext.hpp"
+#include "python/PythonInterpreter.hpp"
 #include "utility/Verify.hpp"
 #include "../../../core/data-access/SynchronizedDataSet.hpp"
 #include "../../../core/utility/Logger.hpp"
@@ -40,7 +42,9 @@
 #include "../../../core/utility/TimeUtils.hpp"
 #include "../../../core/utility/StoragerManager.hpp"
 #include "../../../core/data-model/DataProvider.hpp"
-#include "GridContext.hpp"
+
+
+#include "BufferMemory.hpp"
 
 // STL
 #include <thread>
@@ -63,6 +67,14 @@
 #include <terralib/raster/Grid.h>
 #include <terralib/raster/RasterProperty.h>
 #include <terralib/dataaccess/utils/Utils.h>
+
+#include <terralib/dataaccess/datasource/DataSource.h>
+#include <terralib/dataaccess/datasource/DataSourceFactory.h>
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+#include <boost/algorithm/string/join.hpp>
+
+//#include "../../../core/data-access/DataAccessor.hpp"
+//#include "../../../core/utility/DataAccessorFactory.hpp"
 
 terrama2::services::analysis::core::AnalysisExecutor::AnalysisExecutor()
 {
@@ -121,6 +133,11 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
       case AnalysisType::GRID_TYPE:
       {
         runGridAnalysis(dataManager, storagerManager, analysis, startTime, threadPool, mainThreadState);
+        break;
+      }
+      case AnalysisType::GEOMETRIC_INTERSECTION_TYPE:
+      {
+        runGeometricIntersectionAnalysis(dataManager, storagerManager, analysis, startTime, threadPool);
         break;
       }
     }
@@ -358,6 +375,143 @@ void terrama2::services::analysis::core::AnalysisExecutor::runMonitoredObjectAna
     // delete my thread state object
     PyThreadState_Delete(state);
   }
+}
+
+void terrama2::services::analysis::core::AnalysisExecutor::runGeometricIntersectionAnalysis(terrama2::services::analysis::core::DataManagerPtr dataManager,
+                                                                                            terrama2::core::StoragerManagerPtr storagerManager,
+                                                                                            terrama2::services::analysis::core::AnalysisPtr analysis,
+                                                                                            std::shared_ptr<te::dt::TimeInstantTZ> startTime,
+                                                                                            ThreadPoolPtr /*threadPool*/)
+{
+  auto context = std::make_shared<terrama2::services::analysis::core::MonitoredObjectContext>(dataManager, analysis, startTime);
+  ContextManager::getInstance().addMonitoredObjectContext(analysis->hashCode(startTime), context);
+
+  try
+  {
+    context->loadMonitoredObject();
+
+    size_t size = 0;
+    for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
+    {
+      if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
+      {
+        auto moDataSeries = context->getMonitoredObjectContextDataSeries();
+        size = moDataSeries->series.syncDataSet->size();
+        break;
+      }
+    }
+
+    if(size == 0)
+    {
+      QString errMsg = QObject::tr("Could not recover monitored object dataset.");
+      throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    }
+
+    auto moDS = context->getMonitoredObjectContextDataSeries();
+    auto dataSeriesPtr = dataManager->findDataSeries(moDS->series.dataSet->dataSeriesId);
+    auto dataProvider = dataManager->findDataProvider(dataSeriesPtr->dataProviderId);
+
+    te::core::URI postgisURI(dataProvider->uri);
+    std::shared_ptr<te::da::DataSource> dataSource = te::da::DataSourceFactory::make("POSTGIS", postgisURI);
+    // RAII for open/closing the datasource
+    terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource>> openClose(dataSource);
+
+    if(!dataSource->isOpened())
+    {
+      QString errMsg = QObject::tr("DataProvider could not be opened.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
+    }
+    // get a transactor to interact to the data source
+    std::unique_ptr<te::da::DataSourceTransactor> transactor(dataSource->getTransactor());
+
+    std::vector<std::string> tableNameList;
+
+    std::vector<std::string> whereConditions;
+
+    auto startTimeStr = context->getStartTime()->toString();
+
+    for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
+    {
+      if(analysisDataSeries.type == AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE)
+      {
+        auto dataSeries = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
+        auto dataSet = dataSeries->datasetList[0];
+
+        const auto tableName = terrama2::core::getTableNameProperty(dataSet);
+        std::string temporalField;
+
+        // todo validation?
+        if (dataSeries->semantics.temporality == terrama2::core::DataSeriesTemporality::DYNAMIC)
+        {
+          std::unique_ptr<te::da::DataSetType> dataSetType = dataSource->getDataSetType(tableName);
+
+          auto property = dataSetType->findFirstPropertyOfType(te::dt::DATETIME_TYPE);
+
+          if(property)
+            temporalField = property->getName();
+          else
+          {
+            property = dataSetType->findFirstPropertyOfType(te::dt::DATE);
+
+            if(property)
+              temporalField = property->getName();
+          }
+
+          if (!temporalField.empty())
+          {
+            whereConditions.push_back(tableName + "." + temporalField + " <= ''" + startTimeStr + "''");
+          }
+        }
+
+        tableNameList.push_back(tableName);
+      }
+    }
+
+    std::string queryCondition = boost::algorithm::join(whereConditions, " AND ");
+    if (queryCondition.empty())
+      queryCondition += "1 = 1";
+
+    std::string queryTableNamesParameter;
+    auto it = tableNameList.begin();
+    if (it != tableNameList.end())
+    {
+      queryTableNamesParameter = "'" + *it + "'";
+      ++it;
+    }
+
+    for(; it != tableNameList.end(); ++it)
+      queryTableNamesParameter += ", '"+ *it +"'";
+
+    std::string query = "SELECT vectorial_processing_intersection('" + terrama2::core::getTableNameProperty(dataSeriesPtr->datasetList[0]) + "', ";
+    query += "ARRAY[" + queryTableNamesParameter + "], '" + queryCondition + "')";
+
+    auto result = transactor->query(query);
+
+    while(result->moveNext())
+    {
+      std::cout << result->getString(0) << std::endl;
+    }
+
+//    storeMonitoredObjectAnalysisResult(dataManager, storagerManager, context);
+  }
+  catch(const terrama2::Exception& e)
+  {
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+    throw;
+  }
+  catch(const std::exception& e)
+  {
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, e.what());
+    throw;
+  }
+  catch(...)
+  {
+    QString errMsg = QObject::tr("An unknown exception occurred.");
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
+    throw;
+  }
+
 }
 
 void terrama2::services::analysis::core::AnalysisExecutor::runDCPAnalysis(DataManagerPtr dataManager,
@@ -671,6 +825,28 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
   {
     QString errMsg = QObject::tr("Could not store the result of the analysis: %1").arg(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString().c_str());
     throw Exception() << ErrorDescription(errMsg);
+  }
+
+}
+
+void terrama2::services::analysis::core::AnalysisExecutor::storeGeometricIntersection(terrama2::services::analysis::core::DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr, terrama2::services::analysis::core::GeometryIntersectionContextPtr context)
+{
+  if(context->hasError())
+    return;
+
+  auto resultMap = context->analysisResult();
+
+  if(resultMap.empty())
+  {
+    QString errMsg = QObject::tr("Empty result.");
+    throw EmptyResultException() << ErrorDescription(errMsg);
+  }
+
+  auto analysis = context->getAnalysis();
+  if(!analysis)
+  {
+    QString errMsg = QObject::tr("Could not recover the analysis configuration.");
+    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
 }

@@ -94,7 +94,7 @@ static const std::string TERRAMA2_PYTHON_SCRIPT = "from terrama2 import *\n"
 std::string
 terrama2::services::analysis::core::python::extractException(terrama2::services::analysis::core::AnalysisPtr analysis)
 {
-  PyObject *typePtr = NULL, *valuePtr = NULL, *tracebackPtr = NULL;
+  PyObject *typePtr = nullptr, *valuePtr = nullptr, *tracebackPtr = nullptr;
   // Fetch python exception as PyObject
   PyErr_Fetch(&typePtr, &valuePtr, &tracebackPtr);
 
@@ -102,7 +102,8 @@ terrama2::services::analysis::core::python::extractException(terrama2::services:
   std::string output("Could not fetch Python error");
 
   // When fetch a type pointer, parse the type into the exception string
-  if(typePtr != NULL){
+  if(typePtr != nullptr)
+  {
     boost::python::handle<> handleType(typePtr);
     boost::python::str typePstr(handleType);
     // Extract the string from the boost::python object
@@ -114,7 +115,8 @@ terrama2::services::analysis::core::python::extractException(terrama2::services:
       output = "Unknown exception type";
   }
   // Do the same for the exception value (the stringification of the exception)
-  if(valuePtr != NULL){
+  if(valuePtr != nullptr)
+  {
     boost::python::handle<> handleVal(valuePtr);
     boost::python::list formatedExceptionList(handleVal);
     boost::python::extract<std::string> exceptionText(formatedExceptionList[0]);
@@ -130,8 +132,10 @@ terrama2::services::analysis::core::python::extractException(terrama2::services:
     {
       unsigned long scriptLines = 0;
       unsigned long lineOffset = 0;
-      // When analysis supplied, we must remove the difference from
-      // line number to avoid display wrong line
+      // By default, TerraMA2 concats internal load module script with analysis scripts
+      // and then passes it to Python Interpreter.
+      // In this way, when analysis instance supplied, we'll got inconsistent line number exception
+      // To fix that, we must remove the difference from TerraMA2 internal script
       if (analysis != nullptr)
       {
         // Retrieve fake script
@@ -148,18 +152,21 @@ terrama2::services::analysis::core::python::extractException(terrama2::services:
         output +=  ": Position " + std::to_string(charPosition() - lineOffset);
     }
   }
-  // Parse lines from the traceback using the Python traceback module
-  if(tracebackPtr != NULL){
+  // When got traceback, tries to parse the exception lines using the Python traceback module
+  if(tracebackPtr != nullptr)
+  {
     boost::python::handle<> handleTraceback(tracebackPtr);
-    // Load the traceback module and the format_tb function
+    // Load the traceback module
     boost::python::object traceback(boost::python::import("traceback"));
+    // Load the format_tb module
     boost::python::object formatTraceback(traceback.attr("format_tb"));
-    // Call format_tb to get a list of traceback strings
+    // Use format_tb to get a list of traceback strings
     boost::python::object tracebackList(formatTraceback(handleTraceback));
-    // Join the traceback strings into a single string
+    // Use python to join list of traceback strings into a single string
     boost::python::object tracebackStr(boost::python::str("\n").join(tracebackList));
-    // Extract the string, check the extraction, and fallback in necessary
+    // Extract exception string
     boost::python::extract<std::string> returned(tracebackStr);
+    // When exception value seems ok, return the value. Otherwise, display unknown traceback error
     if(returned.check())
       output += ": " + returned();
     else
@@ -592,7 +599,8 @@ void terrama2::services::analysis::core::python::readInfoFromDict(OperatorCache&
       Py_DECREF(columnKey);
       break;
     }
-
+    default:
+      break;
   }
 
   Py_DECREF(analysisKey);

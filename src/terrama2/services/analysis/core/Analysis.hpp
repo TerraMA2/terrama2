@@ -71,6 +71,7 @@ namespace terrama2
           MONITORED_OBJECT_TYPE = 2, //!< Analysis for monitored objects.
           GRID_TYPE = 4, //!< Analysis for grids.
           DCP_TYPE = 8, //!< Analysis for DCP.
+          GEOMETRIC_INTERSECTION_TYPE = 16 //!< Analysis for CAR data objects.
         };
 
         /*!
