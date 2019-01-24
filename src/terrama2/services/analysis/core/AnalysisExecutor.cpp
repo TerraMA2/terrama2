@@ -71,9 +71,7 @@
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
-
-#include <QFile>
-#include <QTextStream>
+#include <boost/algorithm/string/join.hpp>
 
 //#include "../../../core/data-access/DataAccessor.hpp"
 //#include "../../../core/utility/DataAccessorFactory.hpp"
@@ -385,15 +383,6 @@ void terrama2::services::analysis::core::AnalysisExecutor::runGeometricIntersect
                                                                                             std::shared_ptr<te::dt::TimeInstantTZ> startTime,
                                                                                             ThreadPoolPtr /*threadPool*/)
 {
-//  auto context = std::make_shared<terrama2::services::analysis::core::GeometryIntersectionContext>(dataManager, analysis, startTime);
-//  ContextManager::getInstance().addGeometryContext(analysis->hashCode(startTime), context);
-
-//  std::vector<std::future<void> > futures;
-
-//  try
-//  {
-//    // Load DataSet
-//    context->load();
   auto context = std::make_shared<terrama2::services::analysis::core::MonitoredObjectContext>(dataManager, analysis, startTime);
   ContextManager::getInstance().addMonitoredObjectContext(analysis->hashCode(startTime), context);
 
@@ -418,6 +407,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runGeometricIntersect
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
+    auto moDS = context->getMonitoredObjectContextDataSeries();
     auto dataSeriesPtr = dataManager->findDataSeries(moDS->series.dataSet->dataSeriesId);
     auto dataProvider = dataManager->findDataProvider(dataSeriesPtr->dataProviderId);
 
@@ -426,7 +416,21 @@ void terrama2::services::analysis::core::AnalysisExecutor::runGeometricIntersect
     // RAII for open/closing the datasource
     terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource>> openClose(dataSource);
 
-    std::map<std::string, std::string> mapTableNameTimeField;
+    if(!dataSource->isOpened())
+    {
+      QString errMsg = QObject::tr("DataProvider could not be opened.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
+    }
+    // get a transactor to interact to the data source
+    std::unique_ptr<te::da::DataSourceTransactor> transactor(dataSource->getTransactor());
+
+    std::vector<std::string> tableNameList;
+
+    std::vector<std::string> whereConditions;
+
+    auto startTimeStr = context->getStartTime()->toString();
+
     for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
     {
       if(analysisDataSeries.type == AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE)
@@ -446,97 +450,48 @@ void terrama2::services::analysis::core::AnalysisExecutor::runGeometricIntersect
 
           if(property)
             temporalField = property->getName();
+          else
+          {
+            property = dataSetType->findFirstPropertyOfType(te::dt::DATE);
+
+            if(property)
+              temporalField = property->getName();
+          }
+
+          if (!temporalField.empty())
+          {
+            whereConditions.push_back(tableName + "." + temporalField + " <= ''" + startTimeStr + "''");
+          }
         }
 
-        mapTableNameTimeField.insert(std::make_pair(tableName, temporalField));
+        tableNameList.push_back(tableName);
       }
     }
 
-    auto moDS = context->getMonitoredObjectContextDataSeries();
-//    auto dynamicDS = context->getAuxiliaryDataSeries();
+    std::string queryCondition = boost::algorithm::join(whereConditions, " AND ");
+    if (queryCondition.empty())
+      queryCondition += "1 = 1";
 
-//    auto moGeometryName = moDS->series.syncDataSet->dataset()->getPropertyName(moDS->geometryPos);
-//    auto dynamicGeometryName = dynamicDS->series.syncDataSet->dataset()->getPropertyName(dynamicDS->geometryPos);
-
-//    auto staticTableName = terrama2::core::getTableNameProperty(moDS->series.dataSet);
-//    auto dynamicTableName = terrama2::core::getTableNameProperty(dynamicDS->series.dataSet);
-//    const std::string columns = "(" + staticTableName + "." + moGeometryName + ", "
-//                                    + dynamicTableName + "." + dynamicGeometryName + ")";
-
-//    std::string query = "SELECT ST_Intersection" + columns + " FROM " + staticTableName;
-
-//    query += ", " + dynamicTableName + " WHERE ST_Intersects" + columns; // + " AND " + timeProperty->getName() + " > '" + lastExecution->toString() + "'";
-//    // query += " AND " + timeProperty->getName() + " < " + "'" + startTime_.toString() + "'";
-
-    if(!dataSource->isOpened())
+    std::string queryTableNamesParameter;
+    auto it = tableNameList.begin();
+    if (it != tableNameList.end())
     {
-      QString errMsg = QObject::tr("DataProvider could not be opened.");
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
+      queryTableNamesParameter = "'" + *it + "'";
+      ++it;
     }
 
-    // SELECT vectorial_processing_intersection('car_area_imovel', ARRAY['alertas_mpmt', 'app', 'reserva_legal', 'area_topo_morro', 'uso_restrito', 'vegetacao_nativa'], '1=1');
+    for(; it != tableNameList.end(); ++it)
+      queryTableNamesParameter += ", '"+ *it +"'";
 
-    // get a transactor to interact to the data source
-    std::unique_ptr<te::da::DataSourceTransactor> transactor(dataSource->getTransactor());
+    std::string query = "SELECT vectorial_processing_intersection('" + terrama2::core::getTableNameProperty(dataSeriesPtr->datasetList[0]) + "', ";
+    query += "ARRAY[" + queryTableNamesParameter + "], '" + queryCondition + "')";
 
-//    std::cout << query << std::endl;
+    auto result = transactor->query(query);
 
-//    auto intersectionDataSet = transactor->query(query);
-
-//    if (intersectionDataSet->size() == 0)
-//    {
-//      std::cout << "Oops... nao tem interseção" << std::endl;
-//    }
-//    else
-//    {
-//      std::cout << "Tem Interseção" << std::endl;
-//    }
-
-//    storeMonitoredObjectAnalysisResult(dataManager, storagerManager, context);
-//    storeGeometricIntersection(dataManager, storagerManager, context);
-
-//    std::vector<std::string> fields;
-//    fields.push_back("ST_Intersection" + columns);
-//    terrama2::core::Filter filter;
-//    filter.fields = std::move(fields);
-
-//    auto dataSeriesPtr = dataManager->findDataSeries(dynamicDS->series.dataSet->dataSeriesId);
-//    auto dataProvider = dataManager->findDataProvider(dataSeriesPtr->dataProviderId);
-
-//    terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeriesPtr);
-//    auto seriesMap = accessor->getSeries(filter, remover_);
-//    auto series = seriesMap[dataset];
-
-
-//    auto geometryStaticDS = staticDS->series.syncDataSet->getGeometry(0, staticDS->geometryPos);
-//    auto geomResult = createBuffer(BufferType::NONE, geometryStaticDS);
-
-//    auto dynamicDS = context->getDynamicDataSeries();
-//    auto dynamicGeometry = dynamicDS->series.syncDataSet->getGeometry(0, dynamicDS->geometryPos);
-//    geomResult->transform(dynamicGeometry->getSRID());
-
-//    QFile tmp("/tmp/abacate.txt");
-
-//    if (tmp.open(QIODevice::Text| QIODevice::ReadWrite))
-//    {
-//      const std::string wkt = geomResult->toString();
-//      QTextStream out(&tmp);
-
-//      out << wkt.c_str();
-
-//      tmp.close();
-//    }
-
-//    if (geomResult->intersects(dynamicGeometry.get()))
-//    {
-//      std::cout << "Bate" << std::endl;
-//      auto intersection = geomResult->intersection(dynamicGeometry.get());
-//    }
-//    else
-//    {
-//      std::cout << "NAO DEU" << std::endl;
-//    }
+    while(result->moveNext())
+    {
+      std::cout << result->getString(0) << std::endl;
+    }
 
 //    storeMonitoredObjectAnalysisResult(dataManager, storagerManager, context);
   }
@@ -556,8 +511,6 @@ void terrama2::services::analysis::core::AnalysisExecutor::runGeometricIntersect
     context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
     throw;
   }
-
-
 
 }
 

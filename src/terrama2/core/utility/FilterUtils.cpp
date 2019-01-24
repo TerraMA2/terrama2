@@ -226,6 +226,8 @@ bool terrama2::core::terramaMaskMatch(const std::string& mask, const std::string
 
 bool terrama2::core::isValidTimestamp(const Filter& filter, const std::shared_ptr< te::dt::TimeInstantTZ >& fileTimestamp)
 {
+  std::cout << "Before " << filter.discardBefore->toString() << std::endl;
+  std::cout << "After " << filter.discardAfter->toString() << std::endl;
   if(filter.discardBefore)
   {
     if(!(*fileTimestamp > *filter.discardBefore))

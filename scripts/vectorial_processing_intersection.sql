@@ -112,6 +112,11 @@ BEGIN
         RAISE EXCEPTION 'Invalid additional data series list argument.';
     END IF;
 
+    -- Check condition. When empty, set 1 = 1 as default
+    IF (coalesce(condition, '') = '') THEN
+        condition := '1 = 1';
+    EnD IF;
+
     additional_dataseries := additional_dataseries_list[1];
 
     -- Retrieves Geometry column name of current additional data series
@@ -120,7 +125,7 @@ BEGIN
     temporary_table := format('%s_%s', monitored_dataseries, additional_dataseries);
     EXECUTE format('CREATE TABLE IF NOT EXISTS %s ( id SERIAL PRIMARY KEY, monitored_id VARCHAR, additional_id VARCHAR, intersection_geom GEOMETRY(MULTIPOLYGON, %s) )', temporary_table, monitored_srid);
 
-    FOR result in EXECUTE format('SELECT * FROM retrieve_intersection($1, $2, %s, $3, $4, ''1=1'')', monitored_srid) USING monitored_dataseries, monitored_geometry_column, additional_dataseries, additional_dataseries_geometry_column LOOP
+    FOR result in EXECUTE format('SELECT * FROM retrieve_intersection($1, $2, %s, $3, $4, $5)', monitored_srid) USING monitored_dataseries, monitored_geometry_column, additional_dataseries, additional_dataseries_geometry_column, condition LOOP
         EXECUTE 'SELECT ST_GeometryType($1) AS geom' INTO row_data USING result.intersection_geom ;
 
         IF row_data.geom = 'ST_MultiPolygon' OR row_data.geom = 'ST_Polygon' THEN
