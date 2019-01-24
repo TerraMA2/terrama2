@@ -95,7 +95,7 @@ define(function() {
     }
 
     $scope.redirectUrl = makeRedirectUrl();
-  
+
     $scope.errorFound = false;
     $scope.isEditing = conf.isEditing;
     $scope.isChecking = false;
@@ -112,7 +112,7 @@ define(function() {
     var hasProjectPermission = conf.hasProjectPermission;
 
     $scope.filePathList = conf.defaultFilePathList;
-    
+
     if ($scope.isEditing && !hasProjectPermission){
       MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this data server. He belongs to a protected project!"));
     }
@@ -133,7 +133,7 @@ define(function() {
                   if (modelValue){
                     if (modelValue.endsWith("/"))
                       modelValue = modelValue.slice(0, -1);
-                      
+
                     $scope.model.hostname = modelValue;
                   }
                 }
@@ -174,7 +174,35 @@ define(function() {
     };
 
     // listen connection data to get database list
-    
+
+    var isPathExists = async function()
+    {
+      var params = angular.copy($scope.model);
+      params.protocol = $scope.dataProvider.protocol;
+      params.objectToGet = "database";
+
+      if($scope.configuration.isEditing) {
+        for(key in params) {
+          if($scope.originalPasswords.hasOwnProperty(key) && !params[key]) {
+            params[key] = $scope.originalPasswords[key];
+          }
+        }
+      }
+
+      let isValidPath = true;
+
+      try {
+        await $http({
+          method: "POST",
+          url: BASE_URL + "uri/",
+          data: params,
+        });
+      } catch (error) {
+        isValidPath = false;
+      }
+      return isValidPath;
+    };
+
     $scope.dbList = [];
     var timeoutPromise;
     $scope.$watch("model", function(){
@@ -226,7 +254,7 @@ define(function() {
       return $scope.forms.connectionForm.$valid;
     };
 
-    $scope.save = function() {
+    $scope.save = async function() {
       $scope.close();
 
       if ($scope.isEditing && !hasProjectPermission){
@@ -242,9 +270,12 @@ define(function() {
           if(pathname.startsWith(path))
             isValidPath = true;
         });
-          
+
         if (!isValidPath)
           return MessageBoxService.danger(i18n.__("Permission"), i18n.__("The path informed is invalid."));
+
+        if (!await isPathExists())
+          return MessageBoxService.danger(i18n.__("Permission"), i18n.__("The path informed not exists."));
       }
 
       $scope.$broadcast("formFieldValidation");
