@@ -135,9 +135,9 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
         runGridAnalysis(dataManager, storagerManager, analysis, startTime, threadPool, mainThreadState);
         break;
       }
-      case AnalysisType::GEOMETRIC_INTERSECTION_TYPE:
+      case AnalysisType::VECTORIAL_PROCESSING_TYPE:
       {
-        runGeometricIntersectionAnalysis(dataManager, storagerManager, analysis, startTime, threadPool);
+        runVectorialProcessingAnalysis(dataManager, storagerManager, analysis, startTime, threadPool);
         break;
       }
     }
@@ -377,11 +377,11 @@ void terrama2::services::analysis::core::AnalysisExecutor::runMonitoredObjectAna
   }
 }
 
-void terrama2::services::analysis::core::AnalysisExecutor::runGeometricIntersectionAnalysis(terrama2::services::analysis::core::DataManagerPtr dataManager,
-                                                                                            terrama2::core::StoragerManagerPtr storagerManager,
-                                                                                            terrama2::services::analysis::core::AnalysisPtr analysis,
-                                                                                            std::shared_ptr<te::dt::TimeInstantTZ> startTime,
-                                                                                            ThreadPoolPtr /*threadPool*/)
+void terrama2::services::analysis::core::AnalysisExecutor::runVectorialProcessingAnalysis(terrama2::services::analysis::core::DataManagerPtr dataManager,
+                                                                                          terrama2::core::StoragerManagerPtr storagerManager,
+                                                                                          terrama2::services::analysis::core::AnalysisPtr analysis,
+                                                                                          std::shared_ptr<te::dt::TimeInstantTZ> startTime,
+                                                                                          ThreadPoolPtr /*threadPool*/)
 {
   auto context = std::make_shared<terrama2::services::analysis::core::MonitoredObjectContext>(dataManager, analysis, startTime);
   ContextManager::getInstance().addMonitoredObjectContext(analysis->hashCode(startTime), context);
@@ -483,17 +483,28 @@ void terrama2::services::analysis::core::AnalysisExecutor::runGeometricIntersect
     for(; it != tableNameList.end(); ++it)
       queryTableNamesParameter += ", '"+ *it +"'";
 
-    std::string query = "SELECT vectorial_processing_intersection('" + terrama2::core::getTableNameProperty(dataSeriesPtr->datasetList[0]) + "', ";
+
+    // Get Analysis queryBuilder
+    auto queryBuilderIt = analysis->metadata.find("queryBuilder");
+
+    if(queryBuilderIt != analysis->metadata.cend() && !queryBuilderIt->second.empty())
+      queryCondition += " AND " + queryBuilderIt->second;
+
+    std::string query = "SELECT table_name, affected_rows::double precision FROM vectorial_processing_intersection('" + terrama2::core::getTableNameProperty(dataSeriesPtr->datasetList[0]) + "', ";
     query += "ARRAY[" + queryTableNamesParameter + "], '" + queryCondition + "')";
 
     auto result = transactor->query(query);
 
+    double affectedRows = 0;
     while(result->moveNext())
     {
-      std::cout << result->getString(0) << std::endl;
+      affectedRows = result->getDouble("affected_rows");
     }
 
-//    storeMonitoredObjectAnalysisResult(dataManager, storagerManager, context);
+    context->addAttribute("affected_rows", te::dt::DOUBLE_TYPE);
+    context->setAnalysisResult(4, "affected_rows", affectedRows);
+
+    storeMonitoredObjectAnalysisResult(dataManager, storagerManager, context);
   }
   catch(const terrama2::Exception& e)
   {

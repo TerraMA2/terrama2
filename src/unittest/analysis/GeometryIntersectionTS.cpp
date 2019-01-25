@@ -225,7 +225,7 @@ void GeometryIntersectionTS::AnalysisTS()
     analysis->id = 9;
     analysis->name = "An_FS_SINMAP";
     analysis->script = "";
-    analysis->type = terrama2::services::analysis::core::AnalysisType::GEOMETRIC_INTERSECTION_TYPE;
+    analysis->type = terrama2::services::analysis::core::AnalysisType::VECTORIAL_PROCESSING_TYPE;
     analysis->active = true;
     analysis->outputDataSeriesId = outputDataSeries->id;
     analysis->outputDataSetId = outputDataSeries->datasetList[0]->id;

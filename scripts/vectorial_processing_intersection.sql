@@ -84,7 +84,7 @@ LANGUAGE 'plpgsql';
 CREATE OR REPLACE FUNCTION vectorial_processing_intersection(monitored_dataseries VARCHAR,
                                                              additional_dataseries_list VARCHAR[],
                                                              condition VARCHAR)
-    RETURNS text AS
+    RETURNS TABLE(table_name VARCHAR, affected_rows INTEGER) AS
 $$
 DECLARE
     additional_dataseries VARCHAR;
@@ -96,6 +96,7 @@ DECLARE
     row_data RECORD;
     temporary_table VARCHAR;
     monitored_srid INTEGER;
+    affected_rows INTEGER;
 BEGIN
     -- Retrieves Geometry Column Name from Monitored Data Series
     EXECUTE 'SELECT get_geometry_column($1)' INTO monitored_geometry_column USING monitored_dataseries;
@@ -125,10 +126,12 @@ BEGIN
     temporary_table := format('%s_%s', monitored_dataseries, additional_dataseries);
     EXECUTE format('CREATE TABLE IF NOT EXISTS %s ( id SERIAL PRIMARY KEY, monitored_id VARCHAR, additional_id VARCHAR, intersection_geom GEOMETRY(MULTIPOLYGON, %s) )', temporary_table, monitored_srid);
 
+    affected_rows := 0;
     FOR result in EXECUTE format('SELECT * FROM retrieve_intersection($1, $2, %s, $3, $4, $5)', monitored_srid) USING monitored_dataseries, monitored_geometry_column, additional_dataseries, additional_dataseries_geometry_column, condition LOOP
         EXECUTE 'SELECT ST_GeometryType($1) AS geom' INTO row_data USING result.intersection_geom ;
 
         IF row_data.geom = 'ST_MultiPolygon' OR row_data.geom = 'ST_Polygon' THEN
+            affected_rows := affected_rows + 1;
             EXECUTE format('INSERT INTO %s (monitored_id, additional_id, intersection_geom) VALUES ($1, $2, ST_Multi($3))', temporary_table) USING result.monitored_id, result.additional_id, result.intersection_geom;
         ELSE
             RAISE NOTICE 'Warning - Got %s in intersection. Skipping', row_data.geom;
@@ -164,10 +167,15 @@ BEGIN
                         temporary_table);
     END LOOP;
 
-    RETURN temporary_table;
+    RETURN QUERY EXECUTE 'SELECT $1::VARCHAR AS table_name, $2::INTEGER as affected_rows' USING temporary_table, affected_rows;
 END;
 $$
 LANGUAGE 'plpgsql';
 
 DROP TABLE IF EXISTS car_area_imovel_alertas_mpmt;
+DROP TABLE IF EXISTS car_area_imovel_app;
+DROP TABLE IF EXISTS car_area_imovel_reserva_legal;
+DROP TABLE IF EXISTS car_area_imovel_area_topo_morro;
+DROP TABLE IF EXISTS car_area_imovel_uso_restrito;
+DROP TABLE IF EXISTS car_area_imovel_vegetacao_nativa;
 SELECT vectorial_processing_intersection('car_area_imovel', ARRAY['alertas_mpmt', 'app', 'reserva_legal', 'area_topo_morro', 'uso_restrito', 'vegetacao_nativa'], '1=1');

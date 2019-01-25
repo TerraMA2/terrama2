@@ -151,11 +151,11 @@ namespace terrama2
 
               \param threadPool Smart pointer to the thread pool.
             */
-            void runGeometricIntersectionAnalysis(DataManagerPtr dataManager,
-                                                  terrama2::core::StoragerManagerPtr storagerManager,
-                                                  AnalysisPtr analysis,
-                                                  std::shared_ptr<te::dt::TimeInstantTZ> startTime,
-                                                  ThreadPoolPtr threadPool);
+            void runVectorialProcessingAnalysis(DataManagerPtr dataManager,
+                                                terrama2::core::StoragerManagerPtr storagerManager,
+                                                AnalysisPtr analysis,
+                                                std::shared_ptr<te::dt::TimeInstantTZ> startTime,
+                                                ThreadPoolPtr threadPool);
 
             /*!
               \brief Prepare the context for a DCP analysis and run the analysis.

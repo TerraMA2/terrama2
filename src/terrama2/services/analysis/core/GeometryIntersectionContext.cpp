@@ -60,7 +60,7 @@ void terrama2::services::analysis::core::GeometryIntersectionContext::load()
     // Static Data Series (Monitored)
     if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
     {
-      if(analysis->type == AnalysisType::GEOMETRIC_INTERSECTION_TYPE)
+      if(analysis->type == AnalysisType::VECTORIAL_PROCESSING_TYPE)
       {
         assert(datasets.size() == 1);
         auto dataset = datasets[0];
@@ -106,7 +106,7 @@ void terrama2::services::analysis::core::GeometryIntersectionContext::load()
         dataSeriesContext->geometryPos = geomPropertyPosition;
 
         staticDataSeries_ = dataSeriesContext;
-      } // endif(analysis->type == AnalysisType::GEOMETRIC_INTERSECTION_TYPE)
+      } // endif(analysis->type == AnalysisType::VECTORIAL_PROCESSING_TYPE)
     }
     else // Dynamic Data Series
     {
