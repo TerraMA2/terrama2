@@ -1,30 +1,33 @@
 #ifndef __TERRAMA2_ANALYSIS_VECTOR_PROCESSING_INTERSECTION_HPP__
 #define __TERRAMA2_ANALYSIS_VECTOR_PROCESSING_INTERSECTION_HPP__
 
+// TerraMA2
 #include "Operator.hpp"
+#include "../Shared.hpp"
 
 namespace terrama2
 {
-  namespace analysis
+  namespace services
   {
-    namespace core
+    namespace analysis
     {
-      namespace vp
+      namespace core
       {
-        class Intersection : public Operator
+        namespace vp
         {
-          public:
-            Intersection()
-              : Operator::Operator()
-            { }
+          class Intersection : public Operator
+          {
+            public:
+              Intersection(terrama2::services::analysis::core::AnalysisPtr analysis,
+                           terrama2::core::DataSeriesPtr monitoredDataSeries,
+                           std::vector<terrama2::core::DataSeriesPtr> additionalDataSeries,
+                           te::core::URI outputDataProviderURI);
 
-            ~Intersection() override;
+              ~Intersection();
 
-            void execute() override { }
-
-          private:
-//            int a;
-        };
+              virtual void execute() override;
+          };
+        }
       }
     }
   }

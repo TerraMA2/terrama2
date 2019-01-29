@@ -68,13 +68,8 @@
 #include <terralib/raster/RasterProperty.h>
 #include <terralib/dataaccess/utils/Utils.h>
 
-#include <terralib/dataaccess/datasource/DataSource.h>
-#include <terralib/dataaccess/datasource/DataSourceFactory.h>
-#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
-#include <boost/algorithm/string/join.hpp>
-
-//#include "../../../core/data-access/DataAccessor.hpp"
-//#include "../../../core/utility/DataAccessorFactory.hpp"
+#include "vector-processing/Operator.hpp"
+#include "vector-processing/Intersection.hpp"
 
 terrama2::services::analysis::core::AnalysisExecutor::AnalysisExecutor()
 {
@@ -390,15 +385,26 @@ void terrama2::services::analysis::core::AnalysisExecutor::runVectorialProcessin
   {
     context->loadMonitoredObject();
 
+    terrama2::core::DataSeriesPtr monitoredDataSeries;
     size_t size = 0;
     for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
     {
       if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
       {
+        monitoredDataSeries = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
         auto moDataSeries = context->getMonitoredObjectContextDataSeries();
         size = moDataSeries->series.syncDataSet->size();
         break;
       }
+    }
+
+    // Get Analysis queryBuilder
+    auto typeIt = analysis->metadata.find("operationType");
+
+    if(typeIt == analysis->metadata.cend() || typeIt->second.empty())
+    {
+      QString errMsg = QObject::tr("The attribute 'operation' is required but not found");
+      throw InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
     if(size == 0)
@@ -408,92 +414,44 @@ void terrama2::services::analysis::core::AnalysisExecutor::runVectorialProcessin
     }
 
     auto moDS = context->getMonitoredObjectContextDataSeries();
-    auto dataSeriesPtr = dataManager->findDataSeries(moDS->series.dataSet->dataSeriesId);
-    auto dataProvider = dataManager->findDataProvider(dataSeriesPtr->dataProviderId);
+    auto outputDataSeriesPtr = dataManager->findDataSeries(analysis->outputDataSeriesId);
+    auto dataProvider = dataManager->findDataProvider(outputDataSeriesPtr->dataProviderId);
 
     te::core::URI postgisURI(dataProvider->uri);
-    std::shared_ptr<te::da::DataSource> dataSource = te::da::DataSourceFactory::make("POSTGIS", postgisURI);
-    // RAII for open/closing the datasource
-    terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource>> openClose(dataSource);
 
-    if(!dataSource->isOpened())
-    {
-      QString errMsg = QObject::tr("DataProvider could not be opened.");
-      TERRAMA2_LOG_ERROR() << errMsg;
-      throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
-    }
-    // get a transactor to interact to the data source
-    std::unique_ptr<te::da::DataSourceTransactor> transactor(dataSource->getTransactor());
-
-    std::vector<std::string> tableNameList;
-
-    std::vector<std::string> whereConditions;
-
-    auto startTimeStr = context->getStartTime()->toString();
+    std::vector<terrama2::core::DataSeriesPtr> listOfAdditionalDataSeries;
 
     for(const auto& analysisDataSeries : analysis->analysisDataSeriesList)
     {
       if(analysisDataSeries.type == AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE)
       {
         auto dataSeries = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
-        auto dataSet = dataSeries->datasetList[0];
 
-        const auto tableName = terrama2::core::getTableNameProperty(dataSet);
-        std::string temporalField;
-
-        // todo validation?
-        if (dataSeries->semantics.temporality == terrama2::core::DataSeriesTemporality::DYNAMIC)
-        {
-          std::unique_ptr<te::da::DataSetType> dataSetType = dataSource->getDataSetType(tableName);
-
-          auto property = dataSetType->findFirstPropertyOfType(te::dt::DATETIME_TYPE);
-
-          if(property)
-            temporalField = property->getName();
-          else
-          {
-            property = dataSetType->findFirstPropertyOfType(te::dt::DATE);
-
-            if(property)
-              temporalField = property->getName();
-          }
-
-          if (!temporalField.empty())
-          {
-            whereConditions.push_back(tableName + "." + temporalField + " <= ''" + startTimeStr + "''");
-          }
-        }
-
-        tableNameList.push_back(tableName);
+        listOfAdditionalDataSeries.push_back(dataSeries);
       }
     }
 
-    std::string queryCondition = boost::algorithm::join(whereConditions, " AND ");
-    if (queryCondition.empty())
-      queryCondition += "1 = 1";
+    std::unique_ptr<vp::Operator> analysisOperator;
 
-    std::string queryTableNamesParameter;
-    auto it = tableNameList.begin();
-    if (it != tableNameList.end())
-    {
-      queryTableNamesParameter = "'" + *it + "'";
-      ++it;
+    switch(std::stoi(typeIt->second)) {
+      case vp::Operator::INTERSECTION:
+        analysisOperator = std::unique_ptr<vp::Operator>(new vp::Intersection(analysis, monitoredDataSeries, listOfAdditionalDataSeries, postgisURI));
+
+        break;
+      default:
+        QString errMsg = QObject::tr("The 'operation' is not supported");
+        throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
-
-    for(; it != tableNameList.end(); ++it)
-      queryTableNamesParameter += ", '"+ *it +"'";
-
 
     // Get Analysis queryBuilder
     auto queryBuilderIt = analysis->metadata.find("queryBuilder");
 
     if(queryBuilderIt != analysis->metadata.cend() && !queryBuilderIt->second.empty())
-      queryCondition += " AND " + queryBuilderIt->second;
+      analysisOperator->setWhereCondition(queryBuilderIt->second);
 
-    std::string query = "SELECT table_name, affected_rows::double precision FROM vectorial_processing_intersection('" + terrama2::core::getTableNameProperty(dataSeriesPtr->datasetList[0]) + "', ";
-    query += "ARRAY[" + queryTableNamesParameter + "], '" + queryCondition + "')";
+    analysisOperator->execute();
 
-    auto result = transactor->query(query);
+    auto result = analysisOperator->getResultDataSet();
 
     double affectedRows = 0;
     while(result->moveNext())

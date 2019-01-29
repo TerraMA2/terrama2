@@ -81,101 +81,104 @@ $$
 LANGUAGE 'plpgsql';
 
 
-CREATE OR REPLACE FUNCTION vectorial_processing_intersection(monitored_dataseries VARCHAR,
-                                                             additional_dataseries_list VARCHAR[],
-                                                             condition VARCHAR)
-    RETURNS TABLE(table_name VARCHAR, affected_rows INTEGER) AS
-$$
-DECLARE
-    additional_dataseries VARCHAR;
-    additional_dataseries_geometry_column VARCHAR;
-    additional_dataseries_pk VARCHAR;
-    monitored_geometry_column VARCHAR;
-    query TEXT;
-    result RECORD;
-    row_data RECORD;
-    temporary_table VARCHAR;
-    monitored_srid INTEGER;
-    affected_rows INTEGER;
-BEGIN
-    -- Retrieves Geometry Column Name from Monitored Data Series
-    EXECUTE 'SELECT get_geometry_column($1)' INTO monitored_geometry_column USING monitored_dataseries;
-    RAISE NOTICE '%', monitored_geometry_column;
-    EXECUTE format('SELECT ST_SRID(%s) FROM %s LIMIT 1', monitored_geometry_column, monitored_dataseries) INTO monitored_srid;
+    CREATE OR REPLACE FUNCTION vectorial_processing_intersection(monitored_dataseries VARCHAR,
+                                                                additional_dataseries_list VARCHAR[],
+                                                                condition VARCHAR)
+        RETURNS TABLE(table_name VARCHAR, affected_rows INTEGER) AS
+    $$
+    DECLARE
+        additional_dataseries VARCHAR;
+        additional_dataseries_geometry_column VARCHAR;
+        additional_dataseries_pk VARCHAR;
+        monitored_geometry_column VARCHAR;
+        query TEXT;
+        result RECORD;
+        row_data RECORD;
+        temporary_table VARCHAR;
+        monitored_srid INTEGER;
+        affected_rows INTEGER;
+    BEGIN
+        -- Retrieves Geometry Column Name from Monitored Data Series
+        EXECUTE 'SELECT get_geometry_column($1)' INTO monitored_geometry_column USING monitored_dataseries;
+        RAISE NOTICE '%', monitored_geometry_column;
+        EXECUTE format('SELECT ST_SRID(%s) FROM %s LIMIT 1', monitored_geometry_column, monitored_dataseries) INTO monitored_srid;
 
-    IF monitored_srid <= 0 THEN
-        RAISE NOTICE 'The table "%" has no SRID "%". Using "4326" as default.', monitored_dataseries, monitored_srid;
+        IF monitored_srid <= 0 THEN
+            RAISE NOTICE 'The table "%" has no SRID "%". Using "4326" as default.', monitored_dataseries, monitored_srid;
 
-        monitored_srid := 4326;
-    END IF;
-
-    IF (array_length(additional_dataseries_list, 1) = 0) THEN
-        RAISE EXCEPTION 'Invalid additional data series list argument.';
-    END IF;
-
-    -- Check condition. When empty, set 1 = 1 as default
-    IF (coalesce(condition, '') = '') THEN
-        condition := '1 = 1';
-    EnD IF;
-
-    additional_dataseries := additional_dataseries_list[1];
-
-    -- Retrieves Geometry column name of current additional data series
-    EXECUTE 'SELECT get_geometry_column($1)' INTO additional_dataseries_geometry_column USING additional_dataseries;
-
-    temporary_table := format('%s_%s', monitored_dataseries, additional_dataseries);
-    EXECUTE format('CREATE TABLE IF NOT EXISTS %s ( id SERIAL PRIMARY KEY, monitored_id VARCHAR, additional_id VARCHAR, intersection_geom GEOMETRY(MULTIPOLYGON, %s) )', temporary_table, monitored_srid);
-
-    affected_rows := 0;
-    FOR result in EXECUTE format('SELECT * FROM retrieve_intersection($1, $2, %s, $3, $4, $5)', monitored_srid) USING monitored_dataseries, monitored_geometry_column, additional_dataseries, additional_dataseries_geometry_column, condition LOOP
-        EXECUTE 'SELECT ST_GeometryType($1) AS geom' INTO row_data USING result.intersection_geom ;
-
-        IF row_data.geom = 'ST_MultiPolygon' OR row_data.geom = 'ST_Polygon' THEN
-            affected_rows := affected_rows + 1;
-            EXECUTE format('INSERT INTO %s (monitored_id, additional_id, intersection_geom) VALUES ($1, $2, ST_Multi($3))', temporary_table) USING result.monitored_id, result.additional_id, result.intersection_geom;
-        ELSE
-            RAISE NOTICE 'Warning - Got %s in intersection. Skipping', row_data.geom;
+            monitored_srid := 4326;
         END IF;
-    END LOOP;
 
-    FOR i IN 2..array_length(additional_dataseries_list, 1)
-    LOOP
-        additional_dataseries = additional_dataseries_list[i];
+        IF (array_length(additional_dataseries_list, 1) = 0) THEN
+            RAISE EXCEPTION 'Invalid additional data series list argument.';
+        END IF;
+
+        -- Check condition. When empty, set 1 = 1 as default
+        IF (coalesce(condition, '') = '') THEN
+            condition := '1 = 1';
+        EnD IF;
+
+        additional_dataseries := additional_dataseries_list[1];
 
         -- Retrieves Geometry column name of current additional data series
-        EXECUTE 'SELECT get_geometry_column($1) as geom, get_primary_key($1) as pk' INTO row_data USING additional_dataseries;
+        EXECUTE 'SELECT get_geometry_column($1)' INTO additional_dataseries_geometry_column USING additional_dataseries;
 
-        additional_dataseries_geometry_column := row_data.geom;
-        additional_dataseries_pk := row_data.pk;
+        temporary_table := format('%s_%s', monitored_dataseries, additional_dataseries);
+        EXECUTE format('CREATE TABLE IF NOT EXISTS %s ( id SERIAL PRIMARY KEY, monitored_id VARCHAR, additional_id VARCHAR, intersection_geom GEOMETRY(MULTIPOLYGON, %s) )', temporary_table, monitored_srid);
+        EXECUTE format('CREATE INDEX %s_intersection_geom_idx ON %s USING GIST(intersection_geom)', temporary_table, temporary_table);
 
-        EXECUTE format('CREATE TABLE IF NOT EXISTS %s_%s (
-                            id SERIAL PRIMARY KEY,
-                            monitored_id VARCHAR,
-                            additional_id VARCHAR,
-                            intersection_geom GEOMETRY(MultiPolygon, %s)
-                        )', monitored_dataseries, additional_dataseries, monitored_srid);
+        affected_rows := 0;
+        FOR result in EXECUTE format('SELECT * FROM retrieve_intersection($1, $2, %s, $3, $4, $5)', monitored_srid) USING monitored_dataseries, monitored_geometry_column, additional_dataseries, additional_dataseries_geometry_column, condition LOOP
+            EXECUTE 'SELECT ST_GeometryType($1) AS geom' INTO row_data USING result.intersection_geom ;
 
-        EXECUTE format('WITH dumped AS (
-                            SELECT %s as id, (ST_Dump(ST_Transform(%s, %s))).geom as geom FROM %s
-                        )
-                        INSERT INTO %s_%s (monitored_id, additional_id, intersection_geom)
-                            SELECT t.monitored_id, d.id as additional_id, ST_Multi(ST_Intersection(t.intersection_geom, d.geom)) as intersection_geom FROM %s t, dumped d
-                             WHERE ST_Intersects(t.intersection_geom, d.geom) AND (ST_GeometryType(ST_Intersection(t.intersection_geom, d.geom)) = ''ST_MultiPolygon'' OR
-                                                                                   ST_GeometryType(ST_Intersection(t.intersection_geom, d.geom)) = ''ST_Polygon'')',
-                        additional_dataseries_pk, additional_dataseries_geometry_column, monitored_srid, additional_dataseries,
-                        monitored_dataseries, additional_dataseries,
-                        temporary_table);
-    END LOOP;
+            IF row_data.geom = 'ST_MultiPolygon' OR row_data.geom = 'ST_Polygon' THEN
+                affected_rows := affected_rows + 1;
+                EXECUTE format('INSERT INTO %s (monitored_id, additional_id, intersection_geom) VALUES ($1, $2, ST_Multi($3))', temporary_table) USING result.monitored_id, result.additional_id, result.intersection_geom;
+            ELSE
+                RAISE NOTICE 'Warning - Got %s in intersection. Skipping', row_data.geom;
+            END IF;
+        END LOOP;
 
-    RETURN QUERY EXECUTE 'SELECT $1::VARCHAR AS table_name, $2::INTEGER as affected_rows' USING temporary_table, affected_rows;
-END;
-$$
-LANGUAGE 'plpgsql';
+        FOR i IN 2..array_length(additional_dataseries_list, 1)
+        LOOP
+            additional_dataseries = additional_dataseries_list[i];
 
-DROP TABLE IF EXISTS car_area_imovel_alertas_mpmt;
-DROP TABLE IF EXISTS car_area_imovel_app;
-DROP TABLE IF EXISTS car_area_imovel_reserva_legal;
-DROP TABLE IF EXISTS car_area_imovel_area_topo_morro;
-DROP TABLE IF EXISTS car_area_imovel_uso_restrito;
-DROP TABLE IF EXISTS car_area_imovel_vegetacao_nativa;
+            -- Retrieves Geometry column name of current additional data series
+            EXECUTE 'SELECT get_geometry_column($1) as geom, get_primary_key($1) as pk' INTO row_data USING additional_dataseries;
+
+            additional_dataseries_geometry_column := row_data.geom;
+            additional_dataseries_pk := row_data.pk;
+
+            EXECUTE format('CREATE TABLE IF NOT EXISTS %s_%s (
+                                id SERIAL PRIMARY KEY,
+                                monitored_id VARCHAR,
+                                additional_id VARCHAR,
+                                intersection_geom GEOMETRY(MultiPolygon, %s)
+                            )', monitored_dataseries, additional_dataseries, monitored_srid);
+
+            EXECUTE format('CREATE INDEX %s_%s_intersection_geom_idx ON %s_%s USING GIST(intersection_geom)', monitored_dataseries, additional_dataseries, monitored_dataseries, additional_dataseries);
+
+            EXECUTE format('WITH dumped AS (
+                                SELECT %s as id, (ST_Dump(ST_Transform(%s, %s))).geom as geom FROM %s
+                            )
+                            INSERT INTO %s_%s (monitored_id, additional_id, intersection_geom)
+                                SELECT t.monitored_id, d.id as additional_id, ST_Multi(ST_Intersection(t.intersection_geom, d.geom)) as intersection_geom FROM %s t, dumped d
+                                WHERE ST_Intersects(t.intersection_geom, d.geom) AND (ST_GeometryType(ST_Intersection(t.intersection_geom, d.geom)) = ''ST_MultiPolygon'' OR
+                                                                                    ST_GeometryType(ST_Intersection(t.intersection_geom, d.geom)) = ''ST_Polygon'')',
+                            additional_dataseries_pk, additional_dataseries_geometry_column, monitored_srid, additional_dataseries,
+                            monitored_dataseries, additional_dataseries,
+                            temporary_table);
+        END LOOP;
+
+        RETURN QUERY EXECUTE 'SELECT $1::VARCHAR AS table_name, $2::INTEGER as affected_rows' USING temporary_table, affected_rows;
+    END;
+    $$
+    LANGUAGE 'plpgsql';
+
+    DROP TABLE IF EXISTS car_area_imovel_alertas_mpmt;
+    DROP TABLE IF EXISTS car_area_imovel_app;
+    DROP TABLE IF EXISTS car_area_imovel_reserva_legal;
+    DROP TABLE IF EXISTS car_area_imovel_area_topo_morro;
+    DROP TABLE IF EXISTS car_area_imovel_uso_restrito;
+    DROP TABLE IF EXISTS car_area_imovel_vegetacao_nativa;
 SELECT vectorial_processing_intersection('car_area_imovel', ARRAY['alertas_mpmt', 'app', 'reserva_legal', 'area_topo_morro', 'uso_restrito', 'vegetacao_nativa'], '1=1');
