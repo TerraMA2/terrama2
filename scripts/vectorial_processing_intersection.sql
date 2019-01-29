@@ -125,7 +125,7 @@ LANGUAGE 'plpgsql';
 
         temporary_table := format('%s_%s', monitored_dataseries, additional_dataseries);
         EXECUTE format('CREATE TABLE IF NOT EXISTS %s ( id SERIAL PRIMARY KEY, monitored_id VARCHAR, additional_id VARCHAR, intersection_geom GEOMETRY(MULTIPOLYGON, %s) )', temporary_table, monitored_srid);
-        EXECUTE format('CREATE INDEX %s_intersection_geom_idx ON %s USING GIST(intersection_geom)', temporary_table, temporary_table);
+        EXECUTE format('CREATE INDEX IF NOT EXISTS %s_intersection_geom_idx ON %s USING GIST(intersection_geom)', temporary_table, temporary_table);
 
         affected_rows := 0;
         FOR result in EXECUTE format('SELECT * FROM retrieve_intersection($1, $2, %s, $3, $4, $5)', monitored_srid) USING monitored_dataseries, monitored_geometry_column, additional_dataseries, additional_dataseries_geometry_column, condition LOOP
@@ -156,7 +156,7 @@ LANGUAGE 'plpgsql';
                                 intersection_geom GEOMETRY(MultiPolygon, %s)
                             )', monitored_dataseries, additional_dataseries, monitored_srid);
 
-            EXECUTE format('CREATE INDEX %s_%s_intersection_geom_idx ON %s_%s USING GIST(intersection_geom)', monitored_dataseries, additional_dataseries, monitored_dataseries, additional_dataseries);
+            EXECUTE format('CREATE INDEX IF NOT EXISTS %s_%s_intersection_geom_idx ON %s_%s USING GIST(intersection_geom)', monitored_dataseries, additional_dataseries, monitored_dataseries, additional_dataseries);
 
             EXECUTE format('WITH dumped AS (
                                 SELECT %s as id, (ST_Dump(ST_Transform(%s, %s))).geom as geom FROM %s
