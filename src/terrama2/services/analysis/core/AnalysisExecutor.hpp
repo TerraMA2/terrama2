@@ -192,7 +192,7 @@ namespace terrama2
            */
            void storeMonitoredObjectAnalysisResult(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, MonitoredObjectContextPtr context);
 
-           void storeGeometricIntersection(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr, GeometryIntersectionContextPtr context);
+           void storeVectorProcessingResult(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, MonitoredObjectContextPtr context);
 
            /*!
              \brief Reads the analysis result from context and stores it to the configured output dataset.
@@ -207,6 +207,14 @@ namespace terrama2
                                                                te::dt::Property* identifierProperty,
                                                                std::unordered_map<int, std::map<std::string, boost::any> > resultMap,
                                                                std::shared_ptr<te::dt::TimeInstantTZ>  date);
+
+            std::shared_ptr<te::mem::DataSet> addVectorProcessingToDataSet(std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> moDsContext,
+                                                                           std::shared_ptr<te::da::DataSetType> dt,
+                                                                           te::da::PrimaryKey* pkMonitoredObject,
+                                                                           te::dt::Property* identifierProperty,
+                                                                           std::unordered_map<int, std::map<std::string, boost::any> > resultMap,
+                                                                           std::shared_ptr<te::dt::TimeInstantTZ>  date);
+
             std::shared_ptr<te::da::DataSetType> createDatasetType(std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> moDsContext,
                                                                    te::da::PrimaryKey* pkMonitoredObject,
                                                                    te::dt::Property* identifierProperty,

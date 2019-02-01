@@ -41,6 +41,8 @@
 #include "../../../../core/utility/Utils.hpp"
 #include "../../../../core/utility/Raii.hpp"
 
+#include "../vectorial-processing/Utils.hpp"
+
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
@@ -325,7 +327,8 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
 
         std::string SQL = "";
 
-        if(inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
+        if(inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT ||
+           inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT)
         {
           const auto& id = dataset->format.find("monitored_object_id");
           if(id == dataset->format.end())
@@ -377,40 +380,48 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
             continue;
           }
 
-          auto primaryKey = monitoredObjectTableInfo.dataSetType->getPrimaryKey();
-          if(!primaryKey)
+          if (inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT)
           {
-            QString errMsg = QObject::tr("Invalid primary key in dataseries: %1.").arg(QString::fromStdString(monitoredObjectDataSeries->name));
-            logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), logId);
-            TERRAMA2_LOG_ERROR() << errMsg;
-            continue;
+            const te::core::URI postgisURI(url.toString(QUrl::NormalizePathSegments).toStdString());
+            SQL = terrama2::services::view::core::vp::prepareSQLIntersection(postgisURI, tableName, monitoredObjectTableInfo.tableName);
           }
-          auto properties = primaryKey->getProperties();
-          if(properties.size() != 1)
+          else
           {
-            QString errMsg = QObject::tr("Invalid number of primary keys in dataseries: %1.").arg(QString::fromStdString(monitoredObjectDataSeries->name));
-            logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), logId);
-            TERRAMA2_LOG_ERROR() << errMsg;
-            continue;
+            auto primaryKey = monitoredObjectTableInfo.dataSetType->getPrimaryKey();
+            if(!primaryKey)
+            {
+              QString errMsg = QObject::tr("Invalid primary key in dataseries: %1.").arg(QString::fromStdString(monitoredObjectDataSeries->name));
+              logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), logId);
+              TERRAMA2_LOG_ERROR() << errMsg;
+              continue;
+            }
+            auto properties = primaryKey->getProperties();
+            if(properties.size() != 1)
+            {
+              QString errMsg = QObject::tr("Invalid number of primary keys in dataseries: %1.").arg(QString::fromStdString(monitoredObjectDataSeries->name));
+              logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), logId);
+              TERRAMA2_LOG_ERROR() << errMsg;
+              continue;
+            }
+
+            std::string pk = properties.at(0)->getName();
+
+            auto& propertiesVector = monitoredObjectTableInfo.dataSetType->getProperties();
+
+            SQL = "SELECT ";
+
+            for(auto& property : propertiesVector)
+            {
+              const std::string& propertyName = property->getName();
+              SQL += "t1." + propertyName + " as monitored_" + propertyName + ", ";
+            }
+
+            SQL += "t2.* ";
+            SQL += "FROM " + monitoredObjectTableInfo.tableName;
+            SQL += " as t1 , " + tableName + " as t2 ";
+            SQL += "WHERE t1." + pk + " = t2." + pk;
+
           }
-
-          std::string pk = properties.at(0)->getName();
-
-          auto& propertiesVector = monitoredObjectTableInfo.dataSetType->getProperties();
-
-          SQL = "SELECT ";
-
-          for(auto& property : propertiesVector)
-          {
-            const std::string& propertyName = property->getName();
-            SQL += "t1." + propertyName + " as monitored_" + propertyName + ", ";
-          }
-
-          SQL += "t2.* ";
-          SQL += "FROM " + monitoredObjectTableInfo.tableName;
-          SQL += " as t1 , " + tableName + " as t2 ";
-          SQL += "WHERE t1." + pk + " = t2." + pk;
-
           modelDataSetType.reset(monitoredObjectTableInfo.dataSetType.release());
           tableName = layerName;
         }
@@ -818,7 +829,7 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const ViewP
       srid = std::to_string(geomProperty->getSRID());
     }
 
-    if (!srid.empty() || srid == "0")
+    if (srid.empty() || srid == "0")
     {
       const std::string msg("The SRID of layer '"+ layerName +"' is " + srid + ".");
 

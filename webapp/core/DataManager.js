@@ -244,6 +244,7 @@ var DataManager = module.exports = {
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.GRID, description: "Data Series Grid type"}));
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.ANALYSIS_MONITORED_OBJECT, description: "Data Series Analysis Monitored Object"}));
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.GEOMETRIC_OBJECT, description: "Data Series Geometric object"}));
+        inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.VECTOR_PROCESSING_OBJECT, description: "Vectorial Processing DataSeries Object"}));
 
         // data formats semantics defaults
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.CSV, description: "CSV description"}));

@@ -28,9 +28,9 @@
 */
 
 #include "ContextManager.hpp"
-#include "GeometryIntersectionContext.hpp"
 #include "GridContext.hpp"
 #include "MonitoredObjectContext.hpp"
+#include "VectorProcessingContext.hpp"
 
 #include "../../../core/utility/Logger.hpp"
 
@@ -72,14 +72,14 @@ void terrama2::services::analysis::core::ContextManager::addGridContext(const An
   }
 }
 
-void terrama2::services::analysis::core::ContextManager::addGeometryContext(const AnalysisHashCode analysisHashCode,
-                                                                            terrama2::services::analysis::core::GeometryIntersectionContextPtr context)
+void terrama2::services::analysis::core::ContextManager::addVectorProcessingContext(const AnalysisHashCode analysisHashCode,
+                                                                                    terrama2::services::analysis::core::VectorProcessingContextPtr context)
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
   try
   {
-    geometryContextMap_.at(analysisHashCode);
+    vectorProcessingContextMap_.at(analysisHashCode);
 
     QString errMsg = QObject::tr("Geometry Intersection Context already registered.");
     TERRAMA2_LOG_ERROR() << errMsg;
@@ -87,7 +87,7 @@ void terrama2::services::analysis::core::ContextManager::addGeometryContext(cons
   }
   catch(const std::out_of_range&)
   {
-    geometryContextMap_.emplace(analysisHashCode, context);
+    vectorProcessingContextMap_.emplace(analysisHashCode, context);
     analysisMap_.emplace(analysisHashCode, context->getAnalysis());
   }
 }
@@ -108,14 +108,14 @@ terrama2::services::analysis::core::MonitoredObjectContextPtr terrama2::services
   }
 }
 
-terrama2::services::analysis::core::GeometryIntersectionContextPtr
-terrama2::services::analysis::core::ContextManager::getGeometryContext(const AnalysisHashCode analysisHashCode) const
+terrama2::services::analysis::core::VectorProcessingContextPtr
+terrama2::services::analysis::core::ContextManager::getVectorProcessingContext(const AnalysisHashCode analysisHashCode) const
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
 
   try
   {
-    return geometryContextMap_.at(analysisHashCode);
+    return vectorProcessingContextMap_.at(analysisHashCode);
   }
   catch(const std::out_of_range&)
   {

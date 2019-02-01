@@ -697,7 +697,7 @@ define([], function() {
               dataseriesFilterType = 'GEOMETRIC_OBJECT';
               break;
             case AnalysisService.types.VP:
-              semanticsType = DataSeriesService.DataSeriesType.ANALYSIS_MONITORED_OBJECT;
+              semanticsType = DataSeriesService.DataSeriesType.VECTOR_PROCESSING_OBJECT;
               self.semanticsSelected = "Vector Processing";
               self.dataSeriesBoxName = i18n.__("Vector Processing");
               dataseriesFilterType = 'GEOMETRIC_OBJECT';

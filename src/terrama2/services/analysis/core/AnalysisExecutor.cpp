@@ -32,7 +32,7 @@
 #include "AnalysisExecutor.hpp"
 #include "ContextManager.hpp"
 #include "DataManager.hpp"
-#include "GeometryIntersectionContext.hpp"
+#include "VectorProcessingContext.hpp"
 #include "GridContext.hpp"
 #include "python/PythonInterpreter.hpp"
 #include "utility/Verify.hpp"
@@ -71,13 +71,28 @@
 #include "vector-processing/Operator.hpp"
 #include "vector-processing/Intersection.hpp"
 
+terrama2::core::DataSetPtr getDataSet(terrama2::core::DataSeriesPtr dataSeries, DataSetId dataSetId)
+{
+  terrama2::core::DataSetPtr foundDataSet;
+
+  for(auto& dataset : dataSeries->datasetList)
+  {
+    if(dataset->id == dataSetId)
+    {
+      foundDataSet = dataset;
+      break;
+    }
+  }
+
+  return foundDataSet;
+}
+
 terrama2::services::analysis::core::AnalysisExecutor::AnalysisExecutor()
 {
   qRegisterMetaType<std::shared_ptr<te::dt::TimeInstantTZ>>("std::shared_ptr<te::dt::TimeInstantTZ>");
   qRegisterMetaType<uint32_t>("uint32_t");
   qRegisterMetaType<uint32_t>("size_t");
 }
-
 
 void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManagerPtr dataManager,
                                                                        terrama2::core::StoragerManagerPtr storagerManager,
@@ -378,7 +393,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runVectorialProcessin
                                                                                           std::shared_ptr<te::dt::TimeInstantTZ> startTime,
                                                                                           ThreadPoolPtr /*threadPool*/)
 {
-  auto context = std::make_shared<terrama2::services::analysis::core::MonitoredObjectContext>(dataManager, analysis, startTime);
+  auto context = std::make_shared<terrama2::services::analysis::core::VectorProcessingContext>(dataManager, analysis, startTime);
   ContextManager::getInstance().addMonitoredObjectContext(analysis->hashCode(startTime), context);
 
   try
@@ -453,16 +468,17 @@ void terrama2::services::analysis::core::AnalysisExecutor::runVectorialProcessin
 
     auto result = analysisOperator->getResultDataSet();
 
-    double affectedRows = 0;
+    context->addAttribute("table_name", te::dt::STRING_TYPE);
+    context->addAttribute("affected_rows", te::dt::DOUBLE_TYPE);
+
+    int currentLine = 0;
     while(result->moveNext())
     {
-      affectedRows = result->getDouble("affected_rows");
+      context->setAnalysisResult(++currentLine, "table_name", result->getString("table_name"));
+      context->setAnalysisResult(currentLine, "affected_rows", result->getDouble("affected_rows"));
     }
 
-    context->addAttribute("affected_rows", te::dt::DOUBLE_TYPE);
-    context->setAnalysisResult(4, "affected_rows", affectedRows);
-
-    storeMonitoredObjectAnalysisResult(dataManager, storagerManager, context);
+    storeVectorProcessingResult(dataManager, storagerManager, context);
   }
   catch(const terrama2::Exception& e)
   {
@@ -566,6 +582,65 @@ terrama2::services::analysis::core::AnalysisExecutor::addDataToDataSet(std::shar
     }
 
     ds->add(dsItem);
+  }
+
+  return ds;
+}
+
+std::shared_ptr<te::mem::DataSet>
+terrama2::services::analysis::core::AnalysisExecutor::addVectorProcessingToDataSet(std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> moDsContext,
+                                                                                   std::shared_ptr<te::da::DataSetType> dt,
+                                                                                   te::da::PrimaryKey* pkMonitoredObject,
+                                                                                   te::dt::Property* identifierProperty,
+                                                                                   std::unordered_map<int, std::map<std::string, boost::any> > resultMap,
+                                                                                   std::shared_ptr<te::dt::TimeInstantTZ> date)
+{
+  std::shared_ptr<te::mem::DataSet> ds = std::make_shared<te::mem::DataSet>(static_cast<te::da::DataSetType*>(dt->clone()));
+  for(auto it = resultMap.begin(); it != resultMap.end(); ++it)
+  {
+    std::unique_ptr<te::mem::DataSetItem> dsItem(new te::mem::DataSetItem(ds.get()));
+
+    dsItem->setDateTime(EXECUTION_DATE_PROPERTY,  dynamic_cast<te::dt::DateTimeInstant*>(date.get()->clone()));
+    for(auto itAttribute = it->second.begin(); itAttribute != it->second.end(); ++itAttribute)
+    {
+      std::cout << "Key " << itAttribute->first;
+
+      if(itAttribute->second.empty())
+      {
+        dsItem->setValue(itAttribute->first, nullptr);
+        continue;
+      }
+
+      try
+      {
+        auto value = boost::any_cast<double>(itAttribute->second);
+
+        std::cout << " Value " << value << std::endl;
+        dsItem->setDouble(itAttribute->first, value);
+        continue;
+      }
+      catch (...)
+      {
+        /* code */
+      }
+
+      try
+      {
+        auto value = boost::any_cast<std::string>(itAttribute->second);
+        std::cout << " Value " << value << std::endl;
+        dsItem->setString(itAttribute->first, value);
+        continue;
+      }
+      catch (...)
+      {
+        /* code */
+      }
+
+      QString errMsg = QObject::tr("Unknown data type in analysis result.");
+      TERRAMA2_LOG_ERROR() << errMsg;
+    }
+
+    ds->add(dsItem.release());
   }
 
   return ds;
@@ -798,13 +873,15 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeMonitoredObjectA
 
 }
 
-void terrama2::services::analysis::core::AnalysisExecutor::storeGeometricIntersection(terrama2::services::analysis::core::DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr, terrama2::services::analysis::core::GeometryIntersectionContextPtr context)
+void terrama2::services::analysis::core::AnalysisExecutor::storeVectorProcessingResult(terrama2::services::analysis::core::DataManagerPtr dataManager,
+                                                                                       terrama2::core::StoragerManagerPtr storagerManager,
+                                                                                       terrama2::services::analysis::core::MonitoredObjectContextPtr context)
 {
+  // In case an error occurred in the analysis execution there is nothing to do.
   if(context->hasError())
     return;
 
   auto resultMap = context->analysisResult();
-
   if(resultMap.empty())
   {
     QString errMsg = QObject::tr("Empty result.");
@@ -812,12 +889,98 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeGeometricInterse
   }
 
   auto analysis = context->getAnalysis();
-  if(!analysis)
+  verify::analysisMonitoredObject(analysis);
+  auto outputDataSeries = dataManager->findDataSeries(analysis->outputDataSeriesId);
+
+  if(outputDataSeries->semantics.dataFormat != "POSTGIS")
   {
-    QString errMsg = QObject::tr("Could not recover the analysis configuration.");
-    throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+    //TODO Paulo: Implement storager file
+    throw terrama2::Exception() << ErrorDescription("NOT IMPLEMENTED YET");
   }
 
+  terrama2::core::DataSetPtr outputDataSet = getDataSet(outputDataSeries, analysis->outputDataSetId);
+
+  if(!outputDataSet.get())
+    throw terrama2::Exception() << ErrorDescription("Output dataSet not found!");
+
+  std::string outputDatasetName = terrama2::core::getProperty(outputDataSet, outputDataSeries, "table_name");
+
+  auto date = context->getStartTime();
+
+  std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> moDsContext;
+
+  // Reads the object monitored
+  std::unique_ptr<te::da::PrimaryKey> primaryKey(new te::da::PrimaryKey("id"));
+//  std::unique_ptr<te::dt::SimpleProperty> serialPk(new te::dt::SimpleProperty ("pid_" + outputDatasetName, te::dt::INT32_TYPE, true));
+//  primaryKey->add(serialPk.get());
+
+  te::dt::Property* identifierProperty = nullptr;
+
+  moDsContext = context->getMonitoredObjectContextDataSeries();
+  if(moDsContext->identifier.empty())
+  {
+    QString errMsg(QObject::tr("Monitored object identifier is empty."));
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
+    return;
+  }
+
+  if(!moDsContext->series.teDataSetType)
+  {
+    QString errMsg(QObject::tr("Invalid dataset type."));
+    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
+    return;
+  }
+
+//  pkMonitoredObject = moDsContext->series.teDataSetType->getPrimaryKey();
+
+  // we need a unique identifier attribute,
+  // if there is no primary key nor an identifier, return
+  if(primaryKey == nullptr)
+  {
+    auto property = moDsContext->series.teDataSetType->getProperty(moDsContext->identifier);
+    if(property != nullptr)
+    {
+      identifierProperty = property->clone();
+    }
+
+    if(!identifierProperty)
+    {
+      QString errMsg(QObject::tr("Invalid monitored object attribute identifier."));
+      context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
+      return;
+    }
+  }
+
+  auto attributes = context->getAttributes();
+
+  assert(outputDataSeries->datasetList.size() == 1);
+
+  ////////////////////////////////////
+  /// create datasetType
+  std::shared_ptr<te::da::DataSetType> dt = createDatasetType(moDsContext, primaryKey.get(), identifierProperty, attributes, outputDatasetName);
+
+  auto ds = addVectorProcessingToDataSet(moDsContext, dt, primaryKey.get(), identifierProperty, resultMap, date);
+
+//  outputDataSet = getDataSet(outputDataSeries, analysis->outputDataSetId);
+
+//  if(!outputDataSet.get())
+//    throw terrama2::Exception() << ErrorDescription("Output dataSet not found!");
+
+  std::shared_ptr<terrama2::core::SynchronizedDataSet> syncDataSet = std::make_shared<terrama2::core::SynchronizedDataSet>(ds);
+
+  terrama2::core::DataSetSeries series;
+  series.teDataSetType = dt;
+  series.syncDataSet.swap(syncDataSet);
+
+  try
+  {
+    storagerManager->store(series, outputDataSet);
+  }
+  catch(const terrama2::Exception& e)
+  {
+    QString errMsg = QObject::tr("Could not store the result of the analysis: %1").arg(boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString().c_str());
+    throw Exception() << ErrorDescription(errMsg);
+  }
 }
 
 void terrama2::services::analysis::core::AnalysisExecutor::runGridAnalysis(DataManagerPtr dataManager,

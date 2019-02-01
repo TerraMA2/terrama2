@@ -19,6 +19,8 @@ terrama2::services::analysis::core::vp::Operator::Operator(terrama2::services::a
 
 terrama2::services::analysis::core::vp::Operator::~Operator()
 {
+  if(dataSource_->isOpened())
+    dataSource_->close();
 }
 
 void terrama2::services::analysis::core::vp::Operator::setWhereCondition(const std::string& where)

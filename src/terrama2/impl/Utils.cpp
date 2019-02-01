@@ -102,6 +102,7 @@ void terrama2::core::registerFactories()
   // Data storager
   terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerOccurrencePostGIS::dataStoragerType(), terrama2::core::DataStoragerOccurrencePostGIS::make);
   terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerAnalysisMonitoredObject::dataStoragerType(), terrama2::core::DataStoragerAnalysisMonitoredObject::make);
+  terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerVectorProcessingObject::dataStoragerType(), terrama2::core::DataStoragerVectorProcessingObject::make);
   terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerDCPPostGIS::dataStoragerType(), terrama2::core::DataStoragerDCPPostGIS::make);
   terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerDCPSingleTable::dataStoragerType(), terrama2::core::DataStoragerDCPSingleTable::make);
   terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerTiff::dataStoragerType(), terrama2::core::DataStoragerTiff::make);

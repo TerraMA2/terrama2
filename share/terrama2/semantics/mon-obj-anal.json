@@ -29,5 +29,37 @@
         }
       ]
     }
+  },
+
+  {
+    "name": "Monitored object analysis - VP",
+    "code": "VECTOR_PROCESSING_OBJECT-postgis",
+    "driver": "ANALYSIS_MONITORED_OBJECT-postgis",
+    "type": "VECTOR_PROCESSING_OBJECT",
+    "temporality": "DYNAMIC",
+    "format": "POSTGIS",
+    "providers_type_list": ["POSTGIS"],
+    "allow_storage": true,
+    "gui": {
+      "schema": {
+        "properties": {
+          "table_name": {
+            "type": "string",
+            "title": "Table Name",
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+          }
+        },
+        "required": ["table_name"]
+      },
+      "form": [
+        {
+          "key": "table_name",
+          "htmlClass": "col-md-12",
+          "validationMessage": {
+            "202": "Invalid table name"
+          }
+        }
+      ]
+    }
   }
 ]
