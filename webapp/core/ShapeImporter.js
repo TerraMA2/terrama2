@@ -19,7 +19,7 @@ const DataManager = require('./DataManager');
  */
 function execute(command) {
   return new Promise((resolve, reject) => {
-    execProccess(command, (commandErr, ) => (
+    execProccess(command, { maxBuffer: 20 * 1024 * 1024 }, (commandErr, ) => (
       commandErr ? reject(commandErr) : resolve()
     ));
   });
