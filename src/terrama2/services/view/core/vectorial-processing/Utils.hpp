@@ -1,4 +1,4 @@
-/*
+﻿/*
   Copyright (C) 2007 National Institute For Space Research (INPE) - Brazil.
 
   This file is part of TerraMA2 - a free and open source computational
@@ -23,10 +23,15 @@
 #ifndef __TERRAMA2_SERVICES_VIEW_CORE_VECTOR_PROCESSING_UTILS_HPP__
 #define __TERRAMA2_SERVICES_VIEW_CORE_VECTOR_PROCESSING_UTILS_HPP__
 
+// TerraMA2
+#include "../View.hpp"
+
 // TerraLib
 #include <terralib/core/uri/URI.h>
+#include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 
 // STL
+#include <memory>
 #include <string>
 
 namespace terrama2
@@ -39,7 +44,12 @@ namespace terrama2
       {
         namespace vp
         {
-          std::string prepareSQLIntersection(const te::core::URI& connectionURI, const std::string& analysisTableNameResult, const std::string& monitoredTableName);
+          std::vector<std::string> getIntersectionTables(te::da::DataSourceTransactor* transactor, const std::string& analysisTableNameResult);
+
+          std::string prepareSQLIntersection(const std::vector<std::string>& listOfIntersectionTables,
+                                             const std::string& monitoredTableName);
+
+          std::unique_ptr<View::Legend> generateVectorProcessingLegend(const std::vector<std::string>& listOfIntersectionTables);
         }
       }
     }

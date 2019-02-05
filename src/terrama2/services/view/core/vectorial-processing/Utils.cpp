@@ -2,6 +2,7 @@
 #include "Utils.hpp"
 
 // TerraMA2 Core
+#include "../Utils.hpp"
 #include "../../../../core/utility/Raii.hpp"
 
 // TerraLib
@@ -9,43 +10,24 @@
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 
-// STL
-#include <cassert>
+// TerraLib Filter Enconding
+#include <terralib/fe/Globals.h>
+#include <terralib/fe/Literal.h>
+#include <terralib/fe/PropertyName.h>
 
-std::vector<std::string> getAnalysisTableNames(te::da::DataSourceTransactor* transactor, const std::string& tableName)
-{
-  assert(transactor != nullptr);
+// TerraLib Styles
+#include <terralib/se/FeatureTypeStyle.h>
+#include <terralib/se/Rule.h>
 
-  auto resultDataSet = transactor->query("SELECT table_name FROM " + tableName);
-
-  std::vector<std::string> analysisTableNameList;
-
-  while(resultDataSet->moveNext())
-    analysisTableNameList.push_back(resultDataSet->getString("table_name"));
-
-  return analysisTableNameList;
-}
-
-std::string terrama2::services::view::core::vp::prepareSQLIntersection(const te::core::URI& connectionURI,
-                                                                       const std::string& analysisTableNameResult,
+std::string terrama2::services::view::core::vp::prepareSQLIntersection(const std::vector<std::string>& listOfIntersectionTables,
                                                                        const std::string& /*monitoredTableName*/)
 {
-  auto dataSource = te::da::DataSourceFactory::make("POSTGIS", connectionURI);
-
-  dataSource->open();
-
-  auto transactor = dataSource->getTransactor();
-
-  auto intersectionTableList = getAnalysisTableNames(transactor.get(), analysisTableNameResult);
-
-  dataSource->close();
-
   std::string sql = "SELECT ";
   std::string columnClause = "";
 
-  if (intersectionTableList.size() > 0)
+  if (listOfIntersectionTables.size() > 0)
   {
-    const auto& intersectionTableName = intersectionTableList[0];
+    const auto& intersectionTableName = listOfIntersectionTables[0];
 
     columnClause += intersectionTableName + ".monitored_id, ";
     columnClause += intersectionTableName + ".additional_id, ";
@@ -55,10 +37,10 @@ std::string terrama2::services::view::core::vp::prepareSQLIntersection(const te:
     sql += columnClause + " FROM " + intersectionTableName;
   }
 
-  for(std::size_t i = 1; i != intersectionTableList.size(); ++i)
+  for(std::size_t i = 1; i != listOfIntersectionTables.size(); ++i)
   {
     sql += " UNION SELECT ";
-    const auto& intersectionTableName = intersectionTableList[i];
+    const auto& intersectionTableName = listOfIntersectionTables[i];
 
     columnClause = intersectionTableName + ".monitored_id, ";
     columnClause += intersectionTableName + ".additional_id, ";
@@ -69,4 +51,82 @@ std::string terrama2::services::view::core::vp::prepareSQLIntersection(const te:
   }
 
   return sql;
+}
+
+std::unique_ptr<terrama2::services::view::core::View::Legend>
+terrama2::services::view::core::vp::generateVectorProcessingLegend(const std::vector<std::string>& listOfIntersectionTables)
+{
+  std::unique_ptr<terrama2::services::view::core::View::Legend> legend(new terrama2::services::view::core::View::Legend);
+
+  std::unique_ptr<te::se::Style> style(new te::se::FeatureTypeStyle());
+
+  std::vector<View::Legend::Rule> legendRules = legend->rules;
+
+  if(legend->operation == View::Legend::OperationType::VALUE)
+  {
+    if(legend->classify == View::Legend::ClassifyType::INTERVALS)
+    {
+      std::sort(legendRules.begin(), legendRules.end(), View::Legend::Rule::compareByNumericValue);
+    }
+  }
+
+  if(legend->operation == View::Legend::OperationType::VALUE)
+  {
+    std::vector<std::unique_ptr<te::se::Rule> > rules;
+    std::unique_ptr<te::se::Rule> ruleDefault;
+
+    for(std::size_t i = 0; i < legendRules.size(); ++i)
+    {
+      auto legendRule = legendRules[i];
+      std::unique_ptr<te::se::Symbolizer> symbolizer(getSymbolizer(te::gm::MultiPolygonType, legendRule.color, legendRule.opacity));
+
+      std::unique_ptr<te::se::Rule> rule(new te::se::Rule);
+      rule->push_back(symbolizer.release());
+      rule->setName(new std::string(legendRule.title));
+
+      if(legendRule.isDefault)
+      {
+        ruleDefault = std::move(rule);
+        continue;
+      }
+
+      std::unique_ptr<te::fe::PropertyName> propertyName (new te::fe::PropertyName("category"));
+      std::unique_ptr<te::fe::Literal> value (new te::fe::Literal(legendRule.value));
+
+      // Defining OGC Style Filter
+      std::unique_ptr<te::fe::Filter> filter(new te::fe::Filter);
+
+
+
+      rule->setFilter(filter.release());
+
+      rules.push_back(std::move(rule));
+    }
+
+    if(ruleDefault)
+      style->push_back(ruleDefault.release());
+
+    for(auto& rule : rules)
+    {
+      if(rule)
+        style->push_back(rule.release());
+    }
+  }
+
+  return std::move(legend);
+}
+
+std::vector<std::string> terrama2::services::view::core::vp::getIntersectionTables(te::da::DataSourceTransactor* transactor,
+                                                                                   const std::string& analysisTableNameResult)
+{
+  assert(transactor != nullptr);
+
+  auto resultDataSet = transactor->query("SELECT table_name FROM " + analysisTableNameResult);
+
+  std::vector<std::string> analysisTableNameList;
+
+  while(resultDataSet->moveNext())
+    analysisTableNameList.push_back(resultDataSet->getString("table_name"));
+
+  return analysisTableNameList;
 }

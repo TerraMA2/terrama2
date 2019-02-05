@@ -326,6 +326,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
         std::unique_ptr<te::da::DataSetType> modelDataSetType = std::move(tableInfo.dataSetType);
 
         std::string SQL = "";
+        std::vector<std::string> listOfIntersectionTableNames;
 
         if(inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT ||
            inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT)
@@ -383,7 +384,15 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
           if (inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT)
           {
             const te::core::URI postgisURI(url.toString(QUrl::NormalizePathSegments).toStdString());
-            SQL = terrama2::services::view::core::vp::prepareSQLIntersection(postgisURI, tableName, monitoredObjectTableInfo.tableName);
+
+            auto dataSource = te::da::DataSourceFactory::make("POSTGIS", postgisURI);
+            terrama2::core::OpenClose<std::unique_ptr<te::da::DataSource>> wrapDataSource(dataSource);
+
+            auto transactor = dataSource->getTransactor();
+
+            listOfIntersectionTableNames = terrama2::services::view::core::vp::getIntersectionTables(transactor.get(), tableName);
+
+            SQL = terrama2::services::view::core::vp::prepareSQLIntersection(listOfIntersectionTableNames, monitoredObjectTableInfo.tableName);
           }
           else
           {
@@ -458,6 +467,22 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
         QJsonObject layer;
         layer.insert("layer", QString::fromStdString(layerName));
         layersArray.push_back(layer);
+
+        if (inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT)
+        {
+          // When Vector Processing, create a temporary legend since the viewPtr legend is empty
+          std::unique_ptr<View::Legend> temporaryLegend = terrama2::services::view::core::vp::generateVectorProcessingLegend(listOfIntersectionTableNames);
+
+//          // Register style
+//          std::string styleName = "";
+
+//          std::string layerName = viewLayerName(viewPtr);
+//          styleName = layerName + "_style";
+//          registerStyle(styleName, *temporaryLegend.get(), objectType, geomType);
+
+//          for(auto layer : layersArray)
+//            registerLayerDefaultStyle(styleName, layer.toObject().value("layer").toString().toStdString());
+        }
       }
     }
   }
