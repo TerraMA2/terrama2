@@ -47,6 +47,7 @@
 #include <terralib/rp/Functions.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
+#include <terralib/datatype/Utils.h>
 
 // QT
 #include <QObject>
@@ -92,7 +93,7 @@ terrama2::services::analysis::core::AnalysisDataSeriesType terrama2::services::a
     case 4:
       return AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE;
     default:
-      throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Invalid analysis data series type"));
+      throw terrama2::InvalidArgumentException() << ErrorDescription(QObject::tr("Invalid analysis data series getInt64type"));
   }
 
 
@@ -259,7 +260,7 @@ double terrama2::services::analysis::core::getValue(terrama2::core::Synchronized
     }
     break;
     default:
-      break;
+      throw terrama2::InvalidArgumentException() << ErrorDescription( QObject::tr("Invalid property %1 with type %2").arg(QString::fromStdString(attribute.c_str())).arg(te::dt::ConvertDataTypeToString(attributeType).c_str()));
   }
 
   return value;
