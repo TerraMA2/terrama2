@@ -725,10 +725,16 @@ define([], function() {
               self.metadata[self.targetDataSeries.name] = {
                 alias: self.targetDataSeries.name
               };
+
               var dataProvider = DataProviderService.list().filter(function(dProvider){
                 return dProvider.id == self.targetDataSeries.data_provider_id;
               });
-              if (dataProvider.length > 0 && dataProvider[0].data_provider_type.id == 4 && parseInt(self.analysis.type_id) === AnalysisService.types.MONITORED ){
+
+              const parsedAnalysisType = parseInt(self.analysis.type_id);
+
+              if (dataProvider.length > 0 &&
+                  dataProvider[0].data_provider_type.id == 4 &&
+                  (parsedAnalysisType === AnalysisService.types.MONITORED || parsedAnalysisType === AnalysisService.types.VP) ){
                 var table_name = self.targetDataSeries.dataSets[0].format.table_name;
                 listColumns(dataProvider[0], table_name);
               }
@@ -1060,6 +1066,14 @@ define([], function() {
             if (hasScriptError(expression, i18n.__(message))) {
               throw new Error(self.analysis_script_error_message);
             }
+          } else {
+            const { operationType } = self.analysis.metadata;
+
+            if (!operationType) {
+              throw new Error('The field "OperationType" is required');
+            }
+
+            self.analysis.metadata.operationType = operationType.toString();
           }
 
           // checking dataseries analysis
