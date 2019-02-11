@@ -20,7 +20,7 @@ module.exports = function(app) {
       var analysisId = request.params.id;
       var hasProjectPermission = request.session.activeProject.hasProjectPermission;
 
-      DataManager.getAnalysis({id: analysisId, project_id: request.session.activeProject.id}).then(function(analysisResult) {
+      DataManager.getAnalysis({ id: analysisId }).then(function(analysisResult) {
         response.render("configuration/analysis", {
           Enums: Enums,
           analysis: analysisResult.rawObject(),
