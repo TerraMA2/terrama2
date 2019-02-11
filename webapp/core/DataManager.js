@@ -1890,7 +1890,7 @@ var DataManager = module.exports = {
         var obj = dataSerie.get();
 
         // getting semantics
-        dataSerie.getDataSeriesSemantic().then(function(dataSemantics) {
+        dataSerie.getDataSeriesSemantic(options).then(function(dataSemantics) {
           obj.DataSeriesSemantic = dataSemantics;
           output = new DataModel.DataSeries(obj);
 
@@ -2429,6 +2429,7 @@ var DataManager = module.exports = {
               models.db.DataSetGrid.create({data_set_id: dataSet.id}, options).then(onSuccess).catch(onError);
               break;
             case DataSeriesType.ANALYSIS_MONITORED_OBJECT:
+            case DataSeriesType.VECTOR_PROCESSING_OBJECT:
               models.db.DataSetMonitored.create({data_set_id: dataSet.id}, options).then(onSuccess).catch(onError);
               break;
             default:
