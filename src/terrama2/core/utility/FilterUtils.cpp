@@ -166,9 +166,9 @@ std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::getFileTimestamp(const st
 
     // if the name has only date part, it presumes that time is 23:59:59
     ts += "T";
-    ts += (match["HOUR"] == "" ? "23" : match["HOUR"].str());
-    ts += (match["MINUTES"] == "" ? "59" : match["MINUTES"].str());
-    ts += (match["SECONDS"] == "" ? "59" : match["SECONDS"].str());
+    ts += (match["HOUR"] == "" ? "00" : match["HOUR"].str());
+    ts += (match["MINUTES"] == "" ? "00" : match["MINUTES"].str());
+    ts += (match["SECONDS"] == "" ? "00" : match["SECONDS"].str());
 
     boost::posix_time::ptime boostDate(boost::posix_time::from_iso_string(ts));
     boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(timezone));

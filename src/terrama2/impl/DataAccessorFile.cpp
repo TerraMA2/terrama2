@@ -618,16 +618,24 @@ QFileInfoList terrama2::core::DataAccessorFile::getDataFileInfoList(const std::s
   std::string tempFolderPath;
   //fill file list
   QFileInfoList newFileInfoList;
+
+  int currentIndex = 0;
   for(const auto& fileInfo : fileInfoList)
   {
+    if (filter.limitTo > 0 && filter.limitTo == currentIndex)
+    {
+      break;
+    }
+
     std::string name = fileInfo.fileName().toStdString();
     std::string folderPath = dir.absolutePath().toStdString();
-
 
     std::shared_ptr< te::dt::TimeInstantTZ > thisFileTimestamp = std::make_shared<te::dt::TimeInstantTZ>(noTime);
     // Verify if the file name matches the mask
     if(!isValidDataSetName(mask, filter, timezone, name, thisFileTimestamp))
       continue;
+
+    ++currentIndex;
 
     if(terrama2::core::Unpack::isCompressed(folderPath+ "/" + name))
     {

@@ -116,6 +116,7 @@ void terrama2::services::analysis::core::Service::prepareTask(const terrama2::co
   {
     auto dataManager = std::static_pointer_cast<terrama2::services::analysis::core::DataManager>(dataManager_.lock());
     auto analysisPtr = dataManager->findAnalysis(executionPackage.processId);
+
     taskQueue_.emplace(std::bind(&terrama2::services::analysis::core::AnalysisExecutor::runAnalysis, std::ref(analysisExecutor_), dataManager, storagerManager_, std::static_pointer_cast<AnalysisLogger>(logger_->clone()), executionPackage, analysisPtr, threadPool_, mainThreadState_));
   }
   catch(const std::exception& e)

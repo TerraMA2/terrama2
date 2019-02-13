@@ -139,8 +139,18 @@ std::map<std::string, std::string> terrama2::services::analysis::core::GridConte
     }
 
     outputRasterInfo_["MEM_RASTER_NODATA"] = std::to_string(analysis_->outputGridPtr->interpolationDummy);
-    addInterestAreaToRasterInfo(outputRasterInfo_);
-    addResolutionToRasterInfo(outputRasterInfo_);
+
+    terrama2::core::Filter filter;
+    if (analysis_->schedule.reprocessingHistoricalData != nullptr)
+    {
+      auto reprocessingHistoricalData = analysis_->schedule.reprocessingHistoricalData;
+
+      filter.discardBefore = reprocessingHistoricalData->startDate;
+      filter.discardAfter = reprocessingHistoricalData->endDate;
+    }
+
+    addInterestAreaToRasterInfo(outputRasterInfo_, filter);
+    addResolutionToRasterInfo(outputRasterInfo_, filter);
 
     auto resX = std::stod(outputRasterInfo_["MEM_RASTER_RES_X"]);
     auto resY = std::stod(outputRasterInfo_["MEM_RASTER_RES_Y"]);
@@ -160,7 +170,7 @@ std::map<std::string, std::string> terrama2::services::analysis::core::GridConte
   return outputRasterInfo_;
 }
 
-void terrama2::services::analysis::core::GridContext::addResolutionToRasterInfo(std::map<std::string, std::string>& outputRasterInfo)
+void terrama2::services::analysis::core::GridContext::addResolutionToRasterInfo(std::map<std::string, std::string>& outputRasterInfo, const terrama2::core::Filter& filter)
 {
   double resX = 0;
   double resY = 0;
@@ -178,7 +188,7 @@ void terrama2::services::analysis::core::GridContext::addResolutionToRasterInfo(
     {
       try
       {
-        auto gridMap = getGridMap(dataManager, analysis_->outputGridPtr->resolutionDataSeriesId);
+        auto gridMap = getGridMap(dataManager, analysis_->outputGridPtr->resolutionDataSeriesId, filter);
         if(gridMap.empty())
         {
           QString errMsg = QObject::tr("Could not recover grid for data series: %1.").arg(analysis_->outputGridPtr->resolutionDataSeriesId);
@@ -325,7 +335,7 @@ void terrama2::services::analysis::core::GridContext::addResolutionToRasterInfo(
   outputRasterInfo["MEM_RASTER_RES_Y"] = std::to_string(resY);
 }
 
-void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInfo(std::map<std::string, std::string>& outputRasterInfo)
+void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInfo(std::map<std::string, std::string>& outputRasterInfo, const terrama2::core::Filter& filter)
 {
   Srid srid = 0;
   std::shared_ptr<te::gm::Envelope> box(new te::gm::Envelope());
@@ -345,7 +355,7 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
       {
         try
         {
-          auto gridMap = getGridMap(dataManager, analysisDataSeries.dataSeriesId);
+          auto gridMap = getGridMap(dataManager, analysisDataSeries.dataSeriesId, filter);
 
           if(gridMap.empty())
           {
@@ -387,7 +397,7 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
     {
       try
       {
-        auto gridMap = getGridMap(dataManager, analysis_->outputGridPtr->interestAreaDataSeriesId);
+        auto gridMap = getGridMap(dataManager, analysis_->outputGridPtr->interestAreaDataSeriesId, filter);
         if(gridMap.empty())
         {
           QString errMsg = QObject::tr("Could not recover grid for data series: %1.").arg(analysis_->outputGridPtr->interestAreaDataSeriesId);
