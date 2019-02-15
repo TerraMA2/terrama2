@@ -188,35 +188,35 @@ terrama2::services::analysis::core::getGridMap(DataManagerPtr dataManager, DataS
 }
 
 std::tuple<te::rst::Grid*, const std::vector<te::rst::BandProperty*> >
-terrama2::services::analysis::core::getOutputRasterInfo(std::map<std::string, std::string> rinfo)
+terrama2::services::analysis::core::getOutputRasterInfo(std::map<std::string, double> rinfo)
 {
-  auto ncols = static_cast<uint>(std::stoi(rinfo["MEM_RASTER_NCOLS"]));
-  auto nrows = static_cast<uint>(std::stoi(rinfo["MEM_RASTER_NROWS"]));
-  auto srid = std::stoi(rinfo["MEM_RASTER_SRID"]);
+  auto ncols = static_cast<uint>(rinfo["MEM_RASTER_NCOLS"]);
+  auto nrows = static_cast<uint>(rinfo["MEM_RASTER_NROWS"]);
+  auto srid = rinfo["MEM_RASTER_SRID"];
 
-  double minx = std::stod(rinfo["MEM_RASTER_MIN_X"]);
-  double miny = std::stod(rinfo["MEM_RASTER_MIN_Y"]);
-  double maxx = std::stod(rinfo["MEM_RASTER_MAX_X"]);
-  double maxy = std::stod(rinfo["MEM_RASTER_MAX_Y"]);
-  double resx = std::stod(rinfo["MEM_RASTER_RES_X"]);
-  double resy = std::stod(rinfo["MEM_RASTER_RES_Y"]);
-  double nodata = std::stod(rinfo["MEM_RASTER_NODATA"]);
+  double minx = rinfo["MEM_RASTER_MIN_X"];
+  double miny = rinfo["MEM_RASTER_MIN_Y"];
+  double maxx = rinfo["MEM_RASTER_MAX_X"];
+  double maxy = rinfo["MEM_RASTER_MAX_Y"];
+  double resx = rinfo["MEM_RASTER_RES_X"];
+  double resy = rinfo["MEM_RASTER_RES_Y"];
+  double nodata = rinfo["MEM_RASTER_NODATA"];
 
   te::gm::Envelope* mbr = new te::gm::Envelope(minx, miny, maxx, maxy);
 
-  auto grid = new te::rst::Grid(ncols, nrows, resx, resy, mbr, srid);
+  auto grid = new te::rst::Grid(ncols, nrows, resx, resy, mbr, static_cast<int>(srid));
 
   std::vector<te::rst::BandProperty*> bands;
-  auto dt = std::stoi(rinfo["MEM_RASTER_DATATYPE"]);
-  std::size_t nbands = static_cast<std::size_t>(std::stoi(rinfo["MEM_RASTER_NBANDS"]));
+  auto dt = rinfo["MEM_RASTER_DATATYPE"];
+  std::size_t nbands = static_cast<std::size_t>(rinfo["MEM_RASTER_NBANDS"]);
   for(std::size_t b = 0; b < nbands; ++b)
   {
-    te::rst::BandProperty* ibprop = new te::rst::BandProperty(b, dt);
+    te::rst::BandProperty* ibprop = new te::rst::BandProperty(b, static_cast<int>(dt));
 
     ibprop->m_blkh = 1;
-    ibprop->m_blkw = ncols;
+    ibprop->m_blkw = static_cast<int>(ncols);
     ibprop->m_nblocksx = 1;
-    ibprop->m_nblocksy = nrows;
+    ibprop->m_nblocksy = static_cast<int>(nrows);
     ibprop->m_noDataValue = nodata;
 
     bands.push_back(ibprop);
