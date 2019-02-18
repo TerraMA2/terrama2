@@ -146,7 +146,7 @@ namespace terrama2
 
           \return The map with the parameters to create the output raster.
          */
-        TMANALYSISEXPORT std::tuple<te::rst::Grid*, const std::vector<te::rst::BandProperty*> > getOutputRasterInfo(std::map<std::string, std::string> rinfo);
+        TMANALYSISEXPORT std::tuple<te::rst::Grid*, const std::vector<te::rst::BandProperty*> > getOutputRasterInfo(std::map<std::string, double> rinfo);
 
         /*!
           \brief Returns the attribute value for the given position, it tries a lexical cast to double in case the attribute has a different type.

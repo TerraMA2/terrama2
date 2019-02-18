@@ -91,12 +91,12 @@ namespace terrama2
 
           protected:
 
-            std::map<std::string, std::string> getOutputRasterInfo();
-            void addInterestAreaToRasterInfo(std::map<std::string, std::string>& outputRasterInfo);
-            void addResolutionToRasterInfo(std::map<std::string, std::string>& outputRasterInfo);
+            std::map<std::string, double> getOutputRasterInfo();
+            void addInterestAreaToRasterInfo(std::map<std::string, double>& outputRasterInfo);
+            void addResolutionToRasterInfo(std::map<std::string, double>& outputRasterInfo);
 
             std::shared_ptr<te::rst::Raster> outputRaster_;
-            std::map<std::string, std::string> outputRasterInfo_;
+            std::map<std::string, double> outputRasterInfo_;
         };
       }
     }
