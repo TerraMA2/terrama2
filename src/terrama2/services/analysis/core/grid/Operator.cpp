@@ -108,7 +108,14 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
     auto coord = grid->gridToGeo(cache.column, cache.row);
 
     terrama2::core::Filter filter;
-    filter.lastValues = std::make_shared<size_t>(1);
+
+    if (analysis->schedule.reprocessingHistoricalData != nullptr)
+    {
+      auto startTime = context->getStartTime();
+
+      filter.discardAfter = startTime;
+      filter.lastValues = std::make_shared<std::size_t>(1);
+    }
 
     auto datasets = dataSeries->datasetList;
     for(const auto& dataset : datasets)
