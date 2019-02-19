@@ -64,7 +64,7 @@
 
 // pragma to silence python macros warnings
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-local-typedef"
+//#pragma GCC diagnostic ignored "-Wunused-local-typedef"
 
 using namespace boost::python;
 
@@ -94,77 +94,101 @@ static const std::string TERRAMA2_PYTHON_SCRIPT = "from terrama2 import *\n"
 std::string
 terrama2::services::analysis::core::python::extractException(terrama2::services::analysis::core::AnalysisPtr analysis)
 {
-  PyObject *typePtr = NULL, *valuePtr = NULL, *tracebackPtr = NULL;
+  PyObject *typePtr = nullptr, *valuePtr = nullptr, *tracebackPtr = nullptr;
   // Fetch python exception as PyObject
   PyErr_Fetch(&typePtr, &valuePtr, &tracebackPtr);
 
   // Fallback error
-  std::string output("Could not fetch Python error");
+  std::string output;
+
+  PyErr_NormalizeException(&typePtr,&valuePtr,&tracebackPtr);
+  boost::python::handle<> hexc(typePtr),hval(allow_null(valuePtr)),htb(allow_null(tracebackPtr));
+
+  // Parse lines from the traceback using the Python traceback module
+  if(tracebackPtr != nullptr){
+    if(!hval)
+      output += extract<std::string>(str(hexc));
+    else{
+      boost::python::object traceback(import("traceback"));
+      boost::python::object format_exception(traceback.attr("format_exception"));
+      boost::python::object formatted_list(format_exception(hexc,hval,htb));
+      boost::python::object formatted(boost::python::str("\n").join(formatted_list));
+      output += extract<std::string>(formatted);
+      boost::replace_all(output, "\"", "");
+      boost::replace_all(output, "\'", "");
+    }
+  }
 
   // When fetch a type pointer, parse the type into the exception string
-  if(typePtr != NULL){
-    boost::python::handle<> handleType(typePtr);
-    boost::python::str typePstr(handleType);
+  if(typePtr != nullptr){
+    boost::python::str typePstr(hexc);
     // Extract the string from the boost::python object
     boost::python::extract<std::string> exceptionTypeStr(typePstr);
     // When valid exception type, retrieve exception type
     if(exceptionTypeStr.check())
-      output = exceptionTypeStr();
+      output += exceptionTypeStr();
     else
-      output = "Unknown exception type";
+      output += "Unknown exception type";
   }
   // Do the same for the exception value (the stringification of the exception)
-  if(valuePtr != NULL){
-    boost::python::handle<> handleVal(valuePtr);
-    boost::python::list formatedExceptionList(handleVal);
-    boost::python::extract<std::string> exceptionText(formatedExceptionList[0]);
-    boost::python::extract<std::size_t> lineNumber(formatedExceptionList[1][1]);
-    boost::python::extract<std::size_t> charPosition(formatedExceptionList[1][2]);
-
-    if(exceptionText.check())
-      output += ": " + exceptionText();
-    else
-      output += std::string(": Unknown Exception: ");
-
-    if(lineNumber.check())
-    {
-      unsigned long scriptLines = 0;
-      unsigned long lineOffset = 0;
-      // When analysis supplied, we must remove the difference from
-      // line number to avoid display wrong line
-      if (analysis != nullptr)
+  if(valuePtr != nullptr)
+  {
+      try
       {
-        // Retrieve fake script
-        const auto script = TERRAMA2_PYTHON_SCRIPT;
-        // Retrieve number of end line (\n)
-        scriptLines = static_cast<unsigned long>(std::count_if(script.begin(), script.end(), [](char c) { return c == '\n'; }));
-        // Line offset (tab)
-        lineOffset = 4;
-      }
-      // Write the line number error based in User script
-      output +=  ": Line " + std::to_string(lineNumber() - scriptLines);
+        boost::python::list formatedExceptionList(hval);
+        boost::python::extract<std::string> exceptionText(formatedExceptionList[0]);
+        boost::python::extract<std::size_t> lineNumber(formatedExceptionList[1][1]);
 
-      if(charPosition.check())
-        output +=  ": Position " + std::to_string(charPosition() - lineOffset);
-    }
+        boost::python::extract<std::size_t> charPosition(formatedExceptionList[1][2]);
+
+        if(exceptionText.check())
+          output += ": " + exceptionText();
+        else
+          output += std::string(": Unknown Exception: ");
+
+        if(lineNumber.check())
+        {
+          unsigned long scriptLines = 0;
+          unsigned long lineOffset = 0;
+          // When analysis supplied, we must remove the difference from
+          // line number to avoid display wrong line
+          if (analysis != nullptr)
+          {
+            // Retrieve fake script
+            const auto script = TERRAMA2_PYTHON_SCRIPT;
+            // Retrieve number of end line (\n)
+            scriptLines = static_cast<unsigned long>(std::count_if(script.begin(), script.end(), [](char c) { return c == '\n'; }));
+            // Line offset (tab)
+            lineOffset = 4;
+          }
+          // Write the line number error based in User script
+          output +=  ": Line " + std::to_string(lineNumber() - scriptLines);
+
+          if(charPosition.check())
+            output +=  ": Position " + std::to_string(charPosition() - lineOffset);
+        }
+       }
+      catch(const error_already_set&)
+      {
+        std::string msg = "Unknown exception type";
+      }
+      catch(const terrama2::Exception& e)
+      {
+        output += boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+      }
+      catch(const std::exception& e)
+      {
+        output += e.what();
+      }
+      catch(...)
+      {
+        std::string msg = "Unknown exception type";
+      }
   }
-  // Parse lines from the traceback using the Python traceback module
-  if(tracebackPtr != NULL){
-    boost::python::handle<> handleTraceback(tracebackPtr);
-    // Load the traceback module and the format_tb function
-    boost::python::object traceback(boost::python::import("traceback"));
-    boost::python::object formatTraceback(traceback.attr("format_tb"));
-    // Call format_tb to get a list of traceback strings
-    boost::python::object tracebackList(formatTraceback(handleTraceback));
-    // Join the traceback strings into a single string
-    boost::python::object tracebackStr(boost::python::str("\n").join(tracebackList));
-    // Extract the string, check the extraction, and fallback in necessary
-    boost::python::extract<std::string> returned(tracebackStr);
-    if(returned.check())
-      output += ": " + returned();
-    else
-      output += std::string(": Unknown Python traceback");
-  }
+
+  if (!output.size())
+    output = "Could not fetch Python error";
+
   return output;
 }
 
@@ -672,7 +696,7 @@ std::string terrama2::services::analysis::core::python::getCurrentExecutionDate(
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
   // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
   // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
-  bool exceptionOccurred = false;
+  //bool exceptionOccurred = false;
 
   auto& contextManager = ContextManager::getInstance();
   auto analysis = cache.analysisPtr;
@@ -731,7 +755,7 @@ std::string terrama2::services::analysis::core::python::getAttributeValueAsJson(
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
   // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
   // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
-  bool exceptionOccurred = false;
+  //bool exceptionOccurred = false;
 
   auto& contextManager = ContextManager::getInstance();
   auto analysis = cache.analysisPtr;

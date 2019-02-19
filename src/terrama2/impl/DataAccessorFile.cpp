@@ -339,10 +339,10 @@ bool terrama2::core::DataAccessorFile::isValidTimestamp(std::shared_ptr<Synchron
   std::shared_ptr< te::dt::DateTime > dateTime(dataSet->getDateTime(index, dateColumn));
   auto timesIntant = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(dateTime);
 
-  if(filter.discardBefore.get() && !((*timesIntant) > (*filter.discardBefore)))
+  if(filter.discardBefore.get() && ((*timesIntant) < (*filter.discardBefore)))
     return false;
 
-  if(filter.discardAfter.get() && !((*timesIntant) < (*filter.discardAfter)))
+  if(filter.discardAfter.get() && ((*timesIntant) > (*filter.discardAfter)))
     return false;
 
   return true;

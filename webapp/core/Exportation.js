@@ -1,5 +1,24 @@
 "use strict";
 
+// 'pg-format' module
+var memberPgFormat = require('pg-format');
+// 'bluebird' module
+var memberPromise = require('bluebird');
+// 'DataManager' module
+var memberDataManager = require('./DataManager');
+// 'UriBuilder' module
+var memberUriBuilder = require('./UriBuilder');
+// Application configurations
+var memberConfig = require('./Application').getContextConfig();
+// 'fs' module
+var memberFs = require('fs');
+// 'path' module
+var memberPath = require('path');
+// 'pg' module
+var memberPg = require('pg');
+// 'Utils' model
+var memberUtils = require('./Utils.js');
+
 /**
  * Exportation model, which contains exportation related database manipulations.
  * @class Exportation
@@ -16,27 +35,7 @@
  * @property {object} memberPg - 'pg' module.
  * @property {object} memberUtils - 'Utils' model.
  */
-var Exportation = function() {
-
-  // 'pg-format' module
-  var memberPgFormat = require('pg-format');
-  // 'bluebird' module
-  var memberPromise = require('bluebird');
-  // 'DataManager' module
-  var memberDataManager = require('./DataManager');
-  // 'UriBuilder' module
-  var memberUriBuilder = require('./UriBuilder');
-  // Application configurations
-  var memberConfig = require('./Application').getContextConfig();
-  // 'fs' module
-  var memberFs = require('fs');
-  // 'path' module
-  var memberPath = require('path');
-  // 'pg' module
-  var memberPg = require('pg');
-  // 'Utils' model
-  var memberUtils = require('./Utils.js');
-
+class Exportation {
   /**
    * Returns the PostgreSQL connection string.
    * @param {integer} dataProviderId - Id to get the connection parameters in the DataProvider
@@ -46,7 +45,7 @@ var Exportation = function() {
    * @memberof Exportation
    * @inner
    */
-  this.getPgConnectionString = function(dataProviderId) {
+  getPgConnectionString(dataProviderId) {
     return new memberPromise(function(resolve, reject) {
       return memberDataManager.getDataProvider({ id: dataProviderId }).then(function(dataProvider) {
         var uriObject = memberUriBuilder.buildObject(dataProvider.uri, {
@@ -77,7 +76,7 @@ var Exportation = function() {
    * @memberof Exportation
    * @inner
    */
-  this.getPsqlString = function(dataProviderId) {
+  getPsqlString(dataProviderId) {
     return new memberPromise(function(resolve, reject) {
       return memberDataManager.getDataProvider({ id: dataProviderId }).then(function(dataProvider) {
         var uriObject = memberUriBuilder.buildObject(dataProvider.uri, {
@@ -113,7 +112,7 @@ var Exportation = function() {
    * @memberof Exportation
    * @inner
    */
-  this.tableExists = function(tableName, dataProviderId) {
+  tableExists(tableName, dataProviderId) {
     var self = this;
     return new memberPromise(function(resolve, reject) {
       return memberDataManager.getDataProvider({ id: dataProviderId }).then(function(dataProvider) {
@@ -163,7 +162,7 @@ var Exportation = function() {
    * @memberof Exportation
    * @inner
    */
-  this.getPrimaryKeyColumn = function(tableName, dataProviderId) {
+  getPrimaryKeyColumn(tableName, dataProviderId) {
     var self = this;
     return new memberPromise(function(resolve, reject) {
       return memberDataManager.getDataProvider({ id: dataProviderId }).then(function(dataProvider) {
@@ -209,7 +208,7 @@ var Exportation = function() {
    * @memberof Exportation
    * @inner
    */
-  this.ogr2ogr = function() {
+  ogr2ogr() {
     var ogr2ogr = memberConfig.OGR2OGR;
 
     return ogr2ogr;
@@ -223,7 +222,7 @@ var Exportation = function() {
   * @memberof Exportation
   * @inner
   */
-  this.shp2pgsql = function() {
+  shp2pgsql() {
     var shp2pgsql = memberConfig.SHP2PGSQL;
 
     return shp2pgsql;
@@ -238,7 +237,7 @@ var Exportation = function() {
    * @memberof Exportation
    * @inner
    */
-  this.getQuery = function(options) {
+  getQuery(options) {
     var selectAttributes = (options.innerJoinTable ? options.TableName + ".*, " + options.innerJoinTable + ".*" : "*");
 
     // Creation of the query
@@ -285,7 +284,7 @@ var Exportation = function() {
    * @memberof Exportation
    * @inner
    */
-  this.getGridFilePath = function(dataProviderId, mask, date) {
+  getGridFilePath(dataProviderId, mask, date) {
     return new memberPromise(function(resolve, reject) {
       return memberDataManager.getDataProvider({ id: dataProviderId }).then(function(dataProvider) {
         var folder = dataProvider.uri.replace("file://", "");
@@ -328,7 +327,7 @@ var Exportation = function() {
    * @memberof Exportation
    * @inner
    */
-  this.getGridFolderPath = function(dataProviderId) {
+  getGridFolderPath(dataProviderId) {
     return new memberPromise(function(resolve, reject) {
       return memberDataManager.getDataProvider({ id: dataProviderId }).then(function(dataProvider) {
         var folder = dataProvider.uri.replace("file://", "");
@@ -352,7 +351,7 @@ var Exportation = function() {
    * @memberof Exportation
    * @inner
    */
-  this.createFolder = function(path) {
+  createFolder(path) {
     try {
       memberFs.mkdirSync(path);
     } catch(e) {
@@ -371,7 +370,7 @@ var Exportation = function() {
    * @memberof Exportation
    * @inner
    */
-  this.generateRandomFolder = function() {
+  generateRandomFolder() {
     var self = this;
 
     return new memberPromise(function(resolve, reject) {
@@ -414,7 +413,7 @@ var Exportation = function() {
    * @memberof Exportation
    * @inner
    */
-  this.getFormatStrings = function(format) {
+  getFormatStrings(format) {
     switch(format) {
       case 'csv':
         var fileExtention = '.csv';
@@ -448,7 +447,7 @@ var Exportation = function() {
    * @memberof Exportation
    * @inner
    */
-  this.getDateDifferenceInDays = function(dateString) {
+  getDateDifferenceInDays(dateString) {
     var now = new Date();
     var date = new Date(dateString + " " + now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds());
 
@@ -467,7 +466,7 @@ var Exportation = function() {
    * @memberof Exportation
    * @inner
    */
-  this.deleteInvalidFolders = function() {
+  deleteInvalidFolders() {
     var tmpDir = memberPath.join(__dirname, '../tmp');
     var dirs = memberFs.readdirSync(tmpDir).filter(file => memberFs.statSync(memberPath.join(tmpDir, file)).isDirectory());
 
@@ -490,7 +489,7 @@ var Exportation = function() {
    * @memberof Exportation
    * @inner
    */
-  this.copyFileSync = function(source, target, name) {
+  copyFileSync(source, target, name) {
     var targetFile = target;
 
     if(memberFs.existsSync(target))
@@ -510,7 +509,7 @@ var Exportation = function() {
    * @memberof Exportation
    * @inner
    */
-  this.copyShpFiles = function(source, target, name) {
+  copyShpFiles(source, target, name) {
     var files = [];
     var self = this;
 
@@ -536,7 +535,7 @@ var Exportation = function() {
    * @memberof Exportation
    * @inner
    */
-  this.createPathToFile = function(basePath, maskArray) {
+  createPathToFile(basePath, maskArray) {
     var self = this;
     var returnObject = { error: null };
     var pathToBeCreated = basePath;

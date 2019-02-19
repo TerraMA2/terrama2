@@ -24,7 +24,7 @@ const ImportStaticFiles = (/*app*/) => {
   // 'Utils' model
   const memberUtils = require('../../core/Utils.js');
 
-  const ShapeImporter = require('./../../core/ShapeImporter');
+  const { ShapeImporter } = require('./../../core/ShapeImporter');
 
   /**
    * Processes the request and returns a response.

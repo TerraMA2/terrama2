@@ -228,13 +228,13 @@ bool terrama2::core::isValidTimestamp(const Filter& filter, const std::shared_pt
 {
   if(filter.discardBefore)
   {
-    if(!(*fileTimestamp > *filter.discardBefore))
+    if(*fileTimestamp < *filter.discardBefore)
       return false;
   }
 
   if(filter.discardAfter)
   {
-    if(!(*fileTimestamp < *filter.discardAfter))
+    if(*fileTimestamp > *filter.discardAfter)
       return false;
   }
 

@@ -113,11 +113,9 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
     {
       auto startTime = context->getStartTime();
 
-      filter.discardBefore = startTime;
-      filter.limitTo = 1; // Get only the first
+      filter.discardAfter = startTime;
+      filter.lastValues = std::make_shared<std::size_t>(1);
     }
-
-//    filter.lastValues = std::make_shared<size_t>(1);
 
     auto datasets = dataSeries->datasetList;
     for(const auto& dataset : datasets)
