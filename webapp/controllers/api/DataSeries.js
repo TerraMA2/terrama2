@@ -11,11 +11,11 @@ module.exports = function(app) {
   var DataSeriesTemporality = require('./../../core/Enums').TemporalityType;
   var TokenCode = require('./../../core/Enums').TokenCode;
   var ScheduleType = require('./../../core/Enums').ScheduleType;
-  // data model
-  var DataModel = require('./../../core/data-model');
   // Facade
   var DataProviderFacade = require("./../../core/facade/DataProvider");
   var RequestFactory = require("./../../core/RequestFactory");
+
+  const { createView, validateView, EmptyViewError } = require('./../../core/utility/createView');
 
   return {
     post: function(request, response) {
@@ -67,10 +67,21 @@ module.exports = function(app) {
             dataSeriesObject.project_id = project.id;
             delete dataSeriesObject.project;
 
-            return DataManager.addDataSeries(dataSeriesObject, options).then(function(dataSeriesResult) {
+            return DataManager.addDataSeries(dataSeriesObject, options).then(async function(dataSeriesResult) {
               var output = {
                 "DataSeries": [dataSeriesResult.toObject()]
               };
+
+              if (dataSeriesResult.semantics.temporality === DataSeriesTemporality.STATIC &&
+                  dataSeriesResult.semantics.code === 'STATIC_DATA-VIEW-postgis') {
+                const dataSet = dataSeriesResult.dataSets[0];
+
+                const viewName = dataSet.format.view_name;
+                const tableName = dataSet.format.table_name;
+                const whereCondition = dataSet.format.query_builder;
+
+                await createView(viewName, tableName, [], whereCondition);
+              }
 
               logger.debug("OUTPUT: ", JSON.stringify(output));
 
@@ -491,7 +502,18 @@ module.exports = function(app) {
         }
 
         return promiseHandler
-          .then((updatedDataSeries) => {
+          .then(async updatedDataSeries => {
+            if (updatedDataSeries.semantics.temporality === DataSeriesTemporality.STATIC &&
+              updatedDataSeries.semantics.code === 'STATIC_DATA-VIEW-postgis') {
+              const dataSet = updatedDataSeries.dataSets[0];
+
+              const viewName = dataSet.format.view_name;
+              const tableName = dataSet.format.table_name;
+              const whereCondition = dataSet.format.query_builder;
+
+              await createView(viewName, tableName, [], whereCondition);
+            }
+
             //Checking if data series is used by analysis, to change the provider
             return DataManager.listAnalysisDataSeries({data_series_id: Number(dataSeriesId), type_id: 1}, options)
               .then((analysisDataSeriesList) =>{
@@ -705,6 +727,25 @@ module.exports = function(app) {
         .catch(function(err) {
           return Utils.handleRequestError(response, err, 400);
         });
+    },
+
+    /**
+     * Performs view validation, using SELECT statement to retrieve data set
+     *
+     * @param {express.Request} request Request scope
+     * @parma {express.Response} response HTTP Response scope
+     */
+    validateViewCreation: async (request, response) => {
+      const { attributes, tableName, whereCondition } = request.body;
+
+      try {
+        validateView(tableName, attributes, whereCondition);
+
+        response.json({});
+      } catch (err) {
+        response.status(400);
+        response.json({ error: err.message });
+      }
     }
   };
 };
