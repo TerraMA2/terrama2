@@ -1,7 +1,15 @@
 const DataManager = require('./../DataManager');
 
+/** Exception used when the SELECT returned 0 */
 class EmptyViewError extends Error { };
 
+/**
+ * This function returns SELECT statement used to generate View
+ *
+ * @param {string} tableName Origin table name
+ * @param {string[]} attributes List of attributes from origin table
+ * @param {string} whereCondition Query restriction
+ */
 const prepareSelect = (tableName, attributes = [], whereCondition = '') => {
   if (!attributes || attributes.length === 0)
     attributes = ['*'];
@@ -12,6 +20,14 @@ const prepareSelect = (tableName, attributes = [], whereCondition = '') => {
   return `SELECT ${attributes.join(',')} FROM ${tableName} WHERE ${whereCondition}`;
 }
 
+/**
+ * Performs view validation, checking if SELECT statements returns at least a row data set
+ *
+ * @throws {EmptyViewError|Error} when result is empty
+ * @param {string} tableName Origin table name
+ * @param {string[]} attributes List of attributes from origin table
+ * @param {string} whereCondition Query restriction
+ */
 async function validateView(tableName, attributes, whereCondition) {
   const sql = prepareSelect(tableName, attributes, whereCondition);
 
@@ -23,6 +39,14 @@ async function validateView(tableName, attributes, whereCondition) {
   return resultSet;
 }
 
+/**
+ * Tries to create view from dataset
+ *
+ * @param {string} viewName Destination view name
+ * @param {string} tableName Origin table name
+ * @param {string[]} attributes List of attributes from origin table
+ * @param {string} whereCondition Query restriction
+ */
 async function createView(viewName, tableName, attributes = [], whereCondition = '1=1') {
   const sql = `
     DROP VIEW IF EXISTS ${viewName};
