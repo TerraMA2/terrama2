@@ -49,6 +49,7 @@
 
 #include "DataAccessorStaticDataOGR.hpp"
 #include "DataAccessorStaticDataPostGIS.hpp"
+#include "DataAccessorStaticDataViewPostGIS.hpp"
 #include "DataAccessorStaticGDAL.hpp"
 
 #include "DataAccessorAnalysisPostGIS.hpp"
@@ -96,6 +97,7 @@ void terrama2::core::registerFactories()
 
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorStaticDataOGR::dataAccessorType(), terrama2::core::DataAccessorStaticDataOGR::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorStaticDataPostGIS::dataAccessorType(), terrama2::core::DataAccessorStaticDataPostGIS::make);
+  terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorStaticDataViewPostGIS::dataAccessorType(), terrama2::core::DataAccessorStaticDataViewPostGIS::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorStaticGDAL::dataAccessorType(), terrama2::core::DataAccessorStaticGDAL::make);
 
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorAnalysisPostGIS::dataAccessorType(), terrama2::core::DataAccessorAnalysisPostGIS::make);
