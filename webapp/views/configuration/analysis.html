@@ -314,13 +314,13 @@
           <form name="forms.targetDataSeriesForm">
 
             <vector-processing css="ctrl.css"
-                   model="ctrl.analysis.metadata.operationType"
-                   ng-show="ctrl.analysis.type_id === '{[ Enums.AnalysisType.VP ]}' && forms.generalDataForm.type.$valid">
+                  model="ctrl.analysis.metadata.operationType"
+                  ng-show="ctrl.analysis.type_id === '{[ Enums.AnalysisType.VP ]}' && forms.generalDataForm.type.$valid">
             </vector-processing>
 
-            <div class="col-md-6">
+            <div class="col-md-6" ng-show="ctrl.analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}'">
               <div class="form-group has-feedback" terrama2-show-errors>
-                <label>{{ i18n.__("DataSeries") }}:</label>
+                <label>{{ i18n.__(ctrl.analysis.type_id === '{[ Enums.AnalysisType.VP ]}' ? 'Monitored DataSeries' : 'DataSeries') }}:</label>
                 <select class="form-control"
                         name="targetDataSeries"
                         ng-disabled="ctrl.isUpdating"
@@ -339,7 +339,7 @@
             </div>
             <!-- ./col-md-6 -->
 
-            <div class="col-md-6" ng-show="ctrl.analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}' || ctrl.analysis.type_id === '{[ Enums.AnalysisType.VP ]}'">
+            <div class="col-md-6" ng-show="ctrl.analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}'">
               <div class="form-group" terrama2-show-errors>
                 <label>{{ i18n.__("Attribute Identifier") }}:</label>
 
