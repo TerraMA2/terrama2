@@ -93,6 +93,7 @@ namespace terrama2
       std::string joinableTable; //! Table to perform inner join. Used when both monitored identifier and additional identififer supplied.
       std::string monitoredIdentifier; //! Monitored attribute name to execute SQL JOIN while performing operation
       std::string additionalIdentifier; //! Additional attribute name to execute SQL join while performing operation
+      bool isReprocessingHistoricalData = false;
 
       //operator bool() const { return dataSetId != 0; }
     };

@@ -144,6 +144,7 @@ std::map<std::string, double> terrama2::services::analysis::core::GridContext::g
     {
       auto reprocessingHistoricalData = analysis_->schedule.reprocessingHistoricalData;
 
+      filter.isReprocessingHistoricalData = true;
       filter.discardBefore = reprocessingHistoricalData->startDate;
       filter.discardAfter = reprocessingHistoricalData->endDate;
     }
