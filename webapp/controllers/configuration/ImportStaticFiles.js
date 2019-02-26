@@ -24,7 +24,7 @@ const ImportStaticFiles = (/*app*/) => {
   // 'Utils' model
   const memberUtils = require('../../core/Utils.js');
 
-  const ShapeImporter = require('./../../core/ShapeImporter');
+  const { ShapeImporter } = require('./../../core/ShapeImporter');
 
   /**
    * Processes the request and returns a response.
@@ -39,6 +39,8 @@ const ImportStaticFiles = (/*app*/) => {
     var sendResponse = function(error, folder) {
       if(folder !== null) memberUtils.deleteFolderRecursively(folder, function() {});
       memberExportation.deleteInvalidFolders();
+
+      response.status(error ? 400 : 200);
       return response.json({ error: error });
     };
 

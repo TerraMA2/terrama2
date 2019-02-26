@@ -439,10 +439,10 @@ int main(int argc, char* argv[])
   {
     TERRAMA2_LOG_ERROR() << e.what();
   }
-//  catch(...)
-//  {
-//    TERRAMA2_LOG_ERROR() << QObject::tr("\n\nUnknown Exception...\n");
-//  }
+  catch(...)
+  {
+    TERRAMA2_LOG_ERROR() << QObject::tr("\n\nUnknown Exception...\n");
+  }
 
 #if defined(__APPLE__)
     try

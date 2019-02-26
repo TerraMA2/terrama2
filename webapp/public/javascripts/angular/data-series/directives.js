@@ -725,15 +725,17 @@ define([], function() {
 
                 file.upload.then(function(response) {
                   $timeout(function () {
-                    if(!$("#shapefile-import-loader").hasClass("hidden"))
-                      $("#shapefile-import-loader").addClass("hidden");
-
-                    if(response.data.error) $scope.shpImport.error = i18n.__(response.data.error);
+                    if(response && response.data.error) $scope.shpImport.error = i18n.__(response.data.error);
                     else $scope.shpImport.success = true;
-                  });
-                }, function(response) {
+                  })
+                }, response => {
                   if(response.status > 0)
-                    $scope.shpImport.error = response.status + ': ' + response.data;
+                    $scope.shpImport.error = response.status + ': ' + response.data.error;
+                })
+                // finally
+                .then(() => {
+                  if(!$("#shapefile-import-loader").hasClass("hidden"))
+                    $("#shapefile-import-loader").addClass("hidden");
                 });
               };
 
