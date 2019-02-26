@@ -1,0 +1,72 @@
+[
+  {
+    "name": "=",
+    "description": "",
+    "code": " = "
+  },
+  {
+    "name": "<",
+    "description": "",
+    "code": " < "
+  },
+  {
+    "name": ">",
+    "description": "It adds a new column with a value in table output",
+    "code": " > "
+  },
+  {
+    "name": ">=",
+    "description": "",
+    "code": " >= "
+  },
+  {
+    "name": "<=",
+    "description": "",
+    "code": " <= "
+  },
+  {
+    "name": "!=",
+    "description": "",
+    "code": " != "
+  },
+  {
+    "name": "LIKE",
+    "description": "",
+    "code": " LIKE "
+  },
+  {
+    "name": "ILIKE",
+    "description": "",
+    "code": " ILIKE "
+  },
+  {
+    "name": "%",
+    "description": "",
+    "code": "%"
+  },
+  {
+    "name": "IN",
+    "description": "",
+    "code": " IN "
+  },
+  {
+    "name": "NOT IN",
+    "description": "",
+    "code": " NOT IN "
+  },
+  {
+    "name": "AND",
+    "description": "",
+    "code": " AND "
+  },
+  {
+    "name": "OR",
+    "description": "",
+    "code": " OR "
+  },
+  {
+    "name": "NOT",
+    "description": "",
+    "code": " NOT "
+  }
+]
