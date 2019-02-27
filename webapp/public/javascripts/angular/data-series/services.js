@@ -162,6 +162,29 @@ define([
         return `${BASE_URL}images/dynamic-data-series/dcp/dcp.png`;
     }
   };
+
+  /**
+   * It retrieves all dynamic data series from API
+   *
+   * @param {Object} restriction - a query restriction
+   * @returns {ng.IPromise}
+   */
+
+  DataSeriesService.prototype.dynamicDataSeries = function() {
+    return this.list({data_series_semantics:{temporality:"DYNAMIC", "format": "POSTGIS"}});
+  }
+
+  /**
+   * It retrieves all static data series from API
+   *
+   * @param {Object} restriction - a query restriction
+   * @returns {ng.IPromise}
+   */
+
+  DataSeriesService.prototype.staticDataSeries = function() {
+    return this.list({data_series_semantics:{temporality:"STATIC", "format": "POSTGIS"}});
+  }
+
   /**
    * It duplicates a Data Series of another project on remote API
    *

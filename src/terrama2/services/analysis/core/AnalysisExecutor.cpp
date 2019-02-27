@@ -428,7 +428,6 @@ void terrama2::services::analysis::core::AnalysisExecutor::runVectorialProcessin
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
-    auto moDS = context->getMonitoredObjectContextDataSeries();
     auto outputDataSeriesPtr = dataManager->findDataSeries(analysis->outputDataSeriesId);
     auto dataProvider = dataManager->findDataProvider(outputDataSeriesPtr->dataProviderId);
 
