@@ -381,29 +381,24 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
             continue;
           }
 
-          if (inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT)
+          auto primaryKey = monitoredObjectTableInfo.dataSetType->getPrimaryKey();
+          std::string pk;
+          if(!primaryKey)
           {
-            const te::core::URI postgisURI(url.toString(QUrl::NormalizePathSegments).toStdString());
+            const auto monitoredObjectPk = dataset->format.find("monitored_object_pk");
 
-            auto dataSource = te::da::DataSourceFactory::make("POSTGIS", postgisURI);
-            terrama2::core::OpenClose<std::unique_ptr<te::da::DataSource>> wrapDataSource(dataSource);
-
-            auto transactor = dataSource->getTransactor();
-
-            listOfIntersectionTableNames = terrama2::services::view::core::vp::getIntersectionTables(transactor.get(), tableName);
-
-            SQL = terrama2::services::view::core::vp::prepareSQLIntersection(listOfIntersectionTableNames, monitoredObjectTableInfo.tableName);
-          }
-          else
-          {
-            auto primaryKey = monitoredObjectTableInfo.dataSetType->getPrimaryKey();
-            if(!primaryKey)
+            if (monitoredObjectPk == dataset->format.end())
             {
               QString errMsg = QObject::tr("Invalid primary key in dataseries: %1.").arg(QString::fromStdString(monitoredObjectDataSeries->name));
               logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), logId);
               TERRAMA2_LOG_ERROR() << errMsg;
               continue;
             }
+
+            pk = monitoredObjectPk->second;
+          }
+          else
+          {
             auto properties = primaryKey->getProperties();
             if(properties.size() != 1)
             {
@@ -413,8 +408,8 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
               continue;
             }
 
-            std::string pk = properties.at(0)->getName();
-
+            pk = properties.at(0)->getName();
+          }
             auto& propertiesVector = monitoredObjectTableInfo.dataSetType->getProperties();
 
             SQL = "SELECT ";

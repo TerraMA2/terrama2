@@ -237,17 +237,6 @@ void terrama2::core::DataAccessorGrADS::retrieveDataCallback(const terrama2::cor
     QUrl url(QString::fromStdString(uri) + QString::fromStdString(folderMatched));
     QDir dir(url.path());
 
-    QDir temporaryDirectory(QString::fromStdString(uri) + QString::fromStdString(folderMatched));
-    auto pathFragments = QString::fromStdString(controlFileFolderMask).split("/");
-    if (!pathFragments.empty())
-    {
-      for(const auto& fragment: pathFragments)
-      {
-        if (!fragment.isEmpty())
-          temporaryDirectory.cdUp();
-      }
-    }
-
     QUrl temporaryDirectoryURI(QString::fromStdString(uri));
 
     auto fileList = dir.entryInfoList(QStringList("*.ctl"), QDir::Files | QDir::NoDotAndDotDot);
@@ -283,14 +272,27 @@ void terrama2::core::DataAccessorGrADS::retrieveDataCallback(const terrama2::cor
                                           remover,
                                           temporaryDirectoryURI.toString(QUrl::NormalizePathSegments).toStdString(),
                                           folderMatched,
-                                          [processFile, &dir](const std::string& uri, const std::string& filename){
+                                          [processFile](const std::string& uri, const std::string& filename){
                                             processFile(uri, filename);
                                             QUrl url(QString::fromStdString(uri));
                                             // remove file on finish processing
                                             QString filePath = url.path()+QString::fromStdString("/"+filename);
-                                            QFile oldFile(filePath);
-                                            if(oldFile.exists())
+
+                                            const QFileInfo info(filePath);
+
+                                            if (!info.exists())
+                                              return;
+
+                                            if (info.isDir())
+                                            {
+                                              QDir directoryToRemove(filePath);
+                                              directoryToRemove.removeRecursively();
+                                            }
+                                            else
+                                            {
+                                              QFile oldFile(filePath);
                                               oldFile.remove();
+                                            }
                                           });
     }
   });
@@ -1252,6 +1254,7 @@ std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorGrADS::generateDat
                                "/" + binaryFolderMask + "/";
 
     auto binaryFileList = getFilesList(uri, binaryFileMask, completePath, filter, timezone, remover);
+
     lastFileTimestamp = readFilesAndAddToDataset(series, completeDataset, binaryFileList, binaryFileMask, dataSet);
   }
 
