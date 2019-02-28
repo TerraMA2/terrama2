@@ -20,10 +20,11 @@ namespace terrama2
             public:
               Intersection(terrama2::services::analysis::core::AnalysisPtr analysis,
                            terrama2::core::DataSeriesPtr monitoredDataSeries,
+                           terrama2::core::DataSeriesPtr dynamicDataSeries,
                            std::vector<terrama2::core::DataSeriesPtr> additionalDataSeries,
                            te::core::URI outputDataProviderURI);
 
-              ~Intersection();
+              ~Intersection() override;
 
               virtual void execute() override;
           };

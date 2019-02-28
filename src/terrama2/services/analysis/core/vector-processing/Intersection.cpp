@@ -1,13 +1,16 @@
 #include "Intersection.hpp"
 #include "../../../../core/utility/Utils.hpp"
 
+#include "../Analysis.hpp"
+
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 
 terrama2::services::analysis::core::vp::Intersection::Intersection(terrama2::services::analysis::core::AnalysisPtr analysis,
                                                                    terrama2::core::DataSeriesPtr monitoredDataSeries,
+                                                                   terrama2::core::DataSeriesPtr dynamicDataSeries,
                                                                    std::vector<terrama2::core::DataSeriesPtr> additionalDataSeries,
                                                                    te::core::URI outputDataProviderURI)
-  : Operator::Operator(analysis, monitoredDataSeries, additionalDataSeries, outputDataProviderURI)
+  : Operator::Operator(analysis, monitoredDataSeries, dynamicDataSeries, additionalDataSeries, outputDataProviderURI)
 {
 
 }
@@ -38,7 +41,11 @@ void terrama2::services::analysis::core::vp::Intersection::execute()
   for(; it != tableNameList.end(); ++it)
     queryTableNamesParameter += ", '"+ *it +"'";
 
-  std::string sql = "SELECT table_name, affected_rows::double precision FROM vectorial_processing_intersection('" + terrama2::core::getTableNameProperty(monitoredDataSeries_->datasetList[0]) + "', ";
+  auto monitoredTableName = terrama2::core::getTableNameProperty(monitoredDataSeries_->datasetList[0]);
+  auto dynamicDataSeriesTableName = terrama2::core::getTableNameProperty(dynamicDataSeries_->datasetList[0]);
+
+  std::string sql = "SELECT table_name, affected_rows::double precision FROM vectorial_processing_intersection("+ std::to_string(analysis_->id) +", '" +
+                    monitoredTableName + "', '" + dynamicDataSeriesTableName + "', ";
   sql += "ARRAY[" + queryTableNamesParameter + "], '" + whereCondition_ + "')";
 
   resultDataSet_ = transactor->query(sql);

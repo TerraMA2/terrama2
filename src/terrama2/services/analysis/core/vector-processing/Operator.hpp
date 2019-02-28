@@ -35,10 +35,17 @@ namespace terrama2
 
               Operator(terrama2::services::analysis::core::AnalysisPtr analysis,
                        terrama2::core::DataSeriesPtr monitoredDataSeries,
+                       terrama2::core::DataSeriesPtr dynamicDataSeries,
                        std::vector<terrama2::core::DataSeriesPtr> additionalDataSeries,
                        te::core::URI outputDataProviderURI);
+
               virtual ~Operator();
 
+              /*!
+               * \brief Execute the database operation in background and store data sets into result data set.
+               *
+               * \note It may throw exception related with Database.
+               */
               virtual void execute() = 0;
 
               virtual void setWhereCondition(const std::string& where);
@@ -48,6 +55,7 @@ namespace terrama2
             protected:
               terrama2::services::analysis::core::AnalysisPtr analysis_;
               terrama2::core::DataSeriesPtr monitoredDataSeries_;
+              terrama2::core::DataSeriesPtr dynamicDataSeries_;
               std::vector<terrama2::core::DataSeriesPtr> additionalDataSeries_;
               std::shared_ptr<te::da::DataSet> resultDataSet_;
               std::unique_ptr<te::da::DataSource> dataSource_;

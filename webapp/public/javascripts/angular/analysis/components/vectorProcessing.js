@@ -8,6 +8,17 @@ define([],()=> {
       this.SpatialOperations = SpatialOperations;
       this.DataSeriesService = DataSeriesService;
     }
+
+    onChangeStaticDataSeries() {
+      const { model, targetDataSeries } = this;
+
+      if (!targetDataSeries)
+        return;
+
+      const id = targetDataSeries.data_provider_id;
+
+      model.data_provider_id = id;
+    }
   }
 
   VectorProcessingComponent.$inject = ["i18n",
@@ -17,7 +28,10 @@ define([],()=> {
   const component = {
     bindings : {
       model: "=",
-      css: "<"
+      metadata: '=',
+      targetDataSeries: '=',
+      identifier: '=',
+      css: "<",
     },
     controller: VectorProcessingComponent,
     template: `
@@ -29,7 +43,7 @@ define([],()=> {
                         <label>{{$ctrl.operationsTitle}}:</label>
                           <select class="form-control"
                                   name="targetVectorProcessing"
-                                  ng-model="$ctrl.model.operationsType"
+                                  ng-model="$ctrl.model.operationType"
                                   ng-options="v as k for (k,v) in $ctrl.SpatialOperations"
                                   ng-required="true">
                           </select>
@@ -51,7 +65,8 @@ define([],()=> {
                     <label>{{$ctrl.monitoredDataSeriesTitle}}:</label>
                     <select class="form-control"
                             name="targetMonitoredDataSeries"
-                            ng-model="$ctrl.model.monitoredStaticDataSeries"
+                            ng-model="$ctrl.targetDataSeries"
+                            ng-change="$ctrl.onChangeStaticDataSeries()"
                             ng-options="targetDS as targetDS.name for targetDS in $ctrl.DataSeriesService.staticDataSeries()"
                             ng-required="true">
                     </select>
@@ -68,7 +83,7 @@ define([],()=> {
               <div class="col-md-6">
                 <div class="form-group" terrama2-show-errors>
                   <label>{{$ctrl.attributeIdentifierTitle}}:</label>
-                  <input type="text" class="form-control" name="name" ng-model="ctrl.metadata[dataSeries.name].alias" required>
+                  <input type="text" class="form-control" name="name" ng-model="$ctrl.metadata[$ctrl.targetDataSeries.name].identifier" required>
                 </div>
               </div>
 
@@ -81,7 +96,7 @@ define([],()=> {
                           <select class="form-control"
                                   name="targetDynamicDataSeries"
                                   ng-model="$ctrl.model.dynamicDataSeries"
-                                  ng-options="targetDS as targetDS.name for targetDS in $ctrl.DataSeriesService.dynamicDataSeries()"
+                                  ng-options="targetDS.id.toString() as targetDS.name for targetDS in $ctrl.DataSeriesService.dynamicDataSeries()"
                                   ng-required="true">
                           </select>
                       </div>

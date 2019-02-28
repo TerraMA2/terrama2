@@ -224,13 +224,6 @@ define([], function() {
         self.targetDataSeries = {};
 
         /**
-         * It used to add identifier in Analysis Data Series result
-         *
-         * @type {string}
-         */
-        self.identifier = "";
-
-        /**
          * Function to get image based in provider type
          */
         self.getImageUrl = getImageUrl;
@@ -374,11 +367,6 @@ define([], function() {
                   self.targetDataSeries = filteredDs;
                   self.onTargetDataSeriesChange();
 
-                  /**
-                   * Defines target analysis data series identifier
-                   * @type {string}
-                   */
-                  self.identifier = analysisDs.metadata.identifier;
                   return true;
                 }
               });
@@ -429,6 +417,7 @@ define([], function() {
             }
           } else { // if  monitored object or dcp
             self.analysis.metadata.operationType = !isNaN(Number(analysisInstance.metadata.operationType)) ? Number(analysisInstance.metadata.operationType) : undefined;
+            self.analysis.metadata.dynamicDataSeries = analysisInstance.metadata.dynamicDataSeries;
             self.analysis.metadata.INFLUENCE_TYPE = analysisInstance.metadata.INFLUENCE_TYPE;
             self.analysis.metadata.INFLUENCE_RADIUS = !isNaN(Number(analysisInstance.metadata.INFLUENCE_RADIUS)) ? Number(analysisInstance.metadata.INFLUENCE_RADIUS) : undefined;
             self.analysis.metadata.INFLUENCE_RADIUS_UNIT = analysisInstance.metadata.INFLUENCE_RADIUS_UNIT;
@@ -1139,10 +1128,20 @@ define([], function() {
             case Globals.enums.AnalysisType.MONITORED:
             case Globals.enums.AnalysisType.VP:
               analysisTypeId = Globals.enums.AnalysisDataSeriesType.DATASERIES_MONITORED_OBJECT_TYPE;
-              self.metadata[self.targetDataSeries.name]['identifier'] = self.identifier;
+
+              const { metadata } = self.analysis;
+
+              if (typeId === Globals.enums.AnalysisType.VP) {
+                if (metadata.data_provider_id) {
+                  self.analysis.data_provider_id = metadata.data_provider_id;
+                }
+
+
+              }
+
               // setting monitored object id in output data series format
               self.modelStorager.monitored_object_id = self.targetDataSeries.id;
-              self.modelStorager.monitored_object_pk = self.identifier;
+              self.modelStorager.monitored_object_pk = self.analysis.metadata.identifier;
               break;
           }
 

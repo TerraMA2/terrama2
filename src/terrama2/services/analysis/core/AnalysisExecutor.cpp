@@ -428,6 +428,17 @@ void terrama2::services::analysis::core::AnalysisExecutor::runVectorialProcessin
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
+    // Get Analysis queryBuilder
+    auto dynamicDataSeriesIt = analysis->metadata.find("dynamicDataSeries");
+
+    if(dynamicDataSeriesIt == analysis->metadata.cend() || dynamicDataSeriesIt->second.empty())
+    {
+      QString errMsg = QObject::tr("The attribute 'dynamicDataSeries' is required but not found");
+      throw InvalidArgumentException() << ErrorDescription(errMsg);
+    }
+
+    auto dynamicDataSeries = dataManager->findDataSeries(static_cast<uint32_t>(std::stoi(dynamicDataSeriesIt->second)));
+
     auto outputDataSeriesPtr = dataManager->findDataSeries(analysis->outputDataSeriesId);
     auto dataProvider = dataManager->findDataProvider(outputDataSeriesPtr->dataProviderId);
 
@@ -449,7 +460,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runVectorialProcessin
 
     switch(std::stoi(typeIt->second)) {
       case vp::Operator::INTERSECTION:
-        analysisOperator = std::unique_ptr<vp::Operator>(new vp::Intersection(analysis, monitoredDataSeries, listOfAdditionalDataSeries, postgisURI));
+        analysisOperator = std::unique_ptr<vp::Operator>(new vp::Intersection(analysis, monitoredDataSeries, dynamicDataSeries, listOfAdditionalDataSeries, postgisURI));
 
         break;
       default:

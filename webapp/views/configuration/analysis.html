@@ -262,7 +262,7 @@
             </div>
           </div>
 
-          <div class="col-md-4" ng-show="ctrl.analysis.type_id == ctrl.AnalysisService.types.GRID">
+          <div class="col-md-4" ng-if="ctrl.analysis.type_id == ctrl.AnalysisService.types.GRID">
             <div class="form-group" terrama2-show-errors>
               <label>{{ i18n.__('Data Store') }}:</label>
               <ui-select name="storager_data_provider_id" ng-model="ctrl.analysis.data_provider_id" ng-required="ctrl.storager.format.name" required>
@@ -314,8 +314,10 @@
           <form name="forms.targetDataSeriesForm">
 
             <vector-processing css="ctrl.css"
-                  model="ctrl.analysis.metadata.operationType"
-                  ng-show="ctrl.analysis.type_id === '{[ Enums.AnalysisType.VP ]}' && forms.generalDataForm.type.$valid">
+                  model="ctrl.analysis.metadata"
+                  target-data-series="ctrl.targetDataSeries"
+                  metadata="ctrl.metadata"
+                  ng-if="ctrl.analysis.type_id === '{[ Enums.AnalysisType.VP ]}' && forms.generalDataForm.type.$valid">
             </vector-processing>
 
             <div class="col-md-6" ng-show="ctrl.analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}'">
@@ -344,7 +346,7 @@
                 <label>{{ i18n.__("Attribute Identifier") }}:</label>
 
                 <!-- Input text with optional selection directive-->
-                <terrama2-text-select selected-item="ctrl.identifier" items="ctrl.columnsList"></terrama2-text-select>
+                <terrama2-text-select selected-item="ctrl.metadata[ctrl.targetDataSeries.name].identifier" items="ctrl.columnsList"></terrama2-text-select>
                 <!-- required -->
                 <span class="help-block"
                       ng-show="forms.targetDataSeriesForm.identifier.$dirty && forms.targetDataSeriesForm.identifier.$error.required">
