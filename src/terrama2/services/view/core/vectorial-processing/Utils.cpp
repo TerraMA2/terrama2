@@ -19,42 +19,65 @@
 #include <terralib/se/FeatureTypeStyle.h>
 #include <terralib/se/Rule.h>
 
-std::string terrama2::services::view::core::vp::prepareSQLIntersection(const std::vector<std::string>& listOfIntersectionTables,
-                                                                       const std::string& /*monitoredTableName*/)
+void prepareFromClause(te::da::DataSetType* dataSetType, std::string& columnClause)
 {
-  std::string sql = "SELECT ";
-  std::string columnClause = "";
+  const auto& tableName = dataSetType->getTitle();
 
-  if (listOfIntersectionTables.size() > 0)
+  for(const auto& property: dataSetType->getProperties())
   {
-    const auto& intersectionTableName = listOfIntersectionTables[0];
-
-    columnClause += intersectionTableName + ".monitored_id, ";
-    columnClause += intersectionTableName + ".additional_id, ";
-    columnClause += intersectionTableName + ".intersection_geom, ";
-    columnClause += "0 as category";
-
-    sql += columnClause + " FROM " + intersectionTableName;
+    // Skips geometry columns
+    if(property->getType() != te::dt::GEOMETRY_TYPE)
+      columnClause += ", " + tableName + "." + property->getName();
   }
+}
 
-  for(std::size_t i = 1; i != listOfIntersectionTables.size(); ++i)
+std::string terrama2::services::view::core::vp::prepareSQLIntersection(const std::string& tableName,
+                                                                       te::da::DataSetType* monitoredDataSeriesType,
+                                                                       te::da::DataSetType* dynamicDataSeriesType,
+                                                                       const std::string& geometryName,
+                                                                       te::da::DataSetType* additionalDataSeriesType)
+{
+  assert(monitoredDataSeriesType != nullptr);
+  assert(dynamicDataSeriesType != nullptr);
+
+  auto monitoredPrimaryKey = monitoredDataSeriesType->getPrimaryKey();
+  auto dynamicPrimaryKey = dynamicDataSeriesType->getPrimaryKey();
+
+  auto monitoredTableName = monitoredDataSeriesType->getTitle();
+  auto dynamicTableName = dynamicDataSeriesType->getTitle();
+
+  std::string columnClause = "monitored_id, intersect_id AS dynamic_pk";
+  prepareFromClause(monitoredDataSeriesType, columnClause);
+  prepareFromClause(dynamicDataSeriesType, columnClause);
+
+  if (additionalDataSeriesType != nullptr)
+    prepareFromClause(additionalDataSeriesType, columnClause);
+
+  columnClause += tableName + "." + geometryName;
+
+  std::string sql = "SELECT " + columnClause +
+                    "  FROM " + tableName + ", " + monitoredTableName + ", " + dynamicTableName +
+                    " WHERE " +
+                    monitoredTableName + "." + monitoredPrimaryKey->getName() + "::VARCHAR = " +
+                    tableName + ".monitored_id::VARCHAR" +
+                    "  AND" +
+                    dynamicTableName + "." + dynamicPrimaryKey->getName() + "::VARCHAR = " +
+                    tableName + ".intersect_id::VARCHAR";
+
+  if (additionalDataSeriesType != nullptr)
   {
-    sql += " UNION SELECT ";
-    const auto& intersectionTableName = listOfIntersectionTables[i];
-
-    columnClause = intersectionTableName + ".monitored_id, ";
-    columnClause += intersectionTableName + ".additional_id, ";
-    columnClause += intersectionTableName + ".intersection_geom, ";
-    columnClause += std::to_string(i) + " as category";
-
-    sql += columnClause + " FROM " + intersectionTableName;
+    auto additionalPrimaryKey = additionalDataSeriesType->getPrimaryKey();
+    auto additionalTableName = additionalDataSeriesType->getTitle();
+    sql += "  AND " +
+           additionalTableName + "." + additionalPrimaryKey->getName() + "::VARCHAR = " +
+           tableName + "." + tableName + "_pk::VARCHAR";
   }
 
   return sql;
 }
 
 std::unique_ptr<terrama2::services::view::core::View::Legend>
-terrama2::services::view::core::vp::generateVectorProcessingLegend(const std::vector<std::string>& listOfIntersectionTables)
+terrama2::services::view::core::vp::generateVectorProcessingLegend(const std::vector<std::string>& /*listOfIntersectionTables*/)
 {
   std::unique_ptr<terrama2::services::view::core::View::Legend> legend(new terrama2::services::view::core::View::Legend);
 

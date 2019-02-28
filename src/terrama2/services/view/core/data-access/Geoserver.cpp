@@ -339,7 +339,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
             continue;
           }
 
-          terrama2::core::DataSeriesPtr monitoredObjectDataSeries = dataManager->findDataSeries(std::stoi(id->second));
+          terrama2::core::DataSeriesPtr monitoredObjectDataSeries = dataManager->findDataSeries(static_cast<uint32_t>(std::stoi(id->second)));
           terrama2::core::DataProviderPtr monitoredObjectProvider = dataManager->findDataProvider(monitoredObjectDataSeries->dataProviderId);
 
           QUrl monitoredObjectUrl(monitoredObjectProvider->uri.c_str());
@@ -390,9 +390,60 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
 
             auto transactor = dataSource->getTransactor();
 
-            listOfIntersectionTableNames = terrama2::services::view::core::vp::getIntersectionTables(transactor.get(), tableName);
+            auto dynamicDataSeriesIdIt = dataset->format.find("dynamic_object_id");
+            if (dynamicDataSeriesIdIt == dataset->format.end())
+            {
+              QString errMsg = QObject::tr("Could not find dynamic data series id");
+              TERRAMA2_LOG_ERROR() << errMsg;
 
-            SQL = terrama2::services::view::core::vp::prepareSQLIntersection(listOfIntersectionTableNames, monitoredObjectTableInfo.tableName);
+              throw ViewGeoserverException() << ErrorDescription(errMsg);
+            }
+            auto dynamicDataSeries = dataManager->findDataSeries(static_cast<uint32_t>(std::stoi(dynamicDataSeriesIdIt->second)));
+
+            auto dynamicDataSetType = transactor->getDataSetType(terrama2::core::getTableNameProperty(dynamicDataSeries->datasetList[0]));
+
+            // Generate layer for Monitored Geometry only here
+            SQL = terrama2::services::view::core::vp::prepareSQLIntersection(tableName,
+                                                                             monitoredObjectTableInfo.dataSetType.get(),
+                                                                             dynamicDataSetType.get(),
+                                                                             "monitored_geom");
+
+            modelDataSetType.reset(monitoredObjectTableInfo.dataSetType.release());
+
+            registerPostgisTable(viewPtr,
+                                 std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
+                                 inputDataSeries->semantics.dataSeriesType,
+                                 connInfo,
+                                 tableName,
+                                 layerName + "_monitored_geom",
+                                 modelDataSetType,
+                                 logger,
+                                 logId,
+                                 timestampPropertyName,
+                                 SQL);
+
+            QJsonObject layer;
+            layer.insert("layer", QString::fromStdString(layerName+"_monitored_geom"));
+            layersArray.push_back(layer);
+
+            SQL = terrama2::services::view::core::vp::prepareSQLIntersection(tableName,
+                                                                             monitoredObjectTableInfo.dataSetType.get(),
+                                                                             dynamicDataSetType.get(),
+                                                                             "monitored_geom");
+
+            registerPostgisTable(viewPtr,
+                                 std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
+                                 inputDataSeries->semantics.dataSeriesType,
+                                 connInfo,
+                                 tableName,
+                                 layerName + "_intersection_geom",
+                                 modelDataSetType,
+                                 logger,
+                                 logId,
+                                 timestampPropertyName,
+                                 SQL);
+            layer.insert("layer", QString::fromStdString(layerName+"_intersection_geom"));
+            layersArray.push_back(layer);
           }
           else
           {
@@ -435,18 +486,6 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
           tableName = layerName;
         }
 
-        registerPostgisTable(viewPtr,
-                             std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
-                             inputDataSeries->semantics.dataSeriesType,
-                             connInfo,
-                             tableName,
-                             layerName,
-                             modelDataSetType,
-                             logger,
-                             logId,
-                             timestampPropertyName,
-                             SQL);
-
         if(objectType ==  View::Legend::ObjectType::UNKNOWN)
         {
           if(modelDataSetType->hasGeom())
@@ -468,20 +507,19 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
         layer.insert("layer", QString::fromStdString(layerName));
         layersArray.push_back(layer);
 
-        if (inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT)
+        if (inputDataSeries->semantics.dataSeriesType != terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT)
         {
-          // When Vector Processing, create a temporary legend since the viewPtr legend is empty
-          std::unique_ptr<View::Legend> temporaryLegend = terrama2::services::view::core::vp::generateVectorProcessingLegend(listOfIntersectionTableNames);
-
-//          // Register style
-//          std::string styleName = "";
-
-//          std::string layerName = viewLayerName(viewPtr);
-//          styleName = layerName + "_style";
-//          registerStyle(styleName, *temporaryLegend.get(), objectType, geomType);
-
-//          for(auto layer : layersArray)
-//            registerLayerDefaultStyle(styleName, layer.toObject().value("layer").toString().toStdString());
+          registerPostgisTable(viewPtr,
+                               std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
+                               inputDataSeries->semantics.dataSeriesType,
+                               connInfo,
+                               tableName,
+                               layerName,
+                               modelDataSetType,
+                               logger,
+                               logId,
+                               timestampPropertyName,
+                               SQL);
         }
       }
     }

@@ -1136,7 +1136,10 @@ define([], function() {
                   self.analysis.data_provider_id = metadata.data_provider_id;
                 }
 
+                let additionalIds = self.selectedDataSeriesList.map(selectedDataSeries => selectedDataSeries.id);
 
+                self.modelStorager.additional_object_ids = additionalIds.join(",");
+                self.modelStorager.dynamic_object_id = metadata.dynamicDataSeries;
               }
 
               // setting monitored object id in output data series format
