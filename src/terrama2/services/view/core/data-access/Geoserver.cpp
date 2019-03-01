@@ -415,7 +415,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
                                  inputDataSeries->semantics.dataSeriesType,
                                  connInfo,
                                  tableName,
-                                 layerName + "_monitored_geom",
+                                 layerName,
                                  modelDataSetType,
                                  logger,
                                  logId,
@@ -437,7 +437,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
                                  inputDataSeries->semantics.dataSeriesType,
                                  connInfo,
                                  tableName,
-                                 layerName + "_intersection_geom",
+                                 layerName,
                                  modelDataSetType,
                                  logger,
                                  logId,
@@ -477,13 +477,17 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
                                    inputDataSeries->semantics.dataSeriesType,
                                    connInfo,
                                    tableName,
-                                   layerName + additionalIntersectionField,
+                                   layerName,
                                    modelDataSetType,
                                    logger,
                                    logId,
                                    additionalIntersectionField,
                                    timestampPropertyName,
                                    SQL);
+
+              layer.insert("layer", QString::fromStdString(layerName + "_" + additionalIntersectionField));
+              layersArray.push_back(layer);
+
 
               // Generate layer for Monitored Geometry only here
               SQL = terrama2::services::view::core::vp::prepareSQLIntersection(modelDataSetType->getTitle(),
@@ -496,13 +500,16 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
                                    inputDataSeries->semantics.dataSeriesType,
                                    connInfo,
                                    tableName,
-                                   layerName + additionalDifferenceField,
+                                   layerName,
                                    modelDataSetType,
                                    logger,
                                    logId,
                                    additionalDifferenceField,
                                    timestampPropertyName,
                                    SQL);
+
+              layer.insert("layer", QString::fromStdString(layerName + "_" + additionalDifferenceField));
+              layersArray.push_back(layer);
             }
           }
           else
@@ -904,17 +911,22 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const terra
 
   std::string xml = "<featureType>";
   xml += "<title>" + viewLayerTitle(viewPtr) + "</title>";
+  std::string viewName = viewLayerName(viewPtr);
+
+  // When vector processing, join viewname with geometry column in order to identify which geometry the
+  // layer is responsible for.
+  if (dataSeriesType == terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT)
+    viewName += "_" + geometryColumnName;
+  xml += "<name>" + viewName + "</name>";
 
   switch(dataSeriesType)
   {
     case terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT:
     case terrama2::core::DataSeriesType::DCP:
     case terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT:
-      xml += "<name>" + viewLayerName(viewPtr) + "_" + layerName + "</name>";
       xml += "<nativeName>" + layerName + "</nativeName>";
       break;
     default:
-      xml += "<name>" + viewLayerName(viewPtr) + "_" + tableName + "</name>";
       xml += "<nativeName>" + tableName + "</nativeName>";
   }
 
