@@ -45,7 +45,7 @@ namespace terrama2
       {
         namespace vp
         {
-          std::vector<std::string> getIntersectionTables(te::da::DataSourceTransactor* transactor, const std::string& analysisTableNameResult);
+          std::unique_ptr<te::da::DataSetType> getIntersectionTable(te::da::DataSourceTransactor* transactor, const std::string& analysisTableNameResult);
 
           std::string prepareSQLIntersection(const std::string& tableName,
                                              te::da::DataSetType* monitoredDataSeriesType,

@@ -40,8 +40,8 @@ std::string terrama2::services::view::core::vp::prepareSQLIntersection(const std
   assert(monitoredDataSeriesType != nullptr);
   assert(dynamicDataSeriesType != nullptr);
 
-  auto monitoredPrimaryKey = monitoredDataSeriesType->getPrimaryKey();
-  auto dynamicPrimaryKey = dynamicDataSeriesType->getPrimaryKey();
+  auto monitoredPrimaryKey = monitoredDataSeriesType->getPrimaryKey()->getProperties()[0]->getName();
+  auto dynamicPrimaryKey = dynamicDataSeriesType->getPrimaryKey()->getProperties()[0]->getName();
 
   auto monitoredTableName = monitoredDataSeriesType->getTitle();
   auto dynamicTableName = dynamicDataSeriesType->getTitle();
@@ -53,15 +53,15 @@ std::string terrama2::services::view::core::vp::prepareSQLIntersection(const std
   if (additionalDataSeriesType != nullptr)
     prepareFromClause(additionalDataSeriesType, columnClause);
 
-  columnClause += tableName + "." + geometryName;
+  columnClause += ", " + tableName + "." + geometryName;
 
   std::string sql = "SELECT " + columnClause +
                     "  FROM " + tableName + ", " + monitoredTableName + ", " + dynamicTableName +
                     " WHERE " +
-                    monitoredTableName + "." + monitoredPrimaryKey->getName() + "::VARCHAR = " +
+                    monitoredTableName + "." + monitoredPrimaryKey + "::VARCHAR = " +
                     tableName + ".monitored_id::VARCHAR" +
-                    "  AND" +
-                    dynamicTableName + "." + dynamicPrimaryKey->getName() + "::VARCHAR = " +
+                    "   AND " +
+                    dynamicTableName + "." + dynamicPrimaryKey + "::VARCHAR = " +
                     tableName + ".intersect_id::VARCHAR";
 
   if (additionalDataSeriesType != nullptr)
@@ -119,8 +119,6 @@ terrama2::services::view::core::vp::generateVectorProcessingLegend(const std::ve
       // Defining OGC Style Filter
       std::unique_ptr<te::fe::Filter> filter(new te::fe::Filter);
 
-
-
       rule->setFilter(filter.release());
 
       rules.push_back(std::move(rule));
@@ -136,20 +134,17 @@ terrama2::services::view::core::vp::generateVectorProcessingLegend(const std::ve
     }
   }
 
-  return std::move(legend);
+  return legend;
 }
 
-std::vector<std::string> terrama2::services::view::core::vp::getIntersectionTables(te::da::DataSourceTransactor* transactor,
-                                                                                   const std::string& analysisTableNameResult)
+std::unique_ptr<te::da::DataSetType>
+terrama2::services::view::core::vp::getIntersectionTable(te::da::DataSourceTransactor* transactor,
+                                                         const std::string& analysisTableNameResult)
 {
   assert(transactor != nullptr);
 
-  auto resultDataSet = transactor->query("SELECT table_name FROM " + analysisTableNameResult);
+  auto resultDataSet = transactor->query("SELECT DISTINCT table_name FROM " + analysisTableNameResult);
+  resultDataSet->moveFirst();
 
-  std::vector<std::string> analysisTableNameList;
-
-  while(resultDataSet->moveNext())
-    analysisTableNameList.push_back(resultDataSet->getString("table_name"));
-
-  return analysisTableNameList;
+  return transactor->getDataSetType(resultDataSet->getString("table_name"));
 }
