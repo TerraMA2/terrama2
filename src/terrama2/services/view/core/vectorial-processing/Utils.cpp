@@ -4,6 +4,7 @@
 // TerraMA2 Core
 #include "../Utils.hpp"
 #include "../../../../core/utility/Raii.hpp"
+#include "../../../../core/utility/Utils.hpp"
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
@@ -22,12 +23,13 @@
 void prepareFromClause(te::da::DataSetType* dataSetType, std::string& columnClause)
 {
   const auto& tableName = dataSetType->getTitle();
+  const auto tableNameWithoutSchema = terrama2::core::splitString(tableName, '.')[1];
 
   for(const auto& property: dataSetType->getProperties())
   {
     // Skips geometry columns
     if(property->getType() != te::dt::GEOMETRY_TYPE)
-      columnClause += ", " + tableName + "." + property->getName();
+      columnClause += ", " + tableName + "." + property->getName() + " AS " + tableNameWithoutSchema + "_" + property->getName();
   }
 }
 
@@ -50,28 +52,37 @@ std::string terrama2::services::view::core::vp::prepareSQLIntersection(const std
   prepareFromClause(monitoredDataSeriesType, columnClause);
   prepareFromClause(dynamicDataSeriesType, columnClause);
 
+
+  std::string fromClause = tableName + ", " + monitoredTableName + ", " + dynamicTableName;
+  std::string whereClause = monitoredTableName + "." + monitoredPrimaryKey + "::VARCHAR = " +
+                            tableName + ".monitored_id::VARCHAR" +
+                            "   AND " +
+                            dynamicTableName + "." + dynamicPrimaryKey + "::VARCHAR = " +
+                            tableName + ".intersect_id::VARCHAR";
+
   if (additionalDataSeriesType != nullptr)
+  {
+    // Add the columns of Additional Data Series
     prepareFromClause(additionalDataSeriesType, columnClause);
+
+    auto additionalPrimaryKey = additionalDataSeriesType->getPrimaryKey()->getProperties()[0];
+    auto additionalTableName = additionalDataSeriesType->getTitle();
+    auto additionalTableWithoutSchema = terrama2::core::splitString(additionalTableName, '.')[1];
+    // Add additional table name into SQL from clause
+    fromClause += ", " + additionalTableName;
+    // Set join condition of additional table name
+    whereClause += "  AND " +
+                   additionalTableName + "." + additionalPrimaryKey->getName() + "::VARCHAR = " +
+                   tableName + "." + additionalTableWithoutSchema + "_pk::VARCHAR";
+  }
 
   columnClause += ", " + tableName + "." + geometryName;
 
   std::string sql = "SELECT " + columnClause +
-                    "  FROM " + tableName + ", " + monitoredTableName + ", " + dynamicTableName +
-                    " WHERE " +
-                    monitoredTableName + "." + monitoredPrimaryKey + "::VARCHAR = " +
-                    tableName + ".monitored_id::VARCHAR" +
-                    "   AND " +
-                    dynamicTableName + "." + dynamicPrimaryKey + "::VARCHAR = " +
-                    tableName + ".intersect_id::VARCHAR";
+                    "  FROM " + fromClause +
+                    " WHERE " + whereClause;
 
-  if (additionalDataSeriesType != nullptr)
-  {
-    auto additionalPrimaryKey = additionalDataSeriesType->getPrimaryKey();
-    auto additionalTableName = additionalDataSeriesType->getTitle();
-    sql += "  AND " +
-           additionalTableName + "." + additionalPrimaryKey->getName() + "::VARCHAR = " +
-           tableName + "." + tableName + "_pk::VARCHAR";
-  }
+  std::cout << sql << std::endl;
 
   return sql;
 }

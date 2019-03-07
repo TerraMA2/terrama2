@@ -447,7 +447,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
             layer.insert("layer", QString::fromStdString(layerName+"_intersection_geom"));
             layersArray.push_back(layer);
 
-            auto listOfadditionalDataSeriesIt = dataset->format.find("monitored_object_ids");
+            auto listOfadditionalDataSeriesIt = dataset->format.find("additional_object_ids");
             if (listOfadditionalDataSeriesIt == dataset->format.end())
             {
               QString errMsg = QObject::tr("Could not find the additional data series on Vector Intersection.");
@@ -462,6 +462,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
             {
               auto additionalDataSeries = dataManager->findDataSeries(static_cast<uint32_t>(std::stoi(additionalDataSeriesId)));
               const auto& additionalTableName = terrama2::core::getTableNameProperty(additionalDataSeries->datasetList[0]);
+              auto additionalDataSetType = transactor->getDataSetType(additionalTableName);
 
               const std::string additionalIntersectionField = additionalTableName + "_intersection_geom";
               const std::string additionalDifferenceField = additionalTableName + "_difference_geom";
@@ -470,7 +471,8 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
               SQL = terrama2::services::view::core::vp::prepareSQLIntersection(modelDataSetType->getTitle(),
                                                                                monitoredObjectTableInfo.dataSetType.get(),
                                                                                dynamicDataSetType.get(),
-                                                                               additionalIntersectionField);
+                                                                               additionalIntersectionField,
+                                                                               additionalDataSetType.get());
 
               registerPostgisTable(viewPtr,
                                    std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
@@ -897,9 +899,17 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const terra
 {
   try
   {
-    deleteVectorLayer(dataStoreName, layerName, true);
+    if (dataSeriesType == terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT)
+    {
+      // Remove internal layer
+      const std::string internalLayerName = layerName + "_" + geometryColumnName;
+
+      deleteVectorLayer(dataStoreName, internalLayerName, true);
+    }
+    else
+      deleteVectorLayer(dataStoreName, layerName, true);
   }
-  catch(NotFoundGeoserverException /*e*/)
+  catch(const NotFoundGeoserverException& /*e*/)
   {
     // Do nothing
     std::cout << "Not found " << std::endl;
