@@ -43,7 +43,7 @@
     </wz-step>
 
     <wz-step wz-title="{{ i18n.__('Parameters') }}" canexit="isSecondStepValid" wz-data="wizard.parameters">
-      <div class="col-md-12">
+      <div ng-class="{ 'col-md-12' : !$ctrl.isFilteredTable(), 'col-md-8': $ctrl.isFilteredTable }">
 
         <!-- schema form -->
         <form name="forms.parametersForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
@@ -58,6 +58,10 @@
           <div id="includeDcpTable" ng-include=""></div>
         </div>
 
+      </div>
+
+      <div class="col-md-4">
+        <terrama2-map id="previewMap"></terrama2-map>
       </div>
 
       <div class="col-md-12" ng-if="!isDynamic && (semanticsCode === 'STATIC_DATA-postgis' || (semanticsCode === 'STATIC_DATA-ogr' && isDataProviderFolder()))">

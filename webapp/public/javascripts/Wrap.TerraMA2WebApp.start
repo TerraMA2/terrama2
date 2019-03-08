@@ -4,4 +4,4 @@
   } else {
     root.TerraMA2WebApp = factory();
   }
-} (this, function() {
+} ({}, function() {

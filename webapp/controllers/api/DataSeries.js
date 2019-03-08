@@ -14,7 +14,6 @@ module.exports = function(app) {
   // Facade
   const DataSeriesFacade = require('./../../core/facade/DataSeries')
   var DataProviderFacade = require("./../../core/facade/DataProvider");
-  const CollectorFacade = require('./../../core/facade/Collector');
   var RequestFactory = require("./../../core/RequestFactory");
 
   const { createView, destroyView, validateView } = require('./../../core/utility/createView');
@@ -319,8 +318,7 @@ module.exports = function(app) {
               await DataManager.updateDataSeries(parseInt(dataSeriesId), dataSeriesObject.input, options);
               await DataManager.updateDataSeries(parseInt(collector.data_series_output), dataSeriesObject.output, options);
 
-              const collectorFacade = new CollectorFacade();
-              return collectorFacade.updateCollector(collector.id, collector, options)
+              return DataManager.updateCollector(collector.id, collector, options)
                 // verify if must remove a schedule
                 .then(() => {
                   if (removeSchedule){
@@ -761,6 +759,21 @@ module.exports = function(app) {
         await validateView(dataProvider.uri, tableName, attributes, whereCondition);
 
         response.json({});
+      } catch (err) {
+        response.status(400);
+        response.json({ error: err.message });
+      }
+    },
+
+    retrieveAsWKT: async (request, response) => {
+      const { id, tableName, where } = request.query;
+
+      try {
+        if (tableName) {
+          response.json(await DataSeriesFacade.retrieveWKT(tableName, null, where));
+        } else {
+          response.json(await DataSeriesFacade.retrieveWKTFromId(id, where));
+        }
       } catch (err) {
         response.status(400);
         response.json({ error: err.message });

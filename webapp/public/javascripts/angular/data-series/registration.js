@@ -463,7 +463,7 @@ define([], function() {
         var count = 0;
 
         if(object !== undefined && object !== null && typeof object === "object")
-          for(key in object) if(object.hasOwnProperty(key)) count++;
+          for(let key in object) if(object.hasOwnProperty(key)) count++;
 
         return count;
       };
@@ -1652,7 +1652,7 @@ define([], function() {
       };
 
       $scope.isAliasValid = function(value, dcpsObject) {
-        for(key in dcpsObject) {
+        for(let key in dcpsObject) {
           if(dcpsObject.hasOwnProperty(key)) {
             if(dcpsObject[key].alias == value)
               return false;
@@ -2373,6 +2373,19 @@ define([], function() {
       MessageBoxService.success(title, $scope.i18n.__('View is valid!'));
     } catch (err) {
       MessageBoxService.danger(title, $scope.i18n.__(err.message));
+    }
+  };
+
+  RegisterDataSeries.prototype.previewMap = async function() {
+    const { $scope, MapService } = this;
+    const { table_name, query_builder } = $scope.model;
+
+    try {
+
+      MapService.addLayerFromWKT('previewLayer', wktObjects, 'EPSG:4326');
+      MapService.zoomToLayer('previewLayer');
+    } catch (err) {
+      debugger;
     }
   };
 

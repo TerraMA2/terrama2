@@ -1,13 +1,14 @@
 define([
   "TerraMA2WebApp/geo/directives",
-  "TerraMA2WebApp/geo/services"
-], function(directivesApp, servicesApp) {
+  "TerraMA2WebApp/geo/services",
+  "./components/index"
+], function(directivesApp, servicesApp, componentApp) {
 
 'use strict';
 
 var moduleName = "terrama2.components.geo";
 
-angular.module(moduleName, [directivesApp, servicesApp])
+angular.module(moduleName, [directivesApp, servicesApp, componentApp])
   .constant("Geometry", {
     "POLYGON": "Polygon",
     "POINT": "Point"
@@ -135,10 +136,10 @@ angular.module(moduleName, [directivesApp, servicesApp])
       }
     };
   }])
-  
+
   /**
    * This factory injects all GeoLibraries available in order make it useful when handle multiple geo data types.
-   * 
+   *
    * @param {Geometry} Geometry - TerraMA² Geometry Enum
    * @param {Polygon} Polygon - TerraMA² Polygon builder
    * @param {Point} Point - TerraMA² Point builder
