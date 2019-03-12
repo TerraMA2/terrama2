@@ -49,8 +49,8 @@ define([
             $scope.optionsTo = this.optionsTo;
             $scope.optionsFrom = this.optionsFrom;
             this.update = function (dateFrom, dateTo) {
-                this.optionsFrom.maxDate = dateTo;
-                this.optionsTo.minDate = dateFrom;
+              this.optionsFrom.maxDate = dateTo.set({ 'second': 0 });
+              this.optionsTo.minDate = dateFrom.set({ 'second': 0 });
             };
             // change datatimepicker locale when change plataform language
             $scope.$on("LOCALE_UPDATED", function(event, args){

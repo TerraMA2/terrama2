@@ -85,6 +85,7 @@ namespace terrama2
       std::shared_ptr<const te::gm::Geometry> region = nullptr; //!< Geometry to be used as area of interest for filtering the data during its collect.
       bool cropRaster = false; //! If true the raster will be cropped by the region envelope.
       std::shared_ptr<size_t> lastValues = nullptr; //!< Filter by number of dates.
+      int limitTo = -1; //!< Limit of values to return. Default is -1, which represents all
       std::string byValue; //! Filter by value expression. Must be a valid sql filter expression.
       DataProviderPtr dataProvider; //! Provider from static data filter.
       DataSeriesPtr dataSeries; //! Static data data series.
@@ -92,6 +93,7 @@ namespace terrama2
       std::string joinableTable; //! Table to perform inner join. Used when both monitored identifier and additional identififer supplied.
       std::string monitoredIdentifier; //! Monitored attribute name to execute SQL JOIN while performing operation
       std::string additionalIdentifier; //! Additional attribute name to execute SQL join while performing operation
+      bool isReprocessingHistoricalData = false;
 
       //operator bool() const { return dataSetId != 0; }
     };

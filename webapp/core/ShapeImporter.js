@@ -1,13 +1,12 @@
-// External dependencies
-const Unzip = require('adm-zip');
 // NodeJS Dependencies
-const execProccess = require('child_process').exec;
+const child_process = require('child_process');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
 // TerraMA2 Dependencies
 const Exportation = new (require('./Exportation.js'))();
+const FileExtract = require('./FileExtract');
 const Utils = require('./Utils.js');
 const DataManager = require('./DataManager');
 
@@ -19,7 +18,7 @@ const DataManager = require('./DataManager');
  */
 function execute(command) {
   return new Promise((resolve, reject) => {
-    execProccess(command, { maxBuffer: 20 * 1024 * 1024 }, (commandErr, ) => (
+    child_process.exec(command, { maxBuffer: 20 * 1024 * 1024 }, (commandErr, ) => (
       commandErr ? reject(commandErr) : resolve()
     ));
   });
@@ -103,17 +102,13 @@ class ShapeImporter {
    * @returns {ShapeImporter} ShapeImporter instance
    */
   unzip(filePath, targetDir) {
-    const zipFile = new Unzip(filePath);
+    let numberOfShapeFiles = 0;
 
     if (targetDir) {
       this.temporaryDir = targetDir;
     }
 
-    // Extract all files to folterPath
-    zipFile.extractAllTo(this.temporaryDir, /*overwrite*/ true);
-
-    let numberOfShapeFiles = 0;
-    this.files = zipFile.getEntries().map(entry => {
+    this.files = FileExtract.unzip(filePath, this.temporaryDir).getEntries().map(entry => {
       if (entry.entryName.endsWith('.shp')) {
         ++numberOfShapeFiles;
         this.shapeFile = path.join(this.temporaryDir, entry.entryName);
@@ -251,4 +246,8 @@ class ShapeImporter {
   }
 }
 
-module.exports = ShapeImporter;
+module.exports = {
+  MultipleShapeFileFoundError,
+  NoShapeFileFoundError,
+  ShapeImporter
+};
