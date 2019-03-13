@@ -18,9 +18,11 @@ const DataManager = require('./DataManager');
  */
 function execute(command) {
   return new Promise((resolve, reject) => {
-    child_process.exec(command, { maxBuffer: 20 * 1024 * 1024 }, (commandErr, ) => (
-      commandErr ? reject(commandErr) : resolve()
-    ));
+    child_process.exec(command, { maxBuffer: 20 * 1024 * 1024 }, (commandErr, stdOut, stdErr) => {
+      if (commandErr)
+        return reject(commandErr);
+      return resolve(commandErr || stdErr);
+    });
   });
 }
 
@@ -171,7 +173,7 @@ class ShapeImporter {
         const commandStr = `${connectionString.exportPassword} ${Exportation.shp2pgsql()} -I -s ${this.srid} -W " ${this.encoding}" ${this.shapeFile} ${tableName} | ${connectionString.connectionString}`;
 
         // Once command built, tries to execute shp2pgsql import
-        await execute(commandStr);
+        const output = await execute(commandStr);
 
         // Ensure that operation has been succeeded
         tableFound = await Exportation.tableExists(tableName, dataProviderId);
@@ -180,7 +182,7 @@ class ShapeImporter {
           return resolve();
         }
 
-        throw new Error('Unknown error: Make sure you have shp2pgsql installed');
+        throw new Error(`Unknown error: Make sure you have shp2pgsql installed. ${output}`);
       } catch (err) {
         return reject(err);
       } finally {
