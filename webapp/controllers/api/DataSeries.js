@@ -15,7 +15,7 @@ module.exports = function(app) {
   var DataProviderFacade = require("./../../core/facade/DataProvider");
   var RequestFactory = require("./../../core/RequestFactory");
 
-  const { createView, validateView, EmptyViewError } = require('./../../core/utility/createView');
+  const { createView, destroyView, validateView } = require('./../../core/utility/createView');
 
   return {
     post: function(request, response) {
@@ -80,7 +80,9 @@ module.exports = function(app) {
                 const tableName = dataSet.format.table_name;
                 const whereCondition = dataSet.format.query_builder;
 
-                await createView(viewName, tableName, [], whereCondition);
+                const dataProvider = await DataManager.getDataProvider({ id: dataSeriesResult.data_provider_id });
+
+                await createView(dataProvider.uri, viewName, tableName, [], whereCondition);
               }
 
               logger.debug("OUTPUT: ", JSON.stringify(output));
@@ -511,7 +513,9 @@ module.exports = function(app) {
               const tableName = dataSet.format.table_name;
               const whereCondition = dataSet.format.query_builder;
 
-              await createView(viewName, tableName, [], whereCondition);
+              const dataProvider = await DataManager.getDataProvider({ id: updatedDataSeries.data_provider_id });
+
+              await createView(dataProvider.uri, viewName, tableName, [], whereCondition);
             }
 
             //Checking if data series is used by analysis, to change the provider
@@ -594,7 +598,18 @@ module.exports = function(app) {
             }
             else {
               return DataManager.getDataSeries({id: id})
-                .then(function(dataSeriesResult) {
+                .then(async function(dataSeriesResult) {
+                  if (dataSeriesResult.semantics.temporality === DataSeriesTemporality.STATIC &&
+                    dataSeriesResult.semantics.code === 'STATIC_DATA-VIEW-postgis') {
+                    const dataSet = dataSeriesResult.dataSets[0];
+
+                    const viewName = dataSet.format.view_name;
+
+                    const dataProvider = await DataManager.getDataProvider({ id: dataSeriesResult.data_provider_id });
+
+                    await destroyView(dataProvider.uri, viewName);
+                  }
+
                   return DataManager.getCollector({data_series_output: id})
                     .then(function(collectorResult) {
                       return PromiseClass.all([
