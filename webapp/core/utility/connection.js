@@ -66,13 +66,16 @@ class Connection {
   /**
    * Tries to open connection with PostgreSQL.
    *
-   * **if there is already an connection** just return
+   * **if there is already an opened connection** just return
    *
    * @throws {ConnectionError} when could not connect to provided URI
    */
   connect() {
     return new Promise((resolve, reject) => {
       const { _uri } = this;
+
+      if (this.isConnected())
+        return resolve();
 
       pg.connect(_uri, (err, client, done) => {
         if (err)
@@ -97,13 +100,13 @@ class Connection {
    * @throws {ConnectionError} When could not disconnect from database
    */
   disconnect() {
-    return new Promise((resolve) => {
-      if (!this._client)
+    return new Promise((resolve, reject) => {
+      if (!this.isConnected())
         return resolve();
 
       try {
-        this._client.end();
-        this._done();
+        // this._client.end();
+        this._done(this._client);
       } catch (err) {
         return reject(err);
       }
@@ -117,7 +120,7 @@ class Connection {
 
   /** Checks for active connection */
   isConnected() {
-    return this._connected;
+    return this._connected && this._client !== null && this._done !== null;
   }
 
   /** Retrieves internal pg client */

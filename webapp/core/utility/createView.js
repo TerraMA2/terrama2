@@ -35,6 +35,7 @@ const executeQuery = async (uri, query) => {
     return result;
   } catch (err) {
     logger.debug(`Error in creating view: ${err.message}`);
+    throw err;
   } finally {
     await connection.disconnect();
   }
@@ -53,9 +54,9 @@ const executeQuery = async (uri, query) => {
 async function validateView(uri, tableName, attributes, whereCondition) {
   const sql = prepareSelect(tableName, attributes, whereCondition);
 
-  const resultSet = executeQuery(uri, sql);
+  const resultSet = await executeQuery(uri, sql);
 
-  if (resultSet.length === 0)
+  if (resultSet.rowCount === 0)
     throw new EmptyViewError(`The view result is empty. Make sure the query builder has been set properly`);
 
   return resultSet;
@@ -73,8 +74,7 @@ async function validateView(uri, tableName, attributes, whereCondition) {
 async function createView(uri, viewName, tableName, attributes = [], whereCondition = '1=1') {
   const sql = `
     DROP VIEW IF EXISTS ${viewName};
-    CREATE OR REPLACE VIEW ${viewName} AS
-      ${prepareSelect(tableName, attributes, whereCondition)}
+    CREATE OR REPLACE VIEW ${viewName} AS ${prepareSelect(tableName, attributes, whereCondition)}
   `;
 
   const resultSet = await executeQuery(uri, sql);

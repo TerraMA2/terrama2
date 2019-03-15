@@ -751,10 +751,11 @@ module.exports = function(app) {
      * @parma {express.Response} response HTTP Response scope
      */
     validateViewCreation: async (request, response) => {
-      const { attributes, tableName, whereCondition } = request.body;
+      const { attributes, provider, tableName, whereCondition } = request.body;
 
       try {
-        validateView(tableName, attributes, whereCondition);
+        const dataProvider = await DataManager.getDataProvider({ id: provider });
+        await validateView(dataProvider.uri, tableName, attributes, whereCondition);
 
         response.json({});
       } catch (err) {

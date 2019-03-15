@@ -73,7 +73,10 @@
       <div class="col-md-12" style="margin-top: 30px; padding-left: 25px; padding-right: 25px;">
         <a href="" class="btn btn-primary pull-left cancel-dynamic" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
         <a href="" class="btn btn-primary pull-left cancel-static" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
+
         <div class="pull-right">
+          <button class="btn btn-primary" ng-bind="i18n.__('Validate')" data-ng-click="$ctrl.onValidateView()"></button>
+
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
           <button class="btn btn-primary" type="submit" ng-show="isDynamic && (!wizard.store.disabled || !wizard.filter.disabled || !wizard.intersection.disabled || !wizard.csvFormatForm.disabled)" ng-click="goToValidNextStep('parametersForm');" wz-next>{{ i18n.__('Next') }}</button>
           <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save')" ng-show="!isDynamic" data-ng-click="save(false);"></button>

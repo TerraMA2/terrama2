@@ -126,6 +126,24 @@ define([
   };
 
   /**
+   *
+   */
+  DataSeriesService.prototype.validateView = async function(tableName, provider, queryBuilder) {
+    const { BaseService, url } = this;
+
+    const bodyData = { provider, tableName, whereCondition: queryBuilder };
+
+    try {
+      const response = await BaseService.$request(`${url}/validateView`, "POST", { data: bodyData });
+
+      return response.status === 200;
+    } catch (errResponse) {
+      throw new Error(`View Error: ${errResponse.data.error}`);
+    }
+
+  };
+
+  /**
    * Retrieves icon information of DataSeries based in semantics
    *
    * @param {object} dataSeries - DataSeries metadata to compose icon
