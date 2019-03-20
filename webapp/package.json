@@ -11,6 +11,7 @@
     "webapp-stop": "./bin/webapp-stop"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.8.0",
     "ace-builds": "=1.2.8",
     "adm-zip": "^0.4.11",
     "admin-lte": "=2.3.0",

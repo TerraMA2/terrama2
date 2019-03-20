@@ -77,48 +77,52 @@
                 </div>
 
                 <div ng-if="selectedIntersection.isGrid" class="col-md-12">
-                  <table class="table table-bordered terrama2-table">
-                    <tbody class="terrama2-tbody">
-                      <tr class="terrama2-tr">
-                        <th colspan="2">{{ i18n.__('Bands') }}</th>
-                      </tr>
+                  <div class="table-responsive">
+                    <table class="table table-bordered terrama2-table">
+                      <tbody class="terrama2-tbody">
+                        <tr class="terrama2-tr">
+                          <th colspan="2">{{ i18n.__('Bands') }}</th>
+                        </tr>
 
-                      <tr class="terrama2-tr" ng-repeat="att in intersection[selectedIntersection.id].attributes | orderBy: att">
-                        <td style="width: 83%;">{{ att.value }}</td>
-                        <td>
-                          <button class="btn btn-sm btn-danger pull-right"
-                                  ng-click="removeAttribute(selectedIntersection, att)">
-                            {{ i18n.__('Remove') }}
-                          </button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                        <tr class="terrama2-tr" ng-repeat="att in intersection[selectedIntersection.id].attributes | orderBy: att">
+                          <td style="width: 83%;">{{ att.value }}</td>
+                          <td>
+                            <button class="btn btn-sm btn-danger pull-right"
+                                    ng-click="removeAttribute(selectedIntersection, att)">
+                              {{ i18n.__('Remove') }}
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
 
                 <div ng-if="!selectedIntersection.isGrid" class="col-md-12">
-                  <table class="table table-bordered terrama2-table">
-                    <tbody class="terrama2-tbody">
-                      <tr class="terrama2-tr">
-                        <th style="width: 42%;">{{ i18n.__('Attributes') }}</th>
-                        <th colspan="2">{{ i18n.__('Alias') }}</th>
-                      </tr>
+                  <div class="table-responsive">
+                    <table class="table table-bordered terrama2-table">
+                      <tbody class="terrama2-tbody">
+                        <tr class="terrama2-tr">
+                          <th style="width: 42%;">{{ i18n.__('Attributes') }}</th>
+                          <th colspan="2">{{ i18n.__('Alias') }}</th>
+                        </tr>
 
-                      <tr class="terrama2-tr" ng-repeat="att in intersection[selectedIntersection.id].attributes | orderBy: att">
-                        <td style="width: 42%;">{{ att.value }}</td>
-                        <td style="width: 41%;">
-                          <input type="text" ng-model="att.alias" value="att.alias">
-                          </input>
-                        </td>
-                        <td>
-                          <button class="btn btn-sm btn-danger pull-right"
-                                  ng-click="removeAttribute(selectedIntersection, att)">
-                            {{ i18n.__('Remove') }}
-                          </button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                        <tr class="terrama2-tr" ng-repeat="att in intersection[selectedIntersection.id].attributes | orderBy: att">
+                          <td style="width: 42%;">{{ att.value }}</td>
+                          <td style="width: 41%;">
+                            <input type="text" ng-model="att.alias" value="att.alias">
+                            </input>
+                          </td>
+                          <td>
+                            <button class="btn btn-sm btn-danger pull-right"
+                                    ng-click="removeAttribute(selectedIntersection, att)">
+                              {{ i18n.__('Remove') }}
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>
@@ -140,56 +144,57 @@
           <button type="button" class="btn btn-default pull-right" data-toggle="modal" data-target="#dataSeriesModal" style="margin-bottom: 15px">
             <i class="fa fa-plus"></i>
           </button>
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover terrama2-table">
+              <tbody class="terrama2-table-tbody">
+                <th>{{ i18n.__('Name') }}</th>
+                <th>{{ i18n.__('Type') }}</th>
+                <th></th>
+                <th></th>
 
-          <table class="table table-bordered table-hover terrama2-table">
-            <tbody class="terrama2-table-tbody">
-              <th>{{ i18n.__('Name') }}</th>
-              <th>{{ i18n.__('Type') }}</th>
-              <th></th>
-              <th></th>
+                <tr class="terrama2-table-tr"
+                    ng-repeat="(dsId, inter) in intersection"
+                    ng-click="onIntersectionDataSeriesClick(inter.data_series)"
+                    style="cursor:pointer;"
+                    ng-class="{'active': selectedIntersection && selectedIntersection.id == dsId}">
+                  <td>{{ inter.data_series.name }}</td>
+                  <td>{{ inter.data_series.data_series_semantics.name }}</td>
+                  <td class="pull-cell-left">
+                    <button id="select-attr-button"
+                            type="button"
+                            class="btn btn-default btn-sm"
+                            ng-class="{'invalid-attrs': inter.attributes.length == 0}"
+                            data-toggle="modal"
+                            data-placement="top"
+                            title='{{ i18n.__("Select at least one attribute") }}'
+                            name="button"
+                            data-target="#attributesModal"
+                            data-ng-click="onIntersectionDataSeriesClick(inter.data_series)">
+                          {{ i18n.__("Attributes") }}
+                          <i ng-show="inter.attributes.length == 0" class="fa fa-times" style="color: #dd4b39"></i>
+                    </button>
+                  </td>
+                  <td class="pull-cell-left">
+                    <button type="button"
+                            class="btn btn-danger btn-sm"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title='{{ i18n.__("Remove") }}'
+                            name="button"
+                            data-ng-click="removeDataSeries(dsId);">
+                          {{ i18n.__("Remove") }}
+                    </button>
+                  </td>
+                </tr>
 
-              <tr class="terrama2-table-tr"
-                  ng-repeat="(dsId, inter) in intersection"
-                  ng-click="onIntersectionDataSeriesClick(inter.data_series)"
-                  style="cursor:pointer;"
-                  ng-class="{'active': selectedIntersection && selectedIntersection.id == dsId}">
-                <td>{{ inter.data_series.name }}</td>
-                <td>{{ inter.data_series.data_series_semantics.name }}</td>
-                <td class="pull-cell-left">
-                  <button id="select-attr-button"
-                          type="button"
-                          class="btn btn-default btn-sm"
-                          ng-class="{'invalid-attrs': inter.attributes.length == 0}"
-                          data-toggle="modal"
-                          data-placement="top"
-                          title='{{ i18n.__("Select at least one attribute") }}'
-                          name="button"
-                          data-target="#attributesModal"
-                          data-ng-click="onIntersectionDataSeriesClick(inter.data_series)">
-                        {{ i18n.__("Attributes") }}
-                        <i ng-show="inter.attributes.length == 0" class="fa fa-times" style="color: #dd4b39"></i>
-                  </button>
-                </td>
-                <td class="pull-cell-left">
-                  <button type="button"
-                          class="btn btn-danger btn-sm"
-                          data-toggle="tooltip"
-                          data-placement="top"
-                          title='{{ i18n.__("Remove") }}'
-                          name="button"
-                          data-ng-click="removeDataSeries(dsId);">
-                        {{ i18n.__("Remove") }}
-                  </button>
-                </td>
-              </tr>
-
-              <tr class="terrama2-table-tr" ng-show="isIntersectionEmpty()">
-                <td colspan="4">
-                  {{ i18n.__("No intersection data series selected"); }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                <tr class="terrama2-table-tr" ng-show="isIntersectionEmpty()">
+                  <td colspan="4">
+                    {{ i18n.__("No intersection data series selected"); }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </form>
     </div>
