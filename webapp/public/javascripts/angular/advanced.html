@@ -184,6 +184,21 @@
   </div>
 </div>
 
+<div class="col-md-12" ng-show="form.length > 0">
+  <div class="box box-default box-solid">
+    <div class="box-header with-border">
+      <h3 class="box-title">{{ i18n.__('Attributes') }}</h3>
+      <div class="box-tools pull-right">
+        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+      </div>
+    </div>
+    <!-- /.box-header -->
+    <div style="display: block;" class="box-body">
+      <attributes model="ctrl.analysis.metadata" metadata="ctrl.metadata" provider="dataSeries.data_provider_id" table-name="model.table_name" ng-if="model.table_name!==undefined && dataSeries.data_provider_id!==undefined"></attributes>
+    </div>
+  </div>
+</div>
+
 <div class="box-footer">
   <div class="btn-group pull-right" style="margin-left: 10px;" ng-show="isDynamic && storager.format">
     <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="save(true);"></button>

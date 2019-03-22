@@ -9,7 +9,7 @@ echo ""
 # Set global session variables:
 #
 export TM_INSTALL=/opt/terrama2/4.0.9
-export TL_PATH=/opt/terralib/5.3.3
+export TL_PATH=/opt/terralib/5.4.2
 export TM_OUT_DIR=`pwd`/../../../build-package
 export CODEBASE=`pwd`/../..
 
@@ -22,7 +22,7 @@ echo ""
 echo "Check TerraLib Installation:"
 echo ""
 
-terralib_test=`dpkg -s terralib-5.3.3 | grep Status`
+terralib_test=`dpkg -s terralib-5.4.2 | grep Status`
 
 if [ "$terralib_test" != "Status: install ok installed" ]; then
   echo "TerraLib is not installed!"
