@@ -13,7 +13,7 @@ define([
   moduleLoader("ngFileUpload", deps);
 
   angular.module(moduleName, deps)
-  // .component("attributes", attributes)
+  .component("attributes", attributes)
 
   return moduleName;
 });

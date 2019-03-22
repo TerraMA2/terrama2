@@ -12,8 +12,7 @@ define([
   var deps = [controllersApp, servicesApp, scheduleApp, componentsApp, directives];
   moduleLoader("ngFileUpload", deps);
 
-  angular.module(moduleName, deps)
-  // .component("attributes", attributes)
+  angular.module(moduleName, deps).component("attributes", attributes)
 
   return moduleName;
 });
