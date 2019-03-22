@@ -653,7 +653,7 @@ define(
               $("body").removeClass('full_screen');
               $("body").addClass('sidebar-mini');
 
-              $("#terrama2-map").width(($("#terrama2-map").width() - 230) + "px");
+              $("#terrama2-map").width(($("#terrama2-map").width()) + "px");
 
               $('.logo').css('margin-top', '');
             } else {
