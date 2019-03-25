@@ -291,8 +291,6 @@ module.exports = function(app) {
               collector.active = dataSeriesObject.input.active;
               collector.schedule_type = scheduleObject.scheduleType;
 
-              var updateSchedulePromise
-
               var oldScheduleType = collector.scheduleType;
               var newScheduleType = scheduleObject.scheduleType;
               var removeSchedule = false;
@@ -505,7 +503,7 @@ module.exports = function(app) {
 
         return promiseHandler
           .then(async updatedDataSeries => {
-            if (updatedDataSeries.semantics.temporality === DataSeriesTemporality.STATIC &&
+            if (updatedDataSeries.semantics && updatedDataSeries.semantics.temporality === DataSeriesTemporality.STATIC &&
               updatedDataSeries.semantics.code === 'STATIC_DATA-VIEW-postgis') {
               const dataSet = updatedDataSeries.dataSets[0];
 
