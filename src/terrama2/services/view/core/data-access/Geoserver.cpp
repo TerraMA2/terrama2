@@ -378,23 +378,34 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
           }
 
           auto primaryKey = monitoredObjectTableInfo.dataSetType->getPrimaryKey();
+          std::string pk;
           if(!primaryKey)
           {
-            QString errMsg = QObject::tr("Invalid primary key in dataseries: %1.").arg(QString::fromStdString(monitoredObjectDataSeries->name));
-            logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), logId);
-            TERRAMA2_LOG_ERROR() << errMsg;
-            continue;
+            const auto monitoredObjectPk = dataset->format.find("monitored_object_pk");
+
+            if (monitoredObjectPk == dataset->format.end())
+            {
+              QString errMsg = QObject::tr("Invalid primary key in dataseries: %1.").arg(QString::fromStdString(monitoredObjectDataSeries->name));
+              logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), logId);
+              TERRAMA2_LOG_ERROR() << errMsg;
+              continue;
+            }
+
+            pk = monitoredObjectPk->second;
           }
-          auto properties = primaryKey->getProperties();
-          if(properties.size() != 1)
+          else
           {
-            QString errMsg = QObject::tr("Invalid number of primary keys in dataseries: %1.").arg(QString::fromStdString(monitoredObjectDataSeries->name));
-            logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), logId);
-            TERRAMA2_LOG_ERROR() << errMsg;
-            continue;
+            auto properties = primaryKey->getProperties();
+            if(properties.size() != 1)
+            {
+              QString errMsg = QObject::tr("Invalid number of primary keys in dataseries: %1.").arg(QString::fromStdString(monitoredObjectDataSeries->name));
+              logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), logId);
+              TERRAMA2_LOG_ERROR() << errMsg;
+              continue;
+            }
+            pk = properties.at(0)->getName();
           }
 
-          std::string pk = properties.at(0)->getName();
 
           auto& propertiesVector = monitoredObjectTableInfo.dataSetType->getProperties();
 

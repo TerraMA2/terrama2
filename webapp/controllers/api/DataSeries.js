@@ -11,11 +11,11 @@ module.exports = function(app) {
   var DataSeriesTemporality = require('./../../core/Enums').TemporalityType;
   var TokenCode = require('./../../core/Enums').TokenCode;
   var ScheduleType = require('./../../core/Enums').ScheduleType;
-  // data model
-  var DataModel = require('./../../core/data-model');
   // Facade
   var DataProviderFacade = require("./../../core/facade/DataProvider");
   var RequestFactory = require("./../../core/RequestFactory");
+
+  const { createView, destroyView, validateView } = require('./../../core/utility/createView');
 
   return {
     post: function(request, response) {
@@ -67,10 +67,23 @@ module.exports = function(app) {
             dataSeriesObject.project_id = project.id;
             delete dataSeriesObject.project;
 
-            return DataManager.addDataSeries(dataSeriesObject, options).then(function(dataSeriesResult) {
+            return DataManager.addDataSeries(dataSeriesObject, options).then(async function(dataSeriesResult) {
               var output = {
                 "DataSeries": [dataSeriesResult.toObject()]
               };
+
+              if (dataSeriesResult.semantics.temporality === DataSeriesTemporality.STATIC &&
+                  dataSeriesResult.semantics.code === 'STATIC_DATA-VIEW-postgis') {
+                const dataSet = dataSeriesResult.dataSets[0];
+
+                const viewName = dataSet.format.view_name;
+                const tableName = dataSet.format.table_name;
+                const whereCondition = dataSet.format.query_builder;
+
+                const dataProvider = await DataManager.getDataProvider({ id: dataSeriesResult.data_provider_id });
+
+                await createView(dataProvider.uri, viewName, tableName, [], whereCondition);
+              }
 
               logger.debug("OUTPUT: ", JSON.stringify(output));
 
@@ -277,8 +290,6 @@ module.exports = function(app) {
               collector.service_instance_id = serviceId;
               collector.active = dataSeriesObject.input.active;
               collector.schedule_type = scheduleObject.scheduleType;
-
-              var updateSchedulePromise
 
               var oldScheduleType = collector.scheduleType;
               var newScheduleType = scheduleObject.scheduleType;
@@ -491,7 +502,20 @@ module.exports = function(app) {
         }
 
         return promiseHandler
-          .then((updatedDataSeries) => {
+          .then(async updatedDataSeries => {
+            if (updatedDataSeries.semantics && updatedDataSeries.semantics.temporality === DataSeriesTemporality.STATIC &&
+              updatedDataSeries.semantics.code === 'STATIC_DATA-VIEW-postgis') {
+              const dataSet = updatedDataSeries.dataSets[0];
+
+              const viewName = dataSet.format.view_name;
+              const tableName = dataSet.format.table_name;
+              const whereCondition = dataSet.format.query_builder;
+
+              const dataProvider = await DataManager.getDataProvider({ id: updatedDataSeries.data_provider_id });
+
+              await createView(dataProvider.uri, viewName, tableName, [], whereCondition);
+            }
+
             //Checking if data series is used by analysis, to change the provider
             return DataManager.listAnalysisDataSeries({data_series_id: Number(dataSeriesId), type_id: 1}, options)
               .then((analysisDataSeriesList) =>{
@@ -572,7 +596,18 @@ module.exports = function(app) {
             }
             else {
               return DataManager.getDataSeries({id: id})
-                .then(function(dataSeriesResult) {
+                .then(async function(dataSeriesResult) {
+                  if (dataSeriesResult.semantics.temporality === DataSeriesTemporality.STATIC &&
+                    dataSeriesResult.semantics.code === 'STATIC_DATA-VIEW-postgis') {
+                    const dataSet = dataSeriesResult.dataSets[0];
+
+                    const viewName = dataSet.format.view_name;
+
+                    const dataProvider = await DataManager.getDataProvider({ id: dataSeriesResult.data_provider_id });
+
+                    await destroyView(dataProvider.uri, viewName);
+                  }
+
                   return DataManager.getCollector({data_series_output: id})
                     .then(function(collectorResult) {
                       return PromiseClass.all([
@@ -705,6 +740,26 @@ module.exports = function(app) {
         .catch(function(err) {
           return Utils.handleRequestError(response, err, 400);
         });
+    },
+
+    /**
+     * Performs view validation, using SELECT statement to retrieve data set
+     *
+     * @param {express.Request} request Request scope
+     * @parma {express.Response} response HTTP Response scope
+     */
+    validateViewCreation: async (request, response) => {
+      const { attributes, provider, tableName, whereCondition } = request.body;
+
+      try {
+        const dataProvider = await DataManager.getDataProvider({ id: provider });
+        await validateView(dataProvider.uri, tableName, attributes, whereCondition);
+
+        response.json({});
+      } catch (err) {
+        response.status(400);
+        response.json({ error: err.message });
+      }
     }
   };
 };
