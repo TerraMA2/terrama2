@@ -4,6 +4,23 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="shortcut icon" href="{[ BASE_URL ]}favicon.ico" type="image/x-icon" />
+    <link rel="manifest" href="manifest.json">
+      <meta name="apple-mobile-web-app-capable" content="yes">
+      <meta name="apple-mobile-web-app-status-bar-style" content="black">
+      <meta name="apple-mobile-web-app-title" content="PWAGram">
+      <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-57.png" sizes="57x57">
+      <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-60.png" sizes="60x60">
+      <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-72.png" sizes="72x72">
+      <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-76.png" sizes="76x76">
+      <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-114.png" sizes="114x114">
+      <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-120.png" sizes="120x120">
+      <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-144.png" sizes="144x144">
+      <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-152.png" sizes="152x152">
+      <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-180.png" sizes="180x180">
+      <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-256.png" sizes="256x256">
+      <meta name="msapplication-TileImage" content="{[ BASE_URL ]}images/icons/iOS/Icon-144.png">
+      <meta name="msapplication-TileColor" content="#222d32">
+      <meta name="theme-color" content="#222d32">
     <title>TerraMA² Monitor</title>
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/bootstrap/dist/css/bootstrap.min.css">
@@ -22,14 +39,23 @@
   <body class="hold-transition skin-black sidebar-mini">
     <div class="wrapper">
 
-      <!-- Main Header -->
-      <header id="terrama-header" class="main-header">
-        <!-- Logo -->
-        <a href="#" class="logo">
-          <!-- mini logo for sidebar mini 50x50 pixels -->
-          <div class="logo-lg"><img src="{[ BASE_URL ]}images/terrama2_logo2.png" class="img-square"><b>  TerraMA²</b></div>
-          <!-- logo for regular state and mobile devices -->
-          <div class="logo-mini"><img src="{[ BASE_URL ]}images/terrama2_logo2.png" class="img-square"></div>
+      <header id="main-header" class="main-header navbar navbar-static-top shadow" role="navigation">
+
+        <div class="header-logo">
+          <!-- Header Navbar: style can be found in header.less -->
+          <!-- Sidebar toggle button-->
+          <a class="sidebar-toggle" data-toggle="offcanvas" role="button" id="collapseButton"></a>
+          <!-- Logo -->
+          <a href="#" class="logo">
+              <!-- mini logo for sidebar mini 50x50 pixels -->
+              <div class="logo-lg"><img src="{[ BASE_URL ]}images/terrama2_logo2.png" class="img-square"><b>  TerraMA²</b></div>
+              <!-- logo for regular state and mobile devices -->
+          </a>
+        </div>
+        <a id="logo-mini" href="#" class="logo" style="display: none;position: absolute">
+            <!-- mini logo for sidebar mini 50x50 pixels -->
+            <div class="logo-mini"><img src="{[ BASE_URL ]}images/terrama2_logo2.png" class="img-square"></div>
+            <!-- logo for regular state and mobile devices -->
         </a>
       </header>
       <aside class="main-sidebar">
@@ -230,7 +256,7 @@
                   </i>
                 </button>
               </div>
-              <div id="toggleButton" class="map-tool-button sidebar-toggle" full_screen="true" data-toggle="offcanvas" role="button"><button type="button"><i class="fa fa-arrows-alt"></i></button></div>
+              <div id="toggleButton" class="map-tool-button sidebar-toggle" full_screen="true" role="button"><button type="button"><i class="fa fa-arrows-alt"></i></button></div>
               <div id="moveMap" class="map-tool-button mouse-function-btn active"><button type="button"><i class="fa fa-hand-rock-o"></i></button></div>
               <div id="dragbox" class="map-tool-button mouse-function-btn"><button type="button"><i class="glyphicon glyphicon-zoom-in"></i></button></div>
               <div id="legendsButton" class="map-tool-button mouse-function-btn"><button type="button"><i class="fa fa-list"></i></button></div>
