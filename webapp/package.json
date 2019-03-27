@@ -5,7 +5,8 @@
   "scripts": {
     "start": "grunt && NODE_ENV=PRODUCTION node ./bin/www",
     "dev": "grunt && node ./bin/www",
-    "grunt": "grunt"
+    "grunt": "grunt",
+    "test": "mocha -c --reporter=spec --timeout 99999 --recursive 'tests/**/*.spec.js'"
   },
   "bin": {
     "webapp-stop": "./bin/webapp-stop"
@@ -29,7 +30,7 @@
     "angularjs-color-picker": "=2.7.2",
     "angularjs-dropdown-multiselect": "^2.0.0-beta.10",
     "async": "^2.0.0-rc.6",
-    "bcrypt": "^0.8.5",
+    "bcrypt": "3.0.4",
     "bluebird": "^3.3.4",
     "body-parser": "~1.13.2",
     "chart.js": "=2.6.0",
@@ -89,7 +90,10 @@
   "devDependencies": {
     "@babel/core": "^7.0.0-beta.49",
     "@babel/preset-env": "^7.0.0-beta.49",
+    "chai": "^4.2.0",
     "grunt-babel": "^7.0.0",
+    "mocha": "^5.2.0",
+    "sinon": "^7.2.3",
     "uglify-es": "^3.3.9"
   }
 }

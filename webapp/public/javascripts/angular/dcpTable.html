@@ -1,13 +1,15 @@
 <div class="col-md-12 terrama2-nopadding-box" ng-show="(semantics === 'DCP') && isDynamic" style="margin-bottom: 30px;">
   <div class="col-md-12">
-    <div class="box-body table-responsive no-padding">
-      <table class="dcpTable table table-striped" style="width: 100%;">
-        <thead>
-          <tr>
-            <th ng-repeat="field in tableFieldsDataTable track by $index">{{ capitalizeIt(field) }}</th>
-          </tr>
-        </thead>
-      </table>
+    <div class="box-body no-padding">
+      <div class="table-responsive">
+        <table class="dcpTable table table-striped" style="width: 100%;">
+          <thead>
+            <tr>
+              <th ng-repeat="field in tableFieldsDataTable track by $index">{{ capitalizeIt(field) }}</th>
+            </tr>
+          </thead>
+        </table>
+      </div>
     </div>
   </div>
 </div>

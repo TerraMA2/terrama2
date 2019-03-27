@@ -124,13 +124,13 @@ te::gm::Coord2D terrama2::services::analysis::core::GridContext::convertoTo(cons
   return newPoint;
 }
 
-std::map<std::string, std::string> terrama2::services::analysis::core::GridContext::getOutputRasterInfo()
+std::map<std::string, double> terrama2::services::analysis::core::GridContext::getOutputRasterInfo()
 {
   if(outputRasterInfo_.empty())
   {
-    outputRasterInfo_["MEM_SRC_RASTER_DRIVER_TYPE"] = "GDAL";
-    outputRasterInfo_["MEM_RASTER_DATATYPE"] = te::common::Convert2String(te::dt::DOUBLE_TYPE);
-    outputRasterInfo_["MEM_RASTER_NBANDS"] = "1";
+    outputRasterInfo_["MEM_SRC_RASTER_DRIVER_TYPE"] = 1;//"GDAL";
+    outputRasterInfo_["MEM_RASTER_DATATYPE"] = te::dt::DOUBLE_TYPE;
+    outputRasterInfo_["MEM_RASTER_NBANDS"] = 1;
 
     if(!analysis_->outputGridPtr)
     {
@@ -138,29 +138,39 @@ std::map<std::string, std::string> terrama2::services::analysis::core::GridConte
       throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
     }
 
-    outputRasterInfo_["MEM_RASTER_NODATA"] = std::to_string(analysis_->outputGridPtr->interpolationDummy);
-    addInterestAreaToRasterInfo(outputRasterInfo_);
-    addResolutionToRasterInfo(outputRasterInfo_);
+    outputRasterInfo_["MEM_RASTER_NODATA"] = analysis_->outputGridPtr->interpolationDummy;
+    terrama2::core::Filter filter;
+    if (analysis_->schedule.reprocessingHistoricalData != nullptr)
+    {
+      auto reprocessingHistoricalData = analysis_->schedule.reprocessingHistoricalData;
 
-    auto resX = std::stod(outputRasterInfo_["MEM_RASTER_RES_X"]);
-    auto resY = std::stod(outputRasterInfo_["MEM_RASTER_RES_Y"]);
+      filter.isReprocessingHistoricalData = true;
+      filter.discardBefore = reprocessingHistoricalData->startDate;
+      filter.discardAfter = reprocessingHistoricalData->endDate;
+    }
 
-    auto minX = std::stod(outputRasterInfo_["MEM_RASTER_MIN_X"]);
-    auto minY = std::stod(outputRasterInfo_["MEM_RASTER_MIN_Y"]);
-    auto maxX = std::stod(outputRasterInfo_["MEM_RASTER_MAX_X"]);
-    auto maxY = std::stod(outputRasterInfo_["MEM_RASTER_MAX_Y"]);
+    addInterestAreaToRasterInfo(outputRasterInfo_, filter);
+    addResolutionToRasterInfo(outputRasterInfo_, filter);
+
+    auto resX = outputRasterInfo_["MEM_RASTER_RES_X"];
+    auto resY = outputRasterInfo_["MEM_RASTER_RES_Y"];
+
+    auto minX = outputRasterInfo_["MEM_RASTER_MIN_X"];
+    auto minY = outputRasterInfo_["MEM_RASTER_MIN_Y"];
+    auto maxX = outputRasterInfo_["MEM_RASTER_MAX_X"];
+    auto maxY = outputRasterInfo_["MEM_RASTER_MAX_Y"];
 
     auto nRows = static_cast<unsigned int>(std::abs(std::ceil((maxY - minY) / resY)));
     auto nCols = static_cast<unsigned int>(std::abs(std::ceil((maxX - minX) / resX)));
 
-    outputRasterInfo_["MEM_RASTER_NROWS"] = std::to_string(nRows);
-    outputRasterInfo_["MEM_RASTER_NCOLS"] = std::to_string(nCols);
+    outputRasterInfo_["MEM_RASTER_NROWS"] = nRows;
+    outputRasterInfo_["MEM_RASTER_NCOLS"] = nCols;
   }
 
   return outputRasterInfo_;
 }
 
-void terrama2::services::analysis::core::GridContext::addResolutionToRasterInfo(std::map<std::string, std::string>& outputRasterInfo)
+void terrama2::services::analysis::core::GridContext::addResolutionToRasterInfo(std::map<std::string, double>& outputRasterInfo, const terrama2::core::Filter& filter)
 {
   double resX = 0;
   double resY = 0;
@@ -178,7 +188,7 @@ void terrama2::services::analysis::core::GridContext::addResolutionToRasterInfo(
     {
       try
       {
-        auto gridMap = getGridMap(dataManager, analysis_->outputGridPtr->resolutionDataSeriesId);
+        auto gridMap = getGridMap(dataManager, analysis_->outputGridPtr->resolutionDataSeriesId, filter);
         if(gridMap.empty())
         {
           QString errMsg = QObject::tr("Could not recover grid for data series: %1.").arg(analysis_->outputGridPtr->resolutionDataSeriesId);
@@ -321,11 +331,11 @@ void terrama2::services::analysis::core::GridContext::addResolutionToRasterInfo(
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
-  outputRasterInfo["MEM_RASTER_RES_X"] = std::to_string(resX);
-  outputRasterInfo["MEM_RASTER_RES_Y"] = std::to_string(resY);
+  outputRasterInfo["MEM_RASTER_RES_X"] = resX;
+  outputRasterInfo["MEM_RASTER_RES_Y"] = resY;
 }
 
-void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInfo(std::map<std::string, std::string>& outputRasterInfo)
+void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInfo(std::map<std::string, double>& outputRasterInfo, const terrama2::core::Filter& filter)
 {
   Srid srid = 0;
   std::shared_ptr<te::gm::Envelope> box(new te::gm::Envelope());
@@ -345,7 +355,7 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
       {
         try
         {
-          auto gridMap = getGridMap(dataManager, analysisDataSeries.dataSeriesId);
+          auto gridMap = getGridMap(dataManager, analysisDataSeries.dataSeriesId, filter);
 
           if(gridMap.empty())
           {
@@ -364,14 +374,14 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
           if(srid == 0)
           {
             box->Union(*raster->getExtent());
-            srid = raster->getSRID();
+            srid = static_cast<Srid>(raster->getSRID());
             continue;
           }
 
           std::shared_ptr<te::gm::Geometry> geomBox(te::gm::GetGeomFromEnvelope(raster->getExtent(), raster->getSRID()));
           if(static_cast<Srid>(raster->getSRID()) != srid)
           {
-            geomBox->transform(srid);
+            geomBox->transform(static_cast<int>(srid));
           }
 
           box->Union(*geomBox->getMBR());
@@ -387,7 +397,7 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
     {
       try
       {
-        auto gridMap = getGridMap(dataManager, analysis_->outputGridPtr->interestAreaDataSeriesId);
+        auto gridMap = getGridMap(dataManager, analysis_->outputGridPtr->interestAreaDataSeriesId, filter);
         if(gridMap.empty())
         {
           QString errMsg = QObject::tr("Could not recover grid for data series: %1.").arg(analysis_->outputGridPtr->interestAreaDataSeriesId);
@@ -402,7 +412,7 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
         }
 
         box->Union(*raster->getExtent());
-        srid = raster->getSRID();
+        srid = static_cast<Srid>(raster->getSRID());
       }
       catch(const terrama2::core::NoDataException&)
       {
@@ -415,7 +425,7 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
     case InterestAreaType::CUSTOM:
     {
       box->Union(*analysis_->outputGridPtr->interestAreaBox->getMBR());
-      srid = analysis_->outputGridPtr->interestAreaBox->getSRID();
+      srid = static_cast<Srid>(analysis_->outputGridPtr->interestAreaBox->getSRID());
       break;
     }
   }
@@ -426,11 +436,12 @@ void terrama2::services::analysis::core::GridContext::addInterestAreaToRasterInf
     throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
   }
 
-  terrama2::core::verify::srid(srid);
+  terrama2::core::verify::srid(static_cast<int>(srid));
 
-  outputRasterInfo["MEM_RASTER_SRID"] = std::to_string(srid);
-  outputRasterInfo["MEM_RASTER_MIN_X"] = std::to_string(box->getLowerLeftX());
-  outputRasterInfo["MEM_RASTER_MIN_Y"] = std::to_string(box->getLowerLeftY());
-  outputRasterInfo["MEM_RASTER_MAX_X"] = std::to_string(box->getUpperRightX());
-  outputRasterInfo["MEM_RASTER_MAX_Y"] = std::to_string(box->getUpperRightY());
+  outputRasterInfo["MEM_RASTER_SRID"] = srid;
+
+  outputRasterInfo["MEM_RASTER_MIN_X"] = box->getLowerLeftX();
+  outputRasterInfo["MEM_RASTER_MIN_Y"] = box->getLowerLeftY();
+  outputRasterInfo["MEM_RASTER_MAX_X"] = box->getUpperRightX();
+  outputRasterInfo["MEM_RASTER_MAX_Y"] = box->getUpperRightY();
 }

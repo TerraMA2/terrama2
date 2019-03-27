@@ -14,7 +14,6 @@ define([
   "TerraMA2WebApp/data-series/registration",
   "TerraMA2WebApp/schema-form-plugin/mask-warn/directives/terrama2-mask-field",
   "TerraMA2WebApp/schema-form-plugin/uiselect/module",
-  "TerraMA2WebApp/schema-form-plugin/querybuilder/module"
 ], function(moduleLoader, commonServiceApp, messageboxApp, datetimepickerApp, providerApp, serviceApp,
             dataSeriesServicesApp, scheduleApp, directives, geoApp, ListController, RegistrationController) {
   var moduleName = "terrama2.dataseries.controllers";
@@ -55,7 +54,8 @@ define([
               return i18n.ensureLocaleIsLoaded();
             }]
           },
-          controller: 'DataSeriesRegisterUpdateController'
+          controller: 'DataSeriesRegisterUpdateController',
+          controllerAs: '$ctrl'
         });
 
         $urlRouterProvider.otherwise('wizard');

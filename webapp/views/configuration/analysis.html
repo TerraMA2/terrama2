@@ -359,38 +359,40 @@
           </button>
           <!-- metadata form handler -->
           <form name="forms.metadataForm">
-            <table class="table table-bordered table-hover">
-              <tbody>
-              <tr>
-                <th>{{ i18n.__('Name') }}</th>
-                <th>{{ i18n.__('Format') }}</th>
-                <th>{{ i18n.__('Alias') }}</th>
-                <th></th>
-              </tr>
-              <tr style="cursor:pointer;"
-                  ng-repeat="dataSeries in ctrl.selectedDataSeriesList"
-                  data-ng-click="onDataSeriesClick(dataSeries);"
-                  ng-class="{'active': ctrl.selectedDataSeries && ctrl.selectedDataSeries.name == dataSeries.name}">
-                <td><img style="margin-right: 5px;" ng-src="{{ ctrl.getDataSeriesIcon(dataSeries) }}" alt="" max-width="20" height="20"> {{ dataSeries.name }}</td>
-                <td>{{ dataSeries.data_series_semantics.name }}</td>
-                <td>
-                  <input type="text" class="form-control" name="name" ng-model="ctrl.metadata[dataSeries.name].alias" required>
-                </td>
-                <td class="pull-cell-left">
-                  <button type="button" class="btn btn-danger btn-sm" ng-click="ctrl.removeDataSeries(dataSeries)">
-                    <i class="fa fa-times">
-                      <span class="hidden-xs">{{ i18n.__("Remove") }}</span>
-                    </i>
-                  </button>
-                </td>
-              </tr>
-              <tr ng-if="ctrl.selectedDataSeriesList.length == 0">
-                <td colspan="3">
-                  {{ i18n.__('No data series selected') }}
-                </td>
-              </tr>
-              </tbody>
-            </table>
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover">
+                <tbody>
+                <tr>
+                  <th>{{ i18n.__('Name') }}</th>
+                  <th>{{ i18n.__('Format') }}</th>
+                  <th>{{ i18n.__('Alias') }}</th>
+                  <th></th>
+                </tr>
+                <tr style="cursor:pointer;"
+                    ng-repeat="dataSeries in ctrl.selectedDataSeriesList"
+                    data-ng-click="onDataSeriesClick(dataSeries);"
+                    ng-class="{'active': ctrl.selectedDataSeries && ctrl.selectedDataSeries.name == dataSeries.name}">
+                  <td><img style="margin-right: 5px;" ng-src="{{ ctrl.getDataSeriesIcon(dataSeries) }}" alt="" max-width="20" height="20"> {{ dataSeries.name }}</td>
+                  <td>{{ dataSeries.data_series_semantics.name }}</td>
+                  <td>
+                    <input type="text" class="form-control" name="name" ng-model="ctrl.metadata[dataSeries.name].alias" required>
+                  </td>
+                  <td class="pull-cell-left">
+                    <button type="button" class="btn btn-danger btn-sm" ng-click="ctrl.removeDataSeries(dataSeries)">
+                      <i class="fa fa-times">
+                        <span class="hidden-xs">{{ i18n.__("Remove") }}</span>
+                      </i>
+                    </button>
+                  </td>
+                </tr>
+                <tr ng-if="ctrl.selectedDataSeriesList.length == 0">
+                  <td colspan="3">
+                    {{ i18n.__('No data series selected') }}
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
             <!--./table-->
           </form>
           <!--todo: open box-->

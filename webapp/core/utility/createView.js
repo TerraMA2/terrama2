@@ -1,14 +1,15 @@
-const DataManager = require('./../DataManager');
+const { Connection } = require('./connection');
+const logger = require('./../Logger');
 
-/** Exception used when the SELECT returned 0 */
+/** Used when no empty result set found */
 class EmptyViewError extends Error { };
 
 /**
- * This function returns SELECT statement used to generate View
+ * Internal function to generate SQL View
  *
- * @param {string} tableName Origin table name
- * @param {string[]} attributes List of attributes from origin table
- * @param {string} whereCondition Query restriction
+ * @param {string} tableName Table name to search for
+ * @param {string[]?} attributes List of attributes to retrieve
+ * @param {string?} whereCondition Query Restriction
  */
 const prepareSelect = (tableName, attributes = [], whereCondition = '') => {
   if (!attributes || attributes.length === 0)
@@ -18,47 +19,83 @@ const prepareSelect = (tableName, attributes = [], whereCondition = '') => {
     whereCondition = '1=1';
 
   return `SELECT ${attributes.join(',')} FROM ${tableName} WHERE ${whereCondition}`;
-}
+};
 
 /**
- * Performs view validation, checking if SELECT statements returns at least a row data set
+ * Internal function to retrieve PostgreSQL client
  *
- * @throws {EmptyViewError|Error} when result is empty
- * @param {string} tableName Origin table name
- * @param {string[]} attributes List of attributes from origin table
- * @param {string} whereCondition Query restriction
+ * @param {string} uri
  */
-async function validateView(tableName, attributes, whereCondition) {
+const executeQuery = async (uri, query) => {
+  const connection = new Connection(uri);
+
+  try {
+    await connection.connect();
+    const result = await connection.execute(query);
+    return result;
+  } catch (err) {
+    logger.debug(`Error in creating view: ${err.message}`);
+    throw err;
+  } finally {
+    await connection.disconnect();
+  }
+};
+
+/**
+ * Validates view generation, checking both SQL syntax and result set size
+ *
+ * @throws {EmptyViewError} when result set is empty
+ *
+ * @param {string} uri Database URI
+ * @param {string} tableName Table name to search for
+ * @param {string[]?} attributes List of attributes to retrieve
+ * @param {string?} whereCondition Query Restriction
+ */
+async function validateView(uri, tableName, attributes, whereCondition) {
   const sql = prepareSelect(tableName, attributes, whereCondition);
 
-  const resultSet = await DataManager.orm.query(sql);
+  const resultSet = await executeQuery(uri, sql);
 
-  if (resultSet.length === 0)
+  if (resultSet.rowCount === 0)
     throw new EmptyViewError(`The view result is empty. Make sure the query builder has been set properly`);
 
   return resultSet;
 }
 
 /**
- * Tries to create view from dataset
+ * Create view into specific Data Provider PostGIS instance
  *
- * @param {string} viewName Destination view name
- * @param {string} tableName Origin table name
- * @param {string[]} attributes List of attributes from origin table
- * @param {string} whereCondition Query restriction
+ * @param {string} uri Database URI
+ * @param {string} viewName View name to create
+ * @param {string} tableName Table name to search for
+ * @param {string[]?} attributes List of attributes to retrieve
+ * @param {string?} whereCondition Query Restriction
  */
-async function createView(viewName, tableName, attributes = [], whereCondition = '1=1') {
+async function createView(uri, viewName, tableName, attributes = [], whereCondition = '1=1') {
   const sql = `
     DROP VIEW IF EXISTS ${viewName};
-    CREATE OR REPLACE VIEW ${viewName} AS
-      ${prepareSelect(tableName, attributes, whereCondition)}
+    CREATE OR REPLACE VIEW ${viewName} AS ${prepareSelect(tableName, attributes, whereCondition)}
   `;
 
-  const resultSet = await DataManager.orm.query(sql);
+  const resultSet = await executeQuery(uri, sql);
 
   return resultSet;
 }
 
-const viewModule = { createView, validateView, EmptyViewError };
+/**
+ * Destroy view from given data source
+ *
+ * @param {string} uri Database URI
+ * @param {string} viewName View name to create
+ */
+async function destroyView(uri, viewName) {
+  const sql = `DROP VIEW IF EXISTS ${viewName};`;
+
+  const resultSet = await executeQuery(uri, sql);
+
+  return resultSet;
+}
+// Internal View Module
+const viewModule = { createView, destroyView, validateView, EmptyViewError };
 
 module.exports = viewModule;

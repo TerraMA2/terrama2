@@ -128,12 +128,11 @@
         },
         {
           "key": "query_builder",
-          "type": "querybuilder",
-          "htmlClass": "col-md-12",
+          "type": "textarea",
+          "htmlClass": "col-md-12 terrama2-schema-form",
           "validationMessage": {
             "202": "Invalid query builder"
-          },
-          "tableName": "table_name"
+          }
         }
       ]
     }

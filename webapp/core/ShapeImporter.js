@@ -1,13 +1,12 @@
-// External dependencies
-const Unzip = require('adm-zip');
 // NodeJS Dependencies
-const execProccess = require('child_process').exec;
+const child_process = require('child_process');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
 // TerraMA2 Dependencies
 const Exportation = new (require('./Exportation.js'))();
+const FileExtract = require('./FileExtract');
 const Utils = require('./Utils.js');
 const DataManager = require('./DataManager');
 
@@ -19,9 +18,11 @@ const DataManager = require('./DataManager');
  */
 function execute(command) {
   return new Promise((resolve, reject) => {
-    execProccess(command, { maxBuffer: 20 * 1024 * 1024 }, (commandErr, ) => (
-      commandErr ? reject(commandErr) : resolve()
-    ));
+    child_process.exec(command, { maxBuffer: 20 * 1024 * 1024 }, (commandErr, stdOut, stdErr) => {
+      if (commandErr)
+        return reject(commandErr);
+      return resolve(stdErr || stdOut);
+    });
   });
 }
 
@@ -103,17 +104,13 @@ class ShapeImporter {
    * @returns {ShapeImporter} ShapeImporter instance
    */
   unzip(filePath, targetDir) {
-    const zipFile = new Unzip(filePath);
+    let numberOfShapeFiles = 0;
 
     if (targetDir) {
       this.temporaryDir = targetDir;
     }
 
-    // Extract all files to folterPath
-    zipFile.extractAllTo(this.temporaryDir, /*overwrite*/ true);
-
-    let numberOfShapeFiles = 0;
-    this.files = zipFile.getEntries().map(entry => {
+    this.files = FileExtract.unzip(filePath, this.temporaryDir).getEntries().map(entry => {
       if (entry.entryName.endsWith('.shp')) {
         ++numberOfShapeFiles;
         this.shapeFile = path.join(this.temporaryDir, entry.entryName);
@@ -173,10 +170,10 @@ class ShapeImporter {
         }
 
         // Build shp2pgsql command
-        const commandStr = `${connectionString.exportPassword} ${Exportation.shp2pgsql()} -I -s ${this.srid} -W " ${this.encoding}" ${this.shapeFile} ${tableName} | ${connectionString.connectionString}`;
+        const commandStr = `${connectionString.exportPassword} ${Exportation.shp2pgsql()} -I -s ${this.srid} -W " ${this.encoding}" ${this.shapeFile} public.${tableName} | ${connectionString.connectionString}`;
 
         // Once command built, tries to execute shp2pgsql import
-        await execute(commandStr);
+        const output = await execute(commandStr);
 
         // Ensure that operation has been succeeded
         tableFound = await Exportation.tableExists(tableName, dataProviderId);
@@ -185,7 +182,7 @@ class ShapeImporter {
           return resolve();
         }
 
-        throw new Error('Unknown error: Make sure you have shp2pgsql installed');
+        throw new Error(`Unknown error: Make sure you have shp2pgsql installed. ${output}`);
       } catch (err) {
         return reject(err);
       } finally {
@@ -251,4 +248,8 @@ class ShapeImporter {
   }
 }
 
-module.exports = ShapeImporter;
+module.exports = {
+  MultipleShapeFileFoundError,
+  NoShapeFileFoundError,
+  ShapeImporter
+};

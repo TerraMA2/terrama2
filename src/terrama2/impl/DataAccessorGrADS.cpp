@@ -272,7 +272,7 @@ void terrama2::core::DataAccessorGrADS::retrieveDataCallback(const terrama2::cor
                                           remover,
                                           temporaryDirectoryURI.toString(QUrl::NormalizePathSegments).toStdString(),
                                           folderMatched,
-                                          [processFile](const std::string& uri, const std::string& filename){
+                                          [processFile, controlFileFolderMask](const std::string& uri, const std::string& filename){
                                             processFile(uri, filename);
                                             QUrl url(QString::fromStdString(uri));
                                             // remove file on finish processing
@@ -286,7 +286,26 @@ void terrama2::core::DataAccessorGrADS::retrieveDataCallback(const terrama2::cor
                                             if (info.isDir())
                                             {
                                               QDir directoryToRemove(filePath);
-                                              directoryToRemove.removeRecursively();
+
+                                              if (controlFileFolderMask.find("%DD") != std::string::npos ||
+                                                  controlFileFolderMask.find("%MM") != std::string::npos ||
+                                                  controlFileFolderMask.find("%YYYY") != std::string::npos ||
+                                                  controlFileFolderMask.find("%YY") != std::string::npos ||
+                                                  controlFileFolderMask.find("%JJJ") != std::string::npos)
+                                              {
+                                                directoryToRemove.removeRecursively();
+                                              }
+                                              else
+                                              {
+                                                for(const auto& entity: directoryToRemove.entryInfoList(QDir::Files | QDir::NoDotAndDotDot))
+                                                {
+                                                  if (!(entity.absoluteFilePath().endsWith(".ctl")))
+                                                  {
+                                                    QFile removeFile(entity.absoluteFilePath());
+                                                    removeFile.remove();
+                                                  }
+                                                }
+                                              }
                                             }
                                             else
                                             {

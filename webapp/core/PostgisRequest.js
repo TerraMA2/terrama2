@@ -1,5 +1,5 @@
 var AbstractRequest = require("./AbstractRequest");
-var pg = require('pg');
+const { Connection } = require('./utility/connection');
 var Promise = require("bluebird");
 var ConnectionError = require("./Exceptions").ConnectionError;
 var GetObjectError = require("./Exceptions").GetObjectError;
@@ -13,6 +13,28 @@ function PostgisRequest(requestParameters) {
   AbstractRequest.apply(this, arguments);
 }
 
+/**
+ * Retrieves string representation of Connection error
+ * @param {Error} err
+ */
+const getErrorMessage = (err) => {
+  switch (err.code) {
+    case 'ENOTFOUND':
+    case "ENETUNREACH": // host not found
+      return "Invalid host";
+    case "ECONNREFUSED": // port error
+      return "Invalid port number";
+    case "28P01": // username/password error
+      return "Username or password does not match";
+    case "28000": // username/password error
+      return "Username or password does not match";
+    case "3D000": // Database does not exist
+      return "Database does not exist";
+    default:
+      return err.message;
+  }
+};
+
 PostgisRequest.prototype = Object.create(AbstractRequest.prototype);
 PostgisRequest.prototype.constructor = PostgisRequest;
 
@@ -25,74 +47,30 @@ PostgisRequest.prototype.syntax = function() {
 
 PostgisRequest.prototype.request = function() {
   var self = this;
-  return new Promise(function(resolve, reject) {
+  return new Promise(async function(resolve, reject) {
 
-    var client = new pg.Client(self.uri);
+    var client = new Connection(self.uri);
 
-    client.on('error', function(err) { });
+    try {
+      await client.connect();
+      await client.disconnect();
 
-    client.connect(function(err) {
-      if (err) {
-        var errorMessage = "Error in PostGIS connection: ";
-        switch (err.code) {
-          case 'ENOTFOUND':
-          case "ENETUNREACH": // host not found
-            errorMessage += "Invalid host";
-            break;
-          case "ECONNREFUSED": // port error
-            errorMessage += "Invalid port number";
-            break;
-          case "28P01": // username/password error
-            errorMessage += "Username or password does not match";
-            break;
-          case "28000": // username/password error
-            errorMessage += "Username or password does not match";
-            break;
-          case "3D000": // Database does not exist
-            errorMessage += "Database does not exist";
-            break;
-          default:
-            break;
-        }
-        return reject(new ConnectionError(errorMessage));
-      }
-      client.end();
-      resolve(true);
-    });
+      return resolve(true);
+    } catch (err) {
+      var errorMessage = "Error in PostGIS connection: " + getErrorMessage(err);
+      return reject(new ConnectionError(errorMessage));
+    }
   });
 };
 
 PostgisRequest.prototype.get = function (){
   var self = this;
-  return new Promise(function(resolve, reject){
-    var results = [];
-    var client = new pg.Client(self.uri);
+  return new Promise(async (resolve, reject) => {
+    var client = new Connection(self.uri);
 
-    client.on('error', function(err) { });
+    try {
+      await client.connect();
 
-    client.connect(function(err){
-      if (err) {
-        var errorMessage = "Error in PostGIS connection: ";
-        switch (err.code) {
-          case 'ENOTFOUND':
-          case "ENETUNREACH": // host not found
-            errorMessage += "Invalid host";
-            break;
-          case "ECONNREFUSED": // port error
-            errorMessage += "Invalid port number";
-            break;
-          case "28P01":
-          case "28000": // username/password error
-            errorMessage += "Username or password does not match";
-            break; // username/password error
-          case "3D000": // Database does not exist
-            errorMessage += "Database does not exist";
-            break;
-          default:
-            break;
-        }
-        return reject(new ConnectionError(errorMessage));
-      }
       var query;
       if (self.params.objectToGet){
         switch (self.params.objectToGet){
@@ -115,27 +93,25 @@ PostgisRequest.prototype.get = function (){
         return reject(new GetObjectError("Invalid object to query"));
       }
 
-      var queryResult = client.query(query);
-      queryResult.on('row', (row) => {
-        results.push(row);
-      });
-      queryResult.on('end', () => {
-        client.end();
-        if (self.params.objectToGet == PostGISObjects.VALUES){
-          if (results.length == 31){
-            results = [];
-          } else {
-            results = results.map(function(result){
-              return result[self.params.columnName];
-            });
-          }
+      let queryResult = await client.execute(query);
+      let results = queryResult.rows;
+
+      if (self.params.objectToGet === PostGISObjects.VALUES) {
+        if (results.length === 31){
+          results = [];
+        } else {
+          results = results.map(result => result[self.params.columnName]);
         }
-        resolve(results);
-      });
-      queryResult.on('error', () =>{
-        resolve();
-      })
-    });
+      }
+
+      return resolve(results);
+    } catch (err) {
+      var errorMessage = "Error in PostGIS connection: " + getErrorMessage(err);
+
+      return reject(new ConnectionError(errorMessage));
+    } finally {
+      await client.disconnect();
+    }
   });
 };
 

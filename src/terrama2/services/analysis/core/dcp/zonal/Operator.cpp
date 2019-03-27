@@ -192,12 +192,14 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
             catch(const std::out_of_range&)
             {
               QString errMsg(QObject::tr("DCP dataset does not have an alias."));
+              exceptionOccurred = true;
               throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
             }
 
             if(dcpDataset->position == nullptr)
             {
               QString errMsg(QObject::tr("DCP dataset does not have a valid position."));
+              exceptionOccurred = true;
               throw InvalidDataSetException() << terrama2::ErrorDescription(errMsg);
             }
 
@@ -232,9 +234,10 @@ double terrama2::services::analysis::core::dcp::zonal::operatorImpl(StatisticOpe
                   continue;
                 values.push_back(value);
               }
-              catch(...)
+              catch(const terrama2::Exception& e)
               {
-                // In case the DCP doesn't have the specified column
+                context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString());
+                exceptionOccurred = true;
                 continue;
               }
             }//end for syncDs
