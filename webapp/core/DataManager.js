@@ -105,6 +105,7 @@ var DataManager = module.exports = {
   init: function(dbConfigPath, callback) {
     var self = this;
     logger.info("Initializing database...");
+    logger.info(dbConfigPath);
 
     return Database.init(dbConfigPath).then(function(dbORM) {
       logger.info("Database loaded.");
@@ -139,6 +140,7 @@ var DataManager = module.exports = {
         inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.VIEW, name: "VIEW"}));
         inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.ALERT, name: "ALERT"}));
         inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.INTERPOLATION, name: "INTERPOLATION"}));
+        inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.STORAGE, name: "STORAGE"}));
 
         // data provider type defaults
         inserts.push(self.addDataProviderType({id: 1, name: "FILE", description: "Desc File"}));
@@ -214,11 +216,18 @@ var DataManager = module.exports = {
             interpolationService.port = 6547;
             interpolationService.service_type_id = Enums.ServiceType.INTERPOLATION;
 
+            var storageService = Object.assign({}, collectorService);
+            storageService.name = "Local Storage";
+            storageService.description = "Local service for Storage";
+            storageService.port = 5000;
+            storageService.service_type_id = Enums.ServiceType.STORAGE;
+
             servicesInsert.push(self.addServiceInstance(collectorService));
             servicesInsert.push(self.addServiceInstance(analysisService));
             servicesInsert.push(self.addServiceInstance(viewService));
             servicesInsert.push(self.addServiceInstance(alertService));
             servicesInsert.push(self.addServiceInstance(interpolationService));
+            servicesInsert.push(self.addServiceInstance(storageService));
           }
           return Promise.all(servicesInsert);
         });
@@ -6672,5 +6681,167 @@ var DataManager = module.exports = {
         return reject(err);
       });
     });
-  }
+  },
+
+  /**
+   * It retrieves all storages from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Array<Object>>}
+   */
+  listStorages: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var _reject = function(err) {
+        logger.error(err);
+        reject(err);
+      };
+
+      // return models.db.Storages.findAll(Utils.extend({
+      //   include: [
+      //     {
+      //       model: models.db.Schedule,
+      //       required: false
+      //     },
+      //     {
+      //       model: models.db.AutomaticSchedule,
+      //       required: false
+      //     },
+      //     {
+      //       model: models.db.DataSeries,
+      //       include: [
+      //         {
+      //           model: models.db.DataProvider
+      //         },
+      //         {
+      //           model: models.db.DataSeriesSemantics
+      //         }
+      //       ]
+      //     }
+      //   ],
+      //   where: restriction
+      // }, options))
+      //   .then(function(storages) {
+      //     return resolve(storages.map(function(storage) {
+      //       var storageModel = new DataModel.Storage(Object.assign(storage.get(), {
+      //         schedule: storage.Schedule ? new DataModel.Schedule(storage.Schedule.get()) : {},
+      //         automaticSchedule: storage.AutomaticSchedule ? new DataModel.AutomaticSchedule(storage.AutomaticSchedule.get()) : {},
+      //         dataSeries: storage.DataSery ? new DataModel.DataSeries(storage.DataSery.get()) : {}
+      //         // schedule: new DataModel.Schedule(view.Schedule ? view.Schedule.get() : {id: 0})
+      //       }));
+      //       return storageModel;
+      //     }));
+      //   })
+
+      //   .catch(function(err) {
+      //     return reject(new Error("Could not list storages " + err.toString()));
+      //   });
+    });
+  },
+
+  /**
+   * It retrieves a storage of database from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Storage>}
+   */
+  getStorage: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var restrictionOutput = {};
+      if (restriction.output) {
+        Object.assign(restrictionOutput, restriction.output);
+        delete restriction.output;
+      }
+
+      models.db.Storage.findOne(Utils.extend({
+        where: restriction,
+        include: [
+          {
+            model: models.db.Schedule
+          },
+          {
+            model: models.db.DataSeries,
+            where: restrictionOutput
+          }
+        ]
+      }, options)).then(function(storageResult) {
+        if (storageResult) {
+          var storageInstance = new DataModel.Storage(storageResult.get());
+
+          return self.getDataSeries({id: storageResult.data_series_output})
+            .then(function(dataSeries) {
+              storageInstance.dataSeriesOutput = dataSeries;
+              return resolve(storageInstance);
+            }).catch(function(err) {
+              logger.error("Retrieved null while getting storage", err);
+              return reject(new exceptions.storageError("Could not find storage. " + err.toString()));
+            });
+        } else {
+          logger.error("Retrieved null while getting storage", storageResult);
+          return reject(new exceptions.storageErrorNotFound("Could not find storage. "));
+        }
+      }).catch(function(err) {
+        logger.error(err);
+        return reject(new exceptions.storageError("Could not find storage. " + err.toString()));
+      });
+    });
+  },
+
+  /**
+   * It retrieves a storage of database from given restriction. If no storage is found, a null value is returned.
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Storage>}
+   */
+  getStorageAcceptNull: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var restrictionOutput = {};
+      if (restriction.output) {
+        Object.assign(restrictionOutput, restriction.output);
+        delete restriction.output;
+      }
+
+      models.db.Storage.findOne(Utils.extend({
+        where: restriction,
+        include: [
+          {
+            model: models.db.Schedule
+          },
+          {
+            model: models.db.DataSeries,
+            where: restrictionOutput
+          }
+        ]
+      }, options)).then(function(storageResult) {
+        if (storageResult) {
+          var storageInstance = new DataModel.Storage(storageResult.get());
+
+          return self.getDataSeries({id: storageResult.data_series_output})
+            .then(function(dataSeries) {
+              storageInstance.dataSeriesOutput = dataSeries;
+              return resolve(storageInstance);
+            }).catch(function(err) {
+              logger.error("Retrieved null while getting storage", err);
+              return reject(new exceptions.StorageError("Could not find storage. " + err.toString()));
+            });
+        } else {
+          return resolve(null);
+        }
+      }).catch(function(err) {
+        logger.error(err);
+        return reject(new exceptions.StorageError("Could not find storage. " + err.toString()));
+      });
+    });
+  },
+
+
 };
+
