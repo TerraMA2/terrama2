@@ -452,7 +452,8 @@ TcpManager.prototype.initialize = function(client) {
             if (response.automatic !== false
                 && (targetProcess.serviceType == ServiceType.COLLECTOR
                     || targetProcess.serviceType == ServiceType.ANALYSIS
-                    || targetProcess.serviceType == ServiceType.INTERPOLATION)){
+                    || targetProcess.serviceType == ServiceType.INTERPOLATION 
+                    || targetProcess.serviceType == ServiceType.STORAGE)){
               targetProcess.processToRun.forEach(function(processToRun){
                 if (processToRun && processToRun.object && processToRun.object.active){
                   self.startProcess(processToRun.instance, {ids: processToRun.ids, execution_date: response.execution_date});

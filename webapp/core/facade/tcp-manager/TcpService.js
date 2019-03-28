@@ -198,6 +198,7 @@ TcpService.prototype.start = async function(json) {
   try {
     instance = await DataManager.getServiceInstance({id: json.service})
     // emitting service starting
+    console.log("TcpService.prototype.start " + json.service);
     this.emit("serviceStarting", {service: instance.id});
 
     // spreading all promises in order to retrieve service instance and promise result in two vars

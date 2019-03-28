@@ -482,6 +482,9 @@ var Utils = module.exports = {
       case Enums.ServiceType.INTERPOLATION:
         output = "INTERPOLATOR";
         break;
+        case Enums.ServiceType.STORAGE:
+        output = "STORAGE";
+        break;
     }
 
     if (output && output !== null) { return output; }
