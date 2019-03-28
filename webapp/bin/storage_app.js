@@ -40,7 +40,9 @@ Application.setCurrentContext(nodeContext);
  var debug = require('debug')('webapp:server');
  var load = require('express-load');
  var TcpService = require("./../core/facade/tcp-manager/TcpService");
-
+ var TcpManager = require("./../core/TcpManager");
+ var Utils = require('./../core/Utils');
+var Signals = require('./../core/Signals');
 var app = require('../app');
 
 var portNumber = '3600';
@@ -88,32 +90,35 @@ if (debugMessage) {
   console.log(debugMessage);
 }
 
-  /**
-   * Creates a new Buffer based on any number of Buffer
-   *
-   * @private
-   * @param {Buffer} arguments Any number of Buffer as arguments, may have undefined itens.
-   * @return {Buffer} The new Buffer created out of the list.
-   */
-  function _createBufferFrom() {
-    let size = 0;
-    for (var i = 0; i < arguments.length; i++) {
-      if(arguments[i]) {
-        size += arguments[i].length;
-      }
+/**
+ * Creates a new Buffer based on any number of Buffer
+ *
+ * @private
+ * @param {Buffer} arguments Any number of Buffer as arguments, may have undefined itens.
+ * @return {Buffer} The new Buffer created out of the list.
+ */
+function _createBufferFrom() {
+  let size = 0;
+  for (var i = 0; i < arguments.length; i++) {
+    if(arguments[i]) {
+      size += arguments[i].length;
     }
-
-    let tmp = new Buffer(size);
-    let offset = 0;
-    for (var i = 0; i < arguments.length; i++) {
-      if(arguments[i]) {
-        tmp.set(new Buffer.from(arguments[i]), offset);
-        offset+=arguments[i].length;
-      }
-    }
-
-    return tmp;
   }
+
+  let tmp = new Buffer(size);
+  let offset = 0;
+  for (var i = 0; i < arguments.length; i++) {
+    if(arguments[i]) {
+      tmp.set(new Buffer.from(arguments[i]), offset);
+      offset+=arguments[i].length;
+    }
+  }
+
+  return tmp;
+}
+
+let beginOfMessage = "(BOM)\0";
+let endOfMessage = "(EOM)\0";
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -128,10 +133,22 @@ server.on('listening', onListening);
 server.on('connection', function(clientSocket) {
   console.log('CONNECTED: ' + clientSocket.remoteAddress + ':' + clientSocket.remotePort);
 
-  clientSocket.write('chego');
+ // clientSocket.write('chego');
 
   clientSocket.on('data', function(data) {
-      // parseBytearray
+
+    var messageSizeReceived = data.readUInt32BE(0);
+    var signalReceived = data.readUInt32BE(4);
+    var rawData = data.slice(8, data.length);
+  
+    // validate signal
+    var signal = Utils.getTcpSignal(signalReceived);
+    console.log(messageSizeReceived + " " + signalReceived + " " + rawData.toString() + " " + signal);
+    var buffer = beginOfMessage + TcpManager.makebuffer(Signals.STATUS_SIGNAL, {service_loaded:false}) + endOfMessage;
+    clientSocket.write(buffer);
+    console.log(buffer);
+
+    // parseBytearray
    console.log("clientsocket: "+ data.toString())
     // append and check if the complete message has arrived
     //var tempBuffer = _createBufferFrom(tempBuffer, byteArray);
@@ -278,15 +295,15 @@ try{
         storage.data_serie_code = data_serie_code;
         switch (data_serie_code){
           case "GRID-geotiff":
-            StoreTIFF(storage, schema, client);
+           // StoreTIFF(storage, schema, client);
           break;
           case "DCP-single_table":
-            StoreSingleTable(storage, schema, client);
+           // StoreSingleTable(storage, schema, client);
           break;
           case "DCP-postgis":
           case "ANALYSIS_MONITORED_OBJECT-postgis":
           case "OCCURRENCE-postgis":
-            StoreNTable(storage, schema, client);
+           // StoreNTable(storage, schema, client);
           break;
           default:
           console.log("erro -");
@@ -688,6 +705,56 @@ async function StoreSingleTable(storage, schema, client)
    }
 }
 
+async function StoreNTable_1(storage, schema, client, res){
+  for (var row of res.rows){
+
+  var table_name_back = storage.uri;
+  if (res.rowCount > 1) 
+    table_name_back += "_" + row.value;
+
+  var timestamp = "";
+  var geometry = "";
+
+  if (storage.data_serie_code != "ANALYSIS_MONITORED_OBJECT-postgis"){
+    var sel_timestamp = "SELECT data_set_formats.value FROM \
+    " + schema + ".data_set_formats WHERE \
+    data_set_formats.key = \'timestamp_property\' AND \
+    data_set_formats.data_set_id = \'" + row.id + "\'";
+    console.log(sel_timestamp);
+
+    var sel_geom = "SELECT data_set_formats.value FROM \
+    " + schema + ".data_set_formats WHERE \
+    data_set_formats.key = \'geometry_property\' AND \
+    data_set_formats.data_set_id = \'" + row.id + "\'";
+    console.log(sel_geom);
+
+    var res1 = await client.query(sel_timestamp);
+    var res2 = await client.query(sel_geom);
+
+    if (res1.rowCount)
+      timestamp = res1.rows[0].value;
+    if (res2.rowCount)
+      geometry = res2.rows[0].value;
+  }
+  else
+    timestamp = analysisTimestampPropertyName; //"execution_date"
+  
+  var params = {
+    storage : storage,
+    schema : schema,
+    client : client,
+    table_name : row.value,
+    database_project : row.uri,
+    table_name_back : table_name_back,
+    timestamp_prop : timestamp,
+    geometry_prop: geometry
+  };
+
+  await StoreTable(params);
+}
+
+}
+
 
 async function StoreNTable(storage, schema, client)
 {
@@ -718,56 +785,11 @@ async function StoreNTable(storage, schema, client)
       }
 
       //res.rows.forEach(async function(row, index){
-      for (var row of res.rows){
+     // for (var row of res.rows){
 
-        await function(storage, schema, client, res, row){
-          var table_name_back = storage.uri;
-          if (res.rowCount > 1) 
-            table_name_back += "_" + row.value;
-    
-          var timestamp = "";
-          var geometry = "";
-  
-          if (storage.data_serie_code != "ANALYSIS_MONITORED_OBJECT-postgis"){
-            var sel_timestamp = "SELECT data_set_formats.value FROM \
-            " + schema + ".data_set_formats WHERE \
-            data_set_formats.key = \'timestamp_property\' AND \
-            data_set_formats.data_set_id = \'" + row.id + "\'";
-            console.log(sel_timestamp);
-      
-            var sel_geom = "SELECT data_set_formats.value FROM \
-            " + schema + ".data_set_formats WHERE \
-            data_set_formats.key = \'geometry_property\' AND \
-            data_set_formats.data_set_id = \'" + row.id + "\'";
-            console.log(sel_geom);
-      
-            var res1 = await client.query(sel_timestamp);
-            var res2 = await client.query(sel_geom);
-      
-            if (res1.rowCount)
-              timestamp = res1.rows[0].value;
-            if (res2.rowCount)
-              geometry = res2.rows[0].value;
-          }
-          else
-            timestamp = analysisTimestampPropertyName; //"execution_date"
-          
-          var params = {
-            storage : storage,
-            schema : schema,
-            client : client,
-            table_name : row.value,
-            database_project : row.uri,
-            table_name_back : table_name_back,
-            timestamp_prop : timestamp,
-            geometry_prop: geometry
-          };
-    
-          await StoreTable(params);
-  
-        }
+        await StoreNTable_1(storage, schema, client, res);
  
-      };
+     // };
 
       logger.log('info', "Finalized execution of " + storage.name);
       storage.process.last_process_timestamp = moment();
@@ -1124,7 +1146,8 @@ async function updateMessages(storage, schema, client, start, data, last, msg){
         throw err;
       }
       if (!storage.process.data_timestamp){
-        var insert_msg = "INSERT INTO " + service_table_message + " \
+        storage.process.description = storage.process.description ? storage.process.description : " ";
+        var insert_msg = "INSERT INTO " + schema + "." + service_table_message + " \
           (log_id, type, description, timestamp) VALUES(\
           " + storage.id + ", " + storage.process.status + ", \'\
           " + storage.process.description + "\', \'" + last + "\')";
