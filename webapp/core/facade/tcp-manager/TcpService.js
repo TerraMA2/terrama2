@@ -555,10 +555,11 @@ TcpService.prototype.log = function(json) {
         DataManager.listCollectors(),
         DataManager.listViews(),
         DataManager.listAlerts(),
-        DataManager.listInterpolators()
+        DataManager.listInterpolators(),
+        DataManager.listStorages()
       ])
       // spreading promiser result into services, analysisList, collectors and views variables
-      .spread(function(services, analysisList, collectors, views, alerts, interpolators) {
+      .spread(function(services, analysisList, collectors, views, alerts, interpolators, storages) {
         var obj = {
           begin: begin,
           end: end
@@ -585,6 +586,9 @@ TcpService.prototype.log = function(json) {
               break;
             case ServiceType.INTERPOLATION:
               obj.process_ids = interpolators.map(function(elm) { return elm.id; });
+              break;
+            case ServiceType.STORAGE:
+              obj.process_ids = storages.map(function(elm) { return elm.id; });
               break;
             default:
               throw new Error("Invalid service type");

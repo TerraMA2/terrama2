@@ -1,6 +1,7 @@
 var fs = require("fs");
 var path = require("path");
 var bcrypt = require('bcrypt');
+var util = require('util');
 
 /**
  * It defines a cache object (private) with TerraMA² settings

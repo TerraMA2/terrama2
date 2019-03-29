@@ -117,6 +117,44 @@ function _createBufferFrom() {
   return tmp;
 }
 
+
+/**
+ This method parses the bytearray received.
+ @param {Buffer} byteArray - a nodejs buffer with bytearray received
+ @return {Object} object - a javascript object with signal, message and size
+
+ */
+function parseByteArray(byteArray) {
+  var messageSizeReceived = byteArray.readUInt32BE(0);
+  var signalReceived = byteArray.readUInt32BE(4);
+  var rawData = byteArray.slice(8, byteArray.length);
+  console.log(rawData.toString());
+
+  // validate signal
+  var signal = Utils.getTcpSignal(signalReceived);
+
+  var jsonMessage;
+
+  try{
+    if (rawData.length === 0) {
+      jsonMessage = {};
+    } else {
+      jsonMessage = JSON.parse(rawData);
+    }
+  }
+  catch(e){
+    console.log(e);
+    jsonMessage = {};
+  }
+
+  return {
+    size: messageSizeReceived,
+    signal: signal,
+    message: jsonMessage
+  };
+}
+
+
 let beginOfMessage = "(BOM)\0";
 let endOfMessage = "(EOM)\0";
 
@@ -137,16 +175,41 @@ server.on('connection', function(clientSocket) {
 
   clientSocket.on('data', function(data) {
 
-    var messageSizeReceived = data.readUInt32BE(0);
-    var signalReceived = data.readUInt32BE(4);
-    var rawData = data.slice(8, data.length);
+     const parsed = parseByteArray(data);
   
-    // validate signal
-    var signal = Utils.getTcpSignal(signalReceived);
-    console.log(messageSizeReceived + " " + signalReceived + " " + rawData.toString() + " " + signal);
-    var buffer = beginOfMessage + TcpManager.makebuffer(Signals.STATUS_SIGNAL, {service_loaded:false}) + endOfMessage;
-    clientSocket.write(buffer);
-    console.log(buffer);
+    console.log(parsed.size + " " + parsed.signal + " " + JSON.stringify(parsed.message, null, 4));
+     
+    switch(parsed.signal){
+      case Signals.STATUS_SIGNAL:
+        var buffer = beginOfMessage + TcpManager.makebuffer(Signals.STATUS_SIGNAL, {service_loaded:false}) + endOfMessage;
+        console.log(buffer);
+        clientSocket.write(buffer);
+        break;
+
+      case Signals.UPDATE_SERVICE_SIGNAL:
+        var obj = {
+          instance_id : parsed.message.instance_id,
+          instance_name : parsed.message.instance_name,
+          start_time : moment().format("lll"),
+          terrama2_version : parsed.message.version,
+          shutting_down : false,
+          logger_online : false
+        };
+        var buffer = beginOfMessage + TcpManager.makebuffer(Signals.UPDATE_SERVICE_SIGNAL, obj) + endOfMessage;
+        console.log(buffer);
+        clientSocket.write(buffer);
+        break;
+
+      case Signals.VALIDATE_PROCESS_SIGNAL:
+      
+        var buffer = beginOfMessage + TcpManager.makebuffer(Signals.ADD_DATA_SIGNAL, obj) + endOfMessage;
+        console.log(buffer);
+        clientSocket.write(buffer);
+        break;
+      
+        break;
+      
+    }
 
     // parseBytearray
    console.log("clientsocket: "+ data.toString())
@@ -244,84 +307,84 @@ function onListening() {
 io.attach(server);
 load('sockets').into(io);
 
-var schema = contextConfig.define.schema;
-var databaseName = contextConfig.database;
+// var schema = contextConfig.define.schema;
+// var databaseName = contextConfig.database;
 
-var results = [];
+// var results = [];
 
-//Connect to Terrama2 database
-try{
+// //Connect to Terrama2 database
+// try{
 
-  const config = {
-    user: contextConfig.username,
-    password: contextConfig.password,
-    host: contextConfig.host,
-    port: contextConfig.port,
-    database: contextConfig.database
-  };
+//   const config = {
+//     user: contextConfig.username,
+//     password: contextConfig.password,
+//     host: contextConfig.host,
+//     port: contextConfig.port,
+//     database: contextConfig.database
+//   };
 
-  logger.info("Initializing database " + databaseName);
+//   logger.info("Initializing database " + databaseName);
   
-  var pool = new pg.Pool(config);
-  pool.connect().then (client =>{
-    server.emit('message', "Conectou ao TerraMA2");
+//   var pool = new pg.Pool(config);
+//   pool.connect().then (client =>{
+//     server.emit('message', "Conectou ao TerraMA2");
 
-    var storage = client.query("Select id, name from " + schema + ".service_types ")
-    var sql_logtable = "CREATE "
-    //Load rules of storage
-    client.query('SELECT * FROM ' + schema +'.storages where storages.active = true', async (err, res) => {
-    // Stream results back one row at a time
-      const nrows = res.rows.length;
-      for (var i = 0; i < nrows; i++){
-        var storage = res.rows[i];
-        console.log(storage);
-        logger.debug(storage);
+//     var storage = client.query("Select id, name from " + schema + ".service_types ")
+//     var sql_logtable = "CREATE "
+//     //Load rules of storage
+//     client.query('SELECT * FROM ' + schema +'.storages where storages.active = true', async (err, res) => {
+//     // Stream results back one row at a time
+//       const nrows = res.rows.length;
+//       for (var i = 0; i < nrows; i++){
+//         var storage = res.rows[i];
+//         console.log(storage);
+//         logger.debug(storage);
 
-        var store_id = storage.id;
-        var data_serie_code;
-       // console.log(store_id);
+//         var store_id = storage.id;
+//         var data_serie_code;
+//        // console.log(store_id);
 
-        //Verifies which data_serie type will be stored
-        var select_data_type= "SELECT data_series_semantics.code FROM \
-        "+schema+".storages, \
-        "+schema+".data_series, \
-        "+schema+".data_series_semantics WHERE \
-        data_series_semantics.id = data_series.data_series_semantics_id AND \
-        data_series.id = \'" + storage.data_series_id + "\'";
-        console.log(select_data_type);
-        var res1 = await client.query(select_data_type);
+//         //Verifies which data_serie type will be stored
+//         var select_data_type= "SELECT data_series_semantics.code FROM \
+//         "+schema+".storages, \
+//         "+schema+".data_series, \
+//         "+schema+".data_series_semantics WHERE \
+//         data_series_semantics.id = data_series.data_series_semantics_id AND \
+//         data_series.id = \'" + storage.data_series_id + "\'";
+//         console.log(select_data_type);
+//         var res1 = await client.query(select_data_type);
 
-        data_serie_code = res1.rows[0].code;
-        storage.data_serie_code = data_serie_code;
-        switch (data_serie_code){
-          case "GRID-geotiff":
-           // StoreTIFF(storage, schema, client);
-          break;
-          case "DCP-single_table":
-           // StoreSingleTable(storage, schema, client);
-          break;
-          case "DCP-postgis":
-          case "ANALYSIS_MONITORED_OBJECT-postgis":
-          case "OCCURRENCE-postgis":
-           // StoreNTable(storage, schema, client);
-          break;
-          default:
-          console.log("erro -");
-        }
-          //return res.rows[0].code;
-      };
-    });
-  });
- // return process.exit(1);
-}
-catch(err)
-{
-// Handle connection errors
- // done();
-  console.log(err);
-  logger.error(err);
- // return res.status(500).json({success: false, data: err});
-}
+//         data_serie_code = res1.rows[0].code;
+//         storage.data_serie_code = data_serie_code;
+//         switch (data_serie_code){
+//           case "GRID-geotiff":
+//            // StoreTIFF(storage, schema, client);
+//           break;
+//           case "DCP-single_table":
+//            // StoreSingleTable(storage, schema, client);
+//           break;
+//           case "DCP-postgis":
+//           case "ANALYSIS_MONITORED_OBJECT-postgis":
+//           case "OCCURRENCE-postgis":
+//            // StoreNTable(storage, schema, client);
+//           break;
+//           default:
+//           console.log("erro -");
+//         }
+//           //return res.rows[0].code;
+//       };
+//     });
+//   });
+//  // return process.exit(1);
+// }
+// catch(err)
+// {
+// // Handle connection errors
+//  // done();
+//   console.log(err);
+//   logger.error(err);
+//  // return res.status(500).json({success: false, data: err});
+// }
 
 
 async function selectService (storage, schema, client) 

@@ -6699,45 +6699,45 @@ var DataManager = module.exports = {
         reject(err);
       };
 
-      // return models.db.Storages.findAll(Utils.extend({
-      //   include: [
-      //     {
-      //       model: models.db.Schedule,
-      //       required: false
-      //     },
-      //     {
-      //       model: models.db.AutomaticSchedule,
-      //       required: false
-      //     },
-      //     {
-      //       model: models.db.DataSeries,
-      //       include: [
-      //         {
-      //           model: models.db.DataProvider
-      //         },
-      //         {
-      //           model: models.db.DataSeriesSemantics
-      //         }
-      //       ]
-      //     }
-      //   ],
-      //   where: restriction
-      // }, options))
-      //   .then(function(storages) {
-      //     return resolve(storages.map(function(storage) {
-      //       var storageModel = new DataModel.Storage(Object.assign(storage.get(), {
-      //         schedule: storage.Schedule ? new DataModel.Schedule(storage.Schedule.get()) : {},
-      //         automaticSchedule: storage.AutomaticSchedule ? new DataModel.AutomaticSchedule(storage.AutomaticSchedule.get()) : {},
-      //         dataSeries: storage.DataSery ? new DataModel.DataSeries(storage.DataSery.get()) : {}
-      //         // schedule: new DataModel.Schedule(view.Schedule ? view.Schedule.get() : {id: 0})
-      //       }));
-      //       return storageModel;
-      //     }));
-      //   })
+      return models.db.Storages.findAll(Utils.extend({
+        include: [
+          {
+            model: models.db.Schedule,
+            required: false
+          },
+          {
+            model: models.db.AutomaticSchedule,
+            required: false
+          },
+          {
+            model: models.db.DataSeries,
+            include: [
+              {
+                model: models.db.DataProvider
+              },
+              {
+                model: models.db.DataSeriesSemantics
+              }
+            ]
+          }
+        ],
+        where: restriction
+      }, options))
+        .then(function(storages) {
+          return resolve(storages.map(function(storage) {
+            var storageModel = new DataModel.Storage(Object.assign(storage.get(), {
+              schedule: storage.Schedule ? new DataModel.Schedule(storage.Schedule.get()) : {},
+              automaticSchedule: storage.AutomaticSchedule ? new DataModel.AutomaticSchedule(storage.AutomaticSchedule.get()) : {},
+              dataSeries: storage.DataSery ? new DataModel.DataSeries(storage.DataSery.get()) : {}
+              // schedule: new DataModel.Schedule(view.Schedule ? view.Schedule.get() : {id: 0})
+            }));
+            return storageModel;
+          }));
+        })
 
-      //   .catch(function(err) {
-      //     return reject(new Error("Could not list storages " + err.toString()));
-      //   });
+        .catch(function(err) {
+          return reject(new Error("Could not list storages " + err.toString()));
+        });
     });
   },
 
