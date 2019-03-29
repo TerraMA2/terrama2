@@ -632,6 +632,18 @@ define(
         theme: "dark-thick"
       });
 
+      $(document).on("click","#toggleButton", ()=>{
+        if($("#main-header").hasClass('navbar')){
+          $("#main-header").removeClass("navbar navbar-static-top shadow");
+          $(".header-logo").hide();
+          $("#logo-mini").show();
+        }else{
+          $("#main-header").addClass("navbar navbar-static-top shadow");
+          $(".header-logo").css('display', 'flex');
+          $("#logo-mini").hide();
+        }
+      })
+
       $.TerraMAMonitor.pushMenu = {
         activate: function(toggleBtn) {
           $(document).on('click', toggleBtn, function(e) {
@@ -641,7 +653,7 @@ define(
               $("body").removeClass('full_screen');
               $("body").addClass('sidebar-mini');
 
-              $("#terrama2-map").width(($("#terrama2-map").width() - 230) + "px");
+              $("#terrama2-map").width(($("#terrama2-map").width()) + "px");
 
               $('.logo').css('margin-top', '');
             } else {

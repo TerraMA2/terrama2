@@ -546,34 +546,36 @@
           </div>
           <div class="col-md-4">
             <button type="button" class="btn btn-primary pull-right" ng-click="ctrl.newAttachedView()" id="newAttachedViewBtn" ng-disabled="ctrl.viewsToAttach.length === 0"><i class="fa fa-plus"></i></button>
-            <table class="table table-striped" id="attachedViewsTable">
-              <tbody ng-if="ctrl.attachedViews.length === 0">
-                <tr>
-                  <td colspan="3" id="noViewsAttached" ng-bind="i18n.__('No views attached.')"></td>
-                </tr>
-              </tbody>
-              <tbody ng-if="ctrl.attachedViews.length > 0" sv-root sv-part="ctrl.attachedViews" sv-on-start="ctrl.startSort($item, $part, $index, $helper)">
-                <tr ng-repeat="attachedView in ctrl.attachedViews" ng-if="ctrl.attachedViews.length === 1">
-                  <td class="buttonTd"></td>
-                  <td id="alertView" ng-bind="ctrl.alert.name"></td>
-                  <td class="buttonTd"></td>
-                </tr>
-                <tr ng-repeat="attachedView in ctrl.attachedViews" ng-if="ctrl.attachedViews.length > 1" sv-element>
-                  <td class="buttonTd sortHandle" sv-handle>
-                    <i class="fa fa-arrows-v"></i>
-                  </td>
-                  <td ng-if="attachedView._id === 'alertView'" id="alertView" ng-bind="ctrl.alert.name"></td>
-                  <td ng-if="attachedView._id !== 'alertView'">
-                    <select id="{{ attachedView._id }}" class="form-control" ng-model="attachedView.view" ng-change="ctrl.selectAttachedView(this)">
-                      <option ng-repeat="view in ctrl.viewsToAttach" value="{{ view.id }}" ng-if="view.id !== ctrl.alert.view.id">{{ view.name }}</option>
-                    </select>
-                  </td>
-                  <td class="buttonTd">
-                    <button type="button" class="btn btn-danger" ng-click="ctrl.removeAttachedView(attachedView._id)" ng-if="attachedView._id !== 'alertView'"><i class="fa fa-trash"></i></button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="table-responsive">
+              <table class="table table-striped" id="attachedViewsTable">
+                <tbody ng-if="ctrl.attachedViews.length === 0">
+                  <tr>
+                    <td colspan="3" id="noViewsAttached" ng-bind="i18n.__('No views attached.')"></td>
+                  </tr>
+                </tbody>
+                <tbody ng-if="ctrl.attachedViews.length > 0" sv-root sv-part="ctrl.attachedViews" sv-on-start="ctrl.startSort($item, $part, $index, $helper)">
+                  <tr ng-repeat="attachedView in ctrl.attachedViews" ng-if="ctrl.attachedViews.length === 1">
+                    <td class="buttonTd"></td>
+                    <td id="alertView" ng-bind="ctrl.alert.name"></td>
+                    <td class="buttonTd"></td>
+                  </tr>
+                  <tr ng-repeat="attachedView in ctrl.attachedViews" ng-if="ctrl.attachedViews.length > 1" sv-element>
+                    <td class="buttonTd sortHandle" sv-handle>
+                      <i class="fa fa-arrows-v"></i>
+                    </td>
+                    <td ng-if="attachedView._id === 'alertView'" id="alertView" ng-bind="ctrl.alert.name"></td>
+                    <td ng-if="attachedView._id !== 'alertView'">
+                      <select id="{{ attachedView._id }}" class="form-control" ng-model="attachedView.view" ng-change="ctrl.selectAttachedView(this)">
+                        <option ng-repeat="view in ctrl.viewsToAttach" value="{{ view.id }}" ng-if="view.id !== ctrl.alert.view.id">{{ view.name }}</option>
+                      </select>
+                    </td>
+                    <td class="buttonTd">
+                      <button type="button" class="btn btn-danger" ng-click="ctrl.removeAttachedView(attachedView._id)" ng-if="attachedView._id !== 'alertView'"><i class="fa fa-trash"></i></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </form>
