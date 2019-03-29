@@ -12,7 +12,9 @@ module.exports = function(app) {
   var TokenCode = require('./../../core/Enums').TokenCode;
   var ScheduleType = require('./../../core/Enums').ScheduleType;
   // Facade
+  const DataSeriesFacade = require('./../../core/facade/DataSeries')
   var DataProviderFacade = require("./../../core/facade/DataProvider");
+  const CollectorFacade = require('./../../core/facade/Collector');
   var RequestFactory = require("./../../core/RequestFactory");
 
   const { createView, destroyView, validateView } = require('./../../core/utility/createView');
@@ -312,10 +314,13 @@ module.exports = function(app) {
                   collector.schedule = newSchedule;
                 }
               }
-              return DataManager.updateCollector(collector.id, collector, options)
-                .then(() => DataManager.updateDataSeries(parseInt(dataSeriesId), dataSeriesObject.input, options))
-                // try update data series output
-                .then(() => DataManager.updateDataSeries(parseInt(collector.data_series_output), dataSeriesObject.output, options))
+
+              // Update collector data series
+              await DataManager.updateDataSeries(parseInt(dataSeriesId), dataSeriesObject.input, options);
+              await DataManager.updateDataSeries(parseInt(collector.data_series_output), dataSeriesObject.output, options);
+
+              const collectorFacade = new CollectorFacade();
+              return collectorFacade.updateCollector(collector.id, collector, options)
                 // verify if must remove a schedule
                 .then(() => {
                   if (removeSchedule){
