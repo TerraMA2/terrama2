@@ -14,7 +14,6 @@ module.exports = function(app) {
   // data model
   var DataModel = require('./../../core/data-model');
   // Facade
-  const DataSeriesFacade = require('./../../core/facade/DataSeries')
   var DataProviderFacade = require("./../../core/facade/DataProvider");
   const CollectorFacade = require('./../../core/facade/Collector');
   var RequestFactory = require("./../../core/RequestFactory");
