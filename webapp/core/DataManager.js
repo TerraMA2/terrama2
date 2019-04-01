@@ -2142,7 +2142,7 @@ var DataManager = module.exports = {
               // add data set
             } else {
               newDataSet.data_series_id = dataSeriesId;
-              var addPromise = self.addDataSet(dataSeriesSemantics, newDataSet).then(function(newDSet){
+              var addPromise = self.addDataSet(dataSeriesSemantics, newDataSet, null, options).then(function(newDSet){
                 dataSeries.dataSets.push(newDSet);
               });
               promises.push(addPromise);
@@ -3246,58 +3246,12 @@ var DataManager = module.exports = {
    * @param {Transaction} options.transaction - An ORM transaction
    * @returns {Promise<Collector>}
    */
-  getCollectorAcceptNull: function(restriction, options) {
-    var self = this;
-    return new Promise(function(resolve, reject) {
-      var restrictionOutput = {};
-      if (restriction.output) {
-        Object.assign(restrictionOutput, restriction.output);
-        delete restriction.output;
-      }
-
-      models.db.Collector.findOne(Utils.extend({
-        where: restriction,
-        include: [
-          {
-            model: models.db.Schedule
-          },
-          {
-            model: models.db.DataSeries,
-            where: restrictionOutput
-          },
-          {
-            model: models.db.CollectorInputOutput
-          },
-          {
-            model: models.db.Filter,
-            required: false,
-            attributes: { include: [[orm.fn('ST_AsEwkt', orm.col('region')), 'region_wkt'], [orm.fn('ST_srid', orm.col('region')), 'srid']] }
-          },
-          {
-            model: models.db.Intersection,
-            required: false
-          }
-        ]
-      }, options)).then(function(collectorResult) {
-        if (collectorResult) {
-          var collectorInstance = new DataModel.Collector(collectorResult.get());
-
-          return self.getDataSeries({id: collectorResult.data_series_output})
-            .then(function(dataSeries) {
-              collectorInstance.dataSeriesOutput = dataSeries;
-              return resolve(collectorInstance);
-            }).catch(function(err) {
-              logger.error("Retrieved null while getting collector", err);
-              return reject(new exceptions.CollectorError("Could not find collector. " + err.toString()));
-            });
-        } else {
-          return resolve(null);
-        }
-      }).catch(function(err) {
-        logger.error(err);
-        return reject(new exceptions.CollectorError("Could not find collector. " + err.toString()));
-      });
-    });
+  getCollectorAcceptNull: async function(restriction, options) {
+    try {
+      return await this.getCollector(restriction, options);
+    } catch (err) {
+      return null;
+    }
   },
 
   /**
