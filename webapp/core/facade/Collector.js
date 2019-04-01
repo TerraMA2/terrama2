@@ -40,7 +40,7 @@ class CollectorFacade {
     // Get Model
     const { CollectorInputOutput } = DataManager.orm.models;
 
-    const currentListOfCollectorInOut = await DataManager.listCollectorInputOutput({ collector_id: collectorId });
+    const currentListOfCollectorInOut = await DataManager.listCollectorInputOutput({ collector_id: collectorId }, options);
 
     for(const dataSetIndex in inputDataSeries.dataSets) {
       const dataSet = inputDataSeries.dataSets[dataSetIndex];
