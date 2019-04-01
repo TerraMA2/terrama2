@@ -1,7 +1,5 @@
 module.exports = function(sequelize, DataTypes) {
-  "use strict";
-
-  var storages = sequelize.define("storages",
+  var Storages = sequelize.define("Storages",
     {
       id: {
         type: DataTypes.INTEGER,
@@ -30,7 +28,7 @@ module.exports = function(sequelize, DataTypes) {
 
       classMethods: {
         associate: function(models) {
-          storages.belongsTo(models.Project, {
+          Storages.belongsTo(models.Project, {
             onDelete: "CASCADE",
             foreignKey: {
               name: "project_id",
@@ -38,7 +36,7 @@ module.exports = function(sequelize, DataTypes) {
             }
           });
 
-          storages.belongsTo(models.DataProvider, {
+          Storages.belongsTo(models.DataProvider, {
             onDelete: "CASCADE",
             foreignKey: {
               name: "data_provider_id",
@@ -46,7 +44,7 @@ module.exports = function(sequelize, DataTypes) {
             }
           });
 
-          storages.belongsTo(models.DataSeries, {
+          Storages.belongsTo(models.DataSeries, {
             onDelete: "CASCADE",
             foreignKey: {
               name: "data_series_id",
@@ -54,7 +52,7 @@ module.exports = function(sequelize, DataTypes) {
             }
           });
 
-          storages.belongsTo(models.Schedule, {
+          Storages.belongsTo(models.Schedule, {
             onDelete: "CASCADE",
             foreignKey: {
               name: "schedule_id",
@@ -63,7 +61,7 @@ module.exports = function(sequelize, DataTypes) {
             }
           });
 
-          storages.belongsTo(models.AutomaticSchedule, {
+          Storages.belongsTo(models.AutomaticSchedule, {
             onDelete: "CASCADE",
             foreignKey: {
               name: "automatic_schedule_id",
@@ -72,24 +70,19 @@ module.exports = function(sequelize, DataTypes) {
             }
           });
 
-          storages.belongsTo(models.ServiceType, {
+          Storages.belongsTo(models.ServiceInstance, {
             onDelete: "CASCADE",
             foreignKey: {
-              name: "service_type_id",
+              name: "service_instance_id",
               allowNull: true,
               constraints: true
             }
           });
 
-          storages.belongsTo(models.ServiceInstance, {
-            foreignKey: {
-              allowNull: true
-            }
-          });
         }
       }
     }
   );
 
-  return storages;
+  return Storages;
 };

@@ -31,7 +31,7 @@ module.exports = function(sequelize, DataTypes) {
     timestamps: false,
     classMethods: {
       associate: function(models) {
-        storage_historic.belongsTo(models.storages, {
+        storage_historic.belongsTo(models.Storages, {
           onDelete: "CASCADE",
           foreignKey: {
             name: "storage_id",

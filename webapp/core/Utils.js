@@ -297,7 +297,7 @@ var Utils = module.exports = {
                     DataManager.listStorages().then(function(storages){
                       var storagesArr = [];
                       storages.forEach(function(storage){
-                        storagesArr.push(storage.toService());
+                        storagesArr.push(storage.toObject());
                       });
 
                       return resolve({

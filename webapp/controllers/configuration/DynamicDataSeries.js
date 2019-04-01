@@ -97,6 +97,10 @@ module.exports = function(app) {
               function(element){
                 return element.rawObject();
               }
+            ), "storages": storages.map(
+              function(element){
+                return element.rawObject();
+              }
             ), "projects": projects
             }));
           })
