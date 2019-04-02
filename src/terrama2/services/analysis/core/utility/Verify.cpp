@@ -57,7 +57,9 @@ void terrama2::services::analysis::core::verify::analysisGrid(const terrama2::se
 void terrama2::services::analysis::core::verify::analysisMonitoredObject(const terrama2::services::analysis::core::AnalysisPtr analysis)
 {
   // DCP_TYPE is a special case of MONITORED_OBJECT_TYPE, thus testing MONITORED_OBJECT_TYPE & DCP_TYPE returns true.
-  analysisType(analysis, static_cast<int>(terrama2::services::analysis::core::AnalysisType::DCP_TYPE) | static_cast<int>(terrama2::services::analysis::core::AnalysisType::MONITORED_OBJECT_TYPE));
+  analysisType(analysis, static_cast<int>(terrama2::services::analysis::core::AnalysisType::DCP_TYPE) |
+                         static_cast<int>(terrama2::services::analysis::core::AnalysisType::MONITORED_OBJECT_TYPE) |
+                         static_cast<int>(terrama2::services::analysis::core::AnalysisType::VECTORIAL_PROCESSING_TYPE));
 }
 
 void terrama2::services::analysis::core::verify::analysisDCP(const terrama2::services::analysis::core::AnalysisPtr analysis)

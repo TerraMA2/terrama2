@@ -70,7 +70,7 @@ namespace terrama2
         {
           terrama2::core::DataSetSeries series; //!< Dataset information.
           std::string identifier; //!< Identifier column.
-          int32_t geometryPos = -1; //!< Geometry column position.
+          std::size_t geometryPos = -1; //!< Geometry column position.
           te::sam::rtree::Index<uint32_t, 8> rtree; //!< Spatial index in memory
 
         };
@@ -182,6 +182,7 @@ namespace terrama2
           protected:
             const int DCP_ANALYSIS_DATASET = 0;
             std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> monitoredObjectDataSeries_;
+            std::vector<std::shared_ptr<ContextDataSeries>> dataSeriesList_; //!< Used in GeometricIntersection
             std::set<std::pair<std::string, int> > attributes_; //!< Set of attributes and datatypes
             std::unordered_map<int, std::map<std::string, boost::any> >  analysisResult_;
             std::unordered_map<ObjectKey, std::shared_ptr<ContextDataSeries>, ObjectKeyHash, EqualKeyComparator > datasetMap_; //!< Map containing all loaded datasets.

@@ -62,6 +62,9 @@ namespace terrama2
 
         class MonitoredObjectContext;
         typedef std::shared_ptr<terrama2::services::analysis::core::MonitoredObjectContext> MonitoredObjectContextPtr;
+
+        class VectorProcessingContext;
+        typedef std::shared_ptr<terrama2::services::analysis::core::VectorProcessingContext> VectorProcessingContextPtr;
       } // end namespace core
     }   // end namespace analysis
   }     // end namespace services

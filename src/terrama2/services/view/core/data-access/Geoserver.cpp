@@ -41,6 +41,8 @@
 #include "../../../../core/utility/Utils.hpp"
 #include "../../../../core/utility/Raii.hpp"
 
+#include "../vectorial-processing/Utils.hpp"
+
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
@@ -324,8 +326,10 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
         std::unique_ptr<te::da::DataSetType> modelDataSetType = std::move(tableInfo.dataSetType);
 
         std::string SQL = "";
+        std::vector<std::string> listOfIntersectionTableNames;
 
-        if(inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
+        if(inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT ||
+           inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT)
         {
           const auto& id = dataset->format.find("monitored_object_id");
           if(id == dataset->format.end())
@@ -403,25 +407,25 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
               TERRAMA2_LOG_ERROR() << errMsg;
               continue;
             }
+
             pk = properties.at(0)->getName();
           }
+            auto& propertiesVector = monitoredObjectTableInfo.dataSetType->getProperties();
 
+            SQL = "SELECT ";
 
-          auto& propertiesVector = monitoredObjectTableInfo.dataSetType->getProperties();
+            for(auto& property : propertiesVector)
+            {
+              const std::string& propertyName = property->getName();
+              SQL += "t1." + propertyName + " as monitored_" + propertyName + ", ";
+            }
 
-          SQL = "SELECT ";
+            SQL += "t2.* ";
+            SQL += "FROM " + monitoredObjectTableInfo.tableName;
+            SQL += " as t1 , " + tableName + " as t2 ";
+            SQL += "WHERE t1." + pk + " = t2." + pk;
 
-          for(auto& property : propertiesVector)
-          {
-            const std::string& propertyName = property->getName();
-            SQL += "t1." + propertyName + " as monitored_" + propertyName + ", ";
           }
-
-          SQL += "t2.* ";
-          SQL += "FROM " + monitoredObjectTableInfo.tableName;
-          SQL += " as t1 , " + tableName + " as t2 ";
-          SQL += "WHERE t1." + pk + " = t2." + pk;
-
           modelDataSetType.reset(monitoredObjectTableInfo.dataSetType.release());
           tableName = layerName;
         }
@@ -472,6 +476,22 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
         QJsonObject layer;
         layer.insert("layer", QString::fromStdString(layerName));
         layersArray.push_back(layer);
+
+        if (inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT)
+        {
+          // When Vector Processing, create a temporary legend since the viewPtr legend is empty
+          std::unique_ptr<View::Legend> temporaryLegend = terrama2::services::view::core::vp::generateVectorProcessingLegend(listOfIntersectionTableNames);
+
+//          // Register style
+//          std::string styleName = "";
+
+//          std::string layerName = viewLayerName(viewPtr);
+//          styleName = layerName + "_style";
+//          registerStyle(styleName, *temporaryLegend.get(), objectType, geomType);
+
+//          for(auto layer : layersArray)
+//            registerLayerDefaultStyle(styleName, layer.toObject().value("layer").toString().toStdString());
+        }
       }
     }
   }
@@ -843,7 +863,7 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const ViewP
       srid = std::to_string(geomProperty->getSRID());
     }
 
-    if (!srid.empty() || srid == "0")
+    if (srid.empty() || srid == "0")
     {
       const std::string msg("The SRID of layer '"+ layerName +"' is " + srid + ".");
 

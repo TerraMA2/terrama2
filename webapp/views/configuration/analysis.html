@@ -176,6 +176,7 @@
                   <option value="{[ Enums.AnalysisType.DCP ]}">{{ i18n.__('DCP') }}</option>
                   <option value="{[ Enums.AnalysisType.MONITORED ]}">{{ i18n.__('Monitored Object') }}</option>
                   <option value="{[ Enums.AnalysisType.GRID ]}">{{ i18n.__('Grid') }}</option>
+                  <option value="{[ Enums.AnalysisType.VP ]}">{{ i18n.__('Vector Processing') }}</option>
                 </select>
 
                 <span class="help-block"
@@ -307,12 +308,19 @@
     <terrama2-box title="i18n.__(ctrl.semanticsSelected + ' Data Series')"
                   css="ctrl.css"
                   ng-show="ctrl.analysis.type_id !== '{[ Enums.AnalysisType.GRID ]}'  && forms.generalDataForm.type.$valid">
+
       <div class="row">
         <div class="col-md-12">
           <form name="forms.targetDataSeriesForm">
-            <div class="col-md-6">
+
+            <vector-processing css="ctrl.css"
+                  model="ctrl.analysis.metadata.operationType"
+                  ng-show="ctrl.analysis.type_id === '{[ Enums.AnalysisType.VP ]}' && forms.generalDataForm.type.$valid">
+            </vector-processing>
+
+            <div class="col-md-6" ng-show="ctrl.analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}'">
               <div class="form-group has-feedback" terrama2-show-errors>
-                <label>{{ i18n.__("DataSeries") }}:</label>
+                <label>{{ i18n.__(ctrl.analysis.type_id === '{[ Enums.AnalysisType.VP ]}' ? 'Monitored DataSeries' : 'DataSeries') }}:</label>
                 <select class="form-control"
                         name="targetDataSeries"
                         ng-disabled="ctrl.isUpdating"
@@ -400,6 +408,11 @@
         </div><!--./col-md-12-->
       </div><!--./row-->
     </terrama2-box>
+
+    <query-builder css="ctrl.css"
+                   model="ctrl.analysis.metadata.queryBuilder"
+                   ng-show="ctrl.analysis.type_id == {[ Enums.AnalysisType.VP ]} && forms.generalDataForm.type.$valid">
+    </query-builder>
 
     <terrama2-box title="i18n.__('Grid configuration')"
                   css="ctrl.css"
@@ -678,7 +691,7 @@
       </div>
     </terrama2-box>
 
-    <terrama2-box title="i18n.__('Script')" css="ctrl.css" ng-show="forms.generalDataForm.type.$valid">
+    <terrama2-box title="i18n.__('Script')" css="ctrl.css" ng-show="((ctrl.analysis.type_id !== '{[ Enums.AnalysisType.VP ]}') && forms.generalDataForm.type.$valid)">
       <div class="col-md-12 terrama2-nopadding-box">
 
         <div class="col-md-12">
