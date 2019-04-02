@@ -79,6 +79,13 @@ namespace terrama2
       //! Equality operator
       inline bool operator==(const DataSet& rhs) { return id == rhs.id; }
     };
+
+    struct DataSetAlias
+    {
+      std::string name;
+      std::string alias;
+    };
+
   } // end namespace core
 } // end namespace terrama2
 

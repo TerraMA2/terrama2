@@ -232,6 +232,9 @@ namespace terrama2
       It is used for reprocessing historical data.
     */
     TECOREEXPORT void erasePreviousResult(DataManagerPtr dataManager, DataSeriesId dataSeriesId, std::shared_ptr<te::dt::TimeInstantTZ> startTime);
+
+    TECOREEXPORT std::vector<DataSetAlias> getAttributesProperty(DataSetPtr dataset);
+
   } // end namespace core
 }   // end namespace terrama2
 

@@ -425,6 +425,20 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
           modelDataSetType.reset(monitoredObjectTableInfo.dataSetType.release());
           tableName = layerName;
         }
+        else
+        {
+           SQL = "SELECT ";
+
+           auto attributes = terrama2::core::getAttributesProperty(dataset); //try catch
+
+           for(auto& property : attributes)
+             SQL += property.name + " as \"" + property.alias + "\",";
+
+
+           SQL = SQL.substr(0, SQL.size()-1);
+
+           SQL += " FROM " + tableName;
+        }
 
         registerPostgisTable(viewPtr,
                              std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
@@ -786,7 +800,7 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const ViewP
      || dataSeriesType == terrama2::core::DataSeriesType::DCP)
     xml += "<nativeName>" + layerName + "</nativeName>";
   else
-    xml += "<nativeName>" + tableName + "</nativeName>";
+    xml += "<nativeName>" + layerName + "</nativeName>";
   xml += "<enabled>true</enabled>";
 
   std::string metadataTime = "";

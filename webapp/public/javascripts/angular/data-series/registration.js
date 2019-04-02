@@ -2224,6 +2224,15 @@ define([], function() {
           isWizardStepValid();
         }
 
+        if(!$scope.isDynamic && !$scope.isGrid)
+        {
+          if($scope.forms.attributes.$invalid){
+            MessageBoxService.danger(i18n.__("Permission"), i18n.__("Error!"));
+            return;
+          }
+          $scope.model.attributes = JSON.stringify($scope.model.attributes);
+        }
+
         if (!$scope.hasProjectPermission && $scope.isUpdating){
           MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this data series. He belongs to a protected project!"));
           return;

@@ -9,6 +9,12 @@ define([],()=> {
 
     onListColumns(){
       this.$timeout(()=>{
+
+        if(this.model){
+          this.model = JSON.parse(this.model);
+          return;
+        }
+
         this.model = [];
         const {tableName, provider, dataProviderService} = this
         dataProviderService.listPostgisObjects({providerId: provider, objectToGet: "column", tableName})
@@ -36,7 +42,8 @@ define([],()=> {
       model: "=",
       metadata: '=',
       provider: "<",
-      tableName: "<"
+      tableName: "<",
+      form: "="
     },
     controller: AttributesComponent,
     template: `
@@ -53,7 +60,7 @@ define([],()=> {
               <tbody>
                 <tr ng-repeat="cn in $ctrl.model">
                   <td>{{ cn.name }}</td>
-                  <td><input class="form-control" ng-model="cn.alias" type="text"></td>
+                  <td><input class="form-control" name="form_attributes_{{cn.name}}" ng-model="cn.alias" type="text" required></td>
                 </tr>
               </tbody>
             </table>

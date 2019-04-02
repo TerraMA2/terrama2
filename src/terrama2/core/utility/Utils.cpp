@@ -71,6 +71,11 @@
 #include "Utils.hpp"
 #include "terrama2_config.hpp"
 
+//Qt
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonParseError>
+
 namespace te
 {
   namespace common
@@ -641,4 +646,39 @@ std::string terrama2::core::getTableNameProperty(terrama2::core::DataSetPtr data
     TERRAMA2_LOG_ERROR() << errMsg;
     throw UndefinedTagException() << ErrorDescription(errMsg);
   }
+}
+
+std::vector<terrama2::core::DataSetAlias> terrama2::core::getAttributesProperty(DataSetPtr dataset)
+{
+  std::vector<DataSetAlias> aliasList;
+
+  try
+  {
+    auto jsonStr = dataset->format.at("attributes");
+
+    QJsonParseError error;
+
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonStr.c_str(), &error);
+
+    if(error.error != QJsonParseError::NoError)
+    {
+      TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nJson parse error: %1\n").arg(error.errorString());
+      throw 10;
+    }
+
+    auto attributesArray = jsonDoc.array();
+
+    for(auto attribute : attributesArray)
+    {
+      std::string nome = attribute.toObject()["name"].toString().toStdString();
+      std::string alias = attribute.toObject()["alias"].toString().toStdString();
+
+      aliasList.push_back(DataSetAlias{nome, alias});
+    }
+  }
+  catch(const std::out_of_range&)
+  {
+  }
+
+  return aliasList;
 }
