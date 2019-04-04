@@ -35,17 +35,20 @@ Application.setCurrentContext(nodeContext);
  const Regex = require('xregexp');
  const moment = require('moment');
  
- var PortScanner = require("./../core/PortScanner");
- var io = require('../io');
- var debug = require('debug')('webapp:server');
- var load = require('express-load');
- var TcpService = require("./../core/facade/tcp-manager/TcpService");
- var TcpManager = require("./../core/TcpManager");
- var Utils = require('./../core/Utils');
+var PortScanner = require("./../core/PortScanner");
+var io = require('../io');
+var debug = require('debug')('webapp:server');
+var load = require('express-load');
+var TcpService = require("./../core/facade/tcp-manager/TcpService");
+var TcpManager = require("./../core/TcpManager");
+var Utils = require('./../core/Utils');
 var Signals = require('./../core/Signals');
+var ServiceType = require("./../core/Enums").ServiceType;
+var StatusLog = require("./../core/Enums").StatusLog;
+
 var app = require('../app');
 
-var portNumber = '3600';
+var portNumber = '3600'; //default port
 
 // storing active connections
 var connections = {};
@@ -67,7 +70,6 @@ if (PortScanner.isValidPort(Number(nodeContextPort))) {
  * Get port from environment and store in Express.
  */
 let port = normalizePort(process.env.PORT || portNumber);
-//console.log('port ' + port)
 
 var format = new Date().toLocaleTimeString();
 
@@ -77,9 +79,6 @@ var format = new Date().toLocaleTimeString();
  */
 //var logger = require("./../core/Logger");
 var logger = require("./Logger");
-
-var ServiceType = require("./../core/Enums").ServiceType;
-var StatusLog = require("./../core/Enums").StatusLog;
 
 /**
  * Create server.
@@ -127,8 +126,9 @@ function _createBufferFrom() {
 function parseByteArray(byteArray) {
   var messageSizeReceived = byteArray.readUInt32BE(0);
   var signalReceived = byteArray.readUInt32BE(4);
+  var len = byteArray.length;
   var rawData = byteArray.slice(8, byteArray.length);
-  console.log(rawData.toString());
+ // console.log(rawData.toString());
 
   // validate signal
   var signal = Utils.getTcpSignal(signalReceived);
@@ -144,6 +144,7 @@ function parseByteArray(byteArray) {
   }
   catch(e){
     console.log(e);
+    console.log("rawData:", rawData.toString());
     jsonMessage = {};
   }
 
@@ -154,6 +155,23 @@ function parseByteArray(byteArray) {
   };
 }
 
+let Storages;
+
+function storageExists(id) {
+  return Storages.some(function(storage) {
+    return storage.id === id;
+  });
+}
+
+function updateStorage(newstorage)
+{
+  return Storages.some(function(storage) {
+    if (storage.id === newstorage.id){
+      storage = newstorage;
+      return storage;
+    } 
+  });
+}
 
 let beginOfMessage = "(BOM)\0";
 let endOfMessage = "(EOM)\0";
@@ -171,63 +189,155 @@ server.on('listening', onListening);
 server.on('connection', function(clientSocket) {
   console.log('CONNECTED: ' + clientSocket.remoteAddress + ':' + clientSocket.remotePort);
 
- // clientSocket.write('chego');
+  let extraData;
+  let tempBuffer;
+  let parsed;
+  let serviceLoaded_ = false;
+  let sShuttingDown_ = false;
 
-  clientSocket.on('data', function(data) {
+  clientSocket.on('data', function(byteArray) {
 
-     const parsed = parseByteArray(data);
+    console.log(byteArray.toString());
+
+     clientSocket.answered = true;
   
-    console.log(parsed.size + " " + parsed.signal + " " + JSON.stringify(parsed.message, null, 4));
-     
-    switch(parsed.signal){
-      case Signals.STATUS_SIGNAL:
-        var buffer = beginOfMessage + TcpManager.makebuffer(Signals.STATUS_SIGNAL, {service_loaded:false}) + endOfMessage;
-        console.log(buffer);
-        clientSocket.write(buffer);
-        break;
-
-      case Signals.UPDATE_SERVICE_SIGNAL:
-        var obj = {
-          instance_id : parsed.message.instance_id,
-          instance_name : parsed.message.instance_name,
-          start_time : moment().format("lll"),
-          terrama2_version : parsed.message.version,
-          shutting_down : false,
-          logger_online : false
-        };
-        var buffer = beginOfMessage + TcpManager.makebuffer(Signals.UPDATE_SERVICE_SIGNAL, obj) + endOfMessage;
-        console.log(buffer);
-        clientSocket.write(buffer);
-        break;
-
-      case Signals.VALIDATE_PROCESS_SIGNAL:
-      
-        var buffer = beginOfMessage + TcpManager.makebuffer(Signals.ADD_DATA_SIGNAL, obj) + endOfMessage;
-        console.log(buffer);
-        clientSocket.write(buffer);
-        break;
-      
-        break;
-      
-    }
-
-    // parseBytearray
-   console.log("clientsocket: "+ data.toString())
     // append and check if the complete message has arrived
-    //var tempBuffer = _createBufferFrom(tempBuffer, byteArray);
+    tempBuffer = _createBufferFrom(tempBuffer, byteArray);
 
-   //const buff = parser(data);
+    let completeMessage = true;
+    // process all messages in the buffer
+    // or until we get a incomplete message
+    while(tempBuffer && completeMessage) {
+      try  {
+        let bom = tempBuffer.toString('utf-8', 0, beginOfMessage.length);
+        while(tempBuffer.length > beginOfMessage.length && bom !== beginOfMessage) {
+          // remove any garbage left in the buffer until a valid message
+          // obs: should never happen
+          tempBuffer = new Buffer.from(tempBuffer.slice(1));
+          bom = tempBuffer.toString('utf-8', 0, beginOfMessage.length);
+        }
 
-    //   switch(buff.signal) {
-    //     case Signals.TERMINATE_SERVICE_SIGNAL:
-    //        stop();
-    //        break;
-    //      case Signals.START_PROCESS_SIGNAL:
-    //        console.log("COMEÇOU");
-    //        break;
-    //      default:
-    //        clientSocket.write()
-    //    }
+        if(bom !== beginOfMessage) {
+          // no begin of message header:
+          //  - clear the buffer
+          //  - wait for a new message
+          parsed = parseByteArray(byteArray);
+          if (parsed.message){
+            tempBuffer = undefined;
+            completeMessage = false;
+          }
+          else{
+            tempBuffer = undefined;
+            throw new Error("Invalid message (BOM)");
+          }
+        }
+        else{
+          const messageSizeReceived = tempBuffer.readUInt32BE(beginOfMessage.length);
+          const headerSize = beginOfMessage.length + endOfMessage.length;
+          const expectedLength = messageSizeReceived + 4;
+          if(tempBuffer.length < expectedLength+headerSize) {
+            // if we don't have the complete message
+            // wait for the rest
+            completeMessage = false;
+            return;
+          }
+
+          const eom = tempBuffer.toString('ascii', expectedLength + beginOfMessage.length, expectedLength+headerSize);
+          if(eom !== endOfMessage) {
+            // we should have a complete message and and end of message mark
+            // if we arrived here we got an ill-formed message
+            // clear the buffer and raise an error
+            tempBuffer = undefined;
+            throw new Error("Invalid message (EOM)");
+          }
+
+          // if we got many messages at once
+          // hold the buffer we the extra messages for processing
+          if(tempBuffer.length > expectedLength+headerSize) {
+            extraData = new Buffer.from(tempBuffer.slice(expectedLength + headerSize));
+          } else {
+            extraData = undefined;
+          }
+
+          // get only the first message for processing
+          tempBuffer = new Buffer.from(tempBuffer.slice(beginOfMessage.length, expectedLength+beginOfMessage.length));
+          parsed = parseByteArray(tempBuffer);
+          // get next message in the buffer for processing
+          tempBuffer = extraData;
+        }
+        
+        console.log("Size: " + parsed.size + " Signal: " + parsed.signal + " Message: " + JSON.stringify(parsed.message, null, 4));
+    
+        switch(parsed.signal){
+          case Signals.TERMINATE_SERVICE_SIGNAL:
+          isShuttingDown_ = true;
+          self.emit("stop", parsed);
+          break;
+
+        case Signals.STATUS_SIGNAL:
+          if (!serviceLoaded_){
+            var buffer = beginOfMessage + TcpManager.makebuffer(Signals.STATUS_SIGNAL, {service_loaded:false}) + endOfMessage;
+          }
+          else{
+            var obj={
+              service_loaded : true,
+              instance_id : parsed.message.instance_id,
+              instance_name : parsed.message.instance_name,
+              start_time : moment().format("lll"),
+              terrama2_version : "4.1.0", // parsed.message.version, preciso descobtir isto tbm
+              shutting_down : false,
+              logger_online : false
+            }
+            var buffer = beginOfMessage + TcpManager.makebuffer(Signals.STATUS_SIGNAL, obj) + endOfMessage;
+          }
+          console.log("STATUS_SIGNAL", buffer);
+          clientSocket.write(buffer);
+          break;
+
+        case Signals.ADD_DATA_SIGNAL:
+          var storages = parsed.message.Storages;
+          for (let storage of storages){
+            if (storageExists(storage.id)){
+              updateStorage(storage);
+            }
+            else{
+              Storages.push(storage);
+            }
+          }
+          break;
+        case Signals.START_PROCESS_SIGNAL:
+        case Signals.LOG_SIGNAL:
+        case Signals.REMOVE_DATA_SIGNAL:
+        case Signals.PROCESS_FINISHED_SIGNAL:
+          break;
+    
+        case Signals.UPDATE_SERVICE_SIGNAL:
+        //Need to discover how many theads are supported
+          if (parsed.message.instance_id)
+            serviceLoaded_ = true;
+          var buffer = beginOfMessage + TcpManager.makebuffer(Signals.UPDATE_SERVICE_SIGNAL, parsed.message) + endOfMessage;
+          console.log("UPDATE_SERVICE_SIGNAL", buffer);
+          clientSocket.write(buffer);
+          break;
+  
+        case Signals.VALIDATE_PROCESS_SIGNAL:
+        
+          var buffer = beginOfMessage + TcpManager.makebuffer(Signals.ADD_DATA_SIGNAL, obj) + endOfMessage;
+          console.log("VALIDATE_PROCESS_SIGNAL", buffer);
+          clientSocket.write(buffer);
+          break;
+
+        
+          break;
+          
+        }
+      }
+      catch(e)
+      {
+        console.log(e);
+        throw (e);
+      }
+    }
   });
 });
 
@@ -245,6 +355,10 @@ process.on('SIGINT', async () => {
   for (var key in connections)
     connections[key].destroy();
 });
+
+process.on('message', async (msg) =>{
+  console.log(msg);
+})
 
 /**
  * Normalize a port into a number, string, or false.
@@ -306,6 +420,19 @@ function onListening() {
 
 io.attach(server);
 load('sockets').into(io);
+
+
+// /**
+//  * This method sends a ADD_DATA_SIGNAL with bytearray to tcp socket. It is async
+//  *
+//  * @param {ServiceInstance} serviceInstance - a terrama2 service instance
+//  * @param {Object} data - a javascript object message to send
+//  */
+// TcpManager.prototype.sendData = function(serviceInstance, data) {
+//   console.log("sendData", data.toString());
+//   this.$send(serviceInstance, data, Signals.ADD_DATA_SIGNAL);
+// };
+
 
 // var schema = contextConfig.define.schema;
 // var databaseName = contextConfig.database;
@@ -393,7 +520,7 @@ async function selectService (storage, schema, client)
     const select_service = "SELECT service_types.name, service_instances.id FROM \
     " + schema + ".service_types, \
     " + schema + ".service_instances \
-    WHERE service_types.id =  \'" + storage.service_type_id + "\' AND \
+    WHERE service_instances.id =  \'" + storage.service_instance_id + "\' AND \
     service_types.id = service_instances.service_type_id";
 
     console.log(select_service);
@@ -429,6 +556,7 @@ async function StoreTIFF(storage, schema, client)
   data_providers.uri, \
   data_set_formats.value FROM \
   " + schema + ".service_types, \
+  " + schema + ".service_instance, \
   " + schema + ".data_providers, \
   " + schema + ".data_series, \
   " + schema +".data_sets, \
@@ -438,7 +566,8 @@ async function StoreTIFF(storage, schema, client)
   data_set_formats.data_set_id = data_sets.id AND \
   data_set_formats.key = 'mask' AND \
   data_series.data_provider_id = data_providers.id AND \
-  service_types.id =  \'" + storage.service_type_id + "\' AND \
+  service_instance.id =  \'" + storage.service_instance_id + "\' AND \
+  service_instance.service_type_id = service_type.id AND \
   data_series.id = \'" + storage.data_series_id +"\'";
 
   storage.process = {};
@@ -720,12 +849,14 @@ async function StoreSingleTable(storage, schema, client)
 
   const select_sql = "SELECT service_types.name, service_types.id, data_providers.uri FROM \
   " + schema + ".service_types, \
+  " + schema + ".service_instances, \
   " + schema + ".storages, \
   " + schema + ".data_series, \
   " + schema + ".data_providers WHERE \
   data_providers.id = data_series.data_provider_id AND \
   data_series.id = \'" + storage.data_series_id + "\' AND \
-  service_types.id =  \'" + storage.service_type_id + "\' AND \
+  service_types.id = service_instances.service_type_id AND \
+  service_instances.id =  \'" + storage.service_instance_id + "\' AND \
   storages.id = \'" + storage.id + "\'";
   console.log(select_sql);
   console.log('Executing ' + storage.name);
