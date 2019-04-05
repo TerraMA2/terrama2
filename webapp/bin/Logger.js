@@ -1,4 +1,4 @@
-(function(port) {
+module.exports = function(port) {
   "use strict";
 
   // Log library
@@ -9,7 +9,7 @@
   var PROJECT_ROOT = path.join(__dirname, '..');
   var NodeFormat = require("util").format;
 
-  var port = 5000
+  //var port = 5000
 
   const log_filename = "Storage_" + port + "_terrama2.log";
   const log_filename_debug = "Storage_" + port + "_terrama2_debug.log";
@@ -177,5 +177,5 @@
     }
   }
 
-  module.exports = logger;
-} ());
+  return logger;
+};

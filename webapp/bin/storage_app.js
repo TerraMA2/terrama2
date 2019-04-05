@@ -28,12 +28,12 @@ Application.setCurrentContext(nodeContext);
 /**
  * Module dependencies.
 //  */
- const net = require('net');
- const Sequelize = require('sequelize');
- const pg = require('pg');
- const fs = require('fs');
- const Regex = require('xregexp');
- const moment = require('moment');
+const net = require('net');
+const Sequelize = require('sequelize');
+const pg = require('pg');
+const fs = require('fs');
+const Regex = require('xregexp');
+const moment = require('moment');
  
 var PortScanner = require("./../core/PortScanner");
 var io = require('../io');
@@ -52,11 +52,13 @@ var portNumber = '3600'; //default port
 
 // storing active connections
 var connections = {};
-var settings = Application.getContextConfig();
+let settings = Application.getContextConfig();
 
-var contextConfig = settings.db;
+let contextConfig = settings.db;
 
 var debugMessage = "";
+let schema = contextConfig.define.schema;
+let databaseName = contextConfig.database;
 
 const analysisTimestampPropertyName = "execution_date";
 
@@ -78,7 +80,7 @@ var format = new Date().toLocaleTimeString();
  * @type {winston.Logger}
  */
 //var logger = require("./../core/Logger");
-var logger = require("./Logger");
+var logger = require("./Logger")(port);
 
 /**
  * Create server.
@@ -155,7 +157,9 @@ function parseByteArray(byteArray) {
   };
 }
 
-let Storages;
+let client_Terrama2_db;
+let Storages = [];
+let config_db = {};
 
 function storageExists(id) {
   return Storages.some(function(storage) {
@@ -173,6 +177,82 @@ function updateStorage(newstorage)
   });
 }
 
+function addStorage(storage, projects){
+  try{
+    if (storage.active){
+      for (var project of projects){
+        if (project.id === storage.project_id){
+          if (project.active){
+            if (Storages.includes(storage) > 0){
+              updateStorage(storage);
+            }
+            else{
+              Storages.push(storage);
+            }    
+          }
+        }
+      }
+    }
+  }
+  catch(e){
+    logger.error(e);
+    throw e;
+  }
+}
+
+async function databaseConnect(database){
+  return new Promise((resolve, reject) => {
+
+    const config = {
+      user: database.PG_USER,
+      password: database.PG_PASSWORD,
+      host: database.PG_HOST,
+      port: database.PG_PORT,
+      database: database.PG_DB_NAME,
+      ssl: true
+    };
+
+    var pool = new pg.Pool(config);
+    pool.connect((err, client, done) => {
+      this.client = client;
+      this.done = done;
+
+      if (err)
+        reject(err);
+      else
+        resolve(client);
+    });
+  });
+}
+
+  // try{
+  //   const config = {
+  //     user: database.PG_USER,
+  //     password: database.PG_PASSWORD,
+  //     host: database.PG_HOST,
+  //     port: database.PG_PORT,
+  //     database: database.PG_DB_NAME,
+  //     ssl: true
+  //   };
+
+  //   logger.info("Initializing database " + database.PG_DB_NAME);
+  //   var pool = new pg.Pool(config);
+  //   pool.connect().then(client =>{
+  //     //client.query("Select * from terrama2.projects where projects.id = '1'").then (res =>{
+  //     //  console.log(res.toString());
+  //       return Promise.resolve(client);
+  //     //});
+  //   });
+  // }
+  // catch (e){
+  //   console.log(e);
+  //   logger.error(e);
+  //   return Promise.reject(e); 
+  // }
+//}
+
+
+
 let beginOfMessage = "(BOM)\0";
 let endOfMessage = "(EOM)\0";
 
@@ -186,18 +266,31 @@ server.listen(port, 'localhost', () =>{
 server.on('error', onError);
 server.on('listening', onListening);
 
-server.on('connection', function(clientSocket) {
+
+// var teste = {
+//   "PG_HOST": "127.0.0.1",
+//   "PG_PORT": 5432,
+//   "PG_USER": "postgres",
+//   "PG_PASSWORD": "postgres",
+//   "PG_DB_NAME": "terrama2"
+// }
+
+// var client_test = databaseConnect(teste);
+
+server.on('connection', async function(clientSocket) {
   console.log('CONNECTED: ' + clientSocket.remoteAddress + ':' + clientSocket.remotePort);
 
   let extraData;
   let tempBuffer;
   let parsed;
+  let service_instance_id;
+  let service_instance_name;
   let serviceLoaded_ = false;
   let sShuttingDown_ = false;
 
-  clientSocket.on('data', function(byteArray) {
+  clientSocket.on('data', async function(byteArray) {
 
-    console.log(byteArray.toString());
+    console.log("RECEIVED: ", byteArray.toString());
 
      clientSocket.answered = true;
   
@@ -281,8 +374,8 @@ server.on('connection', function(clientSocket) {
           else{
             var obj={
               service_loaded : true,
-              instance_id : parsed.message.instance_id,
-              instance_name : parsed.message.instance_name,
+              instance_id : service_instance_id,
+              instance_name : service_instance_name,
               start_time : moment().format("lll"),
               terrama2_version : "4.1.0", // parsed.message.version, preciso descobtir isto tbm
               shutting_down : false,
@@ -295,15 +388,20 @@ server.on('connection', function(clientSocket) {
           break;
 
         case Signals.ADD_DATA_SIGNAL:
-          var storages = parsed.message.Storages;
-          for (let storage of storages){
-            if (storageExists(storage.id)){
-              updateStorage(storage);
-            }
-            else{
-              Storages.push(storage);
+          try{
+            var storages = parsed.message.Storages;
+            for (let storage of storages){
+              addStorage(storage, parsed.message.Projects);
             }
           }
+          catch(e){
+            console.log(e);
+            var buffer = beginOfMessage + TcpManager.makebuffer(Signals.UPDATE_SERVICE_SIGNAL, parsed.message) + endOfMessage;
+            console.log("ADD_ERROR", buffer);
+            clientSocket.write(buffer);
+          }
+          var buffer = beginOfMessage + TcpManager.makebuffer(Signals.ADD_DATA_SIGNAL, parsed.message) + endOfMessage;
+          clientSocket.write(buffer);
           break;
         case Signals.START_PROCESS_SIGNAL:
         case Signals.LOG_SIGNAL:
@@ -313,11 +411,35 @@ server.on('connection', function(clientSocket) {
     
         case Signals.UPDATE_SERVICE_SIGNAL:
         //Need to discover how many theads are supported
-          if (parsed.message.instance_id)
+          if (parsed.message.instance_id){
             serviceLoaded_ = true;
-          var buffer = beginOfMessage + TcpManager.makebuffer(Signals.UPDATE_SERVICE_SIGNAL, parsed.message) + endOfMessage;
-          console.log("UPDATE_SERVICE_SIGNAL", buffer);
-          clientSocket.write(buffer);
+            service_instance_id = parsed.message.instance_id;
+            service_instance_name = parsed.message.instance_name;
+
+            // if (!client_Terrama2_db){
+            //   const config = {
+            //     user: parsed.message.log_database.PG_USER,
+            //     password: parsed.message.log_database.PG_PASSWORD,
+            //     host: parsed.message.log_database.PG_HOST,
+            //     port: parsed.message.log_database.PG_PORT,
+            //     database: parsed.message.log_database.PG_DB_NAME,
+            //     ssl: true
+            //   };
+            
+
+
+            //   logger.info("Initializing database " + config.database);
+            //   var pool = new pg.Pool(config);
+            //   pool.connect().then(client =>{
+              client_Terrama2_db = await databaseConnect(parsed.message.log_database)
+              console.log("Conectou ", client_Terrama2_db.toString());
+              
+              var buffer = beginOfMessage + TcpManager.makebuffer(Signals.UPDATE_SERVICE_SIGNAL, parsed.message) + endOfMessage;
+              console.log("UPDATE_SERVICE_SIGNAL", buffer);
+              clientSocket.write(buffer);
+              //});
+           // }
+          }
           break;
   
         case Signals.VALIDATE_PROCESS_SIGNAL:
@@ -326,10 +448,6 @@ server.on('connection', function(clientSocket) {
           console.log("VALIDATE_PROCESS_SIGNAL", buffer);
           clientSocket.write(buffer);
           break;
-
-        
-          break;
-          
         }
       }
       catch(e)
