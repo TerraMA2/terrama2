@@ -251,6 +251,9 @@ define(function() {
     }
 
     $scope.isValidDataProviderTypeForm = function(form) {
+      if(!Array.isArray($scope.configuration.defaultFilePathList))
+        return MessageBoxService.danger(i18n.__("Permission"), i18n.__("It seens the configuration file is invalid. Contact the system administrator."));
+
       return $scope.forms.connectionForm.$valid;
     };
 
@@ -265,6 +268,9 @@ define(function() {
       {
         let pathname = $scope.model.pathname;
         let isValidPath = false;
+
+        if(!Array.isArray($scope.configuration.defaultFilePathList))
+          return MessageBoxService.danger(i18n.__("Permission"), i18n.__("It seens the configuration file is invalid. Contact the system administrator."));
 
         $scope.configuration.defaultFilePathList.forEach((path) => {
           if(pathname.startsWith(path))
@@ -330,6 +336,9 @@ define(function() {
       if(!$scope.isValidDataProviderTypeForm(form)) {
         return;
       }
+
+      if(!Array.isArray($scope.configuration.defaultFilePathList))
+        return MessageBoxService.danger(i18n.__("Permission"), i18n.__("It seens the configuration file is invalid. Contact the system administrator."));
 
       $scope.isChecking = true; // for handling loading page
 
