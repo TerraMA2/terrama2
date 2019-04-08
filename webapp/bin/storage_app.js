@@ -34,7 +34,8 @@ const pg = require('pg');
 const fs = require('fs');
 const Regex = require('xregexp');
 const moment = require('moment');
- 
+const cron = require('node-schedule');
+
 var PortScanner = require("./../core/PortScanner");
 var io = require('../io');
 var debug = require('debug')('webapp:server');
@@ -118,6 +119,22 @@ function _createBufferFrom() {
   return tmp;
 }
 
+function getTcpSignal(value) {
+  switch(value) {
+    case Signals.TERMINATE_SERVICE_SIGNAL:
+    case Signals.STATUS_SIGNAL:
+    case Signals.ADD_DATA_SIGNAL:
+    case Signals.START_PROCESS_SIGNAL:
+    case Signals.LOG_SIGNAL:
+    case Signals.REMOVE_DATA_SIGNAL:
+    case Signals.PROCESS_FINISHED_SIGNAL:
+    case Signals.UPDATE_SERVICE_SIGNAL:
+    case Signals.VALIDATE_PROCESS_SIGNAL:
+      return value;
+    default:
+      return -1;
+  }
+}
 
 /**
  This method parses the bytearray received.
@@ -133,8 +150,15 @@ function parseByteArray(byteArray) {
  // console.log(rawData.toString());
 
   // validate signal
-  var signal = Utils.getTcpSignal(signalReceived);
-
+  var signal = getTcpSignal(signalReceived);
+  if (signal == -1){
+    return {
+      size: 0,
+      signal: Signals.STATUS_SIGNAL,
+      message: {}
+    };
+  }
+  
   var jsonMessage;
 
   try{
@@ -157,9 +181,40 @@ function parseByteArray(byteArray) {
   };
 }
 
-let client_Terrama2_db;
+//let client_Terrama2_db;
 let Storages = [];
-let config_db = {};
+
+async function runStorage(client, storage){
+  //Verifies which data_serie type will be stored
+  var select_data_type= "SELECT data_series_semantics.code FROM \
+  "+schema+".storages, \
+  "+schema+".data_series, \
+  "+schema+".data_series_semantics WHERE \
+  data_series_semantics.id = data_series.data_series_semantics_id AND \
+  data_series.id = \'" + storage.data_series_id + "\'";
+  console.log(select_data_type);
+  var res1 = await client.query(select_data_type);
+
+  data_serie_code = res1.rows[0].code;
+  storage.data_serie_code = data_serie_code;
+  switch (data_serie_code){
+    case "GRID-geotiff":
+      StoreTIFF(storage, schema, client);
+    break;
+    case "DCP-single_table":
+      StoreSingleTable(storage, schema, client);
+    break;
+    case "DCP-postgis":
+    case "ANALYSIS_MONITORED_OBJECT-postgis":
+    case "OCCURRENCE-postgis":
+      StoreNTable(storage, schema, client);
+    break;
+    default:
+    console.log("erro -");
+  }
+    //return res.rows[0].code;
+};
+
 
 function storageExists(id) {
   return Storages.some(function(storage) {
@@ -177,22 +232,48 @@ function updateStorage(newstorage)
   });
 }
 
-function addStorage(storage, projects){
+async function addStorage(client, storages_new, projects){
   try{
-    if (storage.active){
-      for (var project of projects){
-        if (project.id === storage.project_id){
-          if (project.active){
-            if (Storages.includes(storage) > 0){
-              updateStorage(storage);
+    for (var storage of storages_new){
+      var find = false;
+      for (var storage_in of Storages){
+        if (storage_in.id === storage.id){
+          find = true;
+          break;
+        }
+      }
+
+      if (find){
+        updateStorage(storage);
+        logger.debug("Storage Updated: ", storage.name)
+      }
+      else{
+        Storages.push(storage);
+        logger.debug("Storage Added: ", storage.name)
+      }
+      //await QueueStorages(client, storage);
+      if (storage.active){
+        var res = await client.query("Select * from " + schema + ".projects where id = \'" + storage.project_id + "\'");
+        if (res.rowCount){
+          if (res.rows[0].active){
+            var sql = "Select * from " + schema + ".schedules where id = \'" + storage.schedule_id + "\'";
+            console.log(sql);
+            var res1 = await client.query(sql);
+            if (res1.rowCount){
+              var freq = res1.rows[0].frequency;
+              var unit = res1.rows[0].frequency_unit;
+              var freq_seconds = moment.duration(freq, unit).asSeconds();
+              var start = res1.rows[0].frequency_start_time;
+              var job = cron.scheduleJob(freq_seconds, function(){
+                runStorage(client, storage);
+              })
             }
-            else{
-              Storages.push(storage);
-            }    
           }
         }
       }
+  
     }
+
   }
   catch(e){
     logger.error(e);
@@ -200,9 +281,33 @@ function addStorage(storage, projects){
   }
 }
 
-async function databaseConnect(database){
-  return new Promise((resolve, reject) => {
+async function QueueStorages(client, storage){
+  if (!client)
+  return;
 
+ // for (var storage of await Storages){
+    if (storage.active){
+      var res = await client.query("Select * from " + schema + ".projects where id = \'" + storage.project_id + "\'");
+      if (res.rowCount){
+        if (res.rows[0].active){
+          var sql = "Select * from " + schema + ".schedules where id = \'" + storage.schedule_id + "\'";
+          console.log(sql);
+          var res1 = await client.query(sql);
+          if (res1.rowCount){
+            var freq = res1.rows[0].frequency;
+            var unit = res1.rows[0].frequency_unit;
+            var freq_seconds = moment(freq, unit).seconds();
+            var start = res1.rows[0].frequency_start_time;
+            var job = cron.scheduleJob()
+          }
+        }
+      }
+    }
+ // }
+}
+
+async function databaseConnect(database){
+  try{
     const config = {
       user: database.PG_USER,
       password: database.PG_PASSWORD,
@@ -212,44 +317,18 @@ async function databaseConnect(database){
       ssl: true
     };
 
+    logger.info("Initializing database " + database.PG_DB_NAME);
     var pool = new pg.Pool(config);
-    pool.connect((err, client, done) => {
-      this.client = client;
-      this.done = done;
-
-      if (err)
-        reject(err);
-      else
-        resolve(client);
+    pool.connect().then(client =>{
+      return Promise.resolve(client);
     });
-  });
+  }
+  catch (e){
+    console.log(e);
+    logger.error(e);
+    return Promise.reject(e); 
+  }
 }
-
-  // try{
-  //   const config = {
-  //     user: database.PG_USER,
-  //     password: database.PG_PASSWORD,
-  //     host: database.PG_HOST,
-  //     port: database.PG_PORT,
-  //     database: database.PG_DB_NAME,
-  //     ssl: true
-  //   };
-
-  //   logger.info("Initializing database " + database.PG_DB_NAME);
-  //   var pool = new pg.Pool(config);
-  //   pool.connect().then(client =>{
-  //     //client.query("Select * from terrama2.projects where projects.id = '1'").then (res =>{
-  //     //  console.log(res.toString());
-  //       return Promise.resolve(client);
-  //     //});
-  //   });
-  // }
-  // catch (e){
-  //   console.log(e);
-  //   logger.error(e);
-  //   return Promise.reject(e); 
-  // }
-//}
 
 
 
@@ -266,17 +345,24 @@ server.listen(port, 'localhost', () =>{
 server.on('error', onError);
 server.on('listening', onListening);
 
+//Connect to Terrama2 database
+//(async() =>{
+  const config_db = {
+    user: contextConfig.username,
+    password: contextConfig.password,
+    host: contextConfig.host,
+    port: contextConfig.port,
+    database: contextConfig.database
+  };
 
-// var teste = {
-//   "PG_HOST": "127.0.0.1",
-//   "PG_PORT": 5432,
-//   "PG_USER": "postgres",
-//   "PG_PASSWORD": "postgres",
-//   "PG_DB_NAME": "terrama2"
-// }
+let pool = new pg.Pool(config_db);
+
+//  client_Terrama2_db = await pool.connect();
+//});
 
 // var client_test = databaseConnect(teste);
 
+pool.connect().then(client_Terrama2_db => {
 server.on('connection', async function(clientSocket) {
   console.log('CONNECTED: ' + clientSocket.remoteAddress + ':' + clientSocket.remotePort);
 
@@ -287,7 +373,8 @@ server.on('connection', async function(clientSocket) {
   let service_instance_name;
   let serviceLoaded_ = false;
   let sShuttingDown_ = false;
-
+  
+ 
   clientSocket.on('data', async function(byteArray) {
 
     console.log("RECEIVED: ", byteArray.toString());
@@ -371,15 +458,19 @@ server.on('connection', async function(clientSocket) {
           if (!serviceLoaded_){
             var buffer = beginOfMessage + TcpManager.makebuffer(Signals.STATUS_SIGNAL, {service_loaded:false}) + endOfMessage;
           }
+          else if (!client_Terrama2_db){
+            //if (pool)
+            //  client_Terrama2_db = await pool.connect();
+          }
           else{
             var obj={
-              service_loaded : true,
               instance_id : service_instance_id,
               instance_name : service_instance_name,
-              start_time : moment().format("lll"),
-              terrama2_version : "4.1.0", // parsed.message.version, preciso descobtir isto tbm
+              logger_online : false,
+              service_loaded : true,
               shutting_down : false,
-              logger_online : false
+              start_time : moment().format(),
+              terrama2_version : "4.1.0" // parsed.message.version, preciso descobtir isto tbm
             }
             var buffer = beginOfMessage + TcpManager.makebuffer(Signals.STATUS_SIGNAL, obj) + endOfMessage;
           }
@@ -388,11 +479,14 @@ server.on('connection', async function(clientSocket) {
           break;
 
         case Signals.ADD_DATA_SIGNAL:
+          
           try{
-            var storages = parsed.message.Storages;
-            for (let storage of storages){
-              addStorage(storage, parsed.message.Projects);
-            }
+            //var storages = parsed.message.Storages;
+            //for (let storage of await storages){
+              await addStorage(client_Terrama2_db, parsed.message.Storages, parsed.message.Projects);
+              //var buf = beginOfMessage + TcpManager.makebuffer(Signals.LOG_SIGNAL
+           // }
+            //await QueueStorages(client_Terrama2_db)
           }
           catch(e){
             console.log(e);
@@ -400,13 +494,16 @@ server.on('connection', async function(clientSocket) {
             console.log("ADD_ERROR", buffer);
             clientSocket.write(buffer);
           }
-          var buffer = beginOfMessage + TcpManager.makebuffer(Signals.ADD_DATA_SIGNAL, parsed.message) + endOfMessage;
+          var buffer = "";//beginOfMessage + TcpManager.makebuffer(Signals.ADD_DATA_SIGNAL, parsed.message) + endOfMessage;
+          console.log("ADD_DATA_SIGNAL ", buffer);
           clientSocket.write(buffer);
+          
           break;
         case Signals.START_PROCESS_SIGNAL:
         case Signals.LOG_SIGNAL:
         case Signals.REMOVE_DATA_SIGNAL:
         case Signals.PROCESS_FINISHED_SIGNAL:
+        console.log("OTHER SIGNALS ");
           break;
     
         case Signals.UPDATE_SERVICE_SIGNAL:
@@ -417,29 +514,40 @@ server.on('connection', async function(clientSocket) {
             service_instance_name = parsed.message.instance_name;
 
             // if (!client_Terrama2_db){
-            //   const config = {
-            //     user: parsed.message.log_database.PG_USER,
-            //     password: parsed.message.log_database.PG_PASSWORD,
-            //     host: parsed.message.log_database.PG_HOST,
-            //     port: parsed.message.log_database.PG_PORT,
-            //     database: parsed.message.log_database.PG_DB_NAME,
-            //     ssl: true
-            //   };
-            
-
+            //   config_db.user= parsed.message.log_database.PG_USER;
+            //   config_db.password= parsed.message.log_database.PG_PASSWORD;
+            //   config_db.host= parsed.message.log_database.PG_HOST;
+            //   config_db.port= parsed.message.log_database.PG_PORT;
+            //   config_db.database= parsed.message.log_database.PG_DB_NAME;
+            //   config_db.ssl= true;
+                          
+            //   logger.info("Initializing database " + config_db.database);
+            //   pool = new pg.Pool(config_db);
+            //   client_Terrama2_db = await pool.connect();
+            //   console.log("Conectou ", client_Terrama2_db.database);
+            // }
 
             //   logger.info("Initializing database " + config.database);
             //   var pool = new pg.Pool(config);
             //   pool.connect().then(client =>{
-              client_Terrama2_db = await databaseConnect(parsed.message.log_database)
-              console.log("Conectou ", client_Terrama2_db.toString());
+             // client_Terrama2_db = await databaseConnect(parsed.message.log_database)
+            var obj={
+              serviceLoaded_ : true,
+              instance_id : service_instance_id,
+              instance_name : service_instance_name
+            }
               
-              var buffer = beginOfMessage + TcpManager.makebuffer(Signals.UPDATE_SERVICE_SIGNAL, parsed.message) + endOfMessage;
-              console.log("UPDATE_SERVICE_SIGNAL", buffer);
+              var buffer = beginOfMessage + TcpManager.makebuffer(Signals.STATUS_SIGNAL, obj) + endOfMessage;
+              console.log("STATUS_SIGNAL", buffer);
               clientSocket.write(buffer);
               //});
            // }
           }
+          else{
+            var buffer = beginOfMessage + TcpManager.makebuffer(Signals.STATUS_SIGNAL, parsed.message) + endOfMessage;
+            console.log("STATUS_SIGNAL", buffer);
+            clientSocket.write(buffer);
+        }
           break;
   
         case Signals.VALIDATE_PROCESS_SIGNAL:
@@ -457,6 +565,7 @@ server.on('connection', async function(clientSocket) {
       }
     }
   });
+});
 });
 
 // detecting sigint error and then close server

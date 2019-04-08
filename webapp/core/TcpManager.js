@@ -229,6 +229,7 @@ TcpManager.prototype.logData = function(serviceInstance, data) {
     var config = Application.getContextConfig();
     data.webAppId = config.webAppId;
     var buffer = self.makebuffer(Signals.LOG_SIGNAL, data);
+    console.log("LOG_SIGNAL", buffer);
     // requesting for log
     client.log(buffer);
 

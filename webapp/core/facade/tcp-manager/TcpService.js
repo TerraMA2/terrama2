@@ -285,6 +285,7 @@ TcpService.prototype.run = async function(processObject) {
     }
   }
 
+  console.log("processRun", processObject);
   startProcess(instance, processObject);
   // Notify children listeners the process has been scheduled
   this.emit("processRun", processObject);
@@ -313,10 +314,12 @@ TcpService.prototype.$sendStatus = function(service) {
       service: service.id
     };
     // notify every one with loading
+    console.log("serviceRequestingStatus", params);
     self.emit("serviceRequestingStatus", params);
 
     return TcpManager.connect(service)
       .then(function() {
+        console.log("statusService", service);
         TcpManager.emit("statusService", service);
         return resolve();
       })
@@ -324,6 +327,7 @@ TcpService.prototype.$sendStatus = function(service) {
         params.status = 400;
         params.checking = false;
         // notify every one
+        console.log("serviceRequestingStatus", params);
         self.emit("serviceRequestingStatus", params);
         return reject(err);
       });
@@ -336,6 +340,7 @@ TcpService.prototype.stopAll = function stopAll() {
     return DataManager.listServiceInstances()
       .then(function(instances) {
         instances.forEach(function(instance) {
+          console.log("serviceStopping", instance);
           self.emit("serviceStopping", instance);
 
           TcpManager.emit("stopService", instance);
@@ -372,6 +377,11 @@ TcpService.prototype.status = function(json) {
         return resolve();
       }).catch(function(err) {
         logger.debug(err);
+        console.log("serviceError", {
+          exception: err,
+          message: err.toString(),
+          service: json.service
+        });
         self.emit("serviceError", {
           exception: err,
           message: err.toString(),
@@ -472,6 +482,7 @@ TcpService.prototype.send = function(data, serviceId) {
       .then(function(services) {
         var _sendData = function(service) {
           try {
+            console.log('sendData', service, data);
             TcpManager.emit('sendData', service, data);
           } catch(err) { }
         };
@@ -595,6 +606,7 @@ TcpService.prototype.log = function(json) {
           }
 
           // requesting log data
+          console.log("logData", service, obj);
           TcpManager.emit("logData", service, obj);
         }); // end foreach
       }) // end spread
