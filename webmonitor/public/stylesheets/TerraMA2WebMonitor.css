@@ -1,5 +1,9 @@
-#show-menu, #show-menu .sidebar-toggle .icon-bar {
+#show-menu, #show-menu .sidebar-toggle .icon-bar, .sidebar-toggle {
   display: none
+}
+
+.sidebar-toggle{
+  font-size: 20px
 }
 
 .imgs img, .main-header .logo-mini>img, .sidebar-mini.sidebar-collapse #dynamic {
@@ -8,6 +12,10 @@
 
 #content, #terrama2-map, .content, .content-wrapper, body, html {
   overflow: hidden!important
+}
+
+#terrama2-map{
+  width: 100%;
 }
 
 .map {
@@ -691,6 +699,10 @@ img[src=""] {
   margin-right: 9px
 }
 
+.terrama2-layerexplorer-checkbox{
+  margin-bottom: -26px !important
+}
+
 #layer-toolbox .layer-toolbox-body, #legend-box>.legend-body {
   padding: 10px;
   overflow: auto;
@@ -747,7 +759,7 @@ img[src=""] {
 }
 
 #projects {
-  background-color: #1a2226;
+  background-color: rgb(34, 45, 50);
   color: #b8c7ce;
   border: none;
   width: 100%;
@@ -759,7 +771,30 @@ img[src=""] {
   background-image: url(../images/arrow-down.png);
   background-size: 17px;
   background-repeat: no-repeat;
-  background-position: 204px 12px
+  background-position: 204px 12px;
+  text-shadow: 1px 1px #000;
+  font-weight: bold
+}
+
+.header, .layer-name, #about-btn{
+  text-shadow: 1px 1px #000;
+  font-weight: bold;
+  color: #b8c7ce;
+}
+.header:hover{
+  background-color: rgba(26, 34, 38)
+}
+.header:hover, .layer-name:hover, #about-btn:hover{
+  color: #8a989e;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#projects:hover {
+  color: #8a989e;
+  text-decoration: none;
+  cursor: pointer;
+  background-color: rgba(26, 34, 38)
 }
 
 #projects::-ms-expand {
@@ -980,8 +1015,6 @@ img[src=""] {
 .header-logo {
   display: flex;
   flex-direction: row;
-  /* align-items: center;
-  justify-content: center */
 }
 
 .main-header.navbar {
@@ -997,6 +1030,9 @@ img[src=""] {
     height: calc(100% - 70px) !important;
     bottom: 50px;
     overflow: auto;
+  }
+  .sidebar-toggle{
+    display: block;
   }
 }
 
@@ -1071,8 +1107,41 @@ img[src=""] {
   width: 100% !important;
 }
 
+.logo-container > .logo-img{
+  height: 40px;
+}
+
+.logo-container{
+  display: flex;
+  padding: 10px;
+  float: left;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo-container > .logo-text{
+  font-size: 22px;
+  font-weight: bold;
+  text-shadow: 1px 1px #000;
+  color: #eee;
+  padding-left: 10px 
+}
+
 .daterangepicker{
   z-index: 9999999 !important
+}
+
+.group-name:hover, .terrama2-layerexplorer-checkbox-span:hover{
+  color: #8a989e;
+  text-decoration: none;
+  cursor: pointer;
+  background-color: rgba(26, 34, 38)
+}
+
+.group-name, .terrama2-layerexplorer-checkbox-span{
+  text-shadow: 1px 1px #000 !important;
+  font-weight: bold !important;
+  padding: 8px !important
 }
 
 #authentication-div {
