@@ -274,7 +274,7 @@ var Service = module.exports = function(serviceInstance) {
     }
 
     self.answered = false;
-    self.writeData(buffer, 30000, function() {
+    self.writeData(buffer, 300000, function() {
       if (!self.answered) {
         self.emit("serviceError", new Error("Status Timeout exceeded."));
       }

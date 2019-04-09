@@ -3237,7 +3237,7 @@ var DataManager = module.exports = {
               return reject(new exceptions.CollectorError("Could not find collector. " + err.toString()));
             });
         } else {
-          logger.error("Retrieved null while getting collector", collectorResult);
+          logger.error("Retrieved null while getting collector", restriction, collectorResult);
           return reject(new exceptions.CollectorErrorNotFound("Could not find collector. "));
         }
       }).catch(function(err) {
