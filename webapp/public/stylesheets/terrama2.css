@@ -839,13 +839,13 @@ table.dataTable tbody th, table.dataTable tbody td {
   .pull-right, .pull-left, .btn.pull-left, .btn.pull-right {
     float: none !important
   }
-  .main-sidebar{
-    margin-top: 60px;
-    z-index: 2000 !important;
-  }
 }
-.sidebar-mini.sidebar-collapse .main-sidebar{
-  z-index: 2000 !important;
+.main-sidebar{
+  padding-top: 60px !important;
+}
+
+.main-header>.navbar{
+  margin-left: 0 !important
 }
 
 .user-text{
@@ -898,13 +898,11 @@ table.dataTable tbody th, table.dataTable tbody td {
   font-size: 20px !important;
 }
 
-.main-sidebar{
-  padding-top: 0 !important;
-  z-index: 2000;
-}
-
 .treeview>a{
   text-shadow: 1px 1px #000 !important;
+}
+.main-header.navbar{
+  margin-left: 0 !important
 }
 .d-none {
   display: none !important;
