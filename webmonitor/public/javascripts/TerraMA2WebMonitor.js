@@ -197,12 +197,10 @@ define(
 
       $('#about-btn').on('click', function() {
         $('#about-dialog').dialog({
-          width: 800,
-          height: $(window).outerHeight() - 30,
           title: "",
           closeOnEscape: true,
           closeText: "",
-          position: { my: 'top', at: 'top+15' },
+          position: { my: 'center', at: "center", of: $("#content") },
           open: function() {
             $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
             $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', 'center');

@@ -346,7 +346,7 @@ define([
           });
 
           // TODO: Fix the ng if. "model.length" is hardcoded. It should get from expression
-          var template = '<div class="table-responsive"><table class="table table-hover">' +
+          var template = '<div class="table-responsive" style="width: 100%"><table class="table table-hover">' +
               '<thead>' + th + '</thead>' +
               '<tbody>' +
               '<tr ng-repeat="' + expression + '">'+ td +'</tr>' +
