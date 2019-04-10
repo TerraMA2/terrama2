@@ -279,8 +279,6 @@ module.exports = function(app) {
               collector.active = dataSeriesObject.input.active;
               collector.schedule_type = scheduleObject.scheduleType;
 
-              var updateSchedulePromise
-
               var oldScheduleType = collector.scheduleType;
               var newScheduleType = scheduleObject.scheduleType;
               var removeSchedule = false;
@@ -395,14 +393,17 @@ module.exports = function(app) {
                     ]);
                 })
                 // send via TCP
-                .then(function(dSeries) {
+                .then(async function(dSeries) {
                   const dataSeriesOutput = dSeries[0];
                   const dataSeriesInput = dSeries[1];
 
                   collector.project_id = request.session.activeProject.id;
+
+                  const updatedCollector = await DataManager.getCollector({ id: collector.id }, options);
+
                   const output = {
                     "DataSeries": [dataSeriesInput.toObject(), dataSeriesOutput.toObject()],
-                    "Collectors": [collector.toObject()]
+                    "Collectors": [updatedCollector.toObject()]
                   };
 
                   return output;
