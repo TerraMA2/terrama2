@@ -293,17 +293,26 @@ var Utils = module.exports = {
                     interpolators.forEach(function(interpolator){
                       interpolatorsArr.push(interpolator.toService());
                     });
-                    return resolve({
-                      "Projects": projects,
-                      "Analysis": analysisArr,
-                      "DataSeries": series,
-                      "DataProviders": providers,
-                      "Collectors": collectors,
-                      "Views": viewsArr,
-                      "Alerts": alertsArr,
-                      "Legends": legendsArr,
-                      "Interpolators": interpolatorsArr
-                    });
+
+                    DataManager.listStorages().then(function(storages){
+                      var storagesArr = [];
+                      storages.forEach(function(storage){
+                        storagesArr.push(storage);
+                      });
+
+                      return resolve({
+                        "Projects": projects,
+                        "Analysis": analysisArr,
+                        "DataSeries": series,
+                        "DataProviders": providers,
+                        "Collectors": collectors,
+                        "Views": viewsArr,
+                        "Alerts": alertsArr,
+                        "Legends": legendsArr,
+                        "Interpolators": interpolatorsArr,
+                        "Storages": storagesArr
+                      });
+                    }).catch(_handleError); //end listStorages
                   }).catch(_handleError); //end listInterpolators
                 }).catch(_handleError); // end listLegends
               }).catch(_handleError); // end listAlerts
@@ -481,6 +490,9 @@ var Utils = module.exports = {
         break;
       case Enums.ServiceType.INTERPOLATION:
         output = "INTERPOLATOR";
+        break;
+        case Enums.ServiceType.STORAGE:
+        output = "STORAGE";
         break;
     }
 
