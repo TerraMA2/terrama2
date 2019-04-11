@@ -153,6 +153,24 @@ define([
       this.zoomToLayer(layerName);
     }
 
+    getLayer(layerName) {
+      const { _layers } = this;
+
+      return _layers.find(layer => layer._internalId === layerName);
+    }
+
+    removeLayer(layerName) {
+      const layer = this.getLayer(layerName);
+
+      if (layer) {
+        this._map.removeLayer(layer);
+
+        const indexToRemove = this._layers.map(internalLayer => internalLayer._internalId).indexOf(layerName);
+
+        this._layers.splice(indexToRemove, 1);
+      }
+    }
+
     zoomTo(extent, animation = false) {
       const opts = { };
 

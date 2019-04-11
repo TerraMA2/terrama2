@@ -10,6 +10,21 @@ define([], () => {
       console.log(model);
     }
 
+    getProvider() {
+      if (!this.$scope.form.inject)
+        return;
+
+      const { inject } = this.$scope.form;
+      const expression = inject.provider;
+
+      const res = this.$scope.evalExpr(expression);
+
+      if (!res)
+        return 0;
+
+      return res;
+    }
+
     async onChange() {
       const { mapId } = this.$scope.form;
       const { MapService, DataSeriesService } = this;
@@ -21,8 +36,12 @@ define([], () => {
 
       const { query_builder, table_name, view_name } = this.$scope.model;
 
+      const provider = this.getProvider();
 
-      const wkts = await DataSeriesService.getWKT(table_name, 2, query_builder);
+      const wkts = await DataSeriesService.getWKT(table_name, provider, query_builder);
+
+      if (MapService.getLayer(view_name))
+        MapService.removeLayer(view_name);
 
       MapService.addLayerFromWKT(view_name, wkts, 'EPSG:4326');
     }

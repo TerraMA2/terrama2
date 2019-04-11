@@ -133,8 +133,8 @@
           "validationMessage": {
             "202": "Invalid query builder"
           },
-          "tableName": "table_name",
-          "mapId": "previewMap"
+          "mapId": "previewMap",
+          "provider": "getDataProvider()"
         }
       ]
     }
