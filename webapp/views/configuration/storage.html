@@ -1,0 +1,20 @@
+{% extends "../base/layout.html" %}
+
+{% set tabActive = "storage" %}
+
+{% block title %} TerraMA² {{ i18n.__("Storage Registration") }} {% endblock %}
+
+{% block styles %}
+<style>
+  .has-feedback label~.form-control-feedback {
+    top: 25px !important;
+    margin-right: 20px !important;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<storage-component></storage-component>
+
+{% endblock %}
