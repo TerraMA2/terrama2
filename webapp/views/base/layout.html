@@ -1,18 +1,19 @@
 {% set MENU_URLS = {} %}
 
 {# set MENU_URLS = {"projects": {name: 'Projects', url: "configuration/projects", icon: "fa-sitemap"}} #}
-{% set MENU_URLS["data-provider"] = {name: 'Data Servers', url: "configuration/providers", icon: "fa-database"} %}
+{% set MENU_URLS["data-provider"] = {name: 'Data Servers', url: "configuration/providers", icon: "fa-server"} %}
 {% set MENU_URLS["dynamic-data"] = {name: 'Dynamic Data', url: "configuration/dynamic/dataseries", icon: "fa-clock-o"} %}
 {% set MENU_URLS["static-data"] = {name: 'Static Data', url: "configuration/static/dataseries", icon: "fa-folder"} %}
 {% set MENU_URLS["analysis"] = {name: 'Analysis', url: "configuration/analysis", icon: "fa-search"} %}
 {% set MENU_URLS["views"] = {name: 'Views', url: "configuration/views", icon: "fa-eye"} %}
+{% set MENU_URLS["storage"] = {name: 'Storage', url: "configuration/storages", icon: "fa-database"} %}
 {% set MENU_URLS["alerts"] = {name: 'Alerts', url: "configuration/alerts", icon: "fa-warning"} %}
 {% set MENU_URLS["status"] = {name: 'Status', url: "configuration/status", icon: "fa-minus-circle"} %}
 
 <!DOCTYPE html>
-<html  i18n-locale="{{ locale }}"
-      ng-controller="{% block ngController%}TerraMA2Controller{% endblock %}"
-      data-language="{[ acceptedLanguage() ]}">
+<html i18n-locale="{{ locale }}" ng-controller="{% block ngController%}TerraMA2Controller{% endblock %}"
+  data-language="{[ acceptedLanguage() ]}">
+
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -37,7 +38,8 @@
 
   {# Block for including TerraMA2 specific stylesheets #}
   <style>
-    .skin-blue .sidebar-menu>li:hover>a, .skin-blue .sidebar-menu>li.active>a {
+    .skin-blue .sidebar-menu>li:hover>a,
+    .skin-blue .sidebar-menu>li.active>a {
       color: #fff;
       background: #3B4346;
       border-left-color: #3c8dbc;
@@ -47,16 +49,15 @@
       position: relative;
       display: block !important;
       z-index: 10;
-      background-color: rgba(0,0,0,0.5);
+      background-color: rgba(0, 0, 0, 0.5);
     }
 
-    .terrama2-overlay > .loading {
+    .terrama2-overlay>.loading {
       position: absolute;
       margin-top: 25%;
       left: 50%;
       font-size: 49px;
     }
-
   </style>
   {% block styles %}
 
@@ -71,6 +72,7 @@
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 </head>
+
 <body class="hold-transition skin-blue sidebar-mini {% if (collapsed) %} sidebar-collapse {% endif %}{% block bodyClass %}{% endblock %}">
 
   <div class="wrapper">
@@ -78,31 +80,44 @@
     <header class="main-header">
 
       <!-- Logo -->
-      <a href="{[ BASE_URL ]}" class="logo">
-        <span class="logo-mini"><b></b>TMA²</span>
-        <span class="logo-lg"><b>TerraMA²</b></span>
-      </a>
+      <!-- <a href="{[ BASE_URL ]}" class="logo"> -->
+        <!-- <span class="logo-mini logo-text"><b></b>TMA²</span>
+        <span class="logo-lg logo-text">TerraMA²</span> -->
+      <!-- </a> -->
 
       <!-- Header Navbar: style can be found in header.less -->
-      <nav class="navbar navbar-static-top" role="navigation">
+      <nav class="navbar navbar-static-top shadow" role="navigation">
         <!-- Sidebar toggle button-->
-        <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button" id="collapseButton">
-          <span class="sr-only">Toggle navigation</span>
+        <a href="#" class="sidebar-toggle nav-text-shadow" data-toggle="offcanvas" role="button" id="collapseButton"></a>
+        <a class="logo-container" href="{[ BASE_URL ]}">
+          <img src="{[ BASE_URL ]}images/terrama2_logo.png" class="img-square logo-img" alt="User Image">
+          <span class="logo-text">TerraMA²</span>
         </a>
-
         <div class="navbar-custom-menu">
+
           <ul class="nav navbar-nav">
             <li>
-                <a href="{[ BASE_URL ]}helper/introduction.html" target="_blank"><button type="button" class="btn btn-box-tool terrama2-circle-button" style="color: white" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-question"></i></button></a>
+              <a href="{[ BASE_URL ]}helper/introduction.html" target="_blank"><button type="button"
+                  class="btn btn-box-tool terrama2-circle-button text-white" data-toggle="tooltip"
+                  data-placement="bottom"><i class="fa fa-question nav-text-shadow"></i></button></a>
             </li>
             <li class="user user-menu">
               <terrama2-countries-list language="{{ '{[ userLocale ]}' || 'us' }}"></terrama2-countries-list>
             </li>
             <!-- User Account: style can be found in dropdown.less -->
+            {% if (currentUser !== null) %}
+              <li class="user user-menu">
+                <a class="text-white font-weight-bold nav-text-shadow user-text">
+                  {[ currentUser.name ]}
+                </a>
+              </li>
+            {% endif %}
             <li class="user user-menu">
-              <a aria-expanded="false" href="{[ BASE_URL ]}logout">
-                <i class="glyphicon glyphicon-log-out"></i>
-                <span ng-bind="i18n.__('Logout')"></span>
+              <a href="{[ BASE_URL ]}logout">
+                <button class="btn btn-box-tool terrama2-circle-button text-white font-weight-bold nav-text-shadow">
+                  <i class="glyphicon glyphicon-log-out"></i>
+                  &nbsp;&nbsp;
+                  <span ng-bind="i18n.__('Logout')"></span></button>
               </a>
             </li>
           </ul>
@@ -115,105 +130,109 @@
     <aside class="main-sidebar">
       <!-- sidebar: style can be found in sidebar.less -->
       <section class="sidebar">
+        <select class="form-control" id="projects"
+          onchange="location = '{[ BASE_URL ]}configuration/projects/' + this.value + '/activate';">
+          {% if (!activeProject.id) %}
+          <option ng-bind="i18n.__('Select a Project')"></option>
+          {% endif %}
+          {% for cachedProject in cachedProjects %}
+          {% if (activeProject.id && activeProject.id === cachedProject.id) %}
+          <option value="{[ cachedProject.name ]}" selected>{[ cachedProject.name ]}</option>
+          {% else %}
+          <option value="{[ cachedProject.name ]}">{[ cachedProject.name ]}</option>
+          {% endif %}
+          {% endfor %}
+        </select>
+        <!-- sidebar menu: : style can be found in sidebar.less -->
+        <ul class="sidebar-menu">
+          <li class="treeview {% if (tabActive === 'projects') %} active {% endif %}">
+            <a href="{[ BASE_URL ]}configuration/projects">
+              <i class="fa fa-sitemap"></i><span ng-bind="i18n.__('Projects')"></span>
+            </a>
+          </li>
+          {% if (activeProject.name) %}
+          {% for tab in MENU_URLS %}
+          <li class="treeview {% if (tabActive === loop.key) %} active {% endif %}">
+            <a href="{[ BASE_URL + tab.url ]}" class="{[ tab.css ]}">
+              <i class="fa {[ tab.icon ]}"></i><span ng-bind="i18n.__('{[ tab.name ]}')"></span>
+            </a>
+          </li>
+          {% endfor %}
+          {% endif %}
 
-        {% if (currentUser !== null) %}
-        <!-- Sidebar user panel -->
-        <div class="user-panel">
-          <div class="pull-left image" style="min-height: 40px;">
-            <img src="{[ BASE_URL ]}images/terrama2_logo.png" class="img-square" alt="User Image">
-          </div>
+          <li class="header"></li>
 
-          <div class="pull-left info">
-            <p>{[ currentUser.name ]}</p>
-          </div>
-        </div>
-        <!-- /.search form -->
-        {% endif %}
-          <select class="form-control" id="projects" onchange="location = '{[ BASE_URL ]}configuration/projects/' + this.value + '/activate';">
-            {% if (!activeProject.id) %}
-              <option ng-bind="i18n.__('Select a Project')"></option>
-            {% endif %}
-            {% for cachedProject in cachedProjects %}
-              {% if (activeProject.id && activeProject.id === cachedProject.id) %}
-                <option value="{[ cachedProject.name ]}" selected>{[ cachedProject.name ]}</option>
-              {% else %}
-                <option value="{[ cachedProject.name ]}">{[ cachedProject.name ]}</option>
-              {% endif %}
-            {% endfor %}
-          </select>
-          <!-- sidebar menu: : style can be found in sidebar.less -->
-          <ul class="sidebar-menu">
-            <li class="treeview {% if (tabActive === 'projects') %} active {% endif %}">
-              <a href="{[ BASE_URL ]}configuration/projects">
-                <i class="fa fa-sitemap"></i><span ng-bind="i18n.__('Projects')"></span>
-              </a>
-            </li>
-            {% if (activeProject.name) %}
-              {% for tab in MENU_URLS %}
-              <li class="treeview {% if (tabActive === loop.key) %} active {% endif %}">
-                <a href="{[ BASE_URL + tab.url ]}" class="{[ tab.css ]}">
-                  <i class="fa {[ tab.icon ]}"></i><span ng-bind="i18n.__('{[ tab.name ]}')"></span>
+          {% if toolsMenu !== undefined && toolsMenu !== null && toolsMenu.length > 0 %}
+          <li class="treeview">
+            <a href="#">
+              <i class="fa fa-wrench"></i> <span ng-bind="i18n.__('Tools')"></span>
+              <i class="fa fa-angle-left pull-right"></i>
+            </a>
+            <ul class="treeview-menu">
+              {% for tab in toolsMenu %}
+              <li class="treeview">
+                <a href="{[ tab.url ]}" {% if tab.openInNewTab > 0 %} target="_blank" {% endif %}>
+                  <i class="fa fa-link"></i>
+                  <span ng-if="i18n.userLanguage == 'en_US'">{[ tab.textEn ]}</span>
+                  <span ng-if="i18n.userLanguage == 'es_ES'">{[ tab.textEs ]}</span>
+                  <span ng-if="i18n.userLanguage == 'fr_FR'">{[ tab.textFr ]}</span>
+                  <span ng-if="i18n.userLanguage == 'pt_BR'">{[ tab.textPt ]}</span>
                 </a>
               </li>
               {% endfor %}
-            {% endif %}
+            </ul>
+          </li>
+          {% endif %}
 
-            <li class="header"></li>
-
-            {% if toolsMenu !== undefined && toolsMenu !== null && toolsMenu.length > 0 %}
+          {% if currentUser !== null && currentUser.administrator %}
+          <li class="treeview">
+            <a href="#">
+              <i class="fa fa-user"></i> <span ng-bind="i18n.__('Administration')"></span>
+              <i class="fa fa-angle-left pull-right"></i>
+            </a>
+            <ul class="treeview-menu"
+              style="display: {% if (tabActive === 'services' || tabActive === 'users') %} block; {% else %} none;{% endif %}">
+              <li class="treeview {% if (tabActive === 'services') %} active {% endif %}">
+                <a href="{[ BASE_URL ]}administration/services">
+                  <i class="fa fa-cog"></i> <span ng-bind="i18n.__('Services')"></span>
+                </a>
+              </li>
+              <li class="treeview {% if (tabActive === 'users') %} active {% endif %}">
+                <a href="{[ BASE_URL ]}administration/users">
+                  <i class="fa fa-users"></i> <span ng-bind="i18n.__('Users')"></span>
+                </a>
+              </li>
+            </ul>
+          </li>
+          {% endif %}
+          <li class="treeview {% if (tabActive === 'profile') %} active {% endif %}">
+            <a href="{[ BASE_URL ]}profile/">
+              <i class="fa fa-pencil-square-o "></i><span ng-bind="i18n.__('Profile')"></span>
+            </a>
+          </li>
+          <li class="treeview {% if (tabActive === 'about') %} active {% endif %}">
+            <a href="{[ BASE_URL ]}about/">
+              <i class="fa fa-info"></i><span ng-bind="i18n.__('About')"></span>
+            </a>
+          </li>
+        </ul>
+        <!-- /.ul sidebar -->
+        <ul class="sidebar-menu footer navbar navbar-fixed-bottom shadow">
             <li class="treeview">
-              <a href="#">
-                <i class="fa fa-wrench"></i> <span ng-bind="i18n.__('Tools')"></span>
-                <i class="fa fa-angle-left pull-right"></i>
-              </a>
-              <ul class="treeview-menu">
-                {% for tab in toolsMenu %}
-                <li class="treeview">
-                  <a href="{[ tab.url ]}"{% if tab.openInNewTab > 0 %} target="_blank"{% endif %}>
-                    <i class="fa fa-link"></i>
-                    <span ng-if="i18n.userLanguage == 'en_US'">{[ tab.textEn ]}</span>
-                    <span ng-if="i18n.userLanguage == 'es_ES'">{[ tab.textEs ]}</span>
-                    <span ng-if="i18n.userLanguage == 'fr_FR'">{[ tab.textFr ]}</span>
-                    <span ng-if="i18n.userLanguage == 'pt_BR'">{[ tab.textPt ]}</span>
-                  </a>
-                </li>
-                {% endfor %}
-              </ul>
-            </li>
-            {% endif %}
-
-            {% if currentUser !== null && currentUser.administrator %}
-            <li class="treeview">
-              <a href="#">
-                <i class="fa fa-user"></i> <span ng-bind="i18n.__('Administration')"></span>
-                <i class="fa fa-angle-left pull-right"></i>
-              </a>
-              <ul class="treeview-menu" style="display: {% if (tabActive === 'services' || tabActive === 'users') %} block; {% else %} none;{% endif %}">
-                <li class="treeview {% if (tabActive === 'services') %} active {% endif %}">
-                  <a href="{[ BASE_URL ]}administration/services">
-                    <i class="fa fa-cog"></i> <span ng-bind="i18n.__('Services')"></span>
-                  </a>
-                </li>
-                <li class="treeview {% if (tabActive === 'users') %} active {% endif %}">
-                  <a href="{[ BASE_URL ]}administration/users">
-                    <i class="fa fa-users"></i> <span ng-bind="i18n.__('Users')"></span>
-                  </a>
-                </li>
-              </ul>
-            </li>
-            {% endif %}
-            <li class="treeview {% if (tabActive === 'profile') %} active {% endif %}">
-              <a href="{[ BASE_URL ]}profile/">
-                <i class="fa fa-pencil-square-o "></i><span ng-bind="i18n.__('Profile')"></span>
-              </a>
-            </li>
-            <li class="treeview {% if (tabActive === 'about') %} active {% endif %}">
-              <a href="{[ BASE_URL ]}about/">
-                <i class="fa fa-info"></i><span ng-bind="i18n.__('About')"></span>
-              </a>
+              <span class="imgs">
+                <img id="inpe-image" src="{[ BASE_URL ]}images/inpe.png">
+              </span>
+              <span class="imgs">
+                <img id="programa-queimadas-image" src="{[ BASE_URL ]}images/programa_queimadas.png">
+              </span>
+              <span class="imgs">
+                <img id="defra-image" src="{[ BASE_URL ]}images/defra.png">
+              </span>
+              <span class="imgs">
+                <img id="world-bank-image" src="{[ BASE_URL ]}images/banco_mundial.png">
+              </span>
             </li>
           </ul>
-          <!-- /.ul sidebar -->
       </section>
       <!-- /.sidebar -->
     </aside>
@@ -232,22 +251,9 @@
 
         </div>
       </section><!-- /.content -->
+      <br /><br /><br />
     </div><!-- /.content-wrapper -->
 
-    <div id="institutions-logos">
-      <span class="imgs">
-        <img id="inpe-image" src="{[ BASE_URL ]}images/inpe.png">
-      </span>
-      <span class="imgs">
-        <img id="programa-queimadas-image" src="{[ BASE_URL ]}images/programa_queimadas.png">
-      </span>
-      <span class="imgs">
-        <img id="defra-image" src="{[ BASE_URL ]}images/defra.png">
-      </span>
-      <span class="imgs">
-        <img id="world-bank-image" src="{[ BASE_URL ]}images/banco_mundial.png">
-      </span>
-    </div>
   </div>
   <!-- ./wrapper -->
 
@@ -260,15 +266,15 @@
   <script type="text/javascript" src="{[ BASE_URL ]}externals/intl-tel-input/build/js/intlTelInput.js"></script>
 
   <script type="text/javascript">
-    $(document).ready(function(){
+    $(document).ready(function () {
       // lock all tags with terrama2-disabled class
-      $("body").on("click", ".terrama2-disabled", function(event) {
+      $("body").on("click", ".terrama2-disabled", function (event) {
         event.preventDefault();
       });
 
-      var collapsed = {[ collapsed ]};
+      var collapsed = { [collapsed]};
 
-      $("#collapseButton").click(function(event) {
+      $("#collapseButton").click(function (event) {
         var self = this;
 
         // var inverse = !collapsed;
@@ -278,24 +284,24 @@
           data: {
             collapsed: collapsed
           }
-        }).then(function(response) {
+        }).then(function (response) {
           collapsed = response.collapsed;
         });
       });
 
-      $("#inpe-image").on('click', function() {
+      $("#inpe-image").on('click', function () {
         window.open('http://www.inpe.br/', '_blank');
       });
 
-      $("#programa-queimadas-image").on('click', function() {
+      $("#programa-queimadas-image").on('click', function () {
         window.open('http://www.inpe.br/queimadas/', '_blank');
       });
 
-      $("#defra-image").on('click', function() {
+      $("#defra-image").on('click', function () {
         window.open('https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs', '_blank');
       });
 
-      $("#world-bank-image").on('click', function() {
+      $("#world-bank-image").on('click', function () {
         window.open('http://www.worldbank.org/', '_blank');
       });
     });
@@ -325,4 +331,5 @@
   <script type="text/javascript" src="{[ BASE_URL ]}dist/terrama2-webapp.min.js"></script>
 
 </body>
+
 </html>

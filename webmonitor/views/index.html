@@ -4,6 +4,23 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="shortcut icon" href="{[ BASE_URL ]}favicon.ico" type="image/x-icon" />
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="PWAGram">
+    <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-57.png" sizes="57x57">
+    <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-60.png" sizes="60x60">
+    <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-72.png" sizes="72x72">
+    <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-76.png" sizes="76x76">
+    <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-114.png" sizes="114x114">
+    <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-120.png" sizes="120x120">
+    <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-144.png" sizes="144x144">
+    <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-152.png" sizes="152x152">
+    <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-180.png" sizes="180x180">
+    <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-256.png" sizes="256x256">
+    <meta name="msapplication-TileImage" content="{[ BASE_URL ]}images/icons/iOS/Icon-144.png">
+    <meta name="msapplication-TileColor" content="#222d32">
+    <meta name="theme-color" content="#222d32">
     <title>TerraMA² Monitor</title>
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/bootstrap/dist/css/bootstrap.min.css">
@@ -18,20 +35,23 @@
     <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/datatables/media/css/jquery.dataTables.css">
     <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/bootstrap-daterangepicker/daterangepicker.css">
     <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css">
+    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/dc/dc.min.css">
+    <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/c3/c3.min.css">
   </head>
   <body class="hold-transition skin-black sidebar-mini">
     <div class="wrapper">
 
-      <!-- Main Header -->
-      <header id="terrama-header" class="main-header">
-        <!-- Logo -->
-        <a href="#" class="logo">
-          <!-- mini logo for sidebar mini 50x50 pixels -->
-          <div class="logo-lg"><img src="{[ BASE_URL ]}images/terrama2_logo2.png" class="img-square"><b>  TerraMA²</b></div>
-          <!-- logo for regular state and mobile devices -->
-          <div class="logo-mini"><img src="{[ BASE_URL ]}images/terrama2_logo2.png" class="img-square"></div>
-        </a>
+      <header id="main-header" class="main-header navbar shadow" role="navigation">
+
+        <div class="header-logo">
+          <!-- Logo -->
+          <a class="logo-container" href="{[ BASE_URL ]}">
+            <img src="{[ BASE_URL ]}images/terrama2_logo.png" class="img-square logo-img" alt="User Image">
+            <span class="logo-text">TerraMA²</span>
+          </a>
+          <a class="sidebar-toggle" data-toggle="offcanvas" role="button" id="collapseButton"></a>
       </header>
+      
       <aside class="main-sidebar">
         <section class="sidebar">
           <select class="form-control" id="projects" name="projects"></select>
@@ -111,6 +131,8 @@
             <div id="legend-box" class="hidden">
               <div class="legend-header"><span data-i18n="Legends"></span><span class="btn btn-default" style="padding: 0 4px 0 4px; float: right;"><i class="fa fa-close"></i></span></div>
               <div class="legend-body"><strong data-i18n="NO-DATA"></strong></div>
+            </div>
+            <div class="chart-panel row"></div>
             </div>
             <div id="layer-toolbox" class="custom-scrollbar-dark hidden">
               <div class="layer-toolbox-header"><span class="layer-name"></span><span class="btn btn-default"><i class="fa fa-close"></i></span></div>
@@ -195,7 +217,7 @@
 
               </div>
             </div>
-            <div id="map-tools">
+            <div id="map-tools" class="d-flex flex-column align-items-end">
               <div id="authentication-div" class="hidden">
                 <div id="user-div" class="{% if (currentUser === null) %}hidden{% endif %}">
                   <p class="user-name">{% if currentUser !== null %}{[ currentUser.name ]}{% endif %}</p>
@@ -230,7 +252,7 @@
                   </i>
                 </button>
               </div>
-              <div id="toggleButton" class="map-tool-button sidebar-toggle" full_screen="true" data-toggle="offcanvas" role="button"><button type="button"><i class="fa fa-arrows-alt"></i></button></div>
+              <div id="toggleButton" class="map-tool-button" full_screen="true" role="button"><button type="button"><i class="fa fa-arrows-alt"></i></button></div>
               <div id="moveMap" class="map-tool-button mouse-function-btn active"><button type="button"><i class="fa fa-hand-rock-o"></i></button></div>
               <div id="dragbox" class="map-tool-button mouse-function-btn"><button type="button"><i class="glyphicon glyphicon-zoom-in"></i></button></div>
               <div id="legendsButton" class="map-tool-button mouse-function-btn"><button type="button"><i class="fa fa-list"></i></button></div>
@@ -239,6 +261,7 @@
                 <select class="form-control hidden"></select>
                 <button type="button"><i class="fa fa-info"></i></button>
               </div>
+              <div id="chartsButton" class="map-tool-button mouse-function-btn"><button type="button"><i class="fa fa-line-chart"></i></button></div>
             </div>
             <div id="animate-tools" class="hidden">
               <div id="currentDate"><div><label></label></div></div>
@@ -342,6 +365,10 @@
     <script type="text/javascript" src="{[ BASE_URL ]}externals/i18next/i18next.min.js"></script>
     <script type="text/javascript" src="{[ BASE_URL ]}externals/jquery-i18next/jquery-i18next.min.js"></script>
     <script type="text/javascript" src="{[ BASE_URL ]}externals/i18next-xhr-backend/i18nextXHRBackend.min.js"></script>
+    <script type="text/javascript" src="{[ BASE_URL ]}externals/d3/dist/d3.min.js"></script>
+    <script type="text/javascript" src="{[ BASE_URL ]}externals/crossfilter2/crossfilter.min.js"></script>
+    <script type="text/javascript" src="{[ BASE_URL ]}externals/dc/dc.min.js"></script>
+    <script type="text/javascript" src="{[ BASE_URL ]}externals/c3/c3.min.js"></script>
     <script>
       var BASE_URL = "{[ BASE_URL ]}";
       var webadminHostInfo = {[webadminHostInfo|json|safe]};
