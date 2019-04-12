@@ -871,5 +871,12 @@ var Utils = module.exports = {
         console.log(e);
       }
     }
+  },
+
+  isGeometricObjectPostGIS: dataSeries => {
+    if (!dataSeries || !dataSeries.data_series_semantics)
+      throw new Error(`Invalid data series provided to check geometric object`);
+
+    return dataSeries.data_series_semantics.format === 'POSTGIS';
   }
 };
