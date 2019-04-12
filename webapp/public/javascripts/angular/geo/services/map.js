@@ -1,204 +1,155 @@
-// import Map from 'ol/Map.js';
-// import View from 'ol/View.js';
-// import {Draw, Modify, Snap} from 'ol/interaction.js';
-// import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer.js';
-// import {OSM, Vector as VectorSource} from 'ol/source.js';
-// import {Circle as CircleStyle, Fill, Stroke, Style} from 'ol/style.js';
-
-define([
-  // 'Global/ol/View',
-  // 'Global/ol/layer/Tile',
-  // 'Global/ol/source',
-  // 'Global/ol/style'
-], (
-  // Map,
-  // View,
-  // // { Draw, Modify, Snap },
-  // TileLayer,
-  // _source,
-  // _style
-) => {
-
+define([], () => {
   /**
    * An abstraction of Map Visualizer. Currently handles **OpenLayers**
    *
    * **This component uses single map instance.**
    *
    * @todo Implement map list in order to have multiple map instances
-   *
-   * @param {angular.$http} $http Angular HTTP module
-   * @param {angular.$timeout} $timeout Angular Internal Timeout module
    */
   class MapService {
+    /**
+     * @param {angular.$http} $http Angular HTTP module
+     * @param {angular.$timeout} $timeout Angular Internal Timeout module
+     */
     constructor($http, $timeout) {
       this.$http = $http;
       this.$timeout = $timeout;
-      this._map = null;
-      this._layers = [];
+      /**
+       * List of map instances loaded
+       * @type {Map<string, MapContainer>}
+       */
+      this._maps = { };
     }
 
-    initialize(selector) {
-      this._map = new ol.Map({
-        layers: [
-          new ol.layer.Tile({
-            source: new ol.source.OSM()
-          }),
-          ...this._layers
-        ],
-        // target: 'modoEspecialista',
-        view: new ol.View({
-          projection: 'EPSG:4326',
-          center: [0, 0],
-          zoom: 2
-        })
-      });
-      this._map.setTarget(selector);
+    /**
+     * Add a drawable Layer into Map scope
+     *
+     * **It wraps MapContainer#addDrawLayer**
+     * @param {string} mapId identifier
+     */
+    addDrawLayer(mapId) {
+      const map = this.getMap(mapId);
+
+      map.addDrawLayer();
     }
 
-    _internalAddDrawInteraction(source) {
-      const modify = new ol.interaction.Modify({ source });
-      this._map.addInteraction(modify);
+    /**
+     * Add vector layer from WKT object
+     *
+     * **It wraps MapContainer#addLayerFromWKT**
+     * @param {string} mapId identifier
+     * @param {string} layerName WKT Layer name
+     * @param {any[]} wkts List of WKTS.
+     * @param {string} projection Set projection to the layer
+     */
+    addLayerFromWKT(mapId, layerName, wkts, projection) {
+      const map = this.getMap(mapId);
 
-      let draw, snap; // global so we can remove them later
-
-      const addInteractions = () => {
-        draw = new ol.interaction.Draw({
-          source,
-          type: 'Polygon'
-        });
-        this._map.addInteraction(draw);
-        snap = new ol.interaction.Snap({ source});
-        this._map.addInteraction(snap);
-      }
-
-      addInteractions();
+      map.addLayerFromWKT(layerName, wkts, projection);
     }
 
-    getExtentOfDrawLayer() {
-      const { _layers } = this;
-
-      let vectorLayer = null;
-
-      for(const layer of _layers) {
-        if (layer._internalTerraMA2 = 'draw') {
-          vectorLayer = layer;
-          break;
-        }
-      }
-
-      if (!vectorLayer)
-        return undefined;
-
-      return vectorLayer.getSource().getExtent();
+    /**
+     * Add Map instance to the global scope in order to retrieve through data modules
+     *
+     * @param {string} id identifier
+     * @param {MapContainer} map TerraMA² Map Container instance. See @link ../models/mapContainer.js
+     */
+    addMap(id, map) {
+      this._maps[id] = map;
     }
 
-    addDrawLayer() {
-      const source = new ol.source.Vector();
-      const vector = new ol.layer.Vector({
-        source,
-        style: new ol.style.Style({
-          fill: new ol.style.Fill({
-            color: 'rgba(255, 255, 255, 0.2)'
-          }),
-          stroke: new ol.style.Stroke({
-            color: '#ffcc33',
-            width: 2
-          }),
-          image: new ol.style.Circle({
-            radius: 7,
-            fill: new ol.style.Fill({
-              color: '#ffcc33'
-            })
-          })
-        })
-      });
-      vector._internalTerraMA2 = 'draw';
+    /**
+     * Get layer by name in map instance
+     *
+     * **It wraps MapContainer#getLayer**
+     * @param {string} mapmapId identifier
+     * @param {string} layerName WKT Layer name
+     */
+    getLayer(mapId, layerName) {
+      const map = this.getMap(mapId);
 
-      // Add layer to the stack
-      this._internalAddLayer(vector);
-      this._internalAddDrawInteraction(source);
-
-      setTimeout(() => {
-        this.getExtentOfDrawLayer();
-      }, 5000)
+      return map.getLayer(layerName);
     }
 
-    _internalAddLayer(layer) {
-      this._layers.push(layer);
-      this._map.addLayer(layer);
+    /**
+     * Retrieves extent of draw layer
+     *
+     * **It wraps MapContainer#getExtentDrawLayer**
+     * @param {string} mapId identifier
+     */
+    getExtentOfDrawLayer(mapId) {
+      const map = this.getMap(mapId);
+
+      return map.getExtentOfDrawLayer();
     }
 
-    addLayerFromWKT(layerName, wkts, projection) {
-      const format = new ol.format.WKT();
+    /**
+     * Retrieves loaded map
+     * @param {string} mapId identifier
+     */
+    getMap(id) {
+      const map = this._maps[id];
 
-      const features = [];
-      for(const wkt of wkts) {
-        const feature = format.readFeature(wkt.wkt, {
-          dataProjection: 'EPSG:4326',
-          featureProjection: projection
-        });
+      if (!map)
+        throw new Error('Map not found');
 
-        features.push(feature);
-      }
-
-      const vectorLayer = new ol.layer.Vector({
-        source: new ol.source.Vector({ features })
-      });
-
-      vectorLayer._internalId = layerName;
-      vectorLayer.setZIndex(1);
-
-      this._internalAddLayer(vectorLayer);
-
-      this.zoomToLayer(layerName);
+      return map;
     }
 
-    getLayer(layerName) {
-      const { _layers } = this;
+    /**
+     * Remove layer by name
+     *
+     * **It wraps MapContainer#removeLayer**
+     * @param {string} mapId identifier
+     * @param {string} layerName WKT Layer name
+     */
+    removeLayer(mapId, layerName) {
+      const map = this.getMap(mapId);
 
-      return _layers.find(layer => layer._internalId === layerName);
+      map.removeLayer(layerName);
     }
 
-    removeLayer(layerName) {
-      const layer = this.getLayer(layerName);
-
-      if (layer) {
-        this._map.removeLayer(layer);
-
-        const indexToRemove = this._layers.map(internalLayer => internalLayer._internalId).indexOf(layerName);
-
-        this._layers.splice(indexToRemove, 1);
-      }
+    /**
+     * Remove map from global scope
+     *
+     * @param {string} mapId identifier
+     */
+    removeMap(id) {
+      this._maps[id] = null;
     }
 
-    zoomTo(extent, animation = false) {
-      const opts = { };
+    /**
+     * Zoom the current view to the extent provided.
+     *
+     * **It wraps MapContainer#zoomTo**
+     * @param {string} mapId identifier
+     * @param {any[]} extent Vectorial Extent
+     * @param {boolean?} animation Should animate? default: false
+     */
+    zoomTo(mapId, extent, animation = false) {
+      const map = this.getMap(mapId);
 
-      if (animation) {
-        opts.duration = 1000;
-      }
-
-      this._map.getView().fit(extent, opts);
+      map.zoomTo(extent, animation);
     }
 
-    zoomToLayer(layerName) {
-      const { _layers } = this;
-      const vectorLayer = _layers.find(layer => layer._internalId === layerName);
+    /**
+     * Zoom the current view to the extent of layer provided
+     *
+     * **It wraps MapContainer#zoomToLayer**
+     * @param {string} mapId identifier
+     * @param {string} layerName WKT Layer name
+     */
+    zoomToLayer(mapId, layerName) {
+      /**
+       * @type {Map}
+       */
+      const map = this.getMap(mapId);
 
-      if (!vectorLayer)
-        throw new Error(`No layer ${layerName} found`);
-
-      this.zoomTo(vectorLayer.getSource().getExtent());
-    }
-
-    getMap() {
-      return this._map;
+      map.zoomToLayer(layerName)
     }
   }
 
   MapService.$inject = ['$http', '$timeout'];
 
   return MapService;
-
-  // export default MapService;
 });

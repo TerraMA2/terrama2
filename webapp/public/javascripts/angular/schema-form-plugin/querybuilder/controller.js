@@ -6,16 +6,15 @@ define([], () => {
       this.MapService = MapService;
     }
 
-    init(model) {
-      console.log(model);
-    }
-
+    /**
+     * Retrieves dataprovider from parent instance
+     * @return {number}
+     */
     getProvider() {
-      if (!this.$scope.form.inject)
+      if (!this.$scope.form.provider)
         return;
 
-      const { inject } = this.$scope.form;
-      const expression = inject.provider;
+      const expression = this.$scope.form.provider;
 
       const res = this.$scope.evalExpr(expression);
 
@@ -25,6 +24,11 @@ define([], () => {
       return res;
     }
 
+    /**
+     * Detects user change iteractions on QueryBuilder component
+     *
+     * **Its already debounced function**
+     */
     async onChange() {
       const { mapId } = this.$scope.form;
       const { MapService, DataSeriesService } = this;
@@ -34,16 +38,26 @@ define([], () => {
         return;
       }
 
+      /**
+       * Retrieves Map instance from MapService. It is injected by default when use <terrama2-map> directive
+       * @type {MapContainer}
+       */
+      const map = MapService.getMap(mapId);
+
       const { query_builder, table_name, view_name } = this.$scope.model;
 
+      // Get data provider from instance in order to detect which database should list
       const provider = this.getProvider();
 
+      // Retrieve list of WKT objects with associated parameters
       const wkts = await DataSeriesService.getWKT(table_name, provider, query_builder);
 
-      if (MapService.getLayer(view_name))
-        MapService.removeLayer(view_name);
+      // If there is already a layer, just remove
+      if (map.getLayer(view_name))
+        map.removeLayer(view_name);
 
-      MapService.addLayerFromWKT(view_name, wkts, 'EPSG:4326');
+      // Add geometry polygon into map instance
+      map.addLayerFromWKT(view_name, wkts, 'EPSG:4326');
     }
   }
 

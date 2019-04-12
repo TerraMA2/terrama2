@@ -1,7 +1,7 @@
 define([
   "TerraMA2WebApp/geo/directives",
   "TerraMA2WebApp/geo/services",
-  "./components/index"
+  "./directives/index"
 ], function(directivesApp, servicesApp, componentApp) {
 
 'use strict';
