@@ -146,7 +146,7 @@ define([
   DataSeriesService.prototype.getWKT = async function(tableName, provider, queryBuilder) {
     const { BaseService, url } = this;
 
-    const params = { provider, tableName, where: queryBuilder };
+    const params = { id: provider, tableName, where: queryBuilder };
 
     try {
       const response = await BaseService.$request(`${url}/format/wkt`, "GET", { params });
