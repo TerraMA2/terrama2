@@ -27,7 +27,7 @@ module.exports = function(app) {
       var hasProjectPermission = request.session.activeProject.hasProjectPermission;
 
       DataManager.getDataSeries({id: storageId}).then(function() {
-        response.render('configuration/storage', {hasProjectPermission: hasProjectPermission});
+        response.render('configuration/storage', {hasProjectPermission: hasProjectPermission, storage: storageId });
       }).catch(function(err) {
         response.render('base/404');
       })

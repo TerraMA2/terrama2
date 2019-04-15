@@ -3,7 +3,7 @@ define([
   "TerraMA2WebApp/alert-box/app",
   "TerraMA2WebApp/data-provider/controllers/list",
   "TerraMA2WebApp/data-provider/controllers/registration"
-], function(commonServiceModule, alertBoxModule, ListController, RegisterController) {
+], (commonServiceModule, alertBoxModule, ListController, RegisterController) => {
   var moduleName = "terrama2.providers.controllers";
 
   var deps = [commonServiceModule, alertBoxModule];

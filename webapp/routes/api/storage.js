@@ -6,5 +6,5 @@ module.exports = function(app) {
 
   app.get(app.locals.BASE_URL + "api/storages/", passport.isAuthenticated, controllerStorage.get);
   app.post(app.locals.BASE_URL + "api/storages", passport.isAuthenticated, controllerStorage.save);
-  // app.get(app.locals.BASE_URL + "api/storages/:id", passport.isAuthenticated, controllerStorage.edit);
+  app.get(app.locals.BASE_URL + "api/storages/:id", passport.isAuthenticated, controllerStorage.get);
 };

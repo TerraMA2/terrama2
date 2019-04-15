@@ -12,15 +12,16 @@ define([
       ANALYSIS: 2,
       VIEW: 3,
       ALERT: 4,
-      INTERPOLATION: 5
+      INTERPOLATION: 5,
+      STORAGE: 6
     });
 
   /**
    * It handles TerraMA² service like dao.
-   * 
+   *
    * @param {BaseService} BaseService - TerraMA² factory to build http requests
    * @param {i18n} i18n - Internationalization module
-   * @param {ng.IPromise} $q - Angular promiser 
+   * @param {ng.IPromise} $q - Angular promiser
    */
   function Service(BaseService, i18n, $q, ServiceType) {
     /**
@@ -77,7 +78,7 @@ define([
 
   /**
    * It retrieves a single service from given id
-   * 
+   *
    * @param {number} serviceId - A TerraMA² service identifier
    * @returns {Object}
    */
@@ -87,8 +88,8 @@ define([
 
   /**
    * It performs a update operation in BaseService.
-   * 
-   * @param {number} serviceId - TerraMA² Service identifier 
+   *
+   * @param {number} serviceId - TerraMA² Service identifier
    * @param {Object} serviceObject - a javascript object with service values
    * @returns {Object}
    */
@@ -107,7 +108,7 @@ define([
 
   /**
    * It performs a save operation in BaseService.
-   * 
+   *
    * @param {Object} serviceObject - a javascript object with service values
    * @returns {Object}
    */

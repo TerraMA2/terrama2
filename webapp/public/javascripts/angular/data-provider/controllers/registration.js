@@ -1,4 +1,4 @@
-define(function() {
+define([], () => {
   function RegisterController($scope, $http, $q, $window, $httpParamSerializer, $location, i18n, $timeout, DataProviderService, MessageBoxService, FormTranslator) {
     $scope.i18n = i18n;
     var model = {};
@@ -401,4 +401,4 @@ define(function() {
   RegisterController.$inject = ["$scope", "$http", "$q", "$window", "$httpParamSerializer", "$location", "i18n", "$timeout", "DataProviderService", "MessageBoxService", "FormTranslator"];
 
   return RegisterController;
-});
+})
