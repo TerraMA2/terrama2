@@ -211,6 +211,21 @@ var ObjectDependencies = function(json){
       );
     }
   }
+  else if (json.objectType == "Storage"){
+  for(var i = 0, idsLength = json.ids.length; i < idsLength; i++) {
+    promises.push(
+      DataManager.getStorage({id: json.ids[i]}).then(function(storage){
+        if(output["Storages_" + storage.id] === undefined) output["Storages_" + storage.id] = {};
+
+        if(output["Storages_" + storage.id] === undefined) output["Storages_" + storage.id] = {};
+        var storageDataseriesListPromises = [getDataSeriesDependencies(storage.data_series_input, null, "Storages_" + storage.id)];
+        storageDataseriesListPromises.push(getDataSeriesDependencies(storage.data_series_output, null, "Storages_" + storage.id));
+
+        return Promise.all(storageDataseriesListPromises).catch(_emitError);
+      })
+    );
+  }
+}
 
   return Promise.all(promises).then(function() {
     return Promise.resolve({ status: 200, data: output, projectId: json.projectId });
