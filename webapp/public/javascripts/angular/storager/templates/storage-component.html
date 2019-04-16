@@ -3,7 +3,7 @@
         <i class="fa fa-refresh fa-spin" style="position: fixed !important;"></i>
     </div>
 
-    <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
+    <terrama2-alert-box2 handler="$ctrl.MessageBox.alertBox" close="$ctrl.close()"></terrama2-alert-box2>
     <terrama2-box title="i18n.__('General Data')" css="css">
       <div class="col-md-12 terrama2-nopadding-box ng-scope">
         <form name="$ctrl.storageForm">
@@ -152,20 +152,20 @@
 
     <terrama2-box title="i18n.__('General Data')" css="css" ng-if="$ctrl.storage.backup">
       <div class="col-md-12 terrama2-nopadding-box ng-scope">
-        <form name="$ctrl.storageForm">
+        <form name="$ctrl.parametersForm">
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group has-feedback" terrama2-show-errors>
                     <label>{{ i18n.__("Store data") }}:</label>
                     <select class="form-control"
                             name="storeData"
-                            ng-model="$ctrl.selectedProvider"
-                            ng-options="provider as provider.name for provider in $ctrl.getDataProviders()"
+                            ng-model="$ctrl.storage.data_provider_id"
+                            ng-options="provider.id as provider.name for provider in $ctrl.getDataProviders()"
                             ng-change="$ctrl.changeDataProvider()"
                             required>
                     </select>
 
-                    <span class="help-block" ng-show="$ctrl.storageForm.storeData.$dirty && $ctrl.storageForm.storeData.$invalid" ng-class="{'has-error': $ctrl.storageForm.storeData.$invalid}">{{ i18n.__('Store data data is required') }}</span>
+                    <span class="help-block" ng-show="$ctrl.parametersForm.storeData.$dirty && $ctrl.parametersForm.storeData.$invalid" ng-class="{'has-error': $ctrl.parametersForm.storeData.$invalid}">{{ i18n.__('Store data data is required') }}</span>
                     </div>
                     <!-- /.form-group -->
                 </div>
@@ -175,13 +175,12 @@
                     <label>{{ i18n.__("Service") }}:</label>
                     <select class="form-control"
                             name="service"
-                            ng-model="$ctrl.storage.service"
+                            ng-model="$ctrl.storage.service_instance_id"
                             ng-options="service.id as service.name for service in $ctrl.getStoragerServices()"
                             required>
-                        <option ng-repeat="item in service" value="{{ item.name }}" title="{{ item.description }}">{{ i18n.__(item.name) }}</option>
                     </select>
 
-                    <span class="help-block" ng-show="$ctrl.storageForm.service.$dirty && $ctrl.storageForm.service.$invalid" ng-class="{'has-error': $ctrl.storageForm.service.$invalid}">{{ i18n.__('Service data is required') }}</span>
+                    <span class="help-block" ng-show="$ctrl.parametersForm.service.$dirty && $ctrl.parametersForm.service.$invalid" ng-class="{'has-error': $ctrl.parametersForm.service.$invalid}">{{ i18n.__('Service data is required') }}</span>
                     </div>
                     <!-- /.form-group -->
                 </div>
@@ -197,10 +196,10 @@
                                 placeholder="{{ i18n.__('Table Name') }}"
                                 type="text" terrama2-server-errors="serverErrors" required>
 
-                        <span class="form-control-feedback glyphicon" ng-show="$ctrl.storageForm.path.$dirty" ng-class="{'glyphicon-ok': $ctrl.storageForm.path.$valid, 'glyphicon-remove': $ctrl.storageForm.path.$invalid }"></span>
+                        <span class="form-control-feedback glyphicon" ng-show="$ctrl.parametersForm.path.$dirty" ng-class="{'glyphicon-ok': $ctrl.parametersForm.path.$valid, 'glyphicon-remove': $ctrl.parametersForm.path.$invalid }"></span>
 
-                        <span class="help-block" ng-show="$ctrl.storageForm.path.$dirty && $ctrl.storageForm.path.$error.required">{{ i18n.__('Table name is required') }}</span>
-                        <span class="help-block" ng-show="$ctrl.storageForm.path.$error.terrama2Error">
+                        <span class="help-block" ng-show="$ctrl.parametersForm.path.$dirty && $ctrl.parametersForm.path.$error.required">{{ i18n.__('Table name is required') }}</span>
+                        <span class="help-block" ng-show="$ctrl.parametersForm.path.$error.terrama2Error">
                             {{ i18n.__("Storage") + " " + serverErrors.name.message }}
                         </span>
                         </div>

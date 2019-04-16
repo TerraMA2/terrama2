@@ -12,8 +12,9 @@ define([], function () {
      * @param {angular.i18n} i18n Internationalization module
      * @param {DataSeriesService} DataSeries TerraMA2 Data Series DAO
      */
-    constructor($scope, i18n, DataSeries, Storage, Service, Provider, $q) {
+    constructor($scope, i18n, DataSeries, Storage, Service, Provider, $q, $window, MessageBox) {
       this.$scope = $scope;
+      this.i18n = i18n;
       $scope.i18n = i18n;
       $scope.css = { boxType: "box-solid" };
       this.DataSeries = DataSeries;
@@ -22,6 +23,8 @@ define([], function () {
       this.Provider = Provider;
       this.isLoading = true;
       this.$q = $q;
+      this.$window = $window;
+      this.MessageBox = MessageBox;
 
       // Initialize component
       this.init()
@@ -37,6 +40,11 @@ define([], function () {
 
       const defer = this.$q.defer();
 
+      /**
+       * Wrap of initializer module
+       *
+       * It uses Angular promise to fix context execution
+       */
       const wrapExecutionWithAngularPromise = async () => {
         try {
           await DataSeries.init({ schema: 'all' });
@@ -47,6 +55,18 @@ define([], function () {
 
           if (this.isUpdate) {
             this.storage = await Storage.get(this.storageId);
+
+            if (this.storage.schedule) {
+              this.$scope.$broadcast("updateSchedule", this.storage.schedule);
+            }
+
+            // Trigger change
+            this.changeDataSeries();
+            this.changeDataProvider();
+
+            // Parse URI
+            const { uri } = this.storage;
+            this.storage.path = uri.split('/').slice(-1)[0];
           }
         } catch (err) {
           return defer.reject(err);
@@ -58,6 +78,10 @@ define([], function () {
       wrapExecutionWithAngularPromise();
 
       return defer.promise;
+    }
+
+    closeBox() {
+      this.MessageBox.reset();
     }
 
     /**
@@ -91,16 +115,14 @@ define([], function () {
     }
 
     changeDataProvider() {
-      const { selectedProvider } = this;
-
-      if (!selectedProvider)
-        return;
-
-      this.storage.data_provider_id = selectedProvider.id;
+      this.selectedProvider = this.getDataProviders().find(provider => provider.id === this.storage.data_provider_id);
     }
 
     getDataProviders() {
       const { selectedDataSeries } = this;
+
+      if (!selectedDataSeries)
+        return;
 
       const providerId = selectedDataSeries.data_provider_id;
       const provider = this.Provider.list({ id: providerId })[0];
@@ -120,28 +142,61 @@ define([], function () {
     }
 
     /**
-     * Validate form
+     * Validate form and format model concept
      *
      * @returns {boolean}
      */
     validate() {
-      return this.storageForm.$valid;
+      return this.storageForm.$valid && (this.parametersForm ? this.parametersForm.$valid : true);
     }
 
     async save() {
       if (!this.validate()) {
+        this.MessageBox.danger(this.i18n.__('Error'), this.i18n.__('There are invalid fields on form'))
         return;
       }
 
-      this.storage.uri = this.selectedProvider.uri + "/" + this.storage.path;
+      if (this.storage.backup)
+        this.storage.uri = this.selectedProvider.uri + "/" + this.storage.path;
 
       const { Storage } = this;
-      // console.log(`Form validation: ${this.form.$valid}`, this.storage);
+
+      if (this.storage.schedule) {
+        switch(this.storage.schedule.scheduleHandler) {
+          case "seconds":
+          case "minutes":
+          case "hours":
+            this.storage.schedule.frequency_unit = this.storage.schedule.scheduleHandler;
+            this.storage.schedule.frequency_start_time = this.storage.schedule.frequency_start_time ? moment(this.storage.schedule.frequency_start_time).format("HH:mm:ssZ") : "";
+            break;
+          case "weeks":
+          case "monthly":
+          case "yearly":
+            // todo: verify
+            var dt = this.storage.schedule.schedule_time;
+            this.storage.schedule.schedule_unit = this.storage.schedule.scheduleHandler;
+            this.storage.schedule.schedule_time = moment(dt).format("HH:mm:ss");
+            break;
+
+          default:
+            if (this.storage.schedule.scheduleType == "4"){
+              this.storage.schedule.data_ids = [self.view.data_series_id];
+            }
+            break;
+        }
+      }
 
       try {
-        await Storage.save(this.storage);
+        if (this.isUpdate)
+          await Storage.update(this.storageId, this.storage);
+        else
+          await Storage.save(this.storage);
+
+        this.$window.location = `${BASE_URL}configuration/storages`;
       } catch (err) {
         console.error(err);
+
+        this.MessageBox.danger(this.i18n.__('Error'), err.message);
       }
     }
   }
@@ -153,7 +208,9 @@ define([], function () {
     'StorageService',
     'Service',
     'DataProviderService',
-    '$q'
+    '$q',
+    '$window',
+    'MessageBoxService'
   ];
 
   const storageComponent = {
