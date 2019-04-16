@@ -2,7 +2,7 @@
 
 #
 # This script aims to retrieve the names of datasets from HTML content
-# TerraMA2 will replace the tag {HTML_CODE} with data provider page and then
+# TerraMA2 will replace the special tag with data provider page and then
 # list all datasets associated. Once that, performs validation through node links
 #
 # **REMEMBER** that the data provider must offer dataset links using tag <a>
