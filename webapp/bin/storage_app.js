@@ -106,42 +106,72 @@ let joblist = [];
  */
 var processQueue = new Map();
 
+async function addQueue(clientSocket, client, storage){
+  var buffer =  await TcpManager.makebuffer_be(Signals.LOG_SIGNAL, {id:storage.id}) ;
+ // console.log(buffer);
+  clientSocket.write(buffer);
+  if (!processQueue.get(storage.id)){
+    var options = {
+      concurrency: 1,
+      autostart: true
+    };
+    var q = queue(options);
+
+    q.on('success', function (result, job) {
+      console.log('job finished processing:', job.toString().replace(/\n/g, " ", moment().format(),''))
+    })
+    
+    processQueue.set(storage.id, q);
+  }
+
+  console.log ("On queue", storage.name, " ", moment().format());
+  q = processQueue.get(storage.id);
+  q.push(async function (cb) {
+    await runStorage(clientSocket, client, storage);
+    cb();
+  });
+  console.log("Size ", q.jobs.length)
+}
+
 async function runStorage(clientSocket, client, storage){
 
-  //Verificar se está na pilha , caso não adicionar e executar, caso sim , colcoar no ficla da pilha e esperar.
- 
+  console.log("Starting ", storage.name, " ", moment().format());
   var buffer =  await TcpManager.makebuffer_be(Signals.START_PROCESS_SIGNAL, {id:storage.id}) ;
-  console.log(buffer);
+ // console.log(buffer);
   clientSocket.write(buffer);
 
-  //Verifies which data_serie type will be stored
-  var select_data_type= "SELECT data_series_semantics.code FROM \
-  "+schema+".storages, \
-  "+schema+".data_series, \
-  "+schema+".data_series_semantics WHERE \
-  data_series_semantics.id = data_series.data_series_semantics_id AND \
-  data_series.id = \'" + storage.data_series_id + "\'";
-  console.log(select_data_type);
-  var res1 = await client.query(select_data_type);
+  for (var i =0; i < 100000 ; i++){
 
-  var data_serie_code = res1.rows[0].code;
-  storage.data_serie_code = res1.rows[0].code;
-  switch (data_serie_code){
-    case "GRID-geotiff":
-      await StoreTIFF(clientSocket, storage, schema, client);
-      break;
-
-    case "DCP-single_table":
-      await StoreSingleTable(clientSocket, storage, schema, client);
-    break;
-    case "DCP-postgis":
-    case "ANALYSIS_MONITORED_OBJECT-postgis":
-    case "OCCURRENCE-postgis":
-      await StoreNTable(clientSocket, storage, schema, client);
-    break;
-    default:
-    console.log("erro -");
   }
+
+  // //Verifies which data_serie type will be stored
+  // var select_data_type= "SELECT data_series_semantics.code FROM \
+  // "+schema+".storages, \
+  // "+schema+".data_series, \
+  // "+schema+".data_series_semantics WHERE \
+  // data_series_semantics.id = data_series.data_series_semantics_id AND \
+  // data_series.id = \'" + storage.data_series_id + "\'";
+  // console.log(select_data_type);
+  // var res1 = await client.query(select_data_type);
+
+  // var data_serie_code = res1.rows[0].code;
+  // storage.data_serie_code = res1.rows[0].code;
+  // switch (data_serie_code){
+  //   case "GRID-geotiff":
+  //     await StoreTIFF(clientSocket, storage, schema, client);
+  //     break;
+
+  //   case "DCP-single_table":
+  //     await StoreSingleTable(clientSocket, storage, schema, client);
+  //   break;
+  //   case "DCP-postgis":
+  //   case "ANALYSIS_MONITORED_OBJECT-postgis":
+  //   case "OCCURRENCE-postgis":
+  //     await StoreNTable(clientSocket, storage, schema, client);
+  //   break;
+  //   default:
+  //   console.log("erro -");
+  // }
   var obj = {
     automatic : storage.automatic_schedule_id ? true : false,
     execution_date : moment().format(),
@@ -149,8 +179,10 @@ async function runStorage(clientSocket, client, storage){
     result : true
   }
   var buffer =  await TcpManager.makebuffer_be(Signals.PROCESS_FINISHED_SIGNAL, obj) ;
-  console.log(buffer.toString());
+ // console.log(buffer.toString());
   await clientSocket.write(buffer);
+  console.log("Finishing", storage.name, " ", moment().format())
+ // processQueue.get(storage.id).pop();
 //return res.rows[0].code;
 };
 
@@ -178,12 +210,14 @@ async function addStorage(clientSocket, client, storages_new, projects){
       if (find){
         updateStorage(storage);
         logger.debug("Storage Updated: ", storage.name);
-      }
+        console.log ("Updating ", storage.name)
+       }
       else{
         Storages.push(storage);
-        processQueue.set(storage.id, queue = new queue());
-        processQueue.get(storage.id).push(moment());
+ //       processQueue.set(storage.id, queue());
+ //       processQueue.get(storage.id).push(moment());
         logger.debug("Storage Added: ", storage.name);
+        console.log ("Adding ", storage.name)
       }
       //await QueueStorages(client, storage);
       if (storage.active){
@@ -235,7 +269,9 @@ async function addStorage(clientSocket, client, storages_new, projects){
                 }
               }
               var newjob = new CronJob(rule, function(){
-                 runStorage(clientSocket, client, storage);
+                 //runStorage(clientSocket, client, storage);
+                 console.log(storage.name, "New job", rule)
+                 addQueue(clientSocket, client, storage)
               })
               var update = false;
               for (var job of joblist){
@@ -321,7 +357,7 @@ async function messageTreatment(clientSocket, parsed, client_Terrama2_db){
       }
       var buffer =  await TcpManager.makebuffer_be(Signals.STATUS_SIGNAL, obj) ;
     }
-    console.log(buffer.toString());
+    //console.log(buffer.toString());
     await clientSocket.write(buffer);
     break;
 
@@ -330,7 +366,7 @@ async function messageTreatment(clientSocket, parsed, client_Terrama2_db){
     try{
         await addStorage(clientSocket, client_Terrama2_db, parsed.message.Storages, parsed.message.Projects);
         joblist.forEach(job => {
-          console.log("job: ", job.id);
+          console.log("job: ", job.id, " ", job.CronJob);
           job.job.start();
         });
 
@@ -413,16 +449,16 @@ pool.connect().then(client_Terrama2_db => {
 server.on('connection', async function(clientSocket) {
   console.log('CONNECTED: ' + clientSocket.remoteAddress + ':' + clientSocket.remotePort);
 
-  joblist.push({
-    id: 0,
-    job: job0
-  });
+  // joblist.push({
+  //   id: 0,
+  //   job: job0
+  // });
 
-  job0.start();
+  // job0.start();
   
   clientSocket.on('data', async function(byteArray) {
 
-    console.log("RECEIVED: ", byteArray);
+    //console.log("RECEIVED: ", byteArray);
 
      clientSocket.answered = true;
 
@@ -492,7 +528,7 @@ server.on('connection', async function(clientSocket) {
           tempBuffer = extraData;
         }
         
-        console.log("Size: " + parsed.size + " Signal: " + parsed.signal + " Message: " + JSON.stringify(parsed.message, null, 4));
+      //  console.log("Size: " + parsed.size + " Signal: " + parsed.signal + " Message: " + JSON.stringify(parsed.message, null, 4));
     
         await messageTreatment(clientSocket, parsed, client_Terrama2_db);
 
