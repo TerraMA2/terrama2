@@ -67,7 +67,7 @@ terrama2::core::DataRetrieverFTP::DataRetrieverFTP(DataProviderPtr dataprovider,
   try
   {
     auto activeMode = dataProvider_->options.at("active_mode");
-    curlwrapper_->setActiveMode(activeMode == "true");
+    curlwrapper_->setActiveMode(activeMode == "true", "-");
   }
   catch(const std::out_of_range&)
   {
@@ -314,6 +314,10 @@ void terrama2::core::DataRetrieverFTP::retrieveDataCallback(const std::string& m
 
     // Build URI to get PATH fragment
     te::core::URI dataProviderURI(dataProvider_->uri);
+
+//    curlwrapper_->setUsername(dataProviderURI.user());
+//    curlwrapper_->setPassword(dataProviderURI.password());
+//    curlwrapper_->setAuthenticationMethod(te::ws::core::HTTP_BASIC);
     // Set temporary directory. When empty, creates a new pointing to dataProvider Path.
     // In this way, we will have something like "temporaryDir/dataProviderPath"
     // It is important due the folder may contains temporal mask
@@ -326,7 +330,7 @@ void terrama2::core::DataRetrieverFTP::retrieveDataCallback(const std::string& m
     // Get a file listing from server
     for(const auto& uri : baseUriList)
     {
-      std::vector<std::string> vectorFiles = curlwrapper_->listFiles(te::core::URI(uri));
+      std::vector<std::string> vectorFiles = curlwrapper_->listFiles(normalizeURI(uri));
 
       std::vector<std::string> vectorNames;
       // filter file names that should be downloaded.
@@ -366,7 +370,7 @@ void terrama2::core::DataRetrieverFTP::retrieveDataCallback(const std::string& m
 
         try
         {
-          curlwrapper_->downloadFile(uriOrigin, filePath);
+          curlwrapper_->downloadFile(normalizeURI(uriOrigin).uri(), filePath);
           TERRAMA2_LOG_WARNING() << QObject::tr("Finished downloading file: %1").arg(QString::fromStdString(file));
           processFile(temporaryDataDir, file, uriPath);
         }

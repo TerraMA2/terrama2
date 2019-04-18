@@ -71,6 +71,9 @@
 #include "Utils.hpp"
 #include "terrama2_config.hpp"
 
+// Qt
+#include <QUrl>
+
 namespace te
 {
   namespace common
@@ -641,4 +644,11 @@ std::string terrama2::core::getTableNameProperty(terrama2::core::DataSetPtr data
     TERRAMA2_LOG_ERROR() << errMsg;
     throw UndefinedTagException() << ErrorDescription(errMsg);
   }
+}
+
+te::core::URI terrama2::core::normalizeURI(const std::string& uri)
+{
+  QUrl wrapURI(QString::fromStdString(uri));
+
+  return te::core::URI(wrapURI.toString(QUrl::NormalizePathSegments).toStdString());
 }
