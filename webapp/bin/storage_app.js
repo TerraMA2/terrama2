@@ -35,7 +35,8 @@ const fs = require('fs');
 const Regex = require('xregexp');
 const moment = require('moment');
 const CronJob = require('cron').CronJob;
-const queue = require('queue')
+const queue = require('queue');
+const AdmZip = require('adm-zip');
 
 var PortScanner = require("./../core/PortScanner");
 var io = require('../io');
@@ -119,7 +120,7 @@ async function addQueue(clientSocket, client, storage){
       var q = queue(options);
 
       q.on('success', function (result, job) {
-        console.log('job finished processing:', job.toString().replace(/\n/g, " ", moment().format(),''))
+        console.log(storage.name, 'job finished processing:', job.toString().replace(/\n/g, " ", moment().format(),''))
       })
       
       processQueue.set(storage.id, q);
@@ -128,12 +129,16 @@ async function addQueue(clientSocket, client, storage){
     console.log ("On queue", storage.name, " ", moment().format());
     q = processQueue.get(storage.id);
     q.push(async function (cb) {
-      var obj = await runStorage(clientSocket, client, storage);
-      var buffer =  TcpManager.makebuffer_be(Signals.PROCESS_FINISHED_SIGNAL, obj) ;
-      // console.log(buffer.toString());
-      clientSocket.write(buffer);
-      console.log("Finishing", storage.name, " ", moment().format())
- 
+      try{
+        var obj = await runStorage(clientSocket, client, storage);
+        var buffer = await TcpManager.makebuffer_be(Signals.PROCESS_FINISHED_SIGNAL, obj) ;
+          // console.log(buffer.toString());
+        clientSocket.write(buffer);
+        console.log("Finishing", storage.name, " ", moment().format())
+      }
+      catch(e){
+        console.log(e);
+      }
       cb();
     });
     
@@ -143,26 +148,6 @@ async function addQueue(clientSocket, client, storage){
     console.log(e);
   }
 }
-
-// async function runStorage(clientSocket, client, storage){
-//   console.log("Starting ", storage.name, " ", moment().format());
-
-//   return new Promise(async function resolvePromise(resolve, reject){
-//     try{
-//         setInterval(function() { 
-//         console.log(storage.name, "setInterval: Ja passou 25 segundos!"); 
-//         console.log("Finishing", storage.name, " ", moment().format());
-//         return resolve();
-//       }, 25000);
-//     }
-//     catch(e){
-//       return reject(e);
-//     }
-//   })
- 
-// };
-
-
 
 async function runStorage(clientSocket, client, storage){
   return new Promise(async function resolvePromise(resolve, reject){
@@ -186,7 +171,35 @@ async function runStorage(clientSocket, client, storage){
       storage.data_serie_code = res1.rows[0].code;
       switch (data_serie_code){
         case "GRID-geotiff":
-          await StoreTIFF(clientSocket, storage, schema, client);
+          var res_storage = await StoreTIFF(clientSocket, storage, schema, client)
+          //.then (async function (res, obj){
+            storage.process.last_process_timestamp = moment();
+            storage.process.status = StatusLog.DONE;
+            if (res_storage.flag){
+              logger.log('info', storage.name + ": moved files: " + res_storage.moved_files + " from " + res_storage.path + " to " + res_storage.data_out);
+              logger.log('info', storage.name + ": removed files: " + res_storage.deleted_files + " from " + res_storage.path);
+              logger.log('info', "Finalized execution of " + storage.name);
+              if (res_storage.moved_files === 0 && res_storage.deleted_files == 0){
+                storage.process.description = "No data to process"
+              }
+              else{
+                storage.process.data_timestamp = res_storage.data_timestamp;
+              }
+            }
+            else{
+              storage.process.description = res_storage.description;
+              logger.log('info', "Finalized execution of " + storage.name + " -> " + res_storage.description);
+            }
+            await updateMessages(storage, schema, client);
+            var obj = {
+              automatic : storage.automatic_schedule_id ? true : false,
+              execution_date : moment().format(),
+              instance_id : service_instance_id,
+              result : true
+            }
+      
+            return resolve(obj);
+          //})
           break;
 
         case "DCP-single_table":
@@ -200,14 +213,6 @@ async function runStorage(clientSocket, client, storage){
         default:
         console.log("erro -");
       }
-      var obj = {
-        automatic : storage.automatic_schedule_id ? true : false,
-        execution_date : moment().format(),
-        instance_id : service_instance_id,
-        result : true
-      }
-
-      return resolve(obj);
     // processQueue.get(storage.id).pop();
     //return res.rows[0].code;
     }
@@ -483,12 +488,12 @@ pool.connect().then(client_Terrama2_db => {
 server.on('connection', async function(clientSocket) {
   console.log('CONNECTED: ' + clientSocket.remoteAddress + ':' + clientSocket.remotePort);
 
-  joblist.push({
-    id: 0,
-    job: job0
-  });
+  // joblist.push({
+  //   id: 0,
+  //   job: job0
+  // });
 
-  job0.start();
+  // job0.start();
   
   clientSocket.on('data', async function(byteArray) {
 
@@ -660,99 +665,6 @@ function onListening() {
 io.attach(server);
 load('sockets').into(io);
 
-
-// /**
-//  * This method sends a ADD_DATA_SIGNAL with bytearray to tcp socket. It is async
-//  *
-//  * @param {ServiceInstance} serviceInstance - a terrama2 service instance
-//  * @param {Object} data - a javascript object message to send
-//  */
-// TcpManager.prototype.sendData = function(serviceInstance, data) {
-//   console.log("sendData", data.toString());
-//   this.$send(serviceInstance, data, Signals.ADD_DATA_SIGNAL);
-// };
-
-
-// var schema = contextConfig.define.schema;
-// var databaseName = contextConfig.database;
-
-// var results = [];
-
-// //Connect to Terrama2 database
-// try{
-
-//   const config = {
-//     user: contextConfig.username,
-//     password: contextConfig.password,
-//     host: contextConfig.host,
-//     port: contextConfig.port,
-//     database: contextConfig.database
-//   };
-
-//   logger.info("Initializing database " + databaseName);
-  
-//   var pool = new pg.Pool(config);
-//   pool.connect().then (client =>{
-//     server.emit('message', "Conectou ao TerraMA2");
-
-//     var storage = client.query("Select id, name from " + schema + ".service_types ")
-//     var sql_logtable = "CREATE "
-//     //Load rules of storage
-//     client.query('SELECT * FROM ' + schema +'.storages where storages.active = true', async (err, res) => {
-//     // Stream results back one row at a time
-//       const nrows = res.rows.length;
-//       for (var i = 0; i < nrows; i++){
-//         var storage = res.rows[i];
-//         console.log(storage);
-//         logger.debug(storage);
-
-//         var store_id = storage.id;
-//         var data_serie_code;
-//        // console.log(store_id);
-
-//         //Verifies which data_serie type will be stored
-//         var select_data_type= "SELECT data_series_semantics.code FROM \
-//         "+schema+".storages, \
-//         "+schema+".data_series, \
-//         "+schema+".data_series_semantics WHERE \
-//         data_series_semantics.id = data_series.data_series_semantics_id AND \
-//         data_series.id = \'" + storage.data_series_id + "\'";
-//         console.log(select_data_type);
-//         var res1 = await client.query(select_data_type);
-
-//         data_serie_code = res1.rows[0].code;
-//         storage.data_serie_code = data_serie_code;
-//         switch (data_serie_code){
-//           case "GRID-geotiff":
-//            // StoreTIFF(storage, schema, client);
-//           break;
-//           case "DCP-single_table":
-//            // StoreSingleTable(storage, schema, client);
-//           break;
-//           case "DCP-postgis":
-//           case "ANALYSIS_MONITORED_OBJECT-postgis":
-//           case "OCCURRENCE-postgis":
-//            // StoreNTable(storage, schema, client);
-//           break;
-//           default:
-//           console.log("erro -");
-//         }
-//           //return res.rows[0].code;
-//       };
-//     });
-//   });
-//  // return process.exit(1);
-// }
-// catch(err)
-// {
-// // Handle connection errors
-//  // done();
-//   console.log(err);
-//   logger.error(err);
-//  // return res.status(500).json({success: false, data: err});
-// }
-
-
 async function selectService (storage, schema, client) 
 {
   return new Promise(async function resolvPromise(resolve, reject){
@@ -790,7 +702,8 @@ async function selectService (storage, schema, client)
 //To backup/erase GRID-geotiff
 async function StoreTIFF(clientSocket, storage, schema, client)
 {
-  const select_sql = "SELECT service_types.name, \
+  return new Promise(async function resolvePromise(resolve, reject){
+    const select_sql = "SELECT service_types.name, \
   service_types.id, \
   data_providers.uri, \
   data_set_formats.value FROM \
@@ -816,6 +729,7 @@ async function StoreTIFF(clientSocket, storage, schema, client)
   console.log('Executing ' + storage.name);
   logger.log('info', "Initializing execution of " + storage.name);
 
+  //last valid date of processed data
   var data_timestamp;
 
   try{
@@ -823,8 +737,17 @@ async function StoreTIFF(clientSocket, storage, schema, client)
 
    console.log(JSON.stringify(res1.rows[0], null, 4));
 
-    var service_table ;
-    var service_type;
+    var res_service =  await selectService(storage, schema, client);
+    var service_table = res_service.service_table;
+    var service_type = res_service.service_type;
+
+    var sel_proc_id = "SELECT id FROM \
+    " + schema + "." + service_type + " WHERE \
+    " + service_type + ".data_Series_output = " + storage.data_series_id;
+    var res_proc_id = await client.query(sel_proc_id);
+    var sel_data = "SELECT MAX(data_timestamp) FROM " + schema + "." + service_table + " WHERE process_id = " + res_proc_id.rows[0].id;
+    var res_data = await client.query(sel_data);
+
     var data_until_store = new moment();
 
     // if keep_data equal zero, erases everything
@@ -833,6 +756,20 @@ async function StoreTIFF(clientSocket, storage, schema, client)
     }
     else
       backup_Messages(storage, schema, client);
+
+    var dateObj = new Date(res_data.rows[0].max);
+    var momentObj = moment(dateObj);
+
+    if (momentObj.isBefore(data_until_store)){
+      var obj = {
+        flag: false,
+        data_out: data_out,
+        data_timestamp: "",
+        description : "No data to process"
+      }; 
+
+      return resolve(obj);
+    }
 
     logger.info(storage.name + ": Removing data before " + data_until_store.format('YYYY-MM-DD HH:mm:ss'));
 
@@ -861,7 +798,6 @@ async function StoreTIFF(clientSocket, storage, schema, client)
       }
       var moved_files = 0;
       var deleted_files = 0;
-      //files.forEach(async function(file, index){
       for(var i=0; i<files.length; i++){
         var file = files[i];
         var match = regex.exec(file);
@@ -888,9 +824,6 @@ async function StoreTIFF(clientSocket, storage, schema, client)
           else
             data_timestamp = filedate.isBefore(data_timestamp) ? filedate : data_timestamp;
 
-         // console.log(JSON.stringify(filedate, null, 4));
-         // console.log(JSON.stringify(data_until_store, null, 4));
-          //Falta testar a data
           if (filedate.isBefore(data_until_store)){
             console.log(file);
             if (storage.backup === true){
@@ -913,14 +846,16 @@ async function StoreTIFF(clientSocket, storage, schema, client)
         }
       }
 
-      logger.log('info', storage.name + ": moved files: " + moved_files + " from " + path + " to " + data_out);
-      logger.log('info', storage.name + ": removed files: " + deleted_files + " from " + path);
-      logger.log('info', "Finalized execution of " + storage.name);
-      storage.process.data_timestamp = data_timestamp;
-      storage.process.last_process_timestamp = moment();
-      storage.process.status = StatusLog.DONE;
-      updateMessages(storage, schema, client);
+      var obj = {
+        flag: true,
+        moved_files: moved_files,
+        deleted_files: deleted_files,
+        path: path,
+        data_out: data_out,
+        data_timestamp: data_timestamp
+      }; 
 
+      return resolve(obj);
     });
   }
   catch(err){
@@ -929,10 +864,10 @@ async function StoreTIFF(clientSocket, storage, schema, client)
     storage.process.status = StatusLog.ERROR;
     storage.procees.description = err;
     updateMessages(storage, schema, client);
-    throw err;
+    return reject(err);
   }
 
-  return;
+  });
 }
 
 async function StoreTable(params)
@@ -1517,6 +1452,8 @@ var getPostgisUriInfo = function(uri) {
 };
 
 async function updateMessages(storage, schema, client, start, data, last, msg){
+  console.log (storage.name, "updateMessages");
+  return new Promise(async function resolvePromise(resolve, reject){
   const select_service = "SELECT service_types.name, service_instances.id FROM \
   " + schema + ".service_types, \
   " + schema + ".service_instances \
@@ -1589,9 +1526,11 @@ async function updateMessages(storage, schema, client, start, data, last, msg){
           client.query(insert_msg);
         }
     });
+    return resolve(true);
   }
   catch(e){
     logger.error(storage.name + ": "  + e.watch());
     return reject(e);
   }
+});
 }
