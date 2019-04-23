@@ -128,6 +128,7 @@ async function addQueue(clientSocket, client, storage){
 
     console.log ("On queue", storage.name, " ", moment().format());
     q = processQueue.get(storage.id);
+    logger.debug(storage.name, "On QUEUE -> size ", q.jobs.length+1)
     q.push(async function (cb) {
       try{
         var obj = await runStorage(clientSocket, client, storage);
@@ -172,34 +173,45 @@ async function runStorage(clientSocket, client, storage){
       switch (data_serie_code){
         case "GRID-geotiff":
           var res_storage = await StoreTIFF(clientSocket, storage, schema, client)
-          //.then (async function (res, obj){
-            storage.process.last_process_timestamp = moment();
-            storage.process.status = StatusLog.DONE;
-            if (res_storage.flag){
-              logger.log('info', storage.name + ": moved files: " + res_storage.moved_files + " from " + res_storage.path + " to " + res_storage.data_out);
-              logger.log('info', storage.name + ": removed files: " + res_storage.deleted_files + " from " + res_storage.path);
-              logger.log('info', "Finalized execution of " + storage.name);
-              if (res_storage.moved_files === 0 && res_storage.deleted_files == 0){
-                storage.process.description = "No data to process"
-              }
-              else{
-                storage.process.data_timestamp = res_storage.data_timestamp;
-              }
+          storage.process.last_process_timestamp = moment();
+          storage.process.status = StatusLog.DONE;
+          var msg 
+          if (res_storage.flag){
+            if (storage.zip){
+              msg = storage.name + ": added files: " + res_storage.deleted_files + " from " + res_storage.path + " to " + res_storage.zipfile;
+            }
+            else if (storage.backup){
+              msg = storage.name + ": moved files: " + res_storage.moved_files + " from " + res_storage.path + " to " + res_storage.data_out;
             }
             else{
-              storage.process.description = res_storage.description;
-              logger.log('info', "Finalized execution of " + storage.name + " -> " + res_storage.description);
+              msg =storage.name + ": removed files: " + res_storage.deleted_files + " from " + res_storage.path;
             }
-            await updateMessages(storage, schema, client);
-            var obj = {
-              automatic : storage.automatic_schedule_id ? true : false,
-              execution_date : moment().format(),
-              instance_id : service_instance_id,
-              result : true
+
+            logger.log('info', msg);
+            logger.log('info', "Finalized execution of " + storage.name);
+            if (res_storage.moved_files === 0 && res_storage.deleted_files === 0){
+              storage.process.description = "No data to process"
             }
-      
-            return resolve(obj);
-          //})
+            else{
+              storage.process.data_timestamp = res_storage.data_timestamp;
+              storage.process.description = msg;
+            }
+          }
+          else{
+            storage.process.description = res_storage.description;
+            logger.log('info', "Finalized execution of " + storage.name + " -> " + res_storage.description);
+          }
+
+          await updateMessages(storage, schema, client);
+          var obj = {
+            automatic : storage.automatic_schedule_id ? true : false,
+            execution_date : moment().format(),
+            instance_id : service_instance_id,
+            result : true
+          }
+    
+          return resolve(obj);
+
           break;
 
         case "DCP-single_table":
@@ -208,8 +220,14 @@ async function runStorage(clientSocket, client, storage){
         case "DCP-postgis":
         case "ANALYSIS_MONITORED_OBJECT-postgis":
         case "OCCURRENCE-postgis":
-          await StoreNTable(clientSocket, storage, schema, client);
-        break;
+          var res_storage = await StoreNTable(clientSocket, storage, schema, client);
+
+          logger.log('info', "Finalized execution of " + storage.name);
+          storage.process.last_process_timestamp = moment();
+          storage.process.status = StatusLog.DONE;
+          updateMessages(storage, schema, client);
+  
+          break;
         default:
         console.log("erro -");
       }
@@ -665,29 +683,32 @@ function onListening() {
 io.attach(server);
 load('sockets').into(io);
 
-async function selectService (storage, schema, client) 
+async function selectServiceInput (storage, schema, client) 
 {
   return new Promise(async function resolvPromise(resolve, reject){
-    const select_service = "SELECT service_types.name, service_instances.id FROM \
-    " + schema + ".service_types, \
-    " + schema + ".service_instances \
-    WHERE service_instances.id =  \'" + storage.service_instance_id + "\' AND \
-    service_types.id = service_instances.service_type_id";
+    const is_dynamicData = "SELECT service_instance_id FROM \
+    " + schema + ".collectors WHERE data_series_output = " + storage.data_series_id;
+    const is_analysis = "SELECT instance_id FROM \
+    " + schema + ".analysis, " + schema + ".data_sets, " + schema + ".data_series WHERE \
+    analysis.dataset_output = data_sets.id AND data_series.id = " + storage.data_series_id;
 
-    console.log(select_service);
+    console.log(is_dynamicData);
+    console.log(is_analysis);
     var service_table ;
     var service_type;
 
     try{
-      var res= await client.query(select_service);
+      //var res= await client.query(select_service);
+      var res = await client.query(is_dynamicData);
 
-      if (res.rows[0].name.toString() === "COLLECT"){
+      if (res.rowCount){
         service_type = "collectors"
-        service_table = "collector_" + res.rows[0].id;
+        service_table = "collector_" + res.rows[0].service_instance_id;
       }
       else{
+        var res1 = await client.query(is_analysis);
         service_type = "analysis"
-        service_table = "analysis_" + res.rows[0].id;
+        service_table = "analysis_" + res.rows[0].instance_id;
       }
       return resolve({service_table, service_type});
     }
@@ -704,169 +725,190 @@ async function StoreTIFF(clientSocket, storage, schema, client)
 {
   return new Promise(async function resolvePromise(resolve, reject){
     const select_sql = "SELECT service_types.name, \
-  service_types.id, \
-  data_providers.uri, \
-  data_set_formats.value FROM \
-  " + schema + ".service_types, \
-  " + schema + ".service_instances, \
-  " + schema + ".data_providers, \
-  " + schema + ".data_series, \
-  " + schema +".data_sets, \
-  " + schema +".data_set_formats, \
-  " + schema + ".storages \
-  WHERE data_sets.data_series_id = data_series.id AND \
-  data_set_formats.data_set_id = data_sets.id AND \
-  data_set_formats.key = 'mask' AND \
-  data_series.data_provider_id = data_providers.id AND \
-  service_instances.id =  \'" + storage.service_instance_id + "\' AND \
-  service_instances.service_type_id = service_types.id AND \
-  data_series.id = \'" + storage.data_series_id +"\'";
+    service_types.id, \
+    data_providers.uri, \
+    data_set_formats.value FROM \
+    " + schema + ".service_types, \
+    " + schema + ".service_instances, \
+    " + schema + ".data_providers, \
+    " + schema + ".data_series, \
+    " + schema +".data_sets, \
+    " + schema +".data_set_formats, \
+    " + schema + ".storages \
+    WHERE data_sets.data_series_id = data_series.id AND \
+    data_set_formats.data_set_id = data_sets.id AND \
+    data_set_formats.key = 'mask' AND \
+    data_series.data_provider_id = data_providers.id AND \
+    service_instances.id =  \'" + storage.service_instance_id + "\' AND \
+    service_instances.service_type_id = service_types.id AND \
+    data_series.id = \'" + storage.data_series_id +"\'";
 
-  console.log(select_sql);
-  storage.process = {};
-  storage.process.start_timestamp  = moment();
- // server.emit('startService');
-  console.log('Executing ' + storage.name);
-  logger.log('info', "Initializing execution of " + storage.name);
+    storage.process = {};
+    storage.process.start_timestamp  = moment();
+  // server.emit('startService');
+    console.log('Executing ' + storage.name);
+    logger.log('info', "Initializing execution of " + storage.name);
 
-  //last valid date of processed data
-  var data_timestamp;
+    //last valid date of processed data
+    var data_timestamp;
 
-  try{
-    var res1 = await client.query(select_sql);
+    try{
+      var res1 = await client.query(select_sql);
 
-   console.log(JSON.stringify(res1.rows[0], null, 4));
+      //Get date of data of last success storage
+      var service_table = "storage_" + storage.service_instance_id;
+      var sel_data = "SELECT MAX(data_timestamp) FROM " + schema + "." + service_table + " WHERE process_id = " + storage.id;
+      var res_data = await client.query(sel_data);
 
-    var res_service =  await selectService(storage, schema, client);
-    var service_table = res_service.service_table;
-    var service_type = res_service.service_type;
+      var data_until_store = new moment();
 
-    var sel_proc_id = "SELECT id FROM \
-    " + schema + "." + service_type + " WHERE \
-    " + service_type + ".data_Series_output = " + storage.data_series_id;
-    var res_proc_id = await client.query(sel_proc_id);
-    var sel_data = "SELECT MAX(data_timestamp) FROM " + schema + "." + service_table + " WHERE process_id = " + res_proc_id.rows[0].id;
-    var res_data = await client.query(sel_data);
-
-    var data_until_store = new moment();
-
-    // if keep_data equal zero, erases everything
-    if (storage.keep_data > 0){
-      data_until_store.subtract(storage.keep_data, storage.keep_data_unit);
-    }
-    else
-      backup_Messages(storage, schema, client);
-
-    var dateObj = new Date(res_data.rows[0].max);
-    var momentObj = moment(dateObj);
-
-    if (momentObj.isBefore(data_until_store)){
-      var obj = {
-        flag: false,
-        data_out: data_out,
-        data_timestamp: "",
-        description : "No data to process"
-      }; 
-
-      return resolve(obj);
-    }
-
-    logger.info(storage.name + ": Removing data before " + data_until_store.format('YYYY-MM-DD HH:mm:ss'));
-
-    console.log("storage " + storage.name + " data " + JSON.stringify(data_until_store, null, 4));
-
-    var uri = res1.rows[0].uri;
-    var mask = res1.rows[0].value;
-    var path = uri.slice(uri.indexOf("//") +2, uri.lenght) + "/" + mask.slice(0,mask.indexOf("/"));
-    console.log("path "+path);
-    var regexString = terramaMask2Regex( mask.slice(mask.indexOf("/")+1, mask.lenght));
-    const regex = new Regex(regexString);
-    console.log ("no store " + regexString);
-
-    var data_provider_out = "Select data_providers.uri from "+schema+".data_providers,"+schema+".storages WHERE \
-    data_providers.id = \'"+storage.data_provider_id+"\'";
-
-    var res3 = await client.query(data_provider_out);
-    var data_out = res3.rows[0].uri;
-
-    data_out = data_out.slice(data_out.indexOf("//")+2, data_out.lenght) + "/" + storage.uri + "/" + mask.slice(0,mask.indexOf("/"));
-    console.log(data_out);
-    await fs.readdir(path, async function(err4, files){
-      if (err4){
-        logger.error(storage.name + ": "  + err4);
-        throw err4;
+      /* if keep_data equal zero, erases everything and saving messages from 
+      collector/analysis message table in storage_historic table */
+      if (storage.keep_data > 0){
+        data_until_store.subtract(storage.keep_data, storage.keep_data_unit);
       }
-      var moved_files = 0;
-      var deleted_files = 0;
-      for(var i=0; i<files.length; i++){
-        var file = files[i];
-        var match = regex.exec(file);
-        if (match){
-          console.log(JSON.stringify(match, null, 4));
-          var year_file = new Number(match[1]);
-          var year_proc = data_until_store.year();
-          var century = year_proc - year_file;
-          // If the year is represented by 2 digits it is necessary to know which century. 
-          // I considered only the 20th (1900) and 21st (2000) centuries 
-          if (century > 1999)
-            year_file = year_file +2000;
-          else if (century > 1899)
-            year_file = year_file + 1900;
-          if (match[4]=== null)
-            match[4] = 0;
-          if (match[5]=== null)
-            match[5] = 0;
-          
-          var filedate = new moment([year_file, Number(match[2])-1, Number(match[3]), Number(match[4]), Number(match[5])]);
+      else
+        backup_Messages(storage, schema, client);
 
-          if (!data_timestamp)
-            data_timestamp = filedate;
-          else
-            data_timestamp = filedate.isBefore(data_timestamp) ? filedate : data_timestamp;
+      var dateObj = new Date(res_data.rows[0].max);
+      var momentObj = moment(dateObj);
 
-          if (filedate.isBefore(data_until_store)){
-            console.log(file);
-            if (storage.backup === true){
-              if (!fs.existsSync(data_out)){
-                fs.mkdirSync(data_out, {recursive:true});
-              }
-              moveFile(path + "/" + file, data_out + "/" + file);
-              moved_files++;
-            }
-            else{
-              fs.unlink(path + "/" + file, function(err6){
-                if (err6){
-                  logger.error(storage.name + ": "  + err6);
-                  throw err6;
+      //test if has data to process
+      if (momentObj.isAfter(data_until_store)){
+        var obj = {
+          flag: false,
+          data_out: data_out,
+          data_timestamp: "",
+          description : "No data to process"
+        }; 
+
+        return resolve(obj);
+      }
+
+      logger.info(storage.name + ": Removing data before " + data_until_store.format('YYYY-MM-DD HH:mm:ss'));
+
+      console.log("storage " + storage.name + " data " + JSON.stringify(data_until_store, null, 4));
+
+      var uri = res1.rows[0].uri;
+      var mask = res1.rows[0].value;
+      var path = uri.slice(uri.indexOf("//") +2, uri.lenght) + "/" + mask.slice(0,mask.indexOf("/"));
+      console.log("path "+path);
+      var regexString = await storageUtils.terramaMask2Regex( mask.slice(mask.indexOf("/")+1, mask.lenght));
+      const regex = new Regex(regexString);
+      console.log ("no store " + regexString);
+
+      var data_provider_out = "Select data_providers.uri from "+schema+".data_providers,"+schema+".storages WHERE \
+      data_providers.id = \'"+storage.data_provider_id+"\'";
+
+      var res3 = await client.query(data_provider_out);
+      var data_out = res3.rows[0].uri;
+
+      if (storage.zip){
+        data_out = data_out.slice(data_out.indexOf("//")+2, data_out.lenght) + "/" + storage.uri + "/" + mask.slice(0,mask.indexOf("%"));
+        var zip = new AdmZip();
+      }
+      else{
+        data_out = data_out.slice(data_out.indexOf("//")+2, data_out.lenght) + "/" + storage.uri + "/" + mask.slice(0,mask.indexOf("/"));
+        console.log(data_out); 
+      }
+
+      await fs.readdir(path, async function(err4, files){
+        if (err4){
+          logger.error(storage.name + ": "  + err4);
+          throw err4;
+        }
+        var moved_files = 0;
+        var deleted_files = 0;
+        for(var i=0; i<files.length; i++){
+          var file = files[i];
+          var match = regex.exec(file);
+          //test if filename match with mask
+          if (match){
+            var year_file = new Number(match[1]);
+            var year_proc = data_until_store.year();
+            var century = year_proc - year_file;
+            // If the year is represented by 2 digits it is necessary to know which century. 
+            // I considered only the 20th (1900) and 21st (2000) centuries 
+            if (century > 1999)
+              year_file = year_file +2000;
+            else if (century > 1899)
+              year_file = year_file + 1900;
+            if (match[4]=== null)
+              match[4] = 0;
+            if (match[5]=== null)
+              match[5] = 0;
+            
+            var filedate = new moment([year_file, Number(match[2])-1, Number(match[3]), Number(match[4]), Number(match[5])]);
+
+            if (!data_timestamp)
+              data_timestamp = filedate;
+            else
+              data_timestamp = filedate.isBefore(data_timestamp) ? filedate : data_timestamp;
+
+            if (filedate.isBefore(data_until_store)){
+              if (storage.backup === true){
+                if (storage.zip){
+                  zip.addLocalFile(path + "/" + file);
+                  fs.unlink(path + "/" + file, function(err6){
+                    if (err6){
+                      logger.error(storage.name + ": "  + err6);
+                      throw err6;
+                    }
+                    deleted_files++;
+                  });
                 }
-                deleted_files++;
-              });
+                else{
+                  if (!fs.existsSync(data_out)){
+                    fs.mkdirSync(data_out, {recursive:true});
+                  }
+
+                  moveFile(path + "/" + file, data_out + "/" + file);
+                }
+                moved_files++;
+              }
+              else{
+                fs.unlink(path + "/" + file, function(err6){
+                  if (err6){
+                    logger.error(storage.name + ": "  + err6);
+                    throw err6;
+                  }
+                  deleted_files++;
+                });
+              }
             }
           }
         }
-      }
 
-      var obj = {
-        flag: true,
-        moved_files: moved_files,
-        deleted_files: deleted_files,
-        path: path,
-        data_out: data_out,
-        data_timestamp: data_timestamp
-      }; 
+        if (storage.zip){
+          var maskzip = mask.slice(mask.indexOf("%"), mask.indexOf("."));
+          maskzip = maskzip.replace(/%/g,'');
+          var zipfile = data_out + moment().format(maskzip) + ".zip";
+          console.log(zipfile);
+          if (deleted_files > 0)
+            zip.writeZip(zipfile);
+        }
 
-      return resolve(obj);
-    });
-  }
-  catch(err){
-    logger.error(storage.name + ": "  + err);
-    storage.process.last_process_timestamp = moment();
-    storage.process.status = StatusLog.ERROR;
-    storage.procees.description = err;
-    updateMessages(storage, schema, client);
-    return reject(err);
-  }
+        var obj = {
+          flag: true,
+          moved_files: moved_files,
+          deleted_files: deleted_files,
+          path: path,
+          data_out: data_out,
+          data_timestamp: data_timestamp,
+          zipfile : zipfile
+        }; 
 
+        return resolve(obj);
+      });
+    }
+    catch(err){
+      logger.error(storage.name + ": "  + err);
+      storage.process.last_process_timestamp = moment();
+      storage.process.status = StatusLog.ERROR;
+      storage.procees.description = err;
+      updateMessages(storage, schema, client);
+      return reject(err);
+    }
   });
 }
 
@@ -1015,7 +1057,7 @@ async function StoreTable(params)
 
 async function StoreSingleTable(clientSocket, storage, schema, client)
 {
-  server.emit('startService');
+  //server.emit('startService');
 
   storage.process = {};
   storage.process.start_timestamp  = moment();
@@ -1037,7 +1079,7 @@ async function StoreSingleTable(clientSocket, storage, schema, client)
   console.log('Executing ' + storage.name);
   logger.log('info', "Initializing execution of " + storage.name);
 
-   try{
+  try{
     var res1 = await client.query(select_sql);
 
     //console.log(JSON.stringify(res1.rows[0], null, 4));
@@ -1056,195 +1098,129 @@ async function StoreSingleTable(clientSocket, storage, schema, client)
       if (err){
         throw err;
       }
- 
-       logger.log('info', "Finalized execution of " + storage.name);
-       storage.process.data_timestamp = data_timestamp;
-       storage.process.last_process_timestamp = moment();
-       storage.process.status = StatusLog.DONE;
-       updateMessages(storage, schema, client);
-    });
-   }
-   catch(err){
-     logger.error(storage.name + ": "  + err);
-     storage.process.last_process_timestamp = moment();
-     storage.process.status = StatusLog.ERROR;
-     storage.procees.description = err;
-     updateMessages(storage, schema, client);
-     throw (err);
-   }
-}
-
-async function StoreNTable_1(clientSocket, storage, schema, client, res){
-  for (var row of res.rows){
-
-  var table_name_back = storage.uri;
-  if (res.rowCount > 1) 
-    table_name_back += "_" + row.value;
-
-  var timestamp = "";
-  var geometry = "";
-
-  if (storage.data_serie_code != "ANALYSIS_MONITORED_OBJECT-postgis"){
-    var sel_timestamp = "SELECT data_set_formats.value FROM \
-    " + schema + ".data_set_formats WHERE \
-    data_set_formats.key = \'timestamp_property\' AND \
-    data_set_formats.data_set_id = \'" + row.id + "\'";
-    console.log(sel_timestamp);
-
-    var sel_geom = "SELECT data_set_formats.value FROM \
-    " + schema + ".data_set_formats WHERE \
-    data_set_formats.key = \'geometry_property\' AND \
-    data_set_formats.data_set_id = \'" + row.id + "\'";
-    console.log(sel_geom);
-
-    var res1 = await client.query(sel_timestamp);
-    var res2 = await client.query(sel_geom);
-
-    if (res1.rowCount)
-      timestamp = res1.rows[0].value;
-    if (res2.rowCount)
-      geometry = res2.rows[0].value;
-  }
-  else
-    timestamp = analysisTimestampPropertyName; //"execution_date"
-  
-  var params = {
-    storage : storage,
-    schema : schema,
-    client : client,
-    table_name : row.value,
-    database_project : row.uri,
-    table_name_back : table_name_back,
-    timestamp_prop : timestamp,
-    geometry_prop: geometry
-  };
-
-  await StoreTable(params);
-}
-
-}
-
-
-async function StoreNTable(storage, schema, client)
-{
-  server.emit('startService');
-  storage.process = {};
-  storage.process.start_timestamp  = moment();
-
-  try{
-
-    logger.log('info', "Initializing execution of " + storage.name);
-
-    const select_sql = "SELECT data_providers.uri, data_set_formats.value, data_sets.id FROM \
-    " + schema + ".storages, \
-    " + schema + ".data_series, \
-    " +schema+".data_sets, \
-    " +schema+".data_set_formats, \
-    " + schema + ".data_providers WHERE \
-    data_series.id = data_sets.data_series_id AND \
-    data_set_formats.data_set_id = data_sets.id AND \
-    data_set_formats.key = 'table_name' AND \
-    data_providers.id = data_series.data_provider_id AND \
-    data_series.id = \'" + storage.data_series_id + "\' AND \
-    storages.id = \'" + storage.id + "\'";
-  
-    client.query(select_sql, async (err, res) => {
-      if (err){
-        throw err;
-      }
-
-      //res.rows.forEach(async function(row, index){
-     // for (var row of res.rows){
-
-        await StoreNTable_1(storage, schema, client, res);
- 
-     // };
 
       logger.log('info', "Finalized execution of " + storage.name);
+      storage.process.data_timestamp = data_timestamp;
       storage.process.last_process_timestamp = moment();
       storage.process.status = StatusLog.DONE;
       updateMessages(storage, schema, client);
-
-    
     });
- 
- }
+  }
   catch(err){
     logger.error(storage.name + ": "  + err);
     storage.process.last_process_timestamp = moment();
     storage.process.status = StatusLog.ERROR;
-    storage.process.description = err;
+    storage.procees.description = err;
     updateMessages(storage, schema, client);
     throw (err);
   }
+}
 
+async function StoreNTable_1(clientSocket, storage, schema, client, res){
+  return new Promise(async function resolvePromise(resolve, reject){
+    try{
+      for (var row of res.rows){
+        var table_name_back = storage.uri;
+        if (res.rowCount > 1) 
+          table_name_back += "_" + row.value;
+
+        var timestamp = "";
+        var geometry = "";
+
+        if (storage.data_serie_code != "ANALYSIS_MONITORED_OBJECT-postgis"){
+          var sel_timestamp = "SELECT data_set_formats.value FROM \
+          " + schema + ".data_set_formats WHERE \
+          data_set_formats.key = \'timestamp_property\' AND \
+          data_set_formats.data_set_id = \'" + row.id + "\'";
+          console.log(sel_timestamp);
+
+          var sel_geom = "SELECT data_set_formats.value FROM \
+          " + schema + ".data_set_formats WHERE \
+          data_set_formats.key = \'geometry_property\' AND \
+          data_set_formats.data_set_id = \'" + row.id + "\'";
+          console.log(sel_geom);
+
+          var res1 = await client.query(sel_timestamp);
+          var res2 = await client.query(sel_geom);
+
+          if (res1.rowCount)
+            timestamp = res1.rows[0].value;
+          if (res2.rowCount)
+            geometry = res2.rows[0].value;
+        }
+        else
+          timestamp = analysisTimestampPropertyName; //"execution_date"
+        
+        var params = {
+          storage : storage,
+          schema : schema,
+          client : client,
+          table_name : row.value,
+          database_project : row.uri,
+          table_name_back : table_name_back,
+          timestamp_prop : timestamp,
+          geometry_prop: geometry
+        };
+
+        await StoreTable(params);
+
+        return resolve();
+      }
+    }
+    catch(e){
+      return reject(e);
+    }
+  });
 
 }
 
-function terramaMask2Regex(mask)
+
+async function StoreNTable(clientSocket, storage, schema, client)
 {
-  var regex = new Regex('\\%\\(\\)\\%');
-  var list = mask.split(regex);
-  var listout = '';
- 
-  var m;
-  for(var i=0; i< list.length;i++){
-    m = list[i];
-    if(mask.startsWith("%(")){
-      if (i%2==0){
-        m = "("+m+")";
-        continue;
-      }    
+  return new Promise(async function resolvePromise(resolve, reject){
+    // server.emit('startService');
+    storage.process = {};
+    storage.process.start_timestamp  = moment();
+
+    try{
+
+      logger.log('info', "Initializing execution of " + storage.name);
+
+      const select_sql = "SELECT data_providers.uri, data_set_formats.value, data_sets.id FROM \
+      " + schema + ".storages, \
+      " + schema + ".data_series, \
+      " +schema+".data_sets, \
+      " +schema+".data_set_formats, \
+      " + schema + ".data_providers WHERE \
+      data_series.id = data_sets.data_series_id AND \
+      data_set_formats.data_set_id = data_sets.id AND \
+      data_set_formats.key = 'table_name' AND \
+      data_providers.id = data_series.data_provider_id AND \
+      data_series.id = \'" + storage.data_series_id + "\' AND \
+      storages.id = \'" + storage.id + "\'";
+    
+      client.query(select_sql, async (err, res) => {
+        if (err){
+          throw err;
+        }
+
+        await StoreNTable_1(clientSocket, storage, schema, client, res);
+
+        var obj = {};
+        return resolve(obj);
+   
+       });
     }
-    else
-    if (i%2!=0){
-      m = "("+m+")";
-      continue;
-    }    
+    catch(err){
+      logger.error(storage.name + ": "  + err);
+      storage.process.last_process_timestamp = moment();
+      storage.process.status = StatusLog.ERROR;
+      storage.process.description = err;
+      updateMessages(storage, schema, client);
+      return reject(err);
+    }
 
-    // escape regex metacharacters
-    m = m.replace("+", "\\+");
-    m = m.replace("(", "\\(");
-    m = m.replace(")", "\\)");
-    m = m.replace("[", "\\[");
-    m = m.replace("]", "\\]");
-    m = m.replace("{", "\\{");
-    m = m.replace("}", "\\}");
-    m = m.replace("^", "\\^");
-    m = m.replace("$", "\\$");
-    m = m.replace("&", "\\&");
-    m = m.replace("|", "\\|");
-    m = m.replace("?", "\\?");
-    m = m.replace(".", "\\.");
-
-    /*
-     *
-      YYYY  year with 4 digits        [0-9]{4}
-      YY    year with 2 digits        [0-9]{2}
-      MM    month with 2 digits       0[1-9]|1[012]
-      DD    day with 2 digits         0[1-9]|[12][0-9]|3[01]
-      hh    hout with 2 digits        [0-1][0-9]|2[0-4]
-      mm    minutes with 2 digits     [0-5][0-9]
-      ss    seconds with 2 digits     [0-5][0-9]
-      *    any character, any times  .*
-      */
-
-    m = m.replace(/%YYYY/gi, "(?<YEAR>[0-9]{4})");
-    m = m.replace(/%YY/gi, "(?<YEAR2DIGITS>[0-9]{2})");
-    m = m.replace("%MM", "(?<MONTH>0[1-9]|1[012])");
-    m = m.replace("%DD", "(?<DAY>0[1-9]|[12][0-9]|3[01])");
-    m = m.replace("%JJJ", "(?<JULIAN_DAY>\\d{3})");
-    m = m.replace("%hh", "(?<HOUR>[0-1][0-9]|2[0-4])");
-    m = m.replace("%mm", "(?<MINUTES>[0-5][0-9])");
-    m = m.replace("%ss", "(?<SECONDS>[0-5][0-9])");
-    m = m.replace("*", ".*");
-    // add a extension validation in case of the name has it
-    m = m + "(?<EXTENSIONS>(\\.(gz|zip|rar|7z|tar))+)?$";
-    listout = listout + m;
-  }
-
-  //console.log("no terrama2 " + listout);
-  return listout;
+  });
 }
 
 function moveFile(oldPath, newPath) {
@@ -1277,7 +1253,7 @@ function moveFile(oldPath, newPath) {
 
 async function backup_Messages(storage, schema, client){
   try{
-    var res_1 =  await selectService(storage, schema, client);
+    var res_1 =  await selectServiceInput(storage, schema, client);
     //logger.debug(JSON.stringify(res_1, null, 4));
 
     var service_table = res_1.service_table;
@@ -1454,16 +1430,8 @@ var getPostgisUriInfo = function(uri) {
 async function updateMessages(storage, schema, client, start, data, last, msg){
   console.log (storage.name, "updateMessages");
   return new Promise(async function resolvePromise(resolve, reject){
-  const select_service = "SELECT service_types.name, service_instances.id FROM \
-  " + schema + ".service_types, \
-  " + schema + ".service_instances \
-  WHERE service_types.id =  \'" + ServiceType.STORAGE + "\' AND\
-  service_types.id = service_instances.service_type_id";
-
-  console.log(select_service);
   try{
-    var res = await client.query(select_service);
-    var service_table = "storage_" + res.rows[0].id;;
+    var service_table = "storage_" + storage.service_instance_id;
     var service_table_message = service_table + "_messages";
 
     var createtable = "CREATE TABLE IF NOT EXISTS " + schema + "." + service_table + " (\
@@ -1486,7 +1454,9 @@ async function updateMessages(storage, schema, client, start, data, last, msg){
       CONSTRAINT " + service_table_message +"_fk FOREIGN KEY (log_id)\
           REFERENCES " + schema + "." + service_table +"(id) MATCH SIMPLE\
           ON UPDATE NO ACTION ON DELETE NO ACTION)";
-        
+    
+    console.log(createtable);
+    console.log(createtable_messages);
     var res1 = await client.query(createtable);
     var res1 = await client.query(createtable_messages);
 
@@ -1529,7 +1499,7 @@ async function updateMessages(storage, schema, client, start, data, last, msg){
     return resolve(true);
   }
   catch(e){
-    logger.error(storage.name + ": "  + e.watch());
+    logger.error(storage.name + ": "  + e);
     return reject(e);
   }
 });

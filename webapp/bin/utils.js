@@ -2,31 +2,30 @@
 
 const pg = require('pg');
 var Signals = require('./../core/Signals');
+const Regex = require('xregexp');
 
-  
 function getTcpSignal  (value) {
-    switch(value) {
-      case Signals.TERMINATE_SERVICE_SIGNAL:
-      case Signals.STATUS_SIGNAL:
-      case Signals.ADD_DATA_SIGNAL:
-      case Signals.START_PROCESS_SIGNAL:
-      case Signals.LOG_SIGNAL:
-      case Signals.REMOVE_DATA_SIGNAL:
-      case Signals.PROCESS_FINISHED_SIGNAL:
-      case Signals.UPDATE_SERVICE_SIGNAL:
-      case Signals.VALIDATE_PROCESS_SIGNAL:
-        return value;
-      default:
-        return -1;
-    }
-  };
-
+  switch(value) {
+    case Signals.TERMINATE_SERVICE_SIGNAL:
+    case Signals.STATUS_SIGNAL:
+    case Signals.ADD_DATA_SIGNAL:
+    case Signals.START_PROCESS_SIGNAL:
+    case Signals.LOG_SIGNAL:
+    case Signals.REMOVE_DATA_SIGNAL:
+    case Signals.PROCESS_FINISHED_SIGNAL:
+    case Signals.UPDATE_SERVICE_SIGNAL:
+    case Signals.VALIDATE_PROCESS_SIGNAL:
+      return value;
+    default:
+      return -1;
+  }
+};
 
 var Utils = module.exports = {
     clone: function(object) {
       return cloneDeep(object);
     },
-  
+
 /**
  * Creates a new Buffer based on any number of Buffer
  *
@@ -166,7 +165,73 @@ _createBufferFrom : function () {
       logger.error(e);
       return Promise.reject(e); 
     }
+  },
+
+  terramaMask2Regex : async function (mask){
+    var regex = new Regex('\\%\\(\\)\\%');
+    var list = mask.split(regex);
+    var listout = '';
+   
+    var m;
+    for(var i=0; i< list.length;i++){
+      m = list[i];
+      if(mask.startsWith("%(")){
+        if (i%2==0){
+          m = "("+m+")";
+          continue;
+        }    
+      }
+      else
+      if (i%2!=0){
+        m = "("+m+")";
+        continue;
+      }    
+  
+      // escape regex metacharacters
+      m = m.replace("+", "\\+");
+      m = m.replace("(", "\\(");
+      m = m.replace(")", "\\)");
+      m = m.replace("[", "\\[");
+      m = m.replace("]", "\\]");
+      m = m.replace("{", "\\{");
+      m = m.replace("}", "\\}");
+      m = m.replace("^", "\\^");
+      m = m.replace("$", "\\$");
+      m = m.replace("&", "\\&");
+      m = m.replace("|", "\\|");
+      m = m.replace("?", "\\?");
+      m = m.replace(".", "\\.");
+  
+      /*
+       *
+        YYYY  year with 4 digits        [0-9]{4}
+        YY    year with 2 digits        [0-9]{2}
+        MM    month with 2 digits       0[1-9]|1[012]
+        DD    day with 2 digits         0[1-9]|[12][0-9]|3[01]
+        hh    hout with 2 digits        [0-1][0-9]|2[0-4]
+        mm    minutes with 2 digits     [0-5][0-9]
+        ss    seconds with 2 digits     [0-5][0-9]
+        *    any character, any times  .*
+        */
+  
+      m = m.replace(/%YYYY/gi, "(?<YEAR>[0-9]{4})");
+      m = m.replace(/%YY/gi, "(?<YEAR2DIGITS>[0-9]{2})");
+      m = m.replace("%MM", "(?<MONTH>0[1-9]|1[012])");
+      m = m.replace("%DD", "(?<DAY>0[1-9]|[12][0-9]|3[01])");
+      m = m.replace("%JJJ", "(?<JULIAN_DAY>\\d{3})");
+      m = m.replace("%hh", "(?<HOUR>[0-1][0-9]|2[0-4])");
+      m = m.replace("%mm", "(?<MINUTES>[0-5][0-9])");
+      m = m.replace("%ss", "(?<SECONDS>[0-5][0-9])");
+      m = m.replace("*", ".*");
+      // add a extension validation in case of the name has it
+      m = m + "(?<EXTENSIONS>(\\.(gz|zip|rar|7z|tar))+)?$";
+      listout = listout + m;
+    }
+  
+    //console.log("no terrama2 " + listout);
+    return listout;
   }
+  
 }
   
   

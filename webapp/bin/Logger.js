@@ -104,6 +104,7 @@ module.exports = function(port) {
    * @returns {string} Formatted string to log
    */
   function loggerFormatFile(args) {
+    fullformat = new Date().toLocaleString();
     return NodeFormat("[%s][%s] %s", fullformat, args.level, args.message);
   }
 
