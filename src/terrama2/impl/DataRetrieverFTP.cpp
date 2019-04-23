@@ -314,10 +314,6 @@ void terrama2::core::DataRetrieverFTP::retrieveDataCallback(const std::string& m
 
     // Build URI to get PATH fragment
     te::core::URI dataProviderURI(dataProvider_->uri);
-
-//    curlwrapper_->setUsername(dataProviderURI.user());
-//    curlwrapper_->setPassword(dataProviderURI.password());
-//    curlwrapper_->setAuthenticationMethod(te::ws::core::HTTP_BASIC);
     // Set temporary directory. When empty, creates a new pointing to dataProvider Path.
     // In this way, we will have something like "temporaryDir/dataProviderPath"
     // It is important due the folder may contains temporal mask
