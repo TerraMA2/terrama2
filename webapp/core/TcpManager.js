@@ -96,7 +96,7 @@ TcpManager.prototype.makebuffer = function(signal, object) {
     // // Writes the signal (unsigned 32-bit integer) in the buffer with big endian format
     buffer.writeUInt32BE(signal, 4);
 
-    console.log("TcpMAnager.makebuffer", buffer);
+   // console.log("TcpMAnager.makebuffer", buffer);
     return buffer;
   } catch (e) {
     throw e;
@@ -148,7 +148,7 @@ TcpManager.prototype.makebuffer_be = function(signal, object) {
     buffer.writeUInt32BE(signal, 10);
     buffer.write(endOfMessage, buffer.length - 6);
     
-    console.log("TcpMAnager.makebuffer_be", buffer);
+   // console.log("TcpMAnager.makebuffer_be", buffer);
     return buffer;
   } catch (e) {
     throw e;
@@ -337,7 +337,7 @@ TcpManager.prototype.startService = function(serviceInstance) {
        var obj = ['--version', '-platform', 'minimal'];
        
       return PromiseClass.all([
-        instance.adapter.execute(serviceInstance.pathToBinary, pbj, {}),
+        instance.adapter.execute(serviceInstance.pathToBinary, obj, {}),
         instance.startService()
       ]).spread(function(versionResponse, startResponse) {
         self.emit("serviceVersion", serviceInstance, versionResponse.data);
