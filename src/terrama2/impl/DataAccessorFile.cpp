@@ -515,19 +515,23 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<Synchronize
         std::map<std::string, std::string> rLowerInfo;
         rLowerInfo["FORCE_MEM_DRIVER"] = "TRUE";
 
-        // Raw pointer
+        // Clip the raster and get pointer to the Raster In-memory
         std::unique_ptr<te::rst::Raster> clipedRaster(raster->trim(unitedGeom->getMBR(), rLowerInfo));
 
         for(std::size_t bandId = 0; bandId < raster->getNumberOfBands(); bandId++)
         {
           std::map<std::pair<int, int>, double> tempValuesMap;
-          terrama2::core::getRasterValues<double>(unitedGeom, clipedRaster, bandId, tempValuesMap);
+
+          // Intersect raster with filter geometry
+          terrama2::core::getRasterValues<double>(unitedGeom, clipedRaster.get(), bandId, tempValuesMap);
 
           auto rasterBand = clipedRaster->getBand(bandId);
+
           const auto columns = clipedRaster->getGrid()->getNumberOfColumns();
           const auto rows = clipedRaster->getGrid()->getNumberOfRows();
           const auto noData = rasterBand->getProperty()->m_noDataValue;
 
+          // Fill raster with dummy data
           for(unsigned int row = 0; row < rows; ++row)
           {
             for(unsigned int col = 0; col < columns; ++col)
@@ -536,6 +540,7 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<Synchronize
             }
           }
 
+          // Fill intersected values
           for(const auto& coordinate: tempValuesMap)
           {
             rasterBand->setValue(static_cast<unsigned int>(coordinate.first.second),

@@ -250,9 +250,17 @@ namespace terrama2
      */
     TECOREEXPORT te::core::URI normalizeURI(const std::string& uri);
 
+    /*!
+     * \brief Get a map of <row, column> of values of the raster intersection with the geometry
+     *
+     * \param geom Geometry to intersect
+     * \param raster Raster element to intersect with geometry
+     * \param band Band number
+     * \param valuesMap Map of intersected values. The keys represents <row,column>.
+     */
     template<class T>
     void getRasterValues(std::shared_ptr<te::gm::Geometry> geom,
-                         const std::unique_ptr<te::rst::Raster>& raster,
+                         te::rst::Raster* raster,
                          const size_t band,
                          std::map<std::pair<int, int>, T>& valuesMap);
   } // end namespace core
@@ -270,7 +278,7 @@ namespace std
 
 template<class T>
 void terrama2::core::getRasterValues(std::shared_ptr<te::gm::Geometry> geom,
-                                     const std::unique_ptr<te::rst::Raster>& raster,
+                                     te::rst::Raster* raster,
                                      const size_t band,
                                      std::map<std::pair<int, int>, T>& valuesMap)
 {
