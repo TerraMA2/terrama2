@@ -21,6 +21,8 @@
         <link rel="stylesheet" href="{[ BASE_URL ]}externals/AdminLTE/dist/css/skins/skin-blue.min.css">
         <!-- i18n flags -->
         <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/intl-tel-input/build/css/intlTelInput.css">
+
+        <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}dist/terrama2.min.css">
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--     WARNING: Respond.js doesn't work if you view the page via file:// -->
         <!--[if lt IE 9]>
@@ -31,7 +33,11 @@
             .countries-i18n {
                 display: inline-block !important;
                 width: 30px;
-                float: right;
+                padding: 0 !important
+            }
+
+            .countries-i18n .intl-tel-input {
+                display: block !important;
             }
 
             .countries-i18n .country-list {
@@ -44,6 +50,10 @@
 
             .footer {
                 text-align: center;
+            }
+
+            .footer{
+                position: relative;
             }
 
             .imgs img {
@@ -59,10 +69,11 @@
                 <a href="#"><img src="{[ BASE_URL ]}images/terrama2_logo.png"></a>
             </div><!-- /.login-logo -->
             <div class="login-box-body">
-                <p class="login-box-msg">
+                <div class="login-box-msg d-flex flex-row justify-content-between">
+                    <span></span>
                     <span ng-bind="i18n.__('Sign in to start your session')"></span>
                     <terrama2-countries-list language="{{ '{[ userLocale ]}' || 'us' }}"></terrama2-countries-list>
-                </p>
+                </div>
 
                 <div class="alert alert-danger" style="display: {[ divDisplay ]}">
                   <a href="#" class="close" data-dismiss="alert" aria-label="close" title="close">×</a>
