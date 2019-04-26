@@ -75,6 +75,11 @@ namespace terrama2
             void removeAnalysis(AnalysisId analysisId) noexcept;
 
             /*!
+             * \inherits Service#addReprocessingToQueue
+             */
+            virtual void addReprocessingToQueue(terrama2::core::ProcessPtr process) noexcept override;
+
+            /*!
               \brief Updates an analysis in the queue of execution.
               \param analysisId Analysis identifier.
             */

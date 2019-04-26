@@ -47,6 +47,7 @@
           <option value="minutes">{{ i18n.__('Minutes') }}</option>
           <option value="hours">{{ i18n.__('Hours') }}</option>
           <option value="weeks">{{ i18n.__('Weekly') }}</option>
+          <option value="file" ng-if="options.showFileNameOnTimeUnit">{{ i18n.__('Filename') }}</option>
         </select>
 
         <label class="help-block text-danger"
@@ -85,7 +86,7 @@
       </div>
     </div>
 
-    <div class="col-md-4" ng-if="isSchedule">
+    <div class="col-md-4" ng-if="isSchedule && !options.showFileNameOnTimeUnit">
       <div class="form-group" terrama2-show-errors>
         <label>{{ i18n.__('Schedule') }}:</label>
 
