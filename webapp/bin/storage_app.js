@@ -31,7 +31,6 @@ Application.setCurrentContext(nodeContext);
 const net = require('net');
 const Sequelize = require('sequelize');
 const pg = require('pg');
-const fs = require('fs');
 const Regex = require('xregexp');
 const moment = require('moment');
 const CronJob = require('cron').CronJob;
@@ -112,6 +111,9 @@ async function runStorage(clientSocket, client, storage){
     // console.log(buffer);
       clientSocket.write(buffer);
 
+      if (storage.erase_all) //flag has priority 
+        storage.keep_data = 0;
+
       var params = {
         clientSocket: clientSocket, 
         schema: schema, 
@@ -139,7 +141,7 @@ async function runStorage(clientSocket, client, storage){
           var res_storage = await sto_core.StoreTIFF(params)
           storage.process.last_process_timestamp = moment();
           storage.process.status = StatusLog.DONE;
-          var msg 
+          var msg ;
           if (res_storage.flag){
             if (storage.zip){
               msg = storage.name + ": added files: " + res_storage.deleted_files + " from " + res_storage.path + " to " + res_storage.zipfile;
@@ -166,37 +168,35 @@ async function runStorage(clientSocket, client, storage){
             logger.log('info', "Finalized execution of " + storage.name + " -> " + res_storage.description);
           }
 
-          await sto_core.updateMessages(params);
-          var obj = {
-            automatic : storage.automatic_schedule_id ? true : false,
-            execution_date : moment().format(),
-            instance_id : service_instance_id,
-            result : true
-          }
-    
-          return resolve(obj);
-
           break;
 
         case "DCP-single_table":
           await sto_core.StoreSingleTable(params);
+ 
         break;
         case "DCP-postgis":
         case "ANALYSIS_MONITORED_OBJECT-postgis":
         case "OCCURRENCE-postgis":
-          var res_storage = await sto_core.StoreNTable(params);
+          await sto_core.StoreNTable(params);
 
           logger.log('info', "Finalized execution of " + storage.name);
           storage.process.last_process_timestamp = moment();
           storage.process.status = StatusLog.DONE;
-          sto_core.updateMessages(params);
   
           break;
         default:
         console.log("erro -");
+        throw("Invalid Data Serie Type!");
       }
-    // processQueue.get(storage.id).pop();
-    //return res.rows[0].code;
+
+      var obj = {
+        automatic : storage.automatic_schedule_id ? true : false,
+        execution_date : moment().format(),
+        instance_id : service_instance_id,
+        result : true
+      }
+
+      return resolve(obj);
     }
     catch(e){
       console.log(e);
@@ -226,14 +226,13 @@ async function addStorage(clientSocket, client, storages_new, projects){
         logger.debug("Storage Updated: ", storage.name);
         console.log ("Updating ", storage.name)
        }
-      else{
+      else {
         Storages.push(storage);
- //       processQueue.set(storage.id, queue());
- //       processQueue.get(storage.id).push(moment());
-        logger.debug("Storage Added: ", storage.name);
-        console.log ("Adding ", storage.name)
+        if (storage.active){
+          logger.debug("Storage Added: ", storage.name);
+          console.log ("Adding ", storage.name)
+        }
       }
-      //await QueueStorages(client, storage);
       if (storage.active){
         var res = await client.query("Select * from " + schema + ".projects where id = \'" + storage.project_id + "\'");
         if (res.rowCount){
@@ -245,7 +244,7 @@ async function addStorage(clientSocket, client, storages_new, projects){
               var freq = res1.rows[0].frequency;
               var unit = res1.rows[0].frequency_unit;
               var freq_seconds = moment.duration(freq, unit).asSeconds();
-              var start = res1.rows[0].frequency_start_time;
+              var start = res1.rows[0].frequency_start_time ? new moment(res1.rows[0].frequency_start_time, "HH:mm:ss") : undefined;
               var rule;
               if (res1.rows[0].schedule){
                 switch (res1.rows[0].schedule_unit.toLowerCase()){
@@ -288,7 +287,7 @@ async function addStorage(clientSocket, client, storages_new, projects){
                 for (var job of joblist) {
                   if (job.job === this){
                     storage = Storages.find(s => s.id === job.id) ;
-                    console.log(moment().format(), storage.name, job.job.cronTime, this.cronTime);
+                    console.log(moment().format(), storage.name, " job ", job.job.cronTime.source, " this ", this.cronTime.source);
                     this.stop();
                     var obj = await runStorage(clientSocket, client, storage);
                     var buffer = await TcpManager.makebuffer_be(Signals.PROCESS_FINISHED_SIGNAL, obj) ;
@@ -315,7 +314,21 @@ async function addStorage(clientSocket, client, storages_new, projects){
                   id: storage.id,
                   job: newjob
                 });
-              newjob.start();
+              
+              var now = new Date();
+              if (start){
+                if (now > start){ //It's past time, then fire
+                  newjob.start();
+                }
+                else{ //else wait time
+                  var rule = start.seconds() + " " + start.minutes() + " " + start.hours() + " * * *";
+                  CronJob(rule, async function(){
+                    newjob.start();
+                  });
+                }
+              }
+              else //Initial time not defined, then fire
+                newjob.start();
             }
           }
         }
@@ -393,22 +406,23 @@ async function messageTreatment(clientSocket, parsed, client_Terrama2_db){
 
   case Signals.ADD_DATA_SIGNAL:
     console.log("ADD_DATA_SIGNAL");
-    try{
+    if (parsed.message.Storages){
+      try{
         await addStorage(clientSocket, client_Terrama2_db, parsed.message.Storages, parsed.message.Projects);
         joblist.forEach(job => {
-          //job.job.start();
-          console.log("job: ", job.id, job.job.cronTime);
+          console.log("job: ", job.id, job.job.cronTime.source);
         });
 
         var buffer =  await TcpManager.makebuffer_be(Signals.VALIDATE_PROCESS_SIGNAL, {}) ;
         console.log("Depois do ADD", buffer);
         clientSocket.write(buffer);
-        }
-    catch(e){
-      console.log(e);
-    //  var buffer = beginOfMessage + TcpManager.makebuffer_be(Signals.UPDATE_SERVICE_SIGNAL, parsed.message) + endOfMessage;
-    //  console.log("ADD_ERROR", buffer);
-    //  clientSocket.write(buffer);
+      }
+      catch(e){
+        console.log(e);
+      //  var buffer = beginOfMessage + TcpManager.makebuffer_be(Signals.UPDATE_SERVICE_SIGNAL, parsed.message) + endOfMessage;
+      //  console.log("ADD_ERROR", buffer);
+      //  clientSocket.write(buffer);
+      }
     }
   
     break;
@@ -470,110 +484,108 @@ async function messageTreatment(clientSocket, parsed, client_Terrama2_db){
 
 let pool = new pg.Pool(config_db);
 
-let job0 = new CronJob("*/30 * * * * *", function(){
-  console.log("Crop executando a cada 30 segundos ", moment().format());
-});
+// let job0 = new CronJob("*/30 * * * * *", function(){
+//   console.log("Crop executando a cada 30 segundos ", moment().format());
+// });
 
 
 pool.connect().then(client_Terrama2_db => {
-server.on('connection', async function(clientSocket) {
-  console.log('CONNECTED: ' + clientSocket.remoteAddress + ':' + clientSocket.remotePort);
+  server.on('connection', async function(clientSocket) {
+    console.log('CONNECTED: ' + clientSocket.remoteAddress + ':' + clientSocket.remotePort);
 
-  // joblist.push({
-  //   id: 0,
-  //   job: job0
-  // });
+    // joblist.push({
+    //   id: 0,
+    //   job: job0
+    // });
 
-  // job0.start();
-  
-  clientSocket.on('data', async function(byteArray) {
+    // job0.start();
+    
+    clientSocket.on('data', async function(byteArray) {
 
-    //console.log("RECEIVED: ", byteArray);
+      //console.log("RECEIVED: ", byteArray);
 
-     clientSocket.answered = true;
+      clientSocket.answered = true;
 
-    // append and check if the complete message has arrived
-    tempBuffer = storageUtils._createBufferFrom(tempBuffer, byteArray);
+      // append and check if the complete message has arrived
+      tempBuffer = storageUtils._createBufferFrom(tempBuffer, byteArray);
 
-    let completeMessage = true;
-    // process all messages in the buffer
-    // or until we get a incomplete message
-    while(tempBuffer && completeMessage) {
-      try  {
-        let bom = tempBuffer.toString('utf-8', 0, beginOfMessage.length);
-        while(tempBuffer.length > beginOfMessage.length && bom !== beginOfMessage) {
-          // remove any garbage left in the buffer until a valid message
-          // obs: should never happen
-          tempBuffer = new Buffer.from(tempBuffer.slice(1));
-          bom = tempBuffer.toString('utf-8', 0, beginOfMessage.length);
-        }
+      let completeMessage = true;
+      // process all messages in the buffer
+      // or until we get a incomplete message
+      while(tempBuffer && completeMessage) {
+        try  {
+          let bom = tempBuffer.toString('utf-8', 0, beginOfMessage.length);
+          while(tempBuffer.length > beginOfMessage.length && bom !== beginOfMessage) {
+            // remove any garbage left in the buffer until a valid message
+            // obs: should never happen
+            tempBuffer = new Buffer.from(tempBuffer.slice(1));
+            bom = tempBuffer.toString('utf-8', 0, beginOfMessage.length);
+          }
 
-        if(bom !== beginOfMessage) {
-          // no begin of message header:
-          //  - clear the buffer
-          //  - wait for a new message
-          parsed = storageUtils.parseByteArray(byteArray);
-          if (parsed.message){
-            tempBuffer = undefined;
-            completeMessage = false;
+          if(bom !== beginOfMessage) {
+            // no begin of message header:
+            //  - clear the buffer
+            //  - wait for a new message
+            parsed = storageUtils.parseByteArray(byteArray);
+            if (parsed.message){
+              tempBuffer = undefined;
+              completeMessage = false;
+            }
+            else{
+              tempBuffer = undefined;
+              throw new Error("Invalid message (BOM)");
+            }
           }
           else{
-            tempBuffer = undefined;
-            throw new Error("Invalid message (BOM)");
+            const messageSizeReceived = tempBuffer.readUInt32BE(beginOfMessage.length);
+            const headerSize = beginOfMessage.length + endOfMessage.length;
+            const expectedLength = messageSizeReceived + 4;
+            if(tempBuffer.length < expectedLength+headerSize) {
+              // if we don't have the complete message
+              // wait for the rest
+              completeMessage = false;
+              return;
+            }
+            var end_pos = tempBuffer.indexOf(endOfMessage);
+            const eom1 = tempBuffer.toString('ascii', end_pos, end_pos+endOfMessage.length);
+          //  const eom = tempBuffer.toString('ascii', expectedLength + beginOfMessage.length, expectedLength+headerSize);
+            if(eom1 !== endOfMessage) {
+              // we should have a complete message and and end of message mark
+              // if we arrived here we got an ill-formed message
+              // clear the buffer and raise an error
+              tempBuffer = undefined;
+              throw new Error("Invalid message (EOM)");
+            }
+
+            // if we got many messages at once
+            // hold the buffer we the extra messages for processing
+            if(tempBuffer.length > expectedLength+headerSize) {
+              extraData = new Buffer.from(tempBuffer.slice(expectedLength + headerSize));
+            } else {
+              extraData = undefined;
+            }
+
+            // get only the first message for processing
+            tempBuffer = new Buffer.from(tempBuffer.slice(beginOfMessage.length, expectedLength+beginOfMessage.length));
+            parsed = storageUtils.parseByteArray(tempBuffer);
+            // get next message in the buffer for processing
+            tempBuffer = extraData;
           }
+          
+        //  console.log("Size: " + parsed.size + " Signal: " + parsed.signal + " Message: " + JSON.stringify(parsed.message, null, 4));
+      
+          await messageTreatment(clientSocket, parsed, client_Terrama2_db);
         }
-        else{
-          const messageSizeReceived = tempBuffer.readUInt32BE(beginOfMessage.length);
-          const headerSize = beginOfMessage.length + endOfMessage.length;
-          const expectedLength = messageSizeReceived + 4;
-          if(tempBuffer.length < expectedLength+headerSize) {
-            // if we don't have the complete message
-            // wait for the rest
-            completeMessage = false;
-            return;
-          }
-          var end_pos = tempBuffer.indexOf(endOfMessage);
-          const eom1 = tempBuffer.toString('ascii', end_pos, end_pos+endOfMessage.length);
-        //  const eom = tempBuffer.toString('ascii', expectedLength + beginOfMessage.length, expectedLength+headerSize);
-          if(eom1 !== endOfMessage) {
-            // we should have a complete message and and end of message mark
-            // if we arrived here we got an ill-formed message
-            // clear the buffer and raise an error
-            tempBuffer = undefined;
-            throw new Error("Invalid message (EOM)");
-          }
-
-          // if we got many messages at once
-          // hold the buffer we the extra messages for processing
-          if(tempBuffer.length > expectedLength+headerSize) {
-            extraData = new Buffer.from(tempBuffer.slice(expectedLength + headerSize));
-          } else {
-            extraData = undefined;
-          }
-
-          // get only the first message for processing
-          tempBuffer = new Buffer.from(tempBuffer.slice(beginOfMessage.length, expectedLength+beginOfMessage.length));
-          parsed = storageUtils.parseByteArray(tempBuffer);
-          // get next message in the buffer for processing
-          tempBuffer = extraData;
+        catch(e){
+          console.log(e);
+          throw (e);
         }
-        
-      //  console.log("Size: " + parsed.size + " Signal: " + parsed.signal + " Message: " + JSON.stringify(parsed.message, null, 4));
-    
-        await messageTreatment(clientSocket, parsed, client_Terrama2_db);
-
       }
-      catch(e)
-      {
-        console.log(e);
-        throw (e);
-      }
-    }
+    });
+    clientSocket.on('error', function(err) {
+      console.log(err);
+    });
   });
-  clientSocket.on('error', function(err) {
-    console.log(err);
-  });
-});
 });
 
 // detecting sigint error and then close server

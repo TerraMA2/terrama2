@@ -1,9 +1,11 @@
 "use strict";
 
+const fs = require('fs');
 const pg = require('pg');
 const moment = require('moment');
 const Regex = require('xregexp');
 
+var StatusLog = require("./../core/Enums").StatusLog;
 var storageUtils = require("./utils");
 
 /**
@@ -15,9 +17,10 @@ var storageUtils = require("./utils");
  */
   async function backup_Messages(params){
   try{
-    var res_1 =  await selectServiceInput(params);
-    //logger.debug(JSON.stringify(res_1, null, 4));
-
+    var res_1 = await selectServiceInput(params, function(err){
+      throw err;
+    })
+ 
     var service_table = res_1.service_table;
     var service_type = res_1.service_type;  
 
@@ -296,6 +299,8 @@ async function StoreNTable_1(params, res){
         else
           timestamp = analysisTimestampPropertyName; //"execution_date"
         
+        updateMessages(params);
+
         var paramsout = {
           storage : params.storage,
           schema : params.schema,
@@ -321,54 +326,67 @@ async function StoreNTable_1(params, res){
 
 async function StoreTable(params)
 {
-  try{  
-    var database_proj_name = params.database_project.slice(params.database_project.lastIndexOf("/")+1, params.database_project.length);
-    console.log (database_proj_name);
+  return new Promise(async function resolvePromise(resolve, reject){
+    try{  
+      var database_proj_name = params.database_project.slice(params.database_project.lastIndexOf("/")+1, params.database_project.length);
+      console.log (database_proj_name);
 
-    var res_1 =  await selectServiceInput(params);
+      var res_1 =  await selectServiceInput(params);
 
-    var service_table = res_1.service_table;
-    var service_type = res_1.service_type; 
+      var service_table = res_1.service_table;
+      var service_type = res_1.service_type; 
 
-    var sel_date = "SELECT MAX(data_timestamp) FROM \
-    " + params.schema + "." + service_table + ", \
-    " + params.schema + "." + service_type + " WHERE \
-    " + service_table + ".process_id = " + service_type + ".id  AND \
-    " + service_type + ".data_series_output = " + params.storage.data_series_id;
-    var res_data = await params.client.query(sel_date);
+      var sel_date = "SELECT MAX(data_timestamp) FROM \
+      " + params.schema + "." + service_table + ", \
+      " + params.schema + "." + service_type + " WHERE \
+      " + service_table + ".process_id = " + service_type + ".id  AND \
+      " + service_type + ".data_series_output = " + params.storage.data_series_id;
+      var res_data = await params.client.query(sel_date);
 
-    var data_until_store = res_data.rowCount ? res_data.rows[0].data_timestamp : new moment();
-    data_until_store = data_until_store ? data_until_store : new moment();
-    var data_timestamp;
+      var data_until_store = res_data.rowCount ? new moment(res_data.rows[0].max) : new moment();
+      data_until_store = data_until_store ? data_until_store : new moment();
+      var data_timestamp;
 
-    // if keep_data equal zero, erases everything
-    if (params.storage.keep_data > 0){
-      data_until_store.subtract(params.storage.keep_data, params.storage.keep_data_unit);
-    }
-    else
-      await backup_Messages(params.storage, params.schema, params.client);
-
-    params.logger.info(params.storage.name + ": Removing data before " + data_until_store.format('YYYY-MM-DD HH:mm:ss'));
-
-    pg.connect(params.database_project, async (err6, client_proj, done) =>{
-      if(err6) {
-        params.logger.error(params.storage.name + ": "  + err6);
-        throw err6;
+      // if keep_data equal zero, erases everything
+      if (params.storage.keep_data > 0){
+        data_until_store.subtract(params.storage.keep_data, params.storage.keep_data_unit);
       }
+      else
+        await backup_Messages(params);
 
-      //  var sql_delete = "DELETE FROM " + params.table_name + " WHERE \
-      //  " + params.table_name + "." + params.timestamp_prop + " < \'" + data_until_store.format('YYYY-MM-DD HH:mm:ss') + "\' \
-      // ORDER BY " + params.timestamp_prop + " ASC RETURNING *";
+      params.logger.info(params.storage.name + ": Removing data before " + data_until_store.format('YYYY-MM-DD HH:mm:ss'));
+
+      pg.connect(params.database_project, async (err6, client_proj, done) =>{
+        if(err6) {
+          params.logger.error(params.storage.name + ": "  + err6);
+          throw err6;
+        }
+
+      var sql_delete = "DELETE FROM " + params.table_name + " WHERE \
+      " + params.table_name + "." + params.timestamp_prop + " < \'" + data_until_store.format('YYYY-MM-DD HH:mm:ss') + "\' \
+      RETURNING *";
       //  console.log(sql_delete);
       //teste ->retornar o código anterior depoius de testar
-      var sql_delete = "SELECT * FROM " + params.table_name + " WHERE \
-      " + params.table_name + "." + params.timestamp_prop + " < \'" + data_until_store.format('YYYY-MM-DD HH:mm:ss') + "\' \
-      ORDER BY " + params.timestamp_prop + " ASC";
-      console.log(sql_delete);
+      //var sql_delete = "SELECT * FROM " + params.table_name + " WHERE \
+     // " + params.table_name + "." + params.timestamp_prop + " < \'" + data_until_store.format('YYYY-MM-DD HH:mm:ss') + "\' \
+      //ORDER BY " + params.timestamp_prop + " ASC";
+        console.log(sql_delete);
 
-      var res_del = await client_proj.query(sql_delete);
+        var res_del = await client_proj.query(sql_delete, function (err){
+          if (err)
+            return reject(err);
+        });
+ 
+        if (!res_del.rowCount){
+          var obj = {
+            flag: false,
+            data_timestamp: "",
+            description : "No data to process"
+          }; 
 
-      if (res_del.rowCount){
+          return resolve(obj);
+        }
+
         var uri;
 
         var row_values = Object.values(res_del.rows[res_del.rowCount-1]);
@@ -405,7 +423,7 @@ async function StoreTable(params)
             WHERE table_name = \'" + params.table_name + "\'";
         
           var res3 = await client_proj.query(selecttypes);
-          //console.log(JSON.stringify(res3.rows, null, 4));
+
           var table;
           var params_newtable = {};
           params_newtable.storage = params.storage;
@@ -428,7 +446,6 @@ async function StoreTable(params)
             WHERE table_name = \'" + params.table_name + "\'";
 
             var res_col = await client_proj.query(selecttypes);
-          // console.log(JSON.stringify(res_col.rows, null, 4));
             if (res_col.rowCount)
               params_newtable.columns = res_col.rows;
             else
@@ -467,14 +484,78 @@ async function StoreTable(params)
           data_timestamp : params.storage.process.data_timestamp : params.storage.process.data_timestamp;
         }
         params.logger.log('info', params.storage.name + ": " + res_del.rowCount + " rows removed from " + params.table_name);       
-      }  
-    });
-  }
-  catch(err){
-    params.logger.error(params.storage.name + ": "  + err);
-    throw err;
-  }
+
+        var obj = {
+          flag: true,
+          deleted_register: res_del.rowCount,
+          table: params.table_name,
+          data_timestamp: params.storage.process.data_timestamp,
+        }; 
+
+        return resolve(obj);
+
+      });
+    }
+    catch(err){
+      params.logger.error(params.storage.name + ": "  + err);
+      return reject(err);
+    }
+  });
 };
+
+async function updateMessages(params){
+  console.log (params.storage.name, "updateMessages");
+  return new Promise(async function resolvePromise(resolve, reject){
+    try{
+
+      var service_table = "storage_" + params.storage.service_instance_id;
+      var service_table_message = service_table + "_messages";
+
+      var insertvalues;
+      var start = moment(params.storage.process.start_timestamp).format('YYYY-MM-DD HH:mm:ss');
+      var last = moment(params.storage.process.last_process_timestampl).format('YYYY-MM-DD HH:mm:ss');
+      if (params.storage.process.data_timestamp){
+        var data_time = moment(params.storage.process.data_timestamp).format('YYYY-MM-DD HH:mm:ss');
+        insertvalues = "INSERT INTO " + params.schema + "." + service_table + " (\
+        process_id, status, start_timestamp, data_timestamp, last_process_timestamp, data) \
+        VALUES(" + params.storage.id + ", " + params.storage.process.status + ", \
+        " + "\'" + start + "\', \'" + data_time + "\', \'" + last + "\', \
+        \'{\"processing_end_time\":[\"" + moment(params.storage.process.last_process_timestampl).format('YYYY-MM-DDTHH:mm:ssZ') + "\"],\
+        \"processing_start_time\":[\"" + moment(params.storage.process.start_process_timestampl).format('YYYY-MM-DDTHH:mm:ssZ') + "\"]}\')";
+      }
+      else{
+        insertvalues = "INSERT INTO " + params.schema + "."  + service_table + " (\
+        process_id, status, start_timestamp, last_process_timestamp) \
+        VALUES(" + params.storage.id + "," + params.storage.process.status + ", \'\
+        " + start + "\', \'" + last + "\')";
+      }
+
+      console.log(insertvalues);
+      
+      params.client.query(insertvalues, async (err, res) =>{
+        if (err){
+          console.log(insertvalues + " ==> " + err);
+          throw err;
+        }
+        if (!params.storage.process.data_timestamp){
+          params.storage.process.description = params.storage.process.description ? params.storage.process.description : " ";
+          var insert_msg = "INSERT INTO " + params.schema + "." + service_table_message + " \
+            (log_id, type, description, timestamp) VALUES(\
+            " + params.storage.id + ", " + params.storage.process.status + ", \'\
+            " + params.storage.process.description + "\', \'" + last + "\')";
+            console.log(insert_msg);
+            params.client.query(insert_msg);
+          }
+      });
+      return resolve(true);
+    }
+    catch(e){
+      params.logger.error(params.storage.name + ": "  + e);
+      return reject(e);
+    }
+  });
+};
+
 
 module.exports = {
 /**
@@ -519,60 +600,6 @@ module.exports = {
       throw e;
     }
   },
-
-  updateMessages: async function(params){
-    console.log (storage.name, "updateMessages");
-    return new Promise(async function resolvePromise(resolve, reject){
-      try{
-
-        var service_table = "storage_" + params.storage.service_instance_id;
-        var service_table_message = service_table + "_messages";
-
-        var insertvalues;
-        var start = moment(params.storage.process.start_timestamp).format('YYYY-MM-DD HH:mm:ss');
-        var last = moment(params.storage.process.last_process_timestampl).format('YYYY-MM-DD HH:mm:ss');
-        if (params.storage.process.data_timestamp){
-          var data_time = moment(params.storage.process.data_timestamp).format('YYYY-MM-DD HH:mm:ss');
-          insertvalues = "INSERT INTO " + params.schema + "." + service_table + " (\
-          process_id, status, start_timestamp, data_timestamp, last_process_timestamp, data) \
-          VALUES(" + params.storage.id + ", " + params.storage.process.status + ", \
-          " + "\'" + start + "\', \'" + data_time + "\', \'" + last + "\', \
-          \'{\"processing_end_time\":[\"" + moment(params.storage.process.last_process_timestampl).format('YYYY-MM-DDTHH:mm:ssZ') + "\"],\
-          \"processing_start_time\":[\"" + moment(params.storage.process.start_process_timestampl).format('YYYY-MM-DDTHH:mm:ssZ') + "\"]}\')";
-        }
-        else{
-          insertvalues = "INSERT INTO " + params.schema + "."  + service_table + " (\
-          process_id, status, start_timestamp, last_process_timestamp) \
-          VALUES(" + params.storage.id + "," + params.storage.process.status + ", \'\
-          " + start + "\', \'" + last + "\')";
-        }
-
-        console.log(insertvalues);
-        
-        params.client.query(insertvalues, async (err, res) =>{
-          if (err){
-            console.log(insertvalues + " ==> " + err);
-            throw err;
-          }
-          if (!params.storage.process.data_timestamp){
-            params.storage.process.description = params.storage.process.description ? params.storage.process.description : " ";
-            var insert_msg = "INSERT INTO " + params.schema + "." + service_table_message + " \
-              (log_id, type, description, timestamp) VALUES(\
-              " + params.storage.id + ", " + params.storage.process.status + ", \'\
-              " + params.storage.process.description + "\', \'" + last + "\')";
-              console.log(insert_msg);
-              params.client.query(insert_msg);
-            }
-        });
-        return resolve(true);
-      }
-      catch(e){
-        params.logger.error(params.storage.name + ": "  + e);
-        return reject(e);
-      }
-    });
-  },
-
 
   //To backup/erase GRID-geotiff
   StoreTIFF: async function (params)
@@ -651,7 +678,8 @@ module.exports = {
         const regex = new Regex(regexString);
         console.log ("no store " + regexString);
 
-        var data_provider_out = "Select data_providers.uri from "+schema+".data_providers,"+schema+".storages WHERE \
+        var data_provider_out = "Select data_providers.uri from \
+        " + params.schema + ".data_providers," + params.schema + ".storages WHERE \
         data_providers.id = \'" + params.storage.data_provider_id+"\'";
 
         var res3 = await params.client.query(data_provider_out);
@@ -742,6 +770,8 @@ module.exports = {
               zip.writeZip(zipfile);
           }
 
+          updateMessages(params);
+
           var obj = {
             flag: true,
             moved_files: moved_files,
@@ -757,9 +787,9 @@ module.exports = {
       }
       catch(err){
         params.logger.error(params.storage.name + ": "  + err);
-        storage.process.last_process_timestamp = moment();
-        storage.process.status = StatusLog.ERROR;
-        storage.procees.description = err;
+        params.storage.process.last_process_timestamp = moment();
+        params.storage.process.status = StatusLog.ERROR;
+        params.storage.process.description = err;
         updateMessages(params);
         return reject(err);
       }
@@ -768,64 +798,65 @@ module.exports = {
 
   StoreSingleTable: async function (params)
   {
-    //server.emit('startService');
+    return new Promise(async function resolvePromise(resolve, reject){
+      //server.emit('startService');
 
-    params.storage.process = {};
-    params.storage.process.start_timestamp  = moment();
+      params.storage.process = {};
+      params.storage.process.start_timestamp  = moment();
 
-    var table_name = "dcp_data_" + params.storage.data_series_id;
+      var table_name = "dcp_data_" + params.storage.data_series_id;
 
-    const select_sql = "SELECT service_types.name, service_types.id, data_providers.uri FROM \
-    " + params.schema + ".service_types, \
-    " + params.schema + ".service_instances, \
-    " + params.schema + ".storages, \
-    " + params.schema + ".data_series, \
-    " + params.schema + ".data_providers WHERE \
-    data_providers.id = data_series.data_provider_id AND \
-    data_series.id = \'" + params.storage.data_series_id + "\' AND \
-    service_types.id = service_instances.service_type_id AND \
-    service_instances.id =  \'" + params.storage.service_instance_id + "\' AND \
-    storages.id = \'" + params.storage.id + "\'";
-    console.log(select_sql);
-    console.log('Executing ' + params.storage.name);
-    params.logger.log('info', "Initializing execution of " + params.storage.name);
+      const select_sql = "SELECT service_types.name, service_types.id, data_providers.uri FROM \
+      " + params.schema + ".service_types, \
+      " + params.schema + ".service_instances, \
+      " + params.schema + ".storages, \
+      " + params.schema + ".data_series, \
+      " + params.schema + ".data_providers WHERE \
+      data_providers.id = data_series.data_provider_id AND \
+      data_series.id = \'" + params.storage.data_series_id + "\' AND \
+      service_types.id = service_instances.service_type_id AND \
+      service_instances.id =  \'" + params.storage.service_instance_id + "\' AND \
+      storages.id = \'" + params.storage.id + "\'";
+      console.log(select_sql);
+      console.log('Executing ' + params.storage.name);
+      params.logger.log('info', "Initializing execution of " + params.storage.name);
 
-    try{
-      var res1 = await params.client.query(select_sql);
+      try{
+        var res1 = await params.client.query(select_sql);
 
-      //console.log(JSON.stringify(res1.rows[0], null, 4));
+        //console.log(JSON.stringify(res1.rows[0], null, 4));
 
-      var params1 = {
-        storage : params.storage,
-        schema : params.schema,
-        client : params.client,
-        logger: params.logger,
-        table_name : table_name,
-        database_project : res1.rows[0].uri,
-        table_name_back : params.storage.uri,
-        timestamp_prop : 'datetime'
-      };
+        var params1 = {
+          storage : params.storage,
+          schema : params.schema,
+          client : params.client,
+          logger: params.logger,
+          table_name : table_name,
+          database_project : res1.rows[0].uri,
+          table_name_back : params.storage.uri,
+          timestamp_prop : 'datetime'
+        };
 
-      StoreTable(params1, async(err)=>{
-        if (err){
-          throw err;
-        }
+        var res_storage = await StoreTable(params1);
 
         params.logger.log('info', "Finalized execution of " + params.storage.name);
-        params.storage.process.data_timestamp = data_timestamp;
+        params.storage.process.data_timestamp = res_storage.data_timestamp;
         params.storage.process.last_process_timestamp = moment();
         params.storage.process.status = StatusLog.DONE;
+        params.storage.process.description = res_storage.description;
         updateMessages(params);
-      });
-    }
-    catch(err){
-      params.logger.error(storage.name + ": "  + err);
-      params.storage.process.last_process_timestamp = moment();
-      params.storage.process.status = StatusLog.ERROR;
-      params.storage.procees.description = err;
-      updateMessages(params);
-      throw (err);
-    }
+
+        return resolve();
+     }
+      catch(err){
+        params.logger.error(params.storage.name + ": "  + err);
+        params.storage.process.last_process_timestamp = moment();
+        params.storage.process.status = StatusLog.ERROR;
+        params.storage.process.description = err;
+        updateMessages(params);
+        return reject(err);
+      }
+    });
   },
 
 
@@ -860,8 +891,7 @@ module.exports = {
 
           await StoreNTable_1(params, res);
 
-          var obj = {};
-          return resolve(obj);
+          return resolve();
     
         });
       }
@@ -873,7 +903,6 @@ module.exports = {
         updateMessages(params);
         return reject(err);
       }
-
     });
   }
 
