@@ -197,7 +197,7 @@ int main(int, char**)
     std::shared_ptr<te::rst::Raster> raster = getRaster("file:///home/jsimas/MyDevel/dpi/terrama2-build/data/bitsetRaster/eymar/hidro_igual_tif", "S10238225_201703131700.tif");
     auto geom = dataset->getGeometry(0);
     std::shared_ptr<te::gm::Polygon> polygon(static_cast<te::gm::Polygon*>(geom.release()));
-    terrama2::core::BitsetIntersection intersection = terrama2::core::BitsetIntersection::bitsetIntersection(polygon, raster);
+    terrama2::core::BitsetIntersection intersection = terrama2::core::BitsetIntersection::bitsetIntersection(polygon, raster.get());
     highlightRaster(raster, intersection);
 
     te::rp::Copy2DiskRaster(*raster, "/home/jsimas/MyDevel/dpi/terrama2-build/data/bitsetRaster/raster_"+std::to_string(i)+".tif");
