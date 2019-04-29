@@ -124,9 +124,12 @@ var Service = module.exports = function(serviceInstance) {
     var formatMessage = "Socket %s received %s";
     logger.debug(Utils.format(formatMessage, self.service.name, byteArray));
     console.log("REceived byteArray.size ", byteArray.length)
+    console.log("byteArray ", byteArray);
 
     // append and check if the complete message has arrived
     tempBuffer = _createBufferFrom(tempBuffer, byteArray);
+
+   // console.log("tempBuffer ", tempBuffer);
 
     let completeMessage = true;
     // process all messages in the buffer
@@ -153,37 +156,50 @@ var Service = module.exports = function(serviceInstance) {
         const headerSize = beginOfMessage.length + endOfMessage.length;
         const expectedLength = messageSizeReceived + 4;
         console.log("messageSizeReceived", messageSizeReceived, "headerSize", headerSize, "expectedLength", expectedLength);
-        if(tempBuffer.length < expectedLength+headerSize) {
-          // if we don't have the complete message
-          // wait for the rest
-          completeMessage = false;
-          return;
-        }
+        // var eom0 = tempBuffer.toString('ascii', tempBuffer.length -  endOfMessage.length);
+        // if (eom0 != endOfMessage){
+          if(tempBuffer.length < expectedLength+headerSize) {
+            // if we don't have the complete message
+            // wait for the rest
+            completeMessage = false;
+            return;
+          }
 
-        const eom = tempBuffer.toString('ascii', expectedLength + beginOfMessage.length, expectedLength+headerSize);
-        if(eom !== endOfMessage) {
-          // we should have a complete message and and end of message mark
-          // if we arrived here we got an ill-formed message
-          // clear the buffer and raise an error
-          tempBuffer = undefined;
-          throw new Error("Invalid message (EOM)");
-        }
-
-        // if we got many messages at once
-        // hold the buffer we the extra messages for processing
-        if(tempBuffer.length > expectedLength+headerSize) {
-          extraData = new Buffer.from(tempBuffer.slice(expectedLength + headerSize));
-        } else {
-          extraData = undefined;
-        }
-
+          const eom = tempBuffer.toString('ascii', expectedLength + beginOfMessage.length, expectedLength+headerSize);
+          if(eom !== endOfMessage) {
+            // we should have a complete message and and end of message mark
+            // if we arrived here we got an ill-formed message
+            // clear the buffer and raise an error
+//            console.log("tempBuffer ", tempBuffer.toString('ascii'));
+//            console.log("byteArray ", byteArray.toString('ascii'));
+            tempBuffer = undefined;
+            throw new Error("Invalid message (EOM)");
+          }
+          // if we got many messages at once
+          // hold the buffer we the extra messages for processing
+          if(tempBuffer.length > expectedLength+headerSize) {
+            extraData = new Buffer.from(tempBuffer.slice(expectedLength + headerSize));
+          } else {
+            extraData = undefined;
+          }
+          tempBuffer = new Buffer.from(tempBuffer.slice(beginOfMessage.length, expectedLength+beginOfMessage.length));
+//         }
+//         else{
+//           extraData = undefined;
+// //        tempBuffer = new Buffer.from(tempBuffer.slice(beginOfMessage.length-1, tempBuffer.length-endOfMessage.length));
+//           tempBuffer = new Buffer.from(tempBuffer.slice(beginOfMessage.length, expectedLength+beginOfMessage.length));
+//          console.log("tempBuffer ", tempBuffer.toString());
+//        }
+//console.log("BOM",beginOfMessage.readUInt32BE );
+//console.log("tempBuffer", tempBuffer);
+//console.log("byteArray", byteArray);
         // get only the first message for processing
-        tempBuffer = new Buffer.from(tempBuffer.slice(beginOfMessage.length, expectedLength+beginOfMessage.length));
         const parsed = parseByteArray(tempBuffer);
 
         // get next message in the buffer for processing
         tempBuffer = extraData;
-
+ //       console.log("tempBuffer ", tempBuffer);
+ 
         console.log("Size: " + parsed.size + " Signal: " + parsed.signal + " Message: " + JSON.stringify(parsed.message, null, 4));
  
         switch(parsed.signal) {

@@ -142,8 +142,8 @@ LocalExecutor.prototype.execute = function(command, commandArgs, options) {
         if (command === "uname") {
           defineAdapter(data.toString());
         }
-
-        responseMessage = data.toString();
+        else if(command.search('storage_app') != -1)
+          responseMessage = data.toString();
       });
 
       // stream for handling errors data

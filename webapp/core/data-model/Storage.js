@@ -4,10 +4,10 @@
   // Dependency
 
   /**
-   * TerraMA² BaseClass of Data Model
+   * TerraMA² AbstractClass of Data Model
    * @type {AbstractData}
    */
-  var BaseClass = require("./AbstractData");
+  var AbstractClass = require("./AbstractData");
   var Schedule = require("./Schedule");
   var AutomaticSchedule = require("./AutomaticSchedule");
 /**
@@ -16,8 +16,10 @@
  * @constructor
  * @inherits AbstractData
  */
-var Storage = module.exports = function(params) {
-  BaseClass.call(this, {'class': 'Storage'});
+function Storage(params) {
+
+  AbstractClass.call(this, {'class': 'Storage'});
+  
   this.id = params.id;
   this.name= params.name,
   this.description= params.description,
@@ -45,19 +47,11 @@ var Storage = module.exports = function(params) {
 };
 
 // javascript inherits model
-Storage.prototype = Object.create(BaseClass.prototype);
+Storage.prototype = Object.create(AbstractClass.prototype);
 Storage.prototype.constructor = Storage;
 
-Storage.prototype.rawObject = function() {
-  var toObject = this.toObject();
-
-  toObject.dataSeries = this.dataSeries instanceof BaseClass ? this.dataSeries.toObject() : this.dataSeries;
-  toObject.dataProvider = this.dataProvider instanceof BaseClass ? this.dataProvider.toObject() : this.dataProvider;
-  return toObject;
-};
-
 Storage.prototype.toObject = function() {
-  return Object.assign(BaseClass.prototype.toObject.call(this), {
+  return Object.assign(AbstractClass.prototype.toObject.call(this), {
       id: this.id,
       name: this.name,
       description: this.description,
@@ -70,10 +64,20 @@ Storage.prototype.toObject = function() {
       uri: this.uri,
       zip: this.zip,
       project_id: this.projectId,
-      dataSeries: this.dataSeries instanceof BaseClass ? this.dataSeries.toObject() : {},
-      dataProvider: this.dataProvider instanceof BaseClass ? this.dataProvider.toObject() : {},
-      schedule_type: this.scheschedule_typedule instanceof BaseClass ? this.schedschedule_typeule.toObject() : {},
-      automatic_schedule: this.automaticSchedule instanceof BaseClass ? this.automaticSchedule.toObject() : {},
+      dataSeries: this.dataSeries instanceof AbstractClass ? this.dataSeries.toObject() : {},
+      dataProvider: this.dataProvider instanceof AbstractClass ? this.dataProvider.toObject() : {},
+      schedule_type: this.scheschedule_typedule instanceof AbstractClass ? this.schedschedule_typeule.toObject() : {},
+      automatic_schedule: this.automaticSchedule instanceof AbstractClass ? this.automaticSchedule.toObject() : {},
       service_instance_id: this.serviceInstanceId
   });
 };
+
+Storage.prototype.rawObject = function() {
+  var toObject = this.toObject();
+
+  toObject.dataSeries = this.dataSeries instanceof AbstractClass ? this.dataSeries.toObject() : this.dataSeries;
+  toObject.dataProvider = this.dataProvider instanceof AbstractClass ? this.dataProvider.toObject() : this.dataProvider;
+  return toObject;
+};
+
+module.exports = Storage;
