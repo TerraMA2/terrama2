@@ -406,3 +406,20 @@ errors.InterpolatorError = function(message) {
   this.name = 'InterpolatorError';
 };
 util.inherits(errors.InterpolatorError, errors.BaseError);
+
+class TcpError extends Error {
+  constructor(service, message, process = null) {
+    super(message);
+
+    this.service = service;
+    this.process = process;
+  }
+}
+class NoSuchConnectionError extends TcpError {
+  constructor(service, process = null) {
+    super(service, `There is no active connection to the service ${service.name || service.id || service}`, process);
+  }
+}
+
+errors.TcpError = TcpError;
+errors.NoSuchConnectionError = NoSuchConnectionError;

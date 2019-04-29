@@ -103,7 +103,8 @@ var TcpSocket = function(io) {
    */
   var serviceErrorMessageHandler = function(err){
     var errMessageResponse = {
-      message: "Unknown service error"
+      message: "Unknown service error",
+      process: err.process
     };
     if (err){
       errMessageResponse.service = err.service;

@@ -33,6 +33,12 @@ define([], () => {
       }
     }
 
+    find(restriction) {
+      const foundList = this.BaseService.$filter('filter')(this.model, restriction);
+
+      return foundList[0];
+    }
+
     async get(storageId) {
       const response = await this._request(`${BASE_URL}api/storages/${storageId}`, 'GET');
 
