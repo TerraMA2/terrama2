@@ -166,13 +166,7 @@
       var uriObject = dataProviderObject.uriObject;
       var requester = RequestFactory.build(uriObject);
 
-      var toUpdate = {
-        name: dataProviderObject.name,
-        active: dataProviderObject.active,
-        timeout: dataProviderObject.timeout,
-        description: dataProviderObject.description,
-        uri: requester.uri
-      };
+      dataProviderObject.uri = requester.uri;
 
       if (uriObject.hasOwnProperty("timeout")) {
         dataProviderObject['configuration'] = {
@@ -183,7 +177,7 @@
           dataProviderObject['configuration']['active_mode'] = uriObject.active_mode;
       }
 
-      return DataManager.updateDataProvider(dataProviderId, toUpdate)
+      return DataManager.updateDataProvider(dataProviderId, dataProviderObject)
         .then(function() {
           return DataManager.getDataProvider({id: dataProviderId, project_id: projectId}).then(function(dProvider) {
             sendDataProviders(dProvider);
