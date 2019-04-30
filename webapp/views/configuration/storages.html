@@ -34,21 +34,6 @@
 
 {% block content %}
 
-<div ng-controller="DataSeriesListController">
-  <terrama2-box title="i18n.__('Storage')" helper="'{[ BASE_URL ]}helper/storages.html'">
-    <div class="row">
-      <div class="col-md-12">
-        <div class="col-md-12">
-          <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
-        </div>
-
-        <terrama2-table fields="fields" model="model" icon="iconFn" link="link" status-change-link="statusChangeLink" 
-                       icon-properties="iconProperties" link-to-add="linkToAdd"
-                       remove="remove(object)" extra="extra" order-by="orderBydata">
-        </terrama2-table>
-      </div>
-    </div>
-  </terrama2-box>
-</div> <!-- end col md 12 -->
+<storage-list-component has-project-permission="configuration.hasProjectPermission"></storage-list-component>
 
 {% endblock %}

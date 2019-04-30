@@ -960,7 +960,8 @@ function onError(service, err) {
   tcpService.emit("serviceError", {
     status: 400,
     message: err.toString(),
-    service: service ? service.id : 0
+    service: service ? service.id : 0,
+    process: err.process
   });
 }
 

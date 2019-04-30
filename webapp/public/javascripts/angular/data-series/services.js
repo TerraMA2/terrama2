@@ -85,6 +85,17 @@ define([
   DataSeriesService.prototype.list = function(restriction) {
     return this.$filter('filter')(this.model, restriction);
   };
+
+  /**
+   * Retrieves all dynamic data series
+   *
+   * @param {Object} restriction - a query restriction
+   */
+  DataSeriesService.prototype.getDynamicDataSeries = function(restriction) {
+    const dynamicDataSeriesList = this.list({ data_series_semantics: { temporality: 'DYNAMIC' } });
+
+    return this.$filter('filter')(dynamicDataSeriesList, restriction);
+  }
   /**
    * It performs DataSeries update over API
    *
@@ -133,7 +144,7 @@ define([
    */
   DataSeriesService.prototype.getIcon = function(dataSeries) {
     const dataSeriesTypeName = dataSeries.data_series_semantics.data_series_type_name;
-    const { DataSeriesType } = globals.enums;
+    const { DataSeriesType } = this;
 
     switch(dataSeriesTypeName) {
       case DataSeriesType.ANALYSIS_MONITORED_OBJECT:

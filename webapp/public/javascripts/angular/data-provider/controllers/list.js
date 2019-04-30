@@ -1,4 +1,4 @@
-define(function() {
+define([], () => {
   function ListController($scope, $http, DataProviderService, i18n, $window, MessageBoxService, $q, $timeout) {
     var config = $window.configuration;
     $scope.loading = true;
@@ -8,7 +8,7 @@ define(function() {
         i18n.ensureLocaleIsLoaded(),
         DataProviderService.init()
       ])
-    
+
       .then(function() {
         var title = "Data Server";
         $scope.i18n = i18n;
@@ -80,7 +80,7 @@ define(function() {
         $scope.iconFn = config.iconFn || null;
 
         $scope.iconProperties = config.iconProperties || {};
-        
+
         $scope.method = "{[ method ]}";
         if(config.message) {
           var messageArray = config.message.split(" ");
@@ -93,11 +93,11 @@ define(function() {
           }, 1000);
         }
       })
-      
+
       .finally(function() {
         $scope.loading = false;
       }); // end then
-  } 
+  }
   ListController.$inject = ["$scope", "$http", "DataProviderService", "i18n", "$window", "MessageBoxService", "$q", "$timeout"];
 
   return ListController;

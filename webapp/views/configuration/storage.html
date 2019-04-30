@@ -4,6 +4,15 @@
 
 {% block title %} TerraMA² {{ i18n.__("Storage Registration") }} {% endblock %}
 
+{% block javascripts %}
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment/moment.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/angular-eonasdan-datetimepicker/dist/angular-eonasdan-datetimepicker.min.js"></script>
+<script src="{[ BASE_URL ]}externals/angular-ui-select/dist/select.min.js"></script>
+
+{% endblock %}
+
+
 {% block styles %}
 <style>
   .has-feedback label~.form-control-feedback {
@@ -11,10 +20,12 @@
     margin-right: 20px !important;
   }
 </style>
+<link rel="stylesheet" href="{[ BASE_URL ]}externals/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css">
+<link rel="stylesheet" href="{[ BASE_URL ]}externals/angular-ui-select/dist/select.min.css" />
 {% endblock %}
 
 {% block content %}
 
-<storage-component></storage-component>
+<storage-component storage-id="{[ storage ]}"></storage-component>
 
 {% endblock %}

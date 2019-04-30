@@ -13,6 +13,7 @@ var EventEmitter = require('events').EventEmitter;
 var ServiceType = require('./Enums').ServiceType;
 var PromiseClass = require('./Promise');
 var Application = require('./Application');
+const { NoSuchConnectionError } = require('./Exceptions');
 
 // Facades
 var ProcessFinished = require("./facade/tcp-manager/ProcessFinished");
@@ -275,7 +276,7 @@ TcpManager.prototype.logData = function(serviceInstance, data) {
 
     // checking first attempt when there is no active socket (listing services)
     if (!client.isOpen()) {
-      self.emit('error', client.service, new Error("There is no active connection"));
+      self.emit('tcpError', client.service, new NoSuchConnectionError(client.service, data.process_ids));
       return;
     }
 
@@ -393,7 +394,7 @@ TcpManager.prototype.statusService = function(serviceInstance) {
 
     // checking first attempt when there is no active socket (listing services)
     if (!client.isOpen()) {
-      self.emit('error', client.service, new Error("There is no active connection"));
+      self.emit('tcpError', client.service, new NoSuchConnectionError(client.service));
       return;
     }
 
