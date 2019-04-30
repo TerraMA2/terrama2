@@ -34,7 +34,6 @@ const pg = require('pg');
 const Regex = require('xregexp');
 const moment = require('moment');
 const CronJob = require('cron').CronJob;
-const AdmZip = require('adm-zip');
 
 var PortScanner = require("./../core/PortScanner");
 var io = require('../io');
@@ -46,8 +45,8 @@ var Utils = require('./../core/Utils');
 var Signals = require('./../core/Signals');
 var ServiceType = require("./../core/Enums").ServiceType;
 var StatusLog = require("./../core/Enums").StatusLog;
-var storageUtils = require("./utils");
-var sto_core = require("./storage_core");
+var storageUtils = require('./utils');
+var sto_core = require('./storage_core');
 
 var app = require('../app');
 
@@ -184,16 +183,19 @@ async function runStorage(clientSocket, client, storage){
           storage.process.status = StatusLog.DONE;
   
           break;
+
         default:
         console.log("erro -");
         throw("Invalid Data Serie Type!");
       }
 
       var obj = {
-        automatic : storage.automatic_schedule_id ? true : false,
+        automatic : true,//storage.automatic_schedule_id ? true : false,
         execution_date : moment().format(),
         instance_id : service_instance_id,
-        result : true
+        result : true,
+        process_id : storage.id,
+        storage : storage
       }
 
       return resolve(obj);
@@ -287,14 +289,20 @@ async function addStorage(clientSocket, client, storages_new, projects){
                 for (var job of joblist) {
                   if (job.job === this){
                     storage = Storages.find(s => s.id === job.id) ;
-                    console.log(moment().format(), storage.name, " job ", job.job.cronTime.source, " this ", this.cronTime.source);
+                    console.log(storage.name, moment().format(), storage.name, " job ", job.job.cronTime.source, " this ", this.cronTime.source);
                     this.stop();
-                    var obj = await runStorage(clientSocket, client, storage);
-                    var buffer = await TcpManager.makebuffer_be(Signals.PROCESS_FINISHED_SIGNAL, obj) ;
+                    runStorage(clientSocket, client, storage)
+                    .catch(err =>{
+                      console.log(storage.name, err);
+                      this.start();
+                    })
+                    .then(obj => {
+                      var buffer = TcpManager.makebuffer_be(Signals.PROCESS_FINISHED_SIGNAL, obj) ;
                       // console.log(buffer.toString());
-                    clientSocket.write(buffer);
-                    console.log("Finishing", storage.name, " ", moment().format())
-                    this.start();
+                      clientSocket.write(buffer);
+                      console.log("Finishing", obj.storage.name, " ", moment().format())
+                      this.start();
+                    });
                     break;
                   }
                 }
@@ -383,95 +391,122 @@ async function messageTreatment(clientSocket, parsed, client_Terrama2_db){
 
     break;
 
-  case Signals.STATUS_SIGNAL:
-  //console.log("STATUS_SIGNAL");
-  if (!serviceLoaded_){
-      var buffer = await TcpManager.makebuffer_be(Signals.STATUS_SIGNAL, {service_loaded:false}) ;
-    }
-    else{
-      var obj={
-        instance_id : service_instance_id,
-        instance_name : service_instance_name,
-        logger_online : true,
-        service_loaded : true,
-        shutting_down : false,
-        start_time : moment().format(),
-        terrama2_version : version
+    case Signals.STATUS_SIGNAL:
+      if (!serviceLoaded_){
+        var buffer = await TcpManager.makebuffer_be(Signals.STATUS_SIGNAL, {service_loaded:false}) ;
       }
-      var buffer =  await TcpManager.makebuffer_be(Signals.STATUS_SIGNAL, obj) ;
-    }
-    //console.log(buffer.toString());
-    await clientSocket.write(buffer);
-    break;
+      else{
+        var obj={
+          instance_id : service_instance_id,
+          instance_name : service_instance_name,
+          logger_online : true,
+          service_loaded : true,
+          shutting_down : false,
+          start_time : moment().format(),
+          terrama2_version : version
+        }
+        var buffer =  await TcpManager.makebuffer_be(Signals.STATUS_SIGNAL, obj) ;
+      }
+      await clientSocket.write(buffer);
+      break;
 
-  case Signals.ADD_DATA_SIGNAL:
-    console.log("ADD_DATA_SIGNAL");
-    if (parsed.message.Storages){
-      try{
-        await addStorage(clientSocket, client_Terrama2_db, parsed.message.Storages, parsed.message.Projects);
-        joblist.forEach(job => {
-          console.log("job: ", job.id, job.job.cronTime.source);
-        });
+    case Signals.ADD_DATA_SIGNAL:
+      console.log("ADD_DATA_SIGNAL");
+      if (parsed.message.Storages){
+        try{
+          await addStorage(clientSocket, client_Terrama2_db, parsed.message.Storages, parsed.message.Projects);
+          joblist.forEach(job => {
+            console.log("job: ", job.id, job.job.cronTime.source);
+          });
 
-        var buffer =  await TcpManager.makebuffer_be(Signals.VALIDATE_PROCESS_SIGNAL, {}) ;
-        console.log("Depois do ADD", buffer);
+          var buffer =  await TcpManager.makebuffer_be(Signals.VALIDATE_PROCESS_SIGNAL, {}) ;
+          console.log("Depois do ADD", buffer.toString());
+          clientSocket.write(buffer);
+        }
+        catch(e){
+          console.log(e);
+        //  var buffer = beginOfMessage + TcpManager.makebuffer_be(Signals.UPDATE_SERVICE_SIGNAL, parsed.message) + endOfMessage;
+        //  console.log("ADD_ERROR", buffer);
+        //  clientSocket.write(buffer);
+        }
+      }
+    
+      break;
+    case Signals.START_PROCESS_SIGNAL:
+      console.log("START_PROCESS_SIGNAL");
+      var storage_id = parsed.message.ids[0];
+
+      for (var job of joblist) {
+        if (job.id === storage_id){
+          var storage = Storages.find(s => s.id === job.id) ;
+          console.log(storage.name, moment().format(), storage.name, " job ", job.job.cronTime.source, " this ", this.cronTime.source);
+          this.stop();
+          runStorage(clientSocket, client, storage)
+          .catch(err =>{
+            console.log(storage.name, err);
+            this.start();
+          })
+          .then(obj => {
+            var buffer = TcpManager.makebuffer_be(Signals.PROCESS_FINISHED_SIGNAL, obj) ;
+            // console.log(buffer.toString());
+            clientSocket.write(buffer);
+            console.log("Finishing", obj.storage.name, " ", moment().format())
+            this.start();
+          });
+          break;
+        }
+      }
+      break;
+
+    case Signals.LOG_SIGNAL:
+      console.log("LOG - process_ids",  parsed.message.process_ids[0]);
+      var begin = parsed.message.begin;
+      var end = parsed.message.end;
+      var process_ids = parsed.message.process_ids; //lista com ids dos processos
+      sto_core.getLogs(client_Terrama2_db, schema, service_instance_id, process_ids, begin, end)
+      .catch(err =>{
+        console.log(err);
+      })
+      .then(logs=>{
+        var buffer = TcpManager.makebuffer_be(Signals.LOG_SIGNAL, logs) ;
+        clientSocket.write(buffer);
+      });
+      break;
+
+    case Signals.REMOVE_DATA_SIGNAL:
+      console.log("REMOVE_DATA_SIGNAL");
+      break;
+
+    case Signals.PROCESS_FINISHED_SIGNAL:
+      console.log("PROCESS_FINISHED_SIGNAL");
+      break;
+
+    case Signals.UPDATE_SERVICE_SIGNAL:
+      console.log("UPDATE_SERVICE_SIGNAL");
+    //Need to discover how many theads are supported
+      if (parsed.message.instance_id){
+        serviceLoaded_ = true;
+        service_instance_id = parsed.message.instance_id;
+        service_instance_name = parsed.message.instance_name;
+
+        config_db.user= parsed.message.log_database.PG_USER;
+        config_db.password= parsed.message.log_database.PG_PASSWORD;
+        config_db.host= parsed.message.log_database.PG_HOST;
+        config_db.port= parsed.message.log_database.PG_PORT;
+        config_db.database= parsed.message.log_database.PG_DB_NAME;
+
+        var obj={
+          serviceLoaded_ : true,
+          instance_id : service_instance_id,
+          instance_name : service_instance_name
+        }
+      }
+      else{
+        var buffer =  await TcpManager.makebuffer_be(Signals.UPDATE_SERVICE_SIGNAL, parsed.message) ;
+        console.log("UPDATE_SERVICE_SIGNAL", buffer);
         clientSocket.write(buffer);
       }
-      catch(e){
-        console.log(e);
-      //  var buffer = beginOfMessage + TcpManager.makebuffer_be(Signals.UPDATE_SERVICE_SIGNAL, parsed.message) + endOfMessage;
-      //  console.log("ADD_ERROR", buffer);
-      //  clientSocket.write(buffer);
-      }
-    }
-  
-    break;
-  case Signals.START_PROCESS_SIGNAL:
-    console.log("START_PROCESS_SIGNAL");
-    break;
-  case Signals.LOG_SIGNAL:
-    console.log("_");
-    var begin = parsed.message.begin;
-    var end = parsed.message.end;
-    var process_ids = parsed.message.process_id; //lista com ids dos processos
-    break;
-
-  case Signals.REMOVE_DATA_SIGNAL:
-    console.log("REMOVE_DATA_SIGNAL");
-    break;
-  case Signals.PROCESS_FINISHED_SIGNAL:
-    console.log("PROCESS_FINISHED_SIGNAL");
-    break;
-
-  case Signals.UPDATE_SERVICE_SIGNAL:
-    console.log("UPDATE_SERVICE_SIGNAL");
-  //Need to discover how many theads are supported
-    if (parsed.message.instance_id){
-      serviceLoaded_ = true;
-      service_instance_id = parsed.message.instance_id;
-      service_instance_name = parsed.message.instance_name;
-
-      config_db.user= parsed.message.log_database.PG_USER;
-      config_db.password= parsed.message.log_database.PG_PASSWORD;
-      config_db.host= parsed.message.log_database.PG_HOST;
-      config_db.port= parsed.message.log_database.PG_PORT;
-      config_db.database= parsed.message.log_database.PG_DB_NAME;
-
-      var obj={
-        serviceLoaded_ : true,
-        instance_id : service_instance_id,
-        instance_name : service_instance_name
-      }
-     // var buffer =  await makebuffer(Signals.UPDATE_SERVICE_SIGNAL, obj) ;
-     // console.log("UPDATE_SERVICE_SIGNAL", buffer);
-     // await clientSocket.write(buffer);
-    }
-    else{
-      var buffer =  await TcpManager.makebuffer_be(Signals.UPDATE_SERVICE_SIGNAL, parsed.message) ;
-      console.log("UPDATE_SERVICE_SIGNAL", buffer);
-      clientSocket.write(buffer);
-    }
-    break;
+      break;
 
     case Signals.VALIDATE_PROCESS_SIGNAL:
       console.log("VALIDATE_PROCESS_SIGNAL");
@@ -502,7 +537,7 @@ pool.connect().then(client_Terrama2_db => {
     
     clientSocket.on('data', async function(byteArray) {
 
-      //console.log("RECEIVED: ", byteArray);
+      console.log("RECEIVED: ", byteArray);
 
       clientSocket.answered = true;
 
@@ -572,7 +607,7 @@ pool.connect().then(client_Terrama2_db => {
             tempBuffer = extraData;
           }
           
-        //  console.log("Size: " + parsed.size + " Signal: " + parsed.signal + " Message: " + JSON.stringify(parsed.message, null, 4));
+          console.log("Size: " + parsed.size + " Signal: " + parsed.signal + " Message: " + JSON.stringify(parsed.message, null, 4));
       
           await messageTreatment(clientSocket, parsed, client_Terrama2_db);
         }
