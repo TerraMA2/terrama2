@@ -116,14 +116,17 @@ class storageFacade {
         // When no schedule sent, remove
         if (!storage.schedule)
           await DataManager.removeSchedule({ id: oldStorage.schedule_id }, options);
-        else
+        else if (storage.schedule.scheduleType !== "3")
           await DataManager.updateSchedule(oldStorage.schedule_id, storage.schedule, { transaction });
-      } else {
+        else
+          await DataManager.removeSchedule({ id: oldStorage.schedule_id }, options);
+      } else if (storage.schedule.scheduleType !== "3"){
         const createdSchedule = await DataManager.addSchedule(storage.schedule, options);
 
-        storage.schedule_type = storage.schedule.scheduleType;
         storage.schedule_id = createdSchedule.id;
       }
+      
+      storage.schedule_type = storage.schedule.scheduleType;
 
       await DataManager.orm.models.Storages.update(storage, { where: { id: storageId }, ...options });
 

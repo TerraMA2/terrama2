@@ -557,16 +557,15 @@ async function updateMessages(params){
 };
 
 async function getMessages(client, service_table_message, id){
-  var messages = [];
   return new Promise(async function resolvePromise(resolve, reject){
+    try{
+      var selec_messages = "SELECT * FROM " + service_table_message + " WHERE id = \'"  + id + "\'";
+      console.log(selec_messages);
 
-    var selec_messages = "SELECT * FROM " + service_table_message + " WHERE log_id = \'"  + id + "\' ORDER BY id";
-    client.query(selec_messages, async(err, res) =>{
-      if (err){
-        console.log(err);
-        return reject(err);
-      }
-       for (var row of res.rows){
+      var res = await client.query(selec_messages);
+      var messages = [];
+      if (res.rowCount){
+        row = res.rows[0];
         var msg = {
           id : row.id,
           log_id : row.log_id,
@@ -576,8 +575,44 @@ async function getMessages(client, service_table_message, id){
         }
         messages.push(msg);
       }
-    });
-    return resolve(messages);
+
+      return resolve(messages);
+    }
+    catch(err){
+      console.log(err);
+      return reject(err);
+    }
+  });
+};
+
+
+async function getProcessLog(client, selec_log, service_table_message){
+  return new Promise(async function resolvePromise(resolve, reject){
+
+    try{
+      var logs = [];
+      var res = await client.query(selec_log);
+      for (const row of res.rows){
+        var log ={
+          id : row.id,
+          process_id : row.process_id,
+          status : row.status,
+          start_timestamp : row.start_timestamp,
+          data_timestamp : row.data_timestamp,
+          last_process_timestamp : row.last_process_timestamp,
+          data : row.data
+        }
+  
+        var messages = await getMessages(client, service_table_message, log.id);
+        log.messages = messages;
+        logs.push(log);
+      }
+      return resolve(logs);
+    }
+    catch(err){
+      console.log(err);
+      return reject(err);
+    }
   });
 };
 
@@ -702,31 +737,26 @@ module.exports = {
         const regex = new Regex(regexString);
         console.log ("no store " + regexString);
 
-        var data_provider_out = "Select data_providers.uri from \
-        " + params.schema + ".data_providers," + params.schema + ".storages WHERE \
-        data_providers.id = \'" + params.storage.data_provider_id+"\'";
-
-        var res3 = await params.client.query(data_provider_out);
-        var data_out = res3.rows[0].uri;
+        var data_out = params.storage.uri;
 
         if (params.storage.zip){
-          data_out = data_out.slice(data_out.indexOf("//")+2, data_out.lenght) + "/" + params.storage.uri + "/" + mask.slice(0,mask.indexOf("%"));
+          data_out = data_out.slice(params.storage.uri.indexOf("//")+2, params.storage.uri.lenght) + "/" + mask.slice(0,mask.indexOf("%"));
+          console.log("ZIPFILE", data_out);
           var zip = new AdmZip();
         }
         else{
-          data_out = data_out.slice(data_out.indexOf("//")+2, data_out.lenght) + "/" + params.storage.uri + "/" + mask.slice(0,mask.indexOf("/"));
+          data_out = data_out.slice(params.storage.uri.indexOf("//")+2, params.storage.uri.lenght) + "/" + params.storage.uri + "/" + mask.slice(0,mask.indexOf("/"));
           console.log(params.storage.name,data_out); 
         }
 
+        var moved_files = 0;
+        var deleted_files = 0;
         await fs.readdir(path, async function(err4, files){
           if (err4){
             params.logger.error(params.storage.name + ": "  + err4);
             throw err4;
           }
-          var moved_files = 0;
-          var deleted_files = 0;
-          for(var i=0; i<files.length; i++){
-            var file = files[i];
+          for (var file of files){
             var match = regex.exec(file);
             //test if filename match with mask
             if (match){
@@ -790,14 +820,13 @@ module.exports = {
             maskzip = maskzip.replace(/%/g,'');
             var zipfile = data_out + moment().format(maskzip) + ".zip";
             console.log(params.storage.name,zipfile);
-            if (deleted_files > 0)
-              zip.writeZip(zipfile);
+            zip.writeZip(zipfile);
           }
-
+  
           params.storage.process.status = StatusLog.DONE;
-
+  
           updateMessages(params);
-
+  
           var obj = {
             flag: true,
             moved_files: moved_files,
@@ -807,7 +836,7 @@ module.exports = {
             data_timestamp: data_timestamp,
             zipfile : zipfile
           }; 
-
+  
           return resolve(obj);
         });
       }
@@ -932,63 +961,34 @@ module.exports = {
     });
   },
 
-  getLogs: async function(client, schema, service_instance_id, process_ids, begin, end){
+  getLogs: async function(client, schema, service_instance_id, process_id, begin, end){
     return new Promise(async function resolvePromise(resolve, reject){
-      var service_table = "storage_" + service_instance_id;
-      var service_table_message = schema + "." + service_table + "_messages";
       if(begin > end)
         swap(begin, end);
   
       var rowNumbers = (end - begin) + 1;
 
-      var objs=[];
-  
-      for (var process_id of process_ids){
+      var service_table = "storage_" + service_instance_id;
+      var service_table_message = schema + "." + service_table + "_messages";
+
+      var selec_log = "SELECT * FROM " + schema + "." + service_table + " WHERE process_id = \'" + process_id + "\' \
+      ORDER BY id DESC LIMIT \'" + rowNumbers + "\' OFFSET \'" + begin + "\'";
+      console.log(selec_log);
+
+      await getProcessLog(client, selec_log, service_table_message)
+      .catch(err => {
+        console.log(err);
+      })
+      .then (logs => {
         var obj ={
           instance_id : service_instance_id,
-          process_id : process_id
+          process_id : process_id,
+          log : logs
         }
-
-        var selec_log = "SELECT * FROM " + schema + "." + service_table + " WHERE process_id = \'" + process_id + "\' \
-        ORDER BY id DESC LIMIT \'" + rowNumbers + "\' OFFSET \'" + begin + "\'";
-        console.log(selec_log);
-
-        var logs = [];
-
-        client.query(selec_log, async(err, res) =>{
-          if (err){
-            console.log(err);
-            return reject(err);
-          }
-
-          for (var row of res.rows){
-            var log ={
-              id : row.id,
-              process_id : row.process_id,
-              status : row.status,
-              start_timestamp : row.start_timestamp,
-              data_timestamp : row.data_timestamp,
-              last_process_timestamp : row.last_process_timestamp,
-              data : row.data
-            }
-    
-            getMessages(client, service_table_message, log.id, async(err1, messages)=>{
-              if (err1){
-                console.log(err1);
-                return reject(err1);
-              }
-              log.messages = messages;
-              logs.push(log);
-            });
-           }
-          obj.log = logs;
-
-        });
+        var objs=[];
         objs.push(obj);
-
-      }
-      return resolve(obj);
+        return resolve(objs);
+      });
     });
-   }
-
+  }
 }

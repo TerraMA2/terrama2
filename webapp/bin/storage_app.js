@@ -245,98 +245,108 @@ async function addStorage(clientSocket, client, storages_new, projects){
             if (res1.rowCount){
               var freq = res1.rows[0].frequency;
               var unit = res1.rows[0].frequency_unit;
-              var freq_seconds = moment.duration(freq, unit).asSeconds();
-              var start = res1.rows[0].frequency_start_time ? new moment(res1.rows[0].frequency_start_time, "HH:mm:ss") : undefined;
-              var rule;
-              if (res1.rows[0].schedule){
-                switch (res1.rows[0].schedule_unit.toLowerCase()){
-                  case 'w':
-                  case 'wk':
-                  case 'week':
-                  case 'weeks':
-                    rule = "* * * * * " + freq;
-                    break;
-                }
-              }
-              else{
-                switch (unit.toLowerCase()){
-                  case 's':
-                  case 'sec':
-                  case 'second':
-                  case 'seconds':
-                    rule = "*/" + freq + " * * * * *";
-                    break;
-                  case 'min':
-                  case 'minute':
-                  case 'minutes':
-                    rule = "* */" + freq + " * * * *";
-                    break;
-                  case 'h':
-                  case 'hour':
-                  case 'hours':
-                    rule = "* * */" + freq + " * * *";
-                    break;
-                  case 'd':
-                  case 'day':
-                  case 'days':
-                    rule = "* * * */" + freq + " * *";
-                    break;
-                }
-              }
+              if (freq && unit){
 
-              var newjob = new CronJob(rule, async function(){
-                //runStorage(clientSocket, client, storage);
-                for (var job of joblist) {
-                  if (job.job === this){
-                    storage = Storages.find(s => s.id === job.id) ;
-                    console.log(storage.name, moment().format(), storage.name, " job ", job.job.cronTime.source, " this ", this.cronTime.source);
-                    this.stop();
-                    runStorage(clientSocket, client, storage)
-                    .catch(err =>{
-                      console.log(storage.name, err);
-                      this.start();
-                    })
-                    .then(obj => {
-                      var buffer = TcpManager.makebuffer_be(Signals.PROCESS_FINISHED_SIGNAL, obj) ;
-                      // console.log(buffer.toString());
-                      clientSocket.write(buffer);
-                      console.log("Finishing", obj.storage.name, " ", moment().format())
-                      this.start();
-                    });
+                var freq_seconds = moment.duration(freq, unit).asSeconds();
+                var start = res1.rows[0].frequency_start_time ? new moment(res1.rows[0].frequency_start_time, "HH:mm:ss") : undefined;
+                var rule;
+                if (res1.rows[0].schedule){
+                  switch (res1.rows[0].schedule_unit.toLowerCase()){
+                    case 'w':
+                    case 'wk':
+                    case 'week':
+                    case 'weeks':
+                      rule = "* * * * * " + freq;
+                      break;
+                  }
+                }
+                else{
+                  switch (unit.toLowerCase()){
+                    case 's':
+                    case 'sec':
+                    case 'second':
+                    case 'seconds':
+                      rule = "*/" + freq + " * * * * *";
+                      break;
+                    case 'min':
+                    case 'minute':
+                    case 'minutes':
+                      rule = "* */" + freq + " * * * *";
+                      break;
+                    case 'h':
+                    case 'hour':
+                    case 'hours':
+                      rule = "* * */" + freq + " * * *";
+                      break;
+                    case 'd':
+                    case 'day':
+                    case 'days':
+                      rule = "* * * */" + freq + " * *";
+                      break;
+                  }
+                }
+  
+                var newjob = new CronJob(rule, async function(){
+                  //runStorage(clientSocket, client, storage);
+                  for (var job of joblist) {
+                    if (job.job === this){
+                      storage = Storages.find(s => s.id === job.id) ;
+                      console.log(storage.name, moment().format(), storage.name, " job ", job.job.cronTime.source, " this ", this.cronTime.source);
+                      this.stop();
+                      runStorage(clientSocket, client, storage)
+                      .catch(err =>{
+                        console.log(storage.name, err);
+                        this.start();
+                      })
+                      .then(obj => {
+                        var buffer = TcpManager.makebuffer_be(Signals.PROCESS_FINISHED_SIGNAL, obj) ;
+                        // console.log(buffer.toString());
+                        clientSocket.write(buffer);
+                        console.log("Finishing", obj.storage.name, " ", moment().format())
+                        this.start();
+                      });
+                      break;
+                    }
+                  }
+                });
+  
+                var update = false;
+                for (var job of joblist){
+                  if (job.id === storage.id){
+                    job.job = newjob;
+                    update = true;
                     break;
                   }
                 }
-              });
-
-              var update = false;
-              for (var job of joblist){
-                if (job.id === storage.id){
-                  job.job = newjob;
-                  update = true;
-                  break;
+  
+                if (!update)
+                  joblist.push({
+                    id: storage.id,
+                    job: newjob
+                  });
+                
+                var now = new Date();
+                if (start){
+                  if (now > start){ //It's past time, then fire
+                    newjob.start();
+                  }
+                  else{ //else wait time
+                    var rule = start.seconds() + " " + start.minutes() + " " + start.hours() + " * * *";
+                    CronJob(rule, async function(){
+                      newjob.start();
+                    });
+                  }
                 }
+                else //Initial time not defined, then fire
+                  newjob.start();
               }
-
-              if (!update)
+              else //without schedule, manual, so not cron
+              {
                 joblist.push({
                   id: storage.id,
-                  job: newjob
+                  job: undefined
                 });
-              
-              var now = new Date();
-              if (start){
-                if (now > start){ //It's past time, then fire
-                  newjob.start();
-                }
-                else{ //else wait time
-                  var rule = start.seconds() + " " + start.minutes() + " " + start.hours() + " * * *";
-                  CronJob(rule, async function(){
-                    newjob.start();
-                  });
-                }
               }
-              else //Initial time not defined, then fire
-                newjob.start();
             }
           }
         }
@@ -439,19 +449,21 @@ async function messageTreatment(clientSocket, parsed, client_Terrama2_db){
       for (var job of joblist) {
         if (job.id === storage_id){
           var storage = Storages.find(s => s.id === job.id) ;
-          console.log(storage.name, moment().format(), storage.name, " job ", job.job.cronTime.source, " this ", this.cronTime.source);
-          this.stop();
-          runStorage(clientSocket, client, storage)
+          if (job.job){
+            console.log(storage.name, moment().format(), storage.name, " job ", job.job.cronTime.source, " this ", this.cronTime.source);
+            job.job.stop();
+          }
+          runStorage(clientSocket, client_Terrama2_db, storage)
           .catch(err =>{
             console.log(storage.name, err);
-            this.start();
+            if (job.job) job.job.start();
           })
           .then(obj => {
             var buffer = TcpManager.makebuffer_be(Signals.PROCESS_FINISHED_SIGNAL, obj) ;
             // console.log(buffer.toString());
             clientSocket.write(buffer);
             console.log("Finishing", obj.storage.name, " ", moment().format())
-            this.start();
+            if (job.job) job.job.start();
           });
           break;
         }
@@ -462,8 +474,8 @@ async function messageTreatment(clientSocket, parsed, client_Terrama2_db){
       console.log("LOG - process_ids",  parsed.message.process_ids[0]);
       var begin = parsed.message.begin;
       var end = parsed.message.end;
-      var process_ids = parsed.message.process_ids; //lista com ids dos processos
-      sto_core.getLogs(client_Terrama2_db, schema, service_instance_id, process_ids, begin, end)
+      var process_id = parsed.message.process_ids; //lista com ids dos processos
+      sto_core.getLogs(client_Terrama2_db, schema, service_instance_id, process_id[0], begin, end)
       .catch(err =>{
         console.log(err);
       })
