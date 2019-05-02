@@ -52,8 +52,8 @@
 //terralib
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
-#include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
 #include <terralib/dataaccess/dataset/DataSetAdapter.h>
+#include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/datatype/DateTimeProperty.h>
 #include <terralib/memory/DataSetItem.h>
@@ -100,7 +100,14 @@ void terrama2::core::DataAccessorFile::retrieveDataCallback(const terrama2::core
     // Do nothing
   }
 
-  dataRetriever->retrieveDataCallback(mask, filter, timezone, remover, "", folderPath, processFile);
+  dataRetriever->retrieveDataCallback(mask, filter, timezone, remover, "", folderPath, [processFile](const std::string& uri, const std::string& file, const std::string& folderMatched) {
+    processFile(uri, folderMatched);
+
+    const QUrl urlToFile(QString::fromStdString(uri + "/" + folderMatched + "/" + file.c_str()));
+    // Remove files to free disk
+    QFile removeFile(urlToFile.toString(QUrl::NormalizePathSegments | QUrl::RemoveScheme));
+    removeFile.remove();
+  });
 }
 
 std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorFile::createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const
@@ -504,12 +511,51 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<Synchronize
         // of the raster image
         unitedGeom->transform(raster->getSRID());
         //clip raster by union
-        auto clipedRaster = raster->clip({unitedGeom.get()}, {}, "EXPANSIBLE");
+
+        std::map<std::string, std::string> rLowerInfo;
+        rLowerInfo["FORCE_MEM_DRIVER"] = "TRUE";
+
+        // Clip the raster and get pointer to the Raster In-memory
+        std::unique_ptr<te::rst::Raster> clipedRaster(raster->trim(unitedGeom->getMBR(), rLowerInfo));
+
+        for(std::size_t bandId = 0; bandId < raster->getNumberOfBands(); bandId++)
+        {
+          std::map<std::pair<int, int>, double> tempValuesMap;
+
+          // Intersect raster with filter geometry
+          terrama2::core::getRasterValues<double>(unitedGeom, clipedRaster.get(), bandId, tempValuesMap);
+
+          auto rasterBand = clipedRaster->getBand(bandId);
+
+          const auto columns = clipedRaster->getGrid()->getNumberOfColumns();
+          const auto rows = clipedRaster->getGrid()->getNumberOfRows();
+          const auto noData = rasterBand->getProperty()->m_noDataValue;
+
+          // Fill raster with dummy data
+          for(unsigned int row = 0; row < rows; ++row)
+          {
+            for(unsigned int col = 0; col < columns; ++col)
+            {
+              rasterBand->setValue(col, row, noData);
+            }
+          }
+
+          // Fill intersected values
+          for(const auto& coordinate: tempValuesMap)
+          {
+            rasterBand->setValue(static_cast<unsigned int>(coordinate.first.second),
+                                 static_cast<unsigned int>(coordinate.first.first),
+                                 coordinate.second);
+          }
+        }
+
         //update raster in the dataset
         std::unique_lock<std::mutex> lock(mutex);
         auto memDataSet = std::dynamic_pointer_cast<te::mem::DataSet>(dataSet->dataset());
         memDataSet->move(index);
-        memDataSet->setRaster(rasterColumn, clipedRaster);
+
+        memDataSet->setRaster(rasterColumn, clipedRaster.release());
+
         //update raster for consistency in the function
         raster = std::shared_ptr< te::rst::Raster >(dataSet->getRaster(index, rasterColumn));
       }
