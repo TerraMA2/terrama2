@@ -27,7 +27,7 @@ module.exports = function(app) {
               break;
           }
         } else {
-          restriction.service_type_id = !!type;
+          restriction.service_type_id = type;
         }
 
         return DataManager.listServiceInstances(restriction).then(function(services) {

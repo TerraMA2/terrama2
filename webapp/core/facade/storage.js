@@ -1,6 +1,7 @@
 const { ValidationErrorItem } = require('sequelize');
 const DataManager = require("./../DataManager");
-const ScheduleModel = require('./../data-model/Schedule');
+const URIBuilder = require('./../UriBuilder');
+const { ScheduleType, Uri } = require('./../Enums');
 
 class StorageError extends Error {
   constructor(errors, code = 400) {
@@ -44,6 +45,9 @@ class storageFacade {
     });
     return storages.map(storage => {
       const storageOut = storage.get();
+
+      if (storageOut.uri)
+        storageOut.uriObject = URIBuilder.buildObject(storageOut.uri, Uri);
 
       if (storage.Schedule) {
         storageOut.schedule = storage.Schedule.get();
@@ -108,7 +112,7 @@ class storageFacade {
 
     try {
       const options = { transaction };
-
+      // Retrieves context storage
       const oldStorage = await this.get(storageId);
 
       // If there already schedule
@@ -119,10 +123,13 @@ class storageFacade {
         else
           await DataManager.updateSchedule(oldStorage.schedule_id, storage.schedule, { transaction });
       } else {
-        const createdSchedule = await DataManager.addSchedule(storage.schedule, options);
+        if (storage.schedule_type != ScheduleType.MANUAL) {
+          const createdSchedule = await DataManager.addSchedule(storage.schedule, options);
+          storage.schedule_type = storage.schedule.scheduleType;
 
-        storage.schedule_type = storage.schedule.scheduleType;
-        storage.schedule_id = createdSchedule.id;
+          storage.schedule_id = createdSchedule.id;
+        }
+
       }
 
       await DataManager.orm.models.Storages.update(storage, { where: { id: storageId }, ...options });
