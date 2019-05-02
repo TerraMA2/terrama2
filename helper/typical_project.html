@@ -7,7 +7,7 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="generator" content="HelpNDoc Standard Edition 5.7.0.575">
+  <meta name="generator" content="HelpNDoc Standard Edition 6.0.0.154">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="favicon.ico"/>
 
@@ -16,6 +16,8 @@
   <meta name="keywords" content="">
 
 
+
+  
 
   <!-- Twitter Card data -->
   <meta name="twitter:card" content="summary">
@@ -29,19 +31,19 @@
   <meta property="og:site_name" content="Plataforma de Monitoramento Ambiental TerraMA&sup2;" /> 
 
   <!-- Bootstrap core CSS -->
-  <link href="vendors/bootstrap-3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="vendors/bootstrap-3.4.0/css/bootstrap.min.css" rel="stylesheet"/>
 
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <link href="vendors/bootstrap-3.3.6/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
+  <link href="vendors/bootstrap-3.4.0/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
 
   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
   <!--[if lt IE 9]>
-      <script src="vendors/html5shiv-3.7.2/html5shiv.min.js"></script>
+      <script src="vendors/html5shiv-3.7.3/html5shiv.min.js"></script>
       <script src="vendors/respond-1.4.2/respond.min.js"></script>
     <![endif]-->
 
   <!-- JsTree styles -->
-  <link href="vendors/jstree-3.3.2/themes/default/style.min.css" rel="stylesheet"/>
+  <link href="vendors/jstree-3.3.7/themes/default/style.min.css" rel="stylesheet"/>
 
   <!-- Hnd styles -->
   <link href="css/layout.min.css" rel="stylesheet" />
@@ -168,10 +170,10 @@
             
                 <div class="navigation">
                     <ol class="breadcrumb">
-                        <li><a href="starting.html">Iniciando</a></li>
+                        <li><a href="Iniciando.html">Iniciando</a></li>
                     </ol>
                     <div class="nav-arrows">
-                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="starting.html" title="Iniciando" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="starting.html" title="Iniciando" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="administration_module.html" title="M&oacute;dulo de Administra&ccedil;&atilde;o" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
+                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="Iniciando.html" title="Iniciando" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="Iniciando.html" title="Iniciando" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="administration_module.html" title="M&oacute;dulo de Administra&ccedil;&atilde;o" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
                     </div>
                 </div> 
             
@@ -185,10 +187,10 @@
 <p></p>
 <p class="rvps12"><span class="rvts23">O conteúdo típico de um projeto envolve os seguintes passos:</span></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 54px; list-style-position: outside;">
-<li style="margin-left: 0px" class="rvps34"><a class="rvts44" href="add_data_servers.html">Configuração do servidor de dados</a><span class="rvts23">: O usuário deve definir quais servidores de dados serão utilizados para acesso aos dados dinâmicos e estáticos. Para dados dinâmicos ambientais deve-se informar qual servidor será utilizado como fonte e/ou destino, nestes casos servidores remotos ou locais podem ser definidos. Para dados estáticos servidores locais devem ser definidos;</span></li>
+<li style="margin-left: 0px" class="rvps34"><a class="rvts44" href="AdicionarServidordeDados.html">Configuração do servidor de dados</a><span class="rvts23">: O usuário deve definir quais servidores de dados serão utilizados para acesso aos dados dinâmicos e estáticos. Para dados dinâmicos ambientais deve-se informar qual servidor será utilizado como fonte e/ou destino, nestes casos servidores remotos ou locais podem ser definidos. Para dados estáticos servidores locais devem ser definidos;</span></li>
 <li style="margin-left: 0px" class="rvps34"><a class="rvts44" href="add_dynamic_data.html">Configuração de uma série de dados dinâmicos</a><span class="rvts23">: O usuário deve definir que dados ambientais dos tipos PCD´s, ocorrências ou matriciais serão coletados ou acessados localmente se disponível. Cada dado dinâmico deve estar associado a um servidor de dados de origem ou ainda a um servidor de destino para armazenamento dos dados. Novos dados dinâmicos poderão ser criados a partir do resultado de análises ou a partir de interpolações de dados de PCD;</span></li>
 <li style="margin-left: 0px" class="rvps34"><a class="rvts44" href="add_static_data.html">Definição de dados estáticos</a><span class="rvts23">: O usuário deve definir que mapas (vetoriais ou matriciais) serão utilizados nas análises ou apenas apresentados na aplicação web. Necessário que estes dados estejam associados a servidores, seja na forma de arquivos ou tabelas de banco de dados;</span></li>
-<li style="margin-left: 0px" class="rvps34"><a class="rvts44" href="add_analysis.html">Definição das análises</a><span class="rvts23">: O usuário deve definir quais são as regras de análise a serem aplicadas sobre os dados dinâmicos e estáticos. Análise </span><a class="rvts44" href="add_analysis_object.html">baseada em objetos monitorados</a><span class="rvts23"> envolve cruzamento de estáticos vetoriais com dinâmicos (PCD, ocorrências ou matriciais), sendo o resultado uma tabela dinâmica com atributos como a data e hora de execução da análise mais os cálculos realizados. Análise </span><a class="rvts44" href="add_analysis_grid.html">baseada em grades</a><span class="rvts23"> envolve o cruzamento de dados estáticos matriciais e dinâmicos também matriciais, sendo o resultado um novo dado matricial dinâmico. Análise</span><a class="rvts45" href="add_analysis_dcp.html"> </a><a class="rvts44" href="add_analysis_dcp.html">baseada em PCD</a><span class="rvts23">´s envolve os atributos do dado dinâmico de PCD e ainda ser cruzado com outros dados dinâmicos (PCD, ocorrências ou matriciais) igualmente a uma análise baseada em objeto monitorado, sendo o resultado uma tabela dinâmica com atributos como a data e hora de execução da análise mais os cálculos realizados. Note que toda análise devolve um novo dado dinâmico;</span></li>
+<li style="margin-left: 0px" class="rvps34"><a class="rvts44" href="add_analysis.html">Definição das análises</a><span class="rvts23">: O usuário deve definir quais são as regras de análise a serem aplicadas sobre os dados dinâmicos e estáticos. Análise </span><a class="rvts44" href="add_analysis_object.html">baseada em objetos monitorados</a><span class="rvts23">&nbsp;envolve cruzamento de estáticos vetoriais com dinâmicos (PCD, ocorrências ou matriciais), sendo o resultado uma tabela dinâmica com atributos como a data e hora de execução da análise mais os cálculos realizados. Análise </span><a class="rvts44" href="add_analysis_grid.html">baseada em grades</a><span class="rvts23">&nbsp;envolve o cruzamento de dados estáticos matriciais e dinâmicos também matriciais, sendo o resultado um novo dado matricial dinâmico. Análise</span><a class="rvts45" href="add_analysis_dcp.html">&nbsp;</a><a class="rvts44" href="add_analysis_dcp.html">baseada em PCD</a><span class="rvts23">´s envolve os atributos do dado dinâmico de PCD e ainda ser cruzado com outros dados dinâmicos (PCD, ocorrências ou matriciais) igualmente a uma análise baseada em objeto monitorado, sendo o resultado uma tabela dinâmica com atributos como a data e hora de execução da análise mais os cálculos realizados. Note que toda análise devolve um novo dado dinâmico;</span></li>
 <li style="margin-left: 0px" class="rvps34"><a class="rvts44" href="add_views.html">Definir visualizações</a><span class="rvts23">: Permite a definição dos visuais de apresentação de todos os dados (estáticos ou dinâmicos), principalmente o resultado das análises e alertas. Um estilo (legenda) pode ser aplicado aos dados a serem publicados no </span><a class="rvts44" href="monitoring_module.html">Módulo de Monitoramento</a><span class="rvts24">. </span><span class="rvts23">As visualizações podem ser privadas ou não. Se privadas necessitam de “login” nesse módulo.</span></li>
 <li style="margin-left: 0px" class="rvps34"><a class="rvts44" href="add_alerts.html">Definir os alertas</a><span class="rvts23">: Permite o usuário definir alertas a partir dos dados dinâmicos ou resultados de análises. Uma notificação será enviada aos demais usuários do sistema através do envio de email, cujo conteúdo será uma tabela apresentando os últimos resultados da análise e uma figura em JPG em anexo. O alerta também pode ser enviado para publicação no </span><a class="rvts44" href="monitoring_module.html">Módulo de Monitoramento</a><span class="rvts24">.</span></li>
 </ul>
@@ -198,7 +200,7 @@
 
             </div>
             
-            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2018 by INPE. All Rights Reserved.</div></div>
+            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2019 by INPE. All Rights Reserved.</div></div>
         </div>  <!-- /#topic-content -->
     </article>
 
@@ -226,20 +228,21 @@
   </div>
 
   <!-- Scripts -->
-  <script src="vendors/jquery-1.11.3/jquery.min.js"></script>
-  <script src="vendors/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+  <script src="vendors/jquery-3.3.1/jquery.min.js"></script>
+  <script src="vendors/bootstrap-3.4.0/js/bootstrap.min.js"></script>
   <script src="vendors/fastclick-1.0.6/fastclick.min.js"></script>
-  <script src="vendors/markjs-8.8.3/jquery.mark.min.js"></script>
-  <script src="vendors/uri-1.18.9/uri.min.js"></script>
+  <script src="vendors/markjs-8.11.1/jquery.mark.min.js"></script>
+  <script src="vendors/uri-1.19.1/uri.min.js"></script>
+  <script src="vendors/imageMapResizer-1.0.7/imageMapResizer.min.js"></script>
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <script src="vendors/bootstrap-3.3.6/js/ie10-viewport-bug-workaround.js"></script>
+  <script src="vendors/bootstrap-3.4.0/js/ie10-viewport-bug-workaround.js"></script>
   
   <!-- Headroom -->
-  <script src="vendors/headroom-0.9.3/headroom.min.js"></script>
-  <script src="vendors/headroom-0.9.3/jquery.headroom.min.js"></script>
+  <script src="vendors/headroom-0.9.4/headroom.min.js"></script>
+  <script src="vendors/headroom-0.9.4/jquery.headroom.min.js"></script>
 
   <!-- JsTree -->
-  <script src="vendors/jstree-3.3.2/jstree.min.js"></script>
+  <script src="vendors/jstree-3.3.7/jstree.min.js"></script>
 
   <!-- HelpNDoc scripts -->
   <script src="_translations.js"></script>
@@ -256,6 +259,8 @@
       var app = new Hnd.App();
       // Update translations
       hnd_ut(app);
+	  // Instanciate imageMapResizer
+	  imageMapResize();
 	  // Custom JS
 	  
       // Boot the app
