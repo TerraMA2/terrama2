@@ -10,9 +10,9 @@ define([], () => {
       this.init();
 
       this.fields = [{key: 'name', as: i18n.__("Name")}, {key: "description", as: i18n.__("Description")}];
-      this.linkToAdd = `${BASE_URL}configuration/storages/new`;
+      this.linkToAdd = `${BASE_URL}administration/storages/new`;
       this.link = (object) => {
-        return `${BASE_URL}configuration/storages/${object.id}`;
+        return `${BASE_URL}administration/storages/${object.id}`;
       };
 
       this.extra = {

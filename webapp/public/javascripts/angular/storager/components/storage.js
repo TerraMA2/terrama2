@@ -195,7 +195,7 @@ define([], function () {
           case "monthly":
           case "yearly":
             // todo: verify
-            var dt = this.storage.schedule.schedule_time;
+            const dt = this.storage.schedule.schedule_time;
             this.storage.schedule.schedule_unit = this.storage.schedule.scheduleHandler;
             this.storage.schedule.schedule_time = moment(dt).format("HH:mm:ss");
             break;
@@ -216,7 +216,7 @@ define([], function () {
           await Storage.save(this.storage);
         }
 
-        this.$window.location = `${BASE_URL}configuration/storages`;
+        this.$window.location = `${BASE_URL}administration/storages`;
       } catch (err) {
         console.error(err);
 

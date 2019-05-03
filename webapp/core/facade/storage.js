@@ -115,11 +115,16 @@ class storageFacade {
       // Retrieves context storage
       const oldStorage = await this.get(storageId);
 
+      // We should define this variable since we cannot remove directly a schedule which belongs to storager
+      // due CASCADE operation. We must keep which schedule to remove and after Storage update
+      // perform operation.
+      let scheduleToRemove = null;
+
       // If there already schedule
       if (oldStorage.schedule_id) {
         // When no schedule sent, remove
-        if (!storage.schedule)
-          await DataManager.removeSchedule({ id: oldStorage.schedule_id }, options);
+        if (storage.schedule.scheduleType == ScheduleType.MANUAL)
+          scheduleToRemove = oldStorage.schedule_id;
         else
           await DataManager.updateSchedule(oldStorage.schedule_id, storage.schedule, { transaction });
       } else {
@@ -131,9 +136,15 @@ class storageFacade {
         }
 
       }
-
+      // Update entire storage entity
       await DataManager.orm.models.Storages.update(storage, { where: { id: storageId }, ...options });
 
+      // Remove schedule when updating to manual type
+      if (scheduleToRemove !== null) {
+        await DataManager.removeSchedule({ id: scheduleToRemove }, options);
+      }
+
+      // Persists the operation
       await transaction.commit();
 
       return;
