@@ -102,7 +102,7 @@ namespace terrama2 {
         /*!
           \brief Creates a BitsetIntersection of the geometry and the raster
         */
-        static BitsetIntersection bitsetIntersection(std::shared_ptr<te::gm::Geometry> geometry, std::shared_ptr<te::rst::Raster> raster);
+        static BitsetIntersection bitsetIntersection(std::shared_ptr<te::gm::Geometry> geometry, te::rst::Raster* raster);
 
         //! Coordinate of the lower left pixel of the intersection of the geometry envelope.
         te::gm::Coord2D lowerLeft() const { return lowerLeftPixel_; }

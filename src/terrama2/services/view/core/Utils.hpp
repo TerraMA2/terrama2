@@ -116,17 +116,6 @@ namespace terrama2
          * \param filepath Path to file
          */
         TMVIEWEXPORT void removeFile(const std::string& filepath);
-
-        /*!
-         * \brief This method aims to clean up extra slashes on URI object
-         *
-         * \todo This method should be part of te::core::URI implementation. When implemented, it must be deprecated
-         *
-         * \param uri URI string
-         * \return Clean URI object
-         */
-        TMVIEWEXPORT te::core::URI normalizeURI(const std::string& uri);
-
       } // end namespace core
     }   // end namespace view
   }     // end namespace services

@@ -1,3 +1,22 @@
+# 4.0.10
+
+## New Features:
+
+## Bugfix:
+
+- Fix default schema to public when uploading shapefile
+- Fix DCP update. Now every update request changes CollectorInputOutput rows in order to keep consistency
+
+# 4.0.9
+
+## New Features:
+
+## Bugfix:
+
+- Fix GraDS temporary files
+- Fix shape importer when output is too large
+- Fix Reprocessing files - GRID Analysis
+
 # 4.0.8
 
 ## New Features:

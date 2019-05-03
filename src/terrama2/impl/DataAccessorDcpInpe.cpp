@@ -32,6 +32,7 @@
 #include "../core/data-access/DataRetriever.hpp"
 #include "../core/utility/Raii.hpp"
 #include "../core/utility/FilterUtils.hpp"
+#include "../core/utility/Utils.hpp"
 
 //terralib
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
@@ -162,4 +163,28 @@ void terrama2::core::DataAccessorDcpInpe::addColumns(std::shared_ptr<te::da::Dat
 terrama2::core::DataAccessorPtr terrama2::core::DataAccessorDcpInpe::make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries)
 {
   return std::make_shared<DataAccessorDcpInpe>(dataProvider, dataSeries);
+}
+
+bool terrama2::core::DataAccessorDcpInpe::isValidTimestamp(std::shared_ptr<terrama2::core::SynchronizedDataSet> dataSet, size_t index, const terrama2::core::Filter& filter, size_t dateColumn) const
+{
+  if(!isValidColumn(dateColumn) || (!filter.discardBefore.get() && !filter.discardAfter.get()))
+    return true;
+
+  if(dataSet->isNull(index, dateColumn))
+  {
+    QString errMsg = QObject::tr("Null date/time attribute.");
+    TERRAMA2_LOG_WARNING() << errMsg;
+    return true;
+  }
+
+  std::shared_ptr< te::dt::DateTime > dateTime(dataSet->getDateTime(index, dateColumn));
+  auto timesIntant = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(dateTime);
+
+  if(filter.discardBefore.get() && (((*timesIntant) < (*filter.discardBefore)) || (*timesIntant) == (*filter.discardBefore)))
+    return false;
+
+  if(filter.discardAfter.get() && ((*timesIntant) > (*filter.discardAfter)))
+    return false;
+
+  return true;
 }

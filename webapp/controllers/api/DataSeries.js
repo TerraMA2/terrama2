@@ -11,9 +11,12 @@ module.exports = function(app) {
   var DataSeriesTemporality = require('./../../core/Enums').TemporalityType;
   var TokenCode = require('./../../core/Enums').TokenCode;
   var ScheduleType = require('./../../core/Enums').ScheduleType;
+  // data model
+  var DataModel = require('./../../core/data-model');
   // Facade
   const DataSeriesFacade = require('./../../core/facade/DataSeries')
   var DataProviderFacade = require("./../../core/facade/DataProvider");
+  const CollectorFacade = require('./../../core/facade/Collector');
   var RequestFactory = require("./../../core/RequestFactory");
 
   const { createView, destroyView, validateView } = require('./../../core/utility/createView');
@@ -318,7 +321,8 @@ module.exports = function(app) {
               await DataManager.updateDataSeries(parseInt(dataSeriesId), dataSeriesObject.input, options);
               await DataManager.updateDataSeries(parseInt(collector.data_series_output), dataSeriesObject.output, options);
 
-              return DataManager.updateCollector(collector.id, collector, options)
+              const collectorFacade = new CollectorFacade();
+              return collectorFacade.updateCollector(collector.id, collector, options)
                 // verify if must remove a schedule
                 .then(() => {
                   if (removeSchedule){
@@ -405,14 +409,17 @@ module.exports = function(app) {
                     ]);
                 })
                 // send via TCP
-                .then(function(dSeries) {
+                .then(async function(dSeries) {
                   const dataSeriesOutput = dSeries[0];
                   const dataSeriesInput = dSeries[1];
 
                   collector.project_id = request.session.activeProject.id;
+
+                  const updatedCollector = await DataManager.getCollector({ id: collector.id }, options);
+
                   const output = {
                     "DataSeries": [dataSeriesInput.toObject(), dataSeriesOutput.toObject()],
-                    "Collectors": [collector.toObject()]
+                    "Collectors": [updatedCollector.toObject()]
                   };
 
                   return output;

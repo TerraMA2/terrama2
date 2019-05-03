@@ -40,18 +40,25 @@ class CollectorFacade {
     // Get Model
     const { CollectorInputOutput } = DataManager.orm.models;
 
-    const currentListOfCollectorInOut = await DataManager.listCollectorInputOutput({ collector_id: collectorId });
+    const currentListOfCollectorInOut = await DataManager.listCollectorInputOutput({ collector_id: collectorId }, options);
 
     for(const dataSetIndex in inputDataSeries.dataSets) {
       const dataSet = inputDataSeries.dataSets[dataSetIndex];
       const found = currentListOfCollectorInOut.find(elm => elm.input_dataset === dataSet.id);
 
       if (!found) {
-        await CollectorInputOutput.create({
+        const inOut = {
           collector_id: collectorId,
           input_dataset: dataSet.id,
           output_dataset: outputDataSeries.dataSets[dataSetIndex].id
-        }, options)
+        };
+
+        await CollectorInputOutput.create(inOut, options);
+
+        currentListOfCollectorInOut.push(inOut);
+
+        // Refresh collector model elements
+        collector.setInputOutputMap(currentListOfCollectorInOut);
       }
     }
 
