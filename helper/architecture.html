@@ -7,7 +7,7 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="generator" content="HelpNDoc Standard Edition 5.7.0.575">
+  <meta name="generator" content="HelpNDoc Standard Edition 6.0.0.154">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="favicon.ico"/>
 
@@ -16,6 +16,8 @@
   <meta name="keywords" content="">
 
 
+
+  
 
   <!-- Twitter Card data -->
   <meta name="twitter:card" content="summary">
@@ -29,19 +31,19 @@
   <meta property="og:site_name" content="Plataforma de Monitoramento Ambiental TerraMA&sup2;" /> 
 
   <!-- Bootstrap core CSS -->
-  <link href="vendors/bootstrap-3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="vendors/bootstrap-3.4.0/css/bootstrap.min.css" rel="stylesheet"/>
 
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <link href="vendors/bootstrap-3.3.6/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
+  <link href="vendors/bootstrap-3.4.0/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
 
   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
   <!--[if lt IE 9]>
-      <script src="vendors/html5shiv-3.7.2/html5shiv.min.js"></script>
+      <script src="vendors/html5shiv-3.7.3/html5shiv.min.js"></script>
       <script src="vendors/respond-1.4.2/respond.min.js"></script>
     <![endif]-->
 
   <!-- JsTree styles -->
-  <link href="vendors/jstree-3.3.2/themes/default/style.min.css" rel="stylesheet"/>
+  <link href="vendors/jstree-3.3.7/themes/default/style.min.css" rel="stylesheet"/>
 
   <!-- Hnd styles -->
   <link href="css/layout.min.css" rel="stylesheet" />
@@ -192,17 +194,17 @@
 <p class="rvps9"><span class="rvts18">Cada serviço realiza um conjunto de tarefas de forma independente, local ou distribuída em diferentes computadores, mas que se comunicam para dar sequência a novos processamentos. Os serviços disponíveis são:</span></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
 <li class="rvps10"><span class="rvts19">Serviço de Coleta : </span><span class="rvts18">Responsável pela coleta dos dados ambientais disponibilizados por servidores de dados, buscando periodicamente tais dados. Caso sejam encontrados, tais dados são baixados e incluídos na base de dados do projeto. Os tipos de servidores de dados e sua localização são definidos através da interface web do módulo de administração. Um serviço de coleta pode ser executado localmente ou remotamente em diferentes máquinas. Veja como utilizar um serviço de </span><a class="rvts30" href="add_dynamic_data.html">coleta para obter dados dinâmicos</a><span class="rvts18">.</span></li>
-<li class="rvps10"><span class="rvts19">Serviço de Interpolação:</span><span class="rvts18"> Responsável pela criação de dados dinâmicos matriciais como resultado de interpolação dos dados de PCD ou ocorrências coletados, produzindo novos dados matriciais dinâmicos. Um serviço de interpolação pode ser executado localmente ou remotamente em diferentes máquinas. Veja como utilizar um serviço de interpolação para criar novos dados dinâmicos matriciais.</span></li>
-<li class="rvps10"><span class="rvts19">Serviço de Análise</span><span class="rvts18"> : Responsável pelo cruzamento entre dos dados ambientais (hidrometeorológicos) e dados estáticos. Uma análise configurada produzirá novos dados dinâmicos, seja geográficos ou tabulares. Os modelos de análises são desenvolvidas com a linguagem de programação Python. Um serviço de análise pode ser executado localmente ou remotamente em diferentes máquinas. Veja como </span><a class="rvts30" href="analysis.html">utilizar um serviço de análise para criar novos dados dinâmicos pela interseção espacial entre dados dinâmicos e estáticos</a><span class="rvts18">.</span></li>
-<li class="rvps10"><span class="rvts19">Serviço de Visualização</span><span class="rvts18"> : Responsável por publicar dados estáticos, dinâmicos ou resultados &nbsp;de análises no módulo de monitoramento. O serviço utiliza o Geoserver para criar as camadas a serem publicadas, juntamente com o estilo a ser apresentado. Um serviço de visualização pode ser executado localmente ou remotamente em diferentes máquinas. Veja como utilizar um </span><a class="rvts30" href="views.html">serviço de visualização para publicar todos os dados no módulo de monitoramento.</a></li>
-<li class="rvps10"><span class="rvts19">Serviço de Alerta</span><span class="rvts18"> : Responsável pelo envio de mensagens e relatórios contendo informações a respeito das alterações nos níveis de risco detectados pelo serviço de análise. Os usuários devem se cadastrar como observadores das análises para receberem os relatórios de alteração, enviados através de correio eletrônico. Um serviço de alerta pode ser executado localmente ou remotamente em diferentes máquinas. Veja como utilizar um </span><a class="rvts30" href="alerts.html">serviço de alerta para enviar notificações aos usuários</a><span class="rvts18">.</span></li>
+<li class="rvps10"><span class="rvts19">Serviço de Interpolação:</span><span class="rvts18">&nbsp;Responsável pela criação de dados dinâmicos matriciais como resultado de interpolação dos dados de PCD ou ocorrências coletados, produzindo novos dados matriciais dinâmicos. Um serviço de interpolação pode ser executado localmente ou remotamente em diferentes máquinas. Veja como utilizar um serviço de interpolação para criar novos dados dinâmicos matriciais.</span></li>
+<li class="rvps10"><span class="rvts19">Serviço de Análise</span><span class="rvts18">&nbsp;: Responsável pelo cruzamento entre dos dados ambientais (hidrometeorológicos) e dados estáticos. Uma análise configurada produzirá novos dados dinâmicos, seja geográficos ou tabulares. Os modelos de análises são desenvolvidas com a linguagem de programação Python. Um serviço de análise pode ser executado localmente ou remotamente em diferentes máquinas. Veja como </span><a class="rvts30" href="analysis.html">utilizar um serviço de análise para criar novos dados dinâmicos pela interseção espacial entre dados dinâmicos e estáticos</a><span class="rvts18">.</span></li>
+<li class="rvps10"><span class="rvts19">Serviço de Visualização</span><span class="rvts18">&nbsp;: Responsável por publicar dados estáticos, dinâmicos ou resultados &nbsp;de análises no módulo de monitoramento. O serviço utiliza o Geoserver para criar as camadas a serem publicadas, juntamente com o estilo a ser apresentado. Um serviço de visualização pode ser executado localmente ou remotamente em diferentes máquinas. Veja como utilizar um </span><a class="rvts30" href="views.html">serviço de visualização para publicar todos os dados no módulo de monitoramento.</a></li>
+<li class="rvps10"><span class="rvts19">Serviço de Alerta</span><span class="rvts18">&nbsp;: Responsável pelo envio de mensagens e relatórios contendo informações a respeito das alterações nos níveis de risco detectados pelo serviço de análise. Os usuários devem se cadastrar como observadores das análises para receberem os relatórios de alteração, enviados através de correio eletrônico. Um serviço de alerta pode ser executado localmente ou remotamente em diferentes máquinas. Veja como utilizar um </span><a class="rvts30" href="alerts.html">serviço de alerta para enviar notificações aos usuários</a><span class="rvts18">.</span></li>
 </ul>
 <p class="rvps9"><span class="rvts18">A Figura 1.2 mostra ainda como diferentes dados podem estar disponíveis em uma base de dados de um projeto. Note que há dados dinâmicos que são adquiridos pelo serviço de coleta, dados dinâmicos que são gerados pela plataforma como resultado de análises ou interpolações e dados dinâmicos disponíveis por outras tecnologias como radares, satélites ou outros bancos de dados que estão localmente na mesma rede de computadores onde está a plataforma TerraMA². Parte dos dados dinâmicos coletados, como dados de PCD´s e ocorrências, devem ser armazenados em um banco espacial PostgreSQL+PostGIS. Um banco de dados de nome “terrama2” é definido para armazenar todas as tabelas de metadados além de poder armazenar parte dos dados que serão utilizados.</span></p>
 <p></p>
 
             </div>
             
-            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2018 by INPE. All Rights Reserved.</div></div>
+            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2019 by INPE. All Rights Reserved.</div></div>
         </div>  <!-- /#topic-content -->
     </article>
 
@@ -230,20 +232,21 @@
   </div>
 
   <!-- Scripts -->
-  <script src="vendors/jquery-1.11.3/jquery.min.js"></script>
-  <script src="vendors/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+  <script src="vendors/jquery-3.3.1/jquery.min.js"></script>
+  <script src="vendors/bootstrap-3.4.0/js/bootstrap.min.js"></script>
   <script src="vendors/fastclick-1.0.6/fastclick.min.js"></script>
-  <script src="vendors/markjs-8.8.3/jquery.mark.min.js"></script>
-  <script src="vendors/uri-1.18.9/uri.min.js"></script>
+  <script src="vendors/markjs-8.11.1/jquery.mark.min.js"></script>
+  <script src="vendors/uri-1.19.1/uri.min.js"></script>
+  <script src="vendors/imageMapResizer-1.0.7/imageMapResizer.min.js"></script>
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <script src="vendors/bootstrap-3.3.6/js/ie10-viewport-bug-workaround.js"></script>
+  <script src="vendors/bootstrap-3.4.0/js/ie10-viewport-bug-workaround.js"></script>
   
   <!-- Headroom -->
-  <script src="vendors/headroom-0.9.3/headroom.min.js"></script>
-  <script src="vendors/headroom-0.9.3/jquery.headroom.min.js"></script>
+  <script src="vendors/headroom-0.9.4/headroom.min.js"></script>
+  <script src="vendors/headroom-0.9.4/jquery.headroom.min.js"></script>
 
   <!-- JsTree -->
-  <script src="vendors/jstree-3.3.2/jstree.min.js"></script>
+  <script src="vendors/jstree-3.3.7/jstree.min.js"></script>
 
   <!-- HelpNDoc scripts -->
   <script src="_translations.js"></script>
@@ -260,6 +263,8 @@
       var app = new Hnd.App();
       // Update translations
       hnd_ut(app);
+	  // Instanciate imageMapResizer
+	  imageMapResize();
 	  // Custom JS
 	  
       // Boot the app

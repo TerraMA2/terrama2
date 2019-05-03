@@ -1,7 +1,7 @@
 'use strict';
 
 var AbstractRequest = require('./AbstractRequest');
-var Client = require('ftp');
+const Ftp = require('./utility/ftp');
 var Promise = require('bluebird');
 var Exceptions = require("./Exceptions");
 var Form = require("./Enums").Form;
@@ -37,7 +37,7 @@ FtpRequest.prototype.constructor = FtpRequest;
 
 FtpRequest.prototype.request = function() {
   var self = this;
-  return  new Promise(function(resolve, reject) {
+  return  new Promise(async function(resolve, reject) {
     var host = self.params[self.syntax().HOST];
 
     while(host.charAt(host.length - 1) == '/')
@@ -47,83 +47,70 @@ FtpRequest.prototype.request = function() {
       user: self.params[self.syntax().USER],
       password: self.params[self.syntax().PASSWORD],
       host: host,
-      port: self.params[self.syntax().PORT]
+      port: self.params[self.syntax().PORT],
+      mode: self.params.active_mode === true ? 'active' : 'passive',
+      debug: true
     };
 
-    var client = new Client();
+    const client = new Ftp(config);
 
-    client.on('ready', function() {
-      client.list(self.params[self.syntax().PATHNAME], function(err, list) {
-        if(err) {
-          var error;
-          switch (err.code) {
-            case 450:
-              error = new Exceptions.ConnectionError("Invalid path");
-              break;
-            default:
-              error = new Exceptions.ConnectionError("Error in connection");
-          }
+    try {
+      await client.connect()
 
-          client.end();
-          return reject(error);
-        } else {
-          if(self.params.list) {
-            try {
-              var items = [];
+      const path = self.params[self.syntax().PATHNAME];
+      let list = await client.list(path);
 
-              /**
-               * Checking if the output is array of string paths
-               *
-               * It is important since the FTP provider may use different configurations to list directory.
-               * Sometimes, got string or object.
-               */
+      if (!self.params.list) {
+        await client.disconnect();
+        return resolve();
+      }
+      try {
+        var items = [];
 
-              list = list.map(elm => {
-                if (isString(elm))
-                  return parseField(elm);
-                if (elm.name.indexOf('/') === -1 && elm.name.indexOf('\\') === -1)
-                  return elm;
-                return {};
-              });
+        /**
+         * Checking if the output is array of string paths
+         *
+         * It is important since the FTP provider may use different configurations to list directory.
+         * Sometimes, got string or object.
+         */
 
-              if(self.params[self.syntax().PATHNAME] == self.params.basePath) {
-                var lastChar = self.params[self.syntax().PATHNAME].substr(self.params[self.syntax().PATHNAME].length - 1);
-                self.params[self.syntax().PATHNAME] = (lastChar == '/' ? self.params[self.syntax().PATHNAME].slice(0, -1) : self.params[self.syntax().PATHNAME]);
-              }
+        list = list.map(elm => {
+          if (isString(elm))
+            return parseField(elm);
+          if (elm.name.indexOf('/') === -1 && elm.name.indexOf('\\') === -1)
+            return elm;
+          return {};
+        });
 
-              for(var i = 0, listLength = list.length; i < listLength; i++) {
-                if(list[i].type == 'd' && list[i].name.charAt(0) != '.')
-                  items.push({
-                    name: list[i].name,
-                    fullPath: self.params[self.syntax().PATHNAME] + '/' + list[i].name,
-                    children: [],
-                    childrenVisible: false
-                  });
-              }
-
-              items.sort(function(a, b) {
-                if(a.name < b.name) return -1;
-                if(a.name > b.name) return 1;
-                return 0;
-              });
-
-              client.end();
-              return resolve({ list: items });
-            } catch (error) {
-              logger.error(`An unexpected error occurred while list FTP ${host}: ${error}`);
-              // Close connection
-              client.end();
-              return reject(error);
-            }
-          } else {
-            client.end();
-            return resolve();
-          }
+        if(self.params[self.syntax().PATHNAME] == self.params.basePath) {
+          var lastChar = self.params[self.syntax().PATHNAME].substr(self.params[self.syntax().PATHNAME].length - 1);
+          self.params[self.syntax().PATHNAME] = (lastChar == '/' ? self.params[self.syntax().PATHNAME].slice(0, -1) : self.params[self.syntax().PATHNAME]);
         }
-      });
-    });
 
-    client.on('error', function(err) {
+        for(var i = 0, listLength = list.length; i < listLength; i++) {
+          if(list[i].type == 'd' && list[i].name.charAt(0) != '.')
+            items.push({
+              name: list[i].name,
+              fullPath: self.params[self.syntax().PATHNAME] + '/' + list[i].name,
+              children: [],
+              childrenVisible: false
+            });
+        }
+
+        items.sort(function(a, b) {
+          if(a.name < b.name) return -1;
+          if(a.name > b.name) return 1;
+          return 0;
+        });
+
+        return resolve({ list: items });
+      } catch (error) {
+        logger.error(`An unexpected error occurred while list FTP ${host}: ${error}`);
+        // Close connection
+        client.end();
+        return reject(error);
+      }
+    } catch (err) {
       var error;
       switch (err.code) {
         case "ENOTFOUND":
@@ -140,11 +127,8 @@ FtpRequest.prototype.request = function() {
           error = new Exceptions.ConnectionError("Error in connection");
       }
 
-      client.end();
       return reject(error);
-    });
-
-    client.connect(config);
+    }
   });
 };
 

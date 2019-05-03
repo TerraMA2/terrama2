@@ -1,16 +1,27 @@
 #!/usr/bin/python
 
+#
+# This script aims to retrieve the names of datasets from HTML content
+# TerraMA2 will replace the special tag with data provider page and then
+# list all datasets associated. Once that, performs validation through node links
+#
+# **REMEMBER** that the data provider must offer dataset links using tag <a>
+#
 # @author Jean Souza [jean.souza@funcate.org.br]
 from bs4 import BeautifulSoup
 
-soup = BeautifulSoup("{HTML_CODE}", "html.parser")
+soup = BeautifulSoup('''{HTML_CODE}''', "html.parser")
 files = ""
 
-for el in soup.findAll('tr'):
-  td = el.findAll('td')
+def getLink(aElement):
+  '''Retrieves html direct link of <a> element'''
+  return aElement.text
 
-  if td is not None and len(td) > 1 and td[1].find('a').text != 'Parent Directory':
-    files += td[1].find('a').text + ","
+for aElement in soup.findAll('a'):
+  link = getLink(aElement)
+
+  if link != "../":
+    files += link + ','
 
 if len(files) > 0:
   files = files[:-1]

@@ -6,7 +6,7 @@
     "type": "GRID",
     "temporality": "DYNAMIC",
     "format": "GDAL",
-    "providers_type_list": ["FILE", "FTP"],
+    "providers_type_list": ["FILE", "FTP", "HTTP", "HTTPS"],
     "allow_direct_access": false,
     "metadata": {
       "timestamp_property": "file_timestamp"

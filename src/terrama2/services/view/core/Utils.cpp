@@ -289,10 +289,3 @@ void terrama2::services::view::core::removeFile(const std::string& filepath)
     }
   }
 }
-
-te::core::URI terrama2::services::view::core::normalizeURI(const std::string &uri)
-{
-  QUrl wrapURI(QString::fromStdString(uri));
-
-  return te::core::URI(wrapURI.toString(QUrl::NormalizePathSegments).toStdString());
-}

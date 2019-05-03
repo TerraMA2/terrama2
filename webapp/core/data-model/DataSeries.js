@@ -33,11 +33,7 @@ var DataSeries = function(params) {
 
   this.semantics = params.semantics;
 
-  if (params.DataSets) {
-    this.setDataSets(params.DataSets);
-  } else {
-    this.dataSets = params.dataSets || [];
-  }
+  this.setDataSets(params.DataSets || params.dataSets);
 };
 
 // javascript inherits model
@@ -65,6 +61,10 @@ DataSeries.prototype.setDataProvider = function(dataProvider) {
  */
 DataSeries.prototype.setDataSets = function(dataSets) {
   var output = [];
+
+  if (!dataSets)
+    dataSets = output;
+
   dataSets.forEach(function(dataSet) {
     if (dataSet instanceof BaseClass) {
       output.push(dataSet);
