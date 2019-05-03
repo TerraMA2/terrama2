@@ -91,6 +91,7 @@ module.exports = function(port) {
    * @returns {string} Formatted string to log
    */
   function loggerFormat(args) {
+    format = new Date().toLocaleTimeString();
     return NodeFormat("[%s] %s %s", format, winston.config.colorize(args.level), args.message);
   }
 

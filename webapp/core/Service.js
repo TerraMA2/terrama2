@@ -290,6 +290,7 @@ var Service = module.exports = function(serviceInstance) {
     }
 
     self.answered = false;
+    console.log("Service.js 293", buffer.toString());
     self.writeData(buffer, 300000, function() {
       if (!self.answered) {
         self.emit("serviceError", new Error("Status Timeout exceeded."));
@@ -317,6 +318,7 @@ var Service = module.exports = function(serviceInstance) {
     // tmp.set(new Buffer.from(buffer), beginOfMessage.length);
     // tmp.set(new Buffer.from(endOfMessage), buffer.length+beginOfMessage.length);
 
+    console.log("Service.js 321", buffer.toString());
     self.writeData(buffer, null, null, () => { });
   };
 
@@ -344,6 +346,7 @@ var Service = module.exports = function(serviceInstance) {
     }
 
     self.answered = false;
+    console.log("Service.js 347 ", buffer.toString());
     self.writeData(buffer, 10000, function() {
       if (!self.answered) {
         self.emit("serviceError", new Error("Log Timeout exceeded."));

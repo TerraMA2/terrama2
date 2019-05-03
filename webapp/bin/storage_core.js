@@ -35,9 +35,9 @@ async function backup_Messages(params){
 
       var process_id = res.rows[0].id;
       
-    //Copy messages tfrom process to storage_historics
+    //Copy messages from process to storage_historics
       var sql_insert = "INSERT INTO " + params.schema + ".storage_historics (\
-        process_id, status, start_timestamp, data_timestamp, last_process_timestamp, data, \
+      process_id, status, start_timestamp, data_timestamp, last_process_timestamp, data, \
       origin, type, description, storage_id) SELECT \
       a.process_id, a.status, a.start_timestamp, a.data_timestamp, a.last_process_timestamp, \
       a.data, \'" + service_type + "\', b.type, b.description, \'" + params.storage.id + "\' FROM \
@@ -47,6 +47,18 @@ async function backup_Messages(params){
       a.process_id = \'" + process_id + "\'";
       console.log(params.storage.name, sql_insert);
       var res = await params.client.query(sql_insert);
+
+      if (!res.rowCount){ //Don't have messages, so never have error, brings only data
+        var sql_insert1 = "INSERT INTO " + params.schema + ".storage_historics (\
+        process_id, status, start_timestamp, data_timestamp, last_process_timestamp, data, \
+        origin, storage_id) SELECT \
+        a.process_id, a.status, a.start_timestamp, a.data_timestamp, a.last_process_timestamp, \
+        a.data, \'" + service_type + "\', \'" + params.storage.id + "\' FROM \
+        " + params.schema + "." + service_table + " a WHERE a.process_id = \'" + process_id + "\'";
+        console.log(params.storage.name, sql_insert1);
+        params.client.query(sql_insert1);
+
+      }
 //Delete messages from collector_messages or analysis_messages
       var sql_remove_messages = "DELETE FROM " + params.schema + "." + service_table + "_messages USING \
       " + params.schema + "." + service_table + " WHERE \
@@ -54,7 +66,7 @@ async function backup_Messages(params){
       " + service_table + ".process_id = \'" + process_id + "\'";
       var res1 = await params.client.query(sql_remove_messages);
 
-//Delete process frrom collector or analysis
+//Delete process from collector or analysis
       var sql_remove_process = "DELETE FROM " + params.schema + "." + service_table + " WHERE \
       " + service_table + ".process_id = \'" + process_id + "\'";
       var res2 = params.client.query(sql_remove_process);
@@ -352,8 +364,12 @@ async function StoreTable(params)
       if (params.storage.keep_data > 0){
         data_until_store.subtract(params.storage.keep_data, params.storage.keep_data_unit);
       }
-      else
-        await backup_Messages(params);
+      else //erases all
+        data_until_store = new moment();
+
+      //if filter, erase all messages to collect/analysis all again, from filter origin date
+      if (params.storage.filter)
+        backup_Messages(params);
 
       params.logger.info(params.storage.name + ": Removing data before " + data_until_store.format('YYYY-MM-DD HH:mm:ss'));
 
@@ -409,6 +425,7 @@ async function StoreTable(params)
           uri = data_provider_out.rows[0].uri;
           console.log(params.storage.name,uri);
 
+          //To verify if table contains geometric information
           var selecttypes = "SELECT \
             g.column_name, \
             g.column_default, \
@@ -479,11 +496,14 @@ async function StoreTable(params)
 
         }
 
-        if (data_timestamp){
-          params.storage.process.data_timestamp = params.storage.process.data_timestamp ? 
-          data_timestamp.isAfter(params.storage.process.data_timestamp) ?
-          data_timestamp : params.storage.process.data_timestamp : params.storage.process.data_timestamp;
-        }
+        // if (data_timestamp){
+        //   params.storage.process.data_timestamp = params.storage.process.data_timestamp ? 
+        //   data_timestamp.isAfter(params.storage.process.data_timestamp) ?
+        //   data_timestamp : params.storage.process.data_timestamp : params.storage.process.data_timestamp;
+        // }
+        if (data_timestamp)
+          params.storage.process.data_timestamp = data_timestamp ;
+
         params.logger.log('info', params.storage.name + ": " + res_del.rowCount + " rows removed from " + params.table_name);       
 
         var obj = {
@@ -527,7 +547,7 @@ async function updateMessages(params){
       else{
         insertvalues = "INSERT INTO " + params.schema + "."  + service_table + " (\
         process_id, status, start_timestamp, last_process_timestamp) \
-        VALUES(" + params.storage.id + "," + params.storage.process.status + ", \'" + start + "\', \'" + last + "\')";
+        VALUES(" + params.storage.id + "," + params.storage.process.status + ", \'" + start + "\', \'" + last + "\') RETURNING *";
       }
 
       console.log(params.storage.name,insertvalues);
@@ -541,7 +561,7 @@ async function updateMessages(params){
           params.storage.process.description = params.storage.process.description ? params.storage.process.description : " ";
           var insert_msg = "INSERT INTO " + params.schema + "." + service_table_message + " \
             (log_id, type, description, timestamp) VALUES(\
-            " + params.storage.id + ", " + params.storage.process.status + ", \
+            " + res.rows[0].id + ", " + params.storage.process.status + ", \
             \'" + params.storage.process.description + "\', \'" + last + "\')";
             console.log(params.storage.name,insert_msg);
             params.client.query(insert_msg);
@@ -592,7 +612,7 @@ async function getProcessLog(client, selec_log, service_table_message){
     try{
       var logs = [];
       var res = await client.query(selec_log);
-      for (const row of res.rows){
+      for await (const row of res.rows){
         var log ={
           id : row.id,
           process_id : row.process_id,
@@ -707,8 +727,10 @@ module.exports = {
         if (params.storage.keep_data > 0){
           data_until_store.subtract(params.storage.keep_data, params.storage.keep_data_unit);
         }
-        else
-          await backup_Messages(params);
+
+        //if filter, erase all messages to collect/analysis all again, from filter origin date
+        if (params.storage.filter)
+          backup_Messages(params);
 
         var dateObj = new Date(res_data.rows[0].max);
         var momentObj = moment(dateObj);
@@ -888,7 +910,7 @@ module.exports = {
           logger: params.logger,
           table_name : table_name,
           database_project : res1.rows[0].uri,
-          table_name_back : params.storage.uri,
+          table_name_back : params.storage.uri.slice(params.storage.uri.lastIndexOf("/")+1, params.storage.uri.length),
           timestamp_prop : 'datetime'
         };
 

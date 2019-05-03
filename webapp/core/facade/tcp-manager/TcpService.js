@@ -599,7 +599,7 @@ TcpService.prototype.log = function(json) {
               obj.process_ids = interpolators.map(function(elm) { return elm.id; });
               break;
             case ServiceType.STORAGE:
-        //      obj.process_ids = storages.map(function(elm) { return elm.id; });
+              obj.process_ids = storages.map(function(elm) { return elm.id; });
               break;
             default:
               throw new Error("Invalid service type");
