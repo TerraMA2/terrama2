@@ -30,7 +30,7 @@ terrama2::core::BitsetIntersection::~BitsetIntersection()
   bitset_.reset();
 }
 
-terrama2::core::BitsetIntersection terrama2::core::BitsetIntersection::bitsetIntersection(std::shared_ptr<te::gm::Geometry> geometry, std::shared_ptr<te::rst::Raster> raster)
+terrama2::core::BitsetIntersection terrama2::core::BitsetIntersection::bitsetIntersection(std::shared_ptr<te::gm::Geometry> geometry, te::rst::Raster* raster)
 {
   geometry->transform(raster->getSRID());
   auto extent = geometry->getMBR();

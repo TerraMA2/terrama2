@@ -1,6 +1,6 @@
 {
   "name": "terrama2-webapp",
-  "version": "4.0.8-release",
+  "version": "4.1.0-release",
   "private": true,
   "scripts": {
     "start": "grunt && NODE_ENV=PRODUCTION node ./bin/www",
@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "ace-builds": "=1.2.8",
+    "active-ftp": "git+https://github.com/TerraMA2/active-ftp.git",
     "adm-zip": "^0.4.11",
     "admin-lte": "=2.3.0",
     "almond": "=0.3.3",
@@ -30,6 +31,7 @@
     "angularjs-color-picker": "=2.7.2",
     "angularjs-dropdown-multiselect": "^2.0.0-beta.10",
     "async": "^2.0.0-rc.6",
+    "basic-ftp": "^3.4.4",
     "bcrypt": "3.0.4",
     "bluebird": "^3.3.4",
     "body-parser": "~1.13.2",
@@ -49,7 +51,6 @@
     "fastclick": "=1.0.6",
     "font-awesome": "=4.6.3",
     "fs": "0.0.1-security",
-    "ftp": "^0.3.10",
     "glob": "^7.0.3",
     "grunt": "^1.0.2",
     "grunt-contrib-clean": "^1.0.0",

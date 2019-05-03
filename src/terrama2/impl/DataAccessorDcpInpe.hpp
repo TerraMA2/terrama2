@@ -55,6 +55,24 @@ namespace terrama2
 
       static DataAccessorPtr make(DataProviderPtr dataProvider, DataSeriesPtr dataSeries);
       static DataAccessorType dataAccessorType(){ return "DCP-inpe"; }
+
+      /*!
+       * \brief Check and validates data timestamp, comparing last collected data with datetime in content
+       * process.
+       *
+       * \note It does not throw exception.
+       *
+       * \param dataSet TerraMA2 dataset
+       * \param index Row index
+       * \param filter Temporal filter
+       * \param dateColumn Datetime column index
+       * \return Returns if it is new data
+       */
+      virtual bool isValidTimestamp(std::shared_ptr<SynchronizedDataSet> dataSet,
+                                    size_t index,
+                                    const Filter& filter,
+                                    size_t dateColumn) const override;
+
     protected:
       virtual std::string dataSourceType() const override;
       virtual std::string typePrefix() const override;

@@ -7,7 +7,7 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="generator" content="HelpNDoc Standard Edition 5.7.0.575">
+  <meta name="generator" content="HelpNDoc Standard Edition 6.0.0.154">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="favicon.ico"/>
 
@@ -16,6 +16,8 @@
   <meta name="keywords" content="">
 
 
+
+  
 
   <!-- Twitter Card data -->
   <meta name="twitter:card" content="summary">
@@ -29,19 +31,19 @@
   <meta property="og:site_name" content="Plataforma de Monitoramento Ambiental TerraMA&sup2;" /> 
 
   <!-- Bootstrap core CSS -->
-  <link href="vendors/bootstrap-3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="vendors/bootstrap-3.4.0/css/bootstrap.min.css" rel="stylesheet"/>
 
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <link href="vendors/bootstrap-3.3.6/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
+  <link href="vendors/bootstrap-3.4.0/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
 
   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
   <!--[if lt IE 9]>
-      <script src="vendors/html5shiv-3.7.2/html5shiv.min.js"></script>
+      <script src="vendors/html5shiv-3.7.3/html5shiv.min.js"></script>
       <script src="vendors/respond-1.4.2/respond.min.js"></script>
     <![endif]-->
 
   <!-- JsTree styles -->
-  <link href="vendors/jstree-3.3.2/themes/default/style.min.css" rel="stylesheet"/>
+  <link href="vendors/jstree-3.3.7/themes/default/style.min.css" rel="stylesheet"/>
 
   <!-- Hnd styles -->
   <link href="css/layout.min.css" rel="stylesheet" />
@@ -184,8 +186,8 @@
                 
 <p></p>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
-<p class="rvps9"><span class="rvts18">Os dados que podem ser incorporados a base de dados de um projeto estão divididos em </span><a class="rvts29" href="data_formats.html#dados_dinamicos">dinâmicos</a><span class="rvts18"> e </span><a class="rvts29" href="data_formats.html#dados_estaticos">estáticos</a><span class="rvts18">, conforme descrito a seguir.</span></p>
-<p class="rvps22"><a class="rvts37" href="static_data.html">Manipulação de Dados Estáticos</a><span class="rvts36"> - </span><a class="rvts37" href="add_static_data.html">Adição de Dados Estático</a><span class="rvts36"> &nbsp;</span><img alt="" style="padding : 1px;" src="lib/working.jpg"></p>
+<p class="rvps9"><span class="rvts18">Os dados que podem ser incorporados a base de dados de um projeto estão divididos em </span><a class="rvts29" href="data_formats.html#dados_dinamicos">dinâmicos</a><span class="rvts18">&nbsp;e </span><a class="rvts29" href="data_formats.html#dados_estaticos">estáticos</a><span class="rvts18">, conforme descrito a seguir.</span></p>
+<p class="rvps22"><a class="rvts37" href="static_data.html">Manipulação de Dados Estáticos</a><span class="rvts36">&nbsp;- </span><a class="rvts37" href="add_static_data.html">Adição de Dados Estático</a><span class="rvts36">&nbsp; </span><img alt="" style="padding : 1px;" src="lib/working.jpg"></p>
 <h3 class="rvps18"><a name="dados_dinamicos"></a>
 <span class="rvts0"><span class="rvts31">Dados Dinâmicos</span></span></h3>
 <p class="rvps9"><span class="rvts18">Dados dinâmicos podem ser agrupados em três tipos básicos: </span><span class="rvts19">PCD</span><span class="rvts18">, </span><span class="rvts19">Ocorrências </span><span class="rvts18">e </span><span class="rvts19">Matriciais</span><span class="rvts18">. Importante que estes dados estejam ajustados a um sistema de referência cartográfico conhecido, pois o metadado de projeção (SRID) será solicitado. Além disso, deverá informar qual o fuso horário de cada fonte de dados.</span></p>
@@ -193,7 +195,7 @@
 <li class="rvps19"><span class="rvts0"><span class="rvts32">PCD &nbsp;</span></span><img alt="" style="padding : 1px;" src="lib/DD_PCD_18x24.png"></li>
 </ul></ul></ul>
 <p class="rvps9"><span class="rvts18">PCD - Plataformas de Coleta de Dados são representados por instrumentos (sensores eletrônicos) instalados em pontos fixos no terreno, normalmente em locais que representam espacialmente bem as medidas que realizam. PCD´s podem ser utilizadas para medir propriedades do ar (CO</span><span class="rvts33">2</span><span class="rvts18">,O</span><span class="rvts33">3</span><span class="rvts18">, SO</span><span class="rvts33">2</span><span class="rvts18">, etc ), água (PH, turbidez, oxigênio dissolvido, etc), solo/rocha (permeabilidade, vibrações, etc) ou atmosfera (temperatura, pressão, chuva, etc) entre outras. Tais propriedades, normalmente são armazenadas na forma de tabelas (arquivos digitais) definindo um conjunto de atributos que serão lidos pela plataforma.</span></p>
-<p class="rvps9"><span class="rvts18">Tais medidas podem ser realizadas de forma manual ou automática. As medidas manuais exigem que um técnico vá ao local da PCD realizar a leitura e posteriormente inserir as leituras em um arquivo digital, de modo que a plataforma TerraMA</span><span class="rvts33">2</span><span class="rvts18"> possa ler tal arquivo. Já as PCD automáticas têm instrumentos para registrar e transferir os dados por diversas tecnologias como rádio, satélite, wifi, ou celular. Neste caso é comum um conjunto de arquivos digitais estarem disponíveis em servidores de dados para serem lidos pela plataforma.</span></p>
+<p class="rvps9"><span class="rvts18">Tais medidas podem ser realizadas de forma manual ou automática. As medidas manuais exigem que um técnico vá ao local da PCD realizar a leitura e posteriormente inserir as leituras em um arquivo digital, de modo que a plataforma TerraMA</span><span class="rvts33">2</span><span class="rvts18">&nbsp;possa ler tal arquivo. Já as PCD automáticas têm instrumentos para registrar e transferir os dados por diversas tecnologias como rádio, satélite, wifi, ou celular. Neste caso é comum um conjunto de arquivos digitais estarem disponíveis em servidores de dados para serem lidos pela plataforma.</span></p>
 <p class="rvps9"><span class="rvts18">A Figura 1.3 mostra exemplos de algumas PCDs e o raio de influência que poderá ser definido para uso nas análises (ver Capítulo 3). Ainda nessa figura, algumas fotos de diferentes instalações como uma estação meteorológica, sonda de qualidade da água, estação de qualidade do ar e uma bóia oceânica.</span></p>
 <p class="rvps20"><img alt="" style="padding : 1px;" src="lib/Fig1_3.png"></p>
 <p class="rvps17"><span class="rvts20">Figura 1.3 </span><span class="rvts21">– Exemplo de PCD e fotos de diferentes instalações.</span></p>
@@ -201,17 +203,17 @@
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;">
 <li class="rvps19"><span class="rvts0"><span class="rvts32">Ocorrências &nbsp;</span></span><img alt="" style="padding : 1px;" src="lib/DD_ocorrencia_17x24.png"></li>
 </ul></ul></ul>
-<p class="rvps9"><span class="rvts18">As ocorrências são representadas por </span><span class="rvts19">pontos</span><span class="rvts18"> que ocorrem em diferentes locais no espaço e no tempo, por </span><span class="rvts19">polígonos</span><span class="rvts18"> de diferentes formas/tamanhos em diferentes tempos, ou ainda por </span><span class="rvts19">linhas </span><span class="rvts18">de diferentes formas/comprimentos em diferentes tempos. Para ocorrência de pontos uma Latitude/Longitude é criada por alguma tecnologia que pode agregar ou não um conjunto de atributos associados (propriedades da ocorrência). Como exemplo, um sistema de antenas que detectam a localização de descargas elétricas na atmosfera, ou um sistema com sismógrafos que registram a localização de abalos sísmicos no subsolo, ou ainda um conjunto de imagens de satélite com sensores no infra-vermelho que registram focos de calor (queimadas), onde os pontos das imagens (centro dos “pixels”) são extraídos e inseridos em arquivos para serem utilizados (ver projeto de Queimadas do INPE - </span><a class="rvts34" href="https://queimadas.dgi.inpe.br">https://queimadas.dgi.inpe.br</a><span class="rvts18"> ).</span></p>
+<p class="rvps9"><span class="rvts18">As ocorrências são representadas por </span><span class="rvts19">pontos</span><span class="rvts18">&nbsp;que ocorrem em diferentes locais no espaço e no tempo, por </span><span class="rvts19">polígonos</span><span class="rvts18">&nbsp;de diferentes formas/tamanhos em diferentes tempos, ou ainda por </span><span class="rvts19">linhas </span><span class="rvts18">de diferentes formas/comprimentos em diferentes tempos. Para ocorrência de pontos uma Latitude/Longitude é criada por alguma tecnologia que pode agregar ou não um conjunto de atributos associados (propriedades da ocorrência). Como exemplo, um sistema de antenas que detectam a localização de descargas elétricas na atmosfera, ou um sistema com sismógrafos que registram a localização de abalos sísmicos no subsolo, ou ainda um conjunto de imagens de satélite com sensores no infra-vermelho que registram focos de calor (queimadas), onde os pontos das imagens (centro dos “pixels”) são extraídos e inseridos em arquivos para serem utilizados (ver projeto de Queimadas do INPE - </span><a class="rvts34" href="https://queimadas.dgi.inpe.br">https://queimadas.dgi.inpe.br</a><span class="rvts18">&nbsp;).</span></p>
 <p class="rvps9"><span class="rvts18">A Figura 1.4 mostra um exemplo de algumas ocorrências. Algumas fotos de diferentes tipo de ocorrências como focos de calor, descargas elétricas e abalos sísmicos.</span></p>
 <p class="rvps2"><span class="rvts11"><br/></span></p>
 <p class="rvps20"><img alt="" style="padding : 1px;" src="lib/Fig1_4_web.png"></p>
 <p class="rvps17"><span class="rvts20">Figura 1.4 </span><span class="rvts21">– Exemplos de ocorrências.</span></p>
 <p class="rvps9"><span class="rvts18">Ocorrências na forma de polígonos podem ser obtidos por exemplo a partir de áreas identificadas como derramamentos de óleo no oceano em diferentes datas, ou ainda diferentes eventos de áreas identificadas como queimadas.</span></p>
 <ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;">
-<li class="rvps19"><span class="rvts0"><span class="rvts32"> Matriciais &nbsp;</span></span><img alt="" style="padding : 1px;" src="lib/DD_Matriz_24x24.png"></li>
+<li class="rvps19"><span class="rvts0"><span class="rvts32">&nbsp;Matriciais &nbsp;</span></span><img alt="" style="padding : 1px;" src="lib/DD_Matriz_24x24.png"></li>
 </ul></ul></ul>
 <p class="rvps23"><span class="rvts22">Os dados matriciais são representados por grades retangulares com diferentes resoluções espaciais (tamanho do elemento ou “pixels” no terreno), tamanhos (número de linhas x colunas), quantizações (número de bits para cada elemento da grade), tipo (matrizes de inteiros ou ponto flutuante) e número de camadas (ou bandas). Tais dados podem ser obtidos por equipamentos como radares meteorológicos, por sensores remotos como satélites ou aerotransportado, por técnicas computacionais como interpolação de modelos numéricos de tempo, ou ainda por interpolação de dados dinâmicos de PCD.</span></p>
-<p class="rvps23"><span class="rvts22">Na prática tais dados podem ser classificados como </span><span class="rvts38">observacionais</span><span class="rvts22"> ou de </span><span class="rvts38">previsão</span><span class="rvts22">. Os dados observacionais refletem alguma propriedade do meio ambiente obtida para a situação atual e o seu passado, por exemplo, uma grade de precipitação. Os dados de previsão são obtidos por modelos matemáticos que quando executados, um conjunto de variáveis são calculadas ou estimadas a partir do horário atual e o futuro (algumas horas, dias ou até meses).</span></p>
+<p class="rvps23"><span class="rvts22">Na prática tais dados podem ser classificados como </span><span class="rvts38">observacionais</span><span class="rvts22">&nbsp;ou de </span><span class="rvts38">previsão</span><span class="rvts22">. Os dados observacionais refletem alguma propriedade do meio ambiente obtida para a situação atual e o seu passado, por exemplo, uma grade de precipitação. Os dados de previsão são obtidos por modelos matemáticos que quando executados, um conjunto de variáveis são calculadas ou estimadas a partir do horário atual e o futuro (algumas horas, dias ou até meses).</span></p>
 <p class="rvps23"><span class="rvts22">Veremos que os dados de observação estão disponíveis em arquivos (grades) obtidos ao passar do tempo e neste caso um conjunto de operadores da plataforma estão disponíveis para processar o último dado coletado e seu passado. Já os dados de previsão um conjunto de arquivos empilhados (grades multidimensionais) representam a hora atual e o futuro, e neste caso, outro conjunto de operadores estarão disponíveis.</span></p>
 <p class="rvps23"><span class="rvts22">A Figura 1.5 mostra exemplos de algumas grades de observação como imagens de satélite ou radar e um arquivo de previsão contendo várias camadas ou horários de uma variável prevista por um supercomputador.</span></p>
 <p class="rvps20"><img alt="" style="padding : 1px;" src="lib/Fig1_5_web.png"></p>
@@ -311,7 +313,7 @@
 
             </div>
             
-            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2018 by INPE. All Rights Reserved.</div></div>
+            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2019 by INPE. All Rights Reserved.</div></div>
         </div>  <!-- /#topic-content -->
     </article>
 
@@ -339,20 +341,21 @@
   </div>
 
   <!-- Scripts -->
-  <script src="vendors/jquery-1.11.3/jquery.min.js"></script>
-  <script src="vendors/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+  <script src="vendors/jquery-3.3.1/jquery.min.js"></script>
+  <script src="vendors/bootstrap-3.4.0/js/bootstrap.min.js"></script>
   <script src="vendors/fastclick-1.0.6/fastclick.min.js"></script>
-  <script src="vendors/markjs-8.8.3/jquery.mark.min.js"></script>
-  <script src="vendors/uri-1.18.9/uri.min.js"></script>
+  <script src="vendors/markjs-8.11.1/jquery.mark.min.js"></script>
+  <script src="vendors/uri-1.19.1/uri.min.js"></script>
+  <script src="vendors/imageMapResizer-1.0.7/imageMapResizer.min.js"></script>
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <script src="vendors/bootstrap-3.3.6/js/ie10-viewport-bug-workaround.js"></script>
+  <script src="vendors/bootstrap-3.4.0/js/ie10-viewport-bug-workaround.js"></script>
   
   <!-- Headroom -->
-  <script src="vendors/headroom-0.9.3/headroom.min.js"></script>
-  <script src="vendors/headroom-0.9.3/jquery.headroom.min.js"></script>
+  <script src="vendors/headroom-0.9.4/headroom.min.js"></script>
+  <script src="vendors/headroom-0.9.4/jquery.headroom.min.js"></script>
 
   <!-- JsTree -->
-  <script src="vendors/jstree-3.3.2/jstree.min.js"></script>
+  <script src="vendors/jstree-3.3.7/jstree.min.js"></script>
 
   <!-- HelpNDoc scripts -->
   <script src="_translations.js"></script>
@@ -369,6 +372,8 @@
       var app = new Hnd.App();
       // Update translations
       hnd_ut(app);
+	  // Instanciate imageMapResizer
+	  imageMapResize();
 	  // Custom JS
 	  
       // Boot the app
