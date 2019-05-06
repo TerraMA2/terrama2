@@ -34,6 +34,11 @@ class StorageError extends Error {
 }
 
 class storageFacade {
+  /**
+   * Retrieves list of storages based in query restriction
+   *
+   * @param {any} restriction Query restriction.
+   */
   async list(restriction = {}){
     const storages = await DataManager.orm.models.Storages.findAll({
       ...restriction,
@@ -59,31 +64,28 @@ class storageFacade {
     });
   }
 
+  /**
+   * Find storage by id
+   *
+   * @param {number} id Storage identifier
+   */
   async get(id) {
     const matched = await this.list({ where: { id }, limit: 1 });
 
     return matched[0];
   }
 
-  async validate(storage) {
-    try {
-      const options = { validate: true }
-      await DataManager.orm.models.Storages.create(storage, options);
-
-      if (storage.schedule)
-        await DataManager.orm.models.Schedule.create(storage.schedule, options);
-    } catch (err) {
-      throw new StorageError(err.errors);
-    }
-  }
-
+  /**
+   * Persists the storager into database
+   *
+   * @throws {ScheduleError} for any error occurred in operation
+   *
+   * @param {any} storage Storage to save
+   */
   async save(storage){
     let transaction = await DataManager.orm.transaction();
 
     try {
-      // Validate model
-      // await this.validate(storage);
-
       const options = { transaction };
 
       if (storage.schedule && (storage.schedule.scheduleType !== "3")) {
@@ -122,19 +124,19 @@ class storageFacade {
 
       // If there already schedule
       if (oldStorage.schedule_id) {
-        // When no schedule sent, remove
-        if (storage.schedule.scheduleType == ScheduleType.MANUAL)
+        // When no schedule sent, set storager schedule to none and keep id to remove after update sequency
+        if (storage.schedule.scheduleType == ScheduleType.MANUAL) {
           scheduleToRemove = oldStorage.schedule_id;
-        else
+          storage.schedule_id = null;
+        } else
           await DataManager.updateSchedule(oldStorage.schedule_id, storage.schedule, { transaction });
       } else {
-        if (storage.schedule_type != ScheduleType.MANUAL) {
+        if (storage.schedule && storage.schedule.scheduleType != ScheduleType.MANUAL) {
           const createdSchedule = await DataManager.addSchedule(storage.schedule, options);
           storage.schedule_type = storage.schedule.scheduleType;
 
           storage.schedule_id = createdSchedule.id;
         }
-
       }
       // Update entire storage entity
       await DataManager.orm.models.Storages.update(storage, { where: { id: storageId }, ...options });
@@ -148,6 +150,23 @@ class storageFacade {
       await transaction.commit();
 
       return;
+    } catch (err) {
+      await transaction.rollback();
+
+      throw new StorageError(err.errors);
+    }
+  }
+
+  async delete(id) {
+    let transaction = await DataManager.orm.transaction();
+
+    try {
+      const options = { transaction };
+
+      await DataManager.orm.models.Storages.destroy({ where: { id }, ...options });
+
+      // Persists the operation
+      await transaction.commit();
     } catch (err) {
       await transaction.rollback();
 

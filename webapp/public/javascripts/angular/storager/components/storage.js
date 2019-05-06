@@ -77,12 +77,12 @@ define([], function () {
                 // Parse URI
                 const providerURI = this.selectedProvider.uri.replace(/([^:]\/\/)\/+/g, "$1");
                 const storageURI = this.storage.uri.replace(/([^:]\/\/)\/+/g, "$1");
-  
+
                 let parsedPath = storageURI.replace(providerURI, '');
-  
+
                 if (parsedPath[0] === '/')
                   parsedPath = parsedPath.substr(1);
-  
+
                 this.storage.path = parsedPath;
               } else {
                 this.storage.path = this.storage.uriObject.pathname;
@@ -124,6 +124,11 @@ define([], function () {
       return this.DataSeries.getDynamicDataSeries({ data_series_semantics: { data_format_name: 'POSTGIS' } });
     }
 
+    /**
+     * Get the respective data series icon in order to fill combobox
+     *
+     * @param {any} dataSeries Data series scope
+     */
     getDataSeriesIcon(dataSeries) {
       if (!dataSeries)
         return "";
@@ -131,13 +136,16 @@ define([], function () {
       return this.DataSeries.getIcon(dataSeries);
     }
 
+    /** Triggered when data series combobox changes. Selects the current data series into scope */
     changeDataSeries() {
       this.selectedDataSeries = this.getDynamicDataSeries().find(ds => ds.id === this.storage.data_series_id);
     }
 
+    /** Triggered when data provider combobox changes. Selects the current provider into scope */
     changeDataProvider() {
       this.selectedProvider = this.getDataProviders().find(provider => provider.id === this.storage.data_provider_id);
     }
+
 
     getDataProviders() {
       const { selectedDataSeries } = this;
@@ -151,6 +159,7 @@ define([], function () {
       return this.Provider.list({ data_provider_type: { id: provider.data_provider_type.id } });
     }
 
+    /** Check if data provider is FILE */
     isDataProviderFile() {
       const { selectedProvider } = this;
 
@@ -169,6 +178,11 @@ define([], function () {
      */
     validate() {
       return this.storageForm.$valid && (this.parametersForm ? this.parametersForm.$valid : true);
+    }
+
+    /** Trigger when cancel button clicked. It redirects to the previous page */
+    onCancelClicked() {
+      this.$window.history.back();
     }
 
     async save() {
@@ -224,7 +238,7 @@ define([], function () {
       }
     }
   }
-
+  // Angular Inject dependencies
   StoragerController.$inject = [
     '$scope',
     'i18n',

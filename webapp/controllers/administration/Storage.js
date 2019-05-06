@@ -1,9 +1,9 @@
 'use strict';
 
 // dependencies
-var DataManager = require('./../../core/DataManager');
-var Enums = require('./../../core/Enums');
-var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
+const Enums = require('./../../core/Enums');
+const StorageFacade = require('./../../core/facade/storage');
+const makeTokenParameters = require('../../core/Utils').makeTokenParameters;
 
 /**
  * It exports a object with Storage controllers (get/new/edit)
@@ -12,25 +12,29 @@ var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
 module.exports = function(app) {
   return {
     get: function(request, response) {
-      var parameters = makeTokenParameters(request.query.token, app);
-      var hasProjectPermission = request.session.activeProject.hasProjectPermission;
+      const parameters = makeTokenParameters(request.query.token, app);
+      const hasProjectPermission = request.session.activeProject.hasProjectPermission;
       parameters.hasProjectPermission = hasProjectPermission;
-      response.render('configuration/storages', Object.assign({}, parameters, {"Enums": Enums}));
+      response.render('administration/storages', Object.assign({}, parameters, {"Enums": Enums}));
     },
 
     new: function(request, response) {
-      response.render('configuration/storage');
+      response.render('administration/storage');
     },
 
-    edit: function(request, response) {
-      var storageId = request.params.id;
-      var hasProjectPermission = request.session.activeProject.hasProjectPermission;
+    edit: async (request, response) => {
+      const storageId = request.params.id;
+      const hasProjectPermission = request.session.activeProject.hasProjectPermission;
 
-      DataManager.getDataSeries({id: storageId}).then(function() {
-        response.render('configuration/storage', {hasProjectPermission: hasProjectPermission, storage: storageId });
-      }).catch(function(err) {
+      const facade = new StorageFacade();
+
+      try {
+        await facade.get(storageId);
+
+        response.render('administration/storage', {hasProjectPermission: hasProjectPermission, storage: storageId });
+      } catch (err) {
         response.render('base/404');
-      })
+      }
     }
   };
 };

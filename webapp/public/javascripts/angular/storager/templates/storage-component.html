@@ -247,5 +247,5 @@
 
     <div class="box-footer">
       <button type="submit" class="btn btn-primary pull-right" ng-click="$ctrl.save();" style="margin-left: 10px;">{{ i18n.__("Save") }}</button>
-      <a ng-href="{{ redirectUrl }}" class="btn btn-primary pull-left">{{ i18n.__("Cancel") }}</a>
+      <a ng-click="$ctrl.onCancelClicked()" class="btn btn-primary pull-left">{{ i18n.__("Cancel") }}</a>
     </div>

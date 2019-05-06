@@ -1,11 +1,12 @@
 define([], () => {
   class StorageListController {
-    constructor(i18n, Storage, MessageBox, Socket, Service) {
+    constructor(i18n, Storage, MessageBox, Socket, Service, DataSeries) {
       this.i18n = i18n;
       this.Storage = Storage;
       this.MessageBox = MessageBox;
       this.Socket = Socket;
       this.Service = Service;
+      this.DataSeries = DataSeries;
 
       this.init();
 
@@ -23,13 +24,18 @@ define([], () => {
       }
     }
 
+    /** Close alert box handler */
     close() {
       this.MessageBox.reset();
     }
 
+    /** Initializes Storage List component, loading dependencies services in memory */
     async init() {
-      await this.Storage.init();
-      await this.Service.init({ type: this.Service.types.STORAGE });
+      await Promise.all([
+        this.Storage.init(),
+        this.Service.init({ type: this.Service.types.STORAGE }),
+        this.DataSeries.init(),
+      ])
 
       this.configureSocketListeners();
     }
@@ -58,18 +64,34 @@ define([], () => {
       return true;
     }
 
+    remove(object) {
+      return `${BASE_URL}api/storages/${object.id}`;
+    }
+
+    /**
+     * Tries to dispatch the execution of storage
+     *
+     * @param {any} object Storager to run
+     */
     async run(object) {
-      const { Service, Socket } = this;
-  
+      const { DataSeries, Service, Socket } = this;
+
       // Make sure service exists on server side before run
       const storageService = await Service.get(object.service_instance_id);
-  
-      Socket.emit('run', { ids: [ object.id ], service_instance: storageService.id });
+
+      // Make sure Data Series is active
+      const storageDataSeries = DataSeries.list({ id: object.data_series_id })[0];
+
+      if (storageDataSeries.active) {
+        return Socket.emit('run', { ids: [ object.id ], service_instance: storageService.id });
+      }
+
+      this.MessageBox.danger(this.i18n.__('Process'), this.i18n.__(`The storage "${object.name}" can't be executed due data series "${storageDataSeries.name}" is inactive.`))
     }
   }
 
 
-  StorageListController.$inject = ['i18n', 'StorageService', 'MessageBoxService', 'Socket', 'Service'];
+  StorageListController.$inject = ['i18n', 'StorageService', 'MessageBoxService', 'Socket', 'Service', 'DataSeriesService'];
 
   const storageListComponent = {
     bindings: {

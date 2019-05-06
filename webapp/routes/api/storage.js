@@ -8,4 +8,5 @@ module.exports = function(app) {
   app.post(app.locals.BASE_URL + "api/storages", passport.isAuthenticated, controllerStorage.save);
   app.get(app.locals.BASE_URL + "api/storages/:id", passport.isAuthenticated, controllerStorage.get);
   app.put(app.locals.BASE_URL + "api/storages/:id", passport.isAuthenticated, controllerStorage.put);
+  app.delete(app.locals.BASE_URL + "api/storages/:id", passport.isAuthenticated, controllerStorage.delete);
 };
