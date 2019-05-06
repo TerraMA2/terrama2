@@ -11,8 +11,6 @@ module.exports = function(app) {
   var DataSeriesTemporality = require('./../../core/Enums').TemporalityType;
   var TokenCode = require('./../../core/Enums').TokenCode;
   var ScheduleType = require('./../../core/Enums').ScheduleType;
-  // data model
-  var DataModel = require('./../../core/data-model');
   // Facade
   const DataSeriesFacade = require('./../../core/facade/DataSeries')
   var DataProviderFacade = require("./../../core/facade/DataProvider");

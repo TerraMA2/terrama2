@@ -95,6 +95,7 @@ async function destroyView(uri, viewName) {
 
   return resultSet;
 }
+
 // Internal View Module
 const viewModule = { createView, destroyView, validateView, EmptyViewError };
 

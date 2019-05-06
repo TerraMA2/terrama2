@@ -102,11 +102,7 @@
     </wz-step>
 
     <wz-step wz-title="{{ i18n.__('Attributes') }}" canexit="isSecondStepValid" wz-data="wizard.parameters" wz-disabled="{{isDynamic}}">
-
-      <form name="forms.attributes">
-        <attributes model="model.attributes" metadata="ctrl.metadata" provider="dataSeries.data_provider_id" table-name="model.table_name" ng-if="model.table_name!==undefined && dataSeries.data_provider_id!==undefined"></attributes>
-      </form>
-
+      <attributes model="model.attributes" metadata="ctrl.metadata" provider="dataSeries.data_provider_id" table-name="model.table_name" ng-if="model.table_name!==undefined && dataSeries.data_provider_id!==undefined"></attributes>
       <div class="col-md-12">
           <a href="" class="btn btn-primary pull-left cancel-dynamic" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
           <a href="" class="btn btn-primary pull-left cancel-static" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>

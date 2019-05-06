@@ -407,7 +407,6 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
               TERRAMA2_LOG_ERROR() << errMsg;
               continue;
             }
-
             pk = properties.at(0)->getName();
           }
             auto& propertiesVector = monitoredObjectTableInfo.dataSetType->getProperties();

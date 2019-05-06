@@ -15,6 +15,7 @@ define([
   "TerraMA2WebApp/schema-form-plugin/mask-warn/directives/terrama2-mask-field",
   "TerraMA2WebApp/schema-form-plugin/uiselect/module",
   "TerraMA2WebApp/schema-form-plugin/querybuilder/module"
+  
 ], function(moduleLoader, commonServiceApp, messageboxApp, datetimepickerApp, providerApp, serviceApp,
             dataSeriesServicesApp, scheduleApp, directives, geoApp, ListController, RegistrationController) {
   var moduleName = "terrama2.dataseries.controllers";

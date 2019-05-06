@@ -14,6 +14,5 @@ module.exports = function (app) {
   app.get(app.locals.BASE_URL + "api/DataSeries/static/changeStatus/:id", passport.isAuthenticated, controller.changeStatusStatic);
   app.get(app.locals.BASE_URL + "api/DataSeries/dynamic/changeStatus/:id", passport.isAuthenticated, controller.changeStatusDynamic);
   app.post(app.locals.BASE_URL + 'api/DataSeries/validateView', passport.isAuthenticated, controller.validateViewCreation);
-
   app.get(app.locals.BASE_URL + 'api/DataSeries/format/wkt', passport.isAuthenticated, controller.retrieveAsWKT);
 };

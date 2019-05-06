@@ -9,12 +9,12 @@ define([],()=> {
 
     onListColumns(){
       this.$timeout(()=>{
-
+        
         if(this.model){
           this.model = JSON.parse(this.model);
           return;
         }
-
+        
         this.model = [];
         const {tableName, provider, dataProviderService} = this
         dataProviderService.listPostgisObjects({providerId: provider, objectToGet: "column", tableName})

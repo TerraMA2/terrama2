@@ -46,8 +46,9 @@ module.exports = function(grunt) {
             var UglifyJS = require('uglify-es'),
                 uglified = UglifyJS.minify(text, { sourceMap: { content: sourceMapText, url: "/dist/terrama2-webapp.min.js.map" } });
 
-           grunt.file.write(DEST_PATH + "terrama2-webapp.min.js", uglified.code);
-           grunt.file.write(DEST_PATH + "terrama2-webapp.min.js.map", uglified.map);
+            grunt.file.write(DEST_PATH + "terrama2-webapp.min.js", uglified.code);
+            grunt.file.write(DEST_PATH + "terrama2-webapp.min.js.map", uglified.map);
+           
           },
           preserveLicenseComments: false,
           generateSourceMaps: true,
