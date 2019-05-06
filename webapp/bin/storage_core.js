@@ -4,6 +4,7 @@ const fs = require('fs');
 const pg = require('pg');
 const moment = require('moment');
 const Regex = require('xregexp');
+const AdmZip = require('adm-zip');
 
 var StatusLog = require("./../core/Enums").StatusLog;
 var storageUtils = require("./utils");
@@ -15,7 +16,7 @@ var storageUtils = require("./utils");
  * @param {*} params.client : database client
  * @param {*} params.logger : logger file
  */
-  async function backup_Messages(params){
+async function backup_Messages(params){
   try{
     var res_1 = await selectServiceInput(params, function(err){
       throw err;
@@ -28,15 +29,15 @@ var storageUtils = require("./utils");
     " + params.schema + "." + service_type +", " + params.schema + ".storages WHERE \
     " + service_type + ".data_series_output = \'" + params.storage.data_series_id + "\' AND \
     storages.id = \'" + params.storage.id + "\'";
-    console.log(sel_process);
+    console.log(params.storage.name, sel_process);
     var res = await params.client.query(sel_process);
     if (res.rowCount){
 
       var process_id = res.rows[0].id;
       
-    //Copy messages tfrom process to storage_historics
+    //Copy messages from process to storage_historics
       var sql_insert = "INSERT INTO " + params.schema + ".storage_historics (\
-        process_id, status, start_timestamp, data_timestamp, last_process_timestamp, data, \
+      process_id, status, start_timestamp, data_timestamp, last_process_timestamp, data, \
       origin, type, description, storage_id) SELECT \
       a.process_id, a.status, a.start_timestamp, a.data_timestamp, a.last_process_timestamp, \
       a.data, \'" + service_type + "\', b.type, b.description, \'" + params.storage.id + "\' FROM \
@@ -44,8 +45,20 @@ var storageUtils = require("./utils");
       " + params.schema + "." + service_type + " c, " + params.schema + ".storages d\
       WHERE b.log_id = a.id AND  \
       a.process_id = \'" + process_id + "\'";
-      console.log(sql_insert);
+      console.log(params.storage.name, sql_insert);
       var res = await params.client.query(sql_insert);
+
+      if (!res.rowCount){ //Don't have messages, so never have error, brings only data
+        var sql_insert1 = "INSERT INTO " + params.schema + ".storage_historics (\
+        process_id, status, start_timestamp, data_timestamp, last_process_timestamp, data, \
+        origin, storage_id) SELECT \
+        a.process_id, a.status, a.start_timestamp, a.data_timestamp, a.last_process_timestamp, \
+        a.data, \'" + service_type + "\', \'" + params.storage.id + "\' FROM \
+        " + params.schema + "." + service_table + " a WHERE a.process_id = \'" + process_id + "\'";
+        console.log(params.storage.name, sql_insert1);
+        params.client.query(sql_insert1);
+
+      }
 //Delete messages from collector_messages or analysis_messages
       var sql_remove_messages = "DELETE FROM " + params.schema + "." + service_table + "_messages USING \
       " + params.schema + "." + service_table + " WHERE \
@@ -53,7 +66,7 @@ var storageUtils = require("./utils");
       " + service_table + ".process_id = \'" + process_id + "\'";
       var res1 = await params.client.query(sql_remove_messages);
 
-//Delete process frrom collector or analysis
+//Delete process from collector or analysis
       var sql_remove_process = "DELETE FROM " + params.schema + "." + service_table + " WHERE \
       " + service_table + ".process_id = \'" + process_id + "\'";
       var res2 = params.client.query(sql_remove_process);
@@ -108,7 +121,7 @@ var storageUtils = require("./utils");
 async function insertTable(uri, table_name, params){
   try{
     pg.connect(uri, async (err, client, done) =>{
-      console.log ("Conectou "+ uri);
+      console.log(params.storage.name,"Conectou "+ uri);
 
       var date_attr;
       var create_table;
@@ -121,7 +134,7 @@ async function insertTable(uri, table_name, params){
         START " + params.seq.start_value + " \
         CACHE 1";
 
-        console.log(create_seq);
+        console.log(params.storage.name,create_seq);
 
         var sequence = await client.query(create_seq);
 
@@ -160,7 +173,7 @@ async function insertTable(uri, table_name, params){
 
       }
 
-      console.log(create_table);
+      console.log(params.storage.name,create_table);
 
       var rows_added = 0;
       var rows_read = 0;
@@ -169,7 +182,7 @@ async function insertTable(uri, table_name, params){
           throw err1;
         }
         var insert = "INSERT INTO " + table_name + "(" + Object.keys(params.values.rows[0]) + ") VALUES (";
-        console.log(insert);
+        console.log(params.storage.name,insert);
         for await (let row of params.values.rows){
           var insert_values = insert;
           var row_values = Object.values(row);
@@ -187,7 +200,7 @@ async function insertTable(uri, table_name, params){
           var n = insert_values.length;
           insert_values = insert_values.slice(0, n-1); //remove last ','
           insert_values += ") ON CONFLICT DO NOTHING";
-          console.log(insert_values);
+          console.log(params.storage.name,insert_values);
           var res2 = await client.query(insert_values);
           rows_added += res2.rowCount;
         }
@@ -235,8 +248,8 @@ async function selectServiceInput (params)
     " + params.schema + ".analysis, " + params.schema + ".data_sets, " + params.schema + ".data_series WHERE \
     analysis.dataset_output = data_sets.id AND data_series.id = " + params.storage.data_series_id;
 
-    console.log(is_dynamicData);
-    console.log(is_analysis);
+    console.log(params.storage.name,is_dynamicData);
+    console.log(params.storage.name,is_analysis);
     var service_table ;
     var service_type;
 
@@ -280,13 +293,13 @@ async function StoreNTable_1(params, res){
           " + params.schema + ".data_set_formats WHERE \
           data_set_formats.key = \'timestamp_property\' AND \
           data_set_formats.data_set_id = \'" + row.id + "\'";
-          console.log(sel_timestamp);
+          console.log(params.storage.name,sel_timestamp);
 
           var sel_geom = "SELECT data_set_formats.value FROM \
           " + params.schema + ".data_set_formats WHERE \
           data_set_formats.key = \'geometry_property\' AND \
           data_set_formats.data_set_id = \'" + row.id + "\'";
-          console.log(sel_geom);
+          console.log(params.storage.name,sel_geom);
 
           var res1 = await params.client.query(sel_timestamp);
           var res2 = await params.client.query(sel_geom);
@@ -344,15 +357,19 @@ async function StoreTable(params)
       var res_data = await params.client.query(sel_date);
 
       var data_until_store = res_data.rowCount ? new moment(res_data.rows[0].max) : new moment();
-      data_until_store = data_until_store ? data_until_store : new moment();
+      data_until_store = data_until_store._isValid ? data_until_store : new moment();
       var data_timestamp;
 
       // if keep_data equal zero, erases everything
       if (params.storage.keep_data > 0){
         data_until_store.subtract(params.storage.keep_data, params.storage.keep_data_unit);
       }
-      else
-        await backup_Messages(params);
+      else //erases all
+        data_until_store = new moment();
+
+      //if filter, erase all messages to collect/analysis all again, from filter origin date
+      if (params.storage.filter)
+        backup_Messages(params);
 
       params.logger.info(params.storage.name + ": Removing data before " + data_until_store.format('YYYY-MM-DD HH:mm:ss'));
 
@@ -365,12 +382,12 @@ async function StoreTable(params)
       var sql_delete = "DELETE FROM " + params.table_name + " WHERE \
       " + params.table_name + "." + params.timestamp_prop + " < \'" + data_until_store.format('YYYY-MM-DD HH:mm:ss') + "\' \
       RETURNING *";
-      //  console.log(sql_delete);
+      //  console.log(params.storage.name,sql_delete);
       //teste ->retornar o código anterior depoius de testar
       //var sql_delete = "SELECT * FROM " + params.table_name + " WHERE \
      // " + params.table_name + "." + params.timestamp_prop + " < \'" + data_until_store.format('YYYY-MM-DD HH:mm:ss') + "\' \
       //ORDER BY " + params.timestamp_prop + " ASC";
-        console.log(sql_delete);
+        console.log(params.storage.name,sql_delete);
 
         var res_del = await client_proj.query(sql_delete, function (err){
           if (err)
@@ -404,10 +421,11 @@ async function StoreTable(params)
           storages.id = \'" + params.storage.id + "\'";
         
           var data_provider_out = await params.client.query(sql_data_provider_out);
-          //console.log(JSON.stringify(res3.rows[0], null, 4));
+          //console.log(params.storage.name,JSON.stringify(res3.rows[0], null, 4));
           uri = data_provider_out.rows[0].uri;
-          console.log(uri);
+          console.log(params.storage.name,uri);
 
+          //To verify if table contains geometric information
           var selecttypes = "SELECT \
             g.column_name, \
             g.column_default, \
@@ -478,11 +496,14 @@ async function StoreTable(params)
 
         }
 
-        if (data_timestamp){
-          params.storage.process.data_timestamp = params.storage.process.data_timestamp ? 
-          data_timestamp.isAfter(params.storage.process.data_timestamp) ?
-          data_timestamp : params.storage.process.data_timestamp : params.storage.process.data_timestamp;
-        }
+        // if (data_timestamp){
+        //   params.storage.process.data_timestamp = params.storage.process.data_timestamp ? 
+        //   data_timestamp.isAfter(params.storage.process.data_timestamp) ?
+        //   data_timestamp : params.storage.process.data_timestamp : params.storage.process.data_timestamp;
+        // }
+        if (data_timestamp)
+          params.storage.process.data_timestamp = data_timestamp ;
+
         params.logger.log('info', params.storage.name + ": " + res_del.rowCount + " rows removed from " + params.table_name);       
 
         var obj = {
@@ -526,28 +547,27 @@ async function updateMessages(params){
       else{
         insertvalues = "INSERT INTO " + params.schema + "."  + service_table + " (\
         process_id, status, start_timestamp, last_process_timestamp) \
-        VALUES(" + params.storage.id + "," + params.storage.process.status + ", \'\
-        " + start + "\', \'" + last + "\')";
+        VALUES(" + params.storage.id + "," + params.storage.process.status + ", \'" + start + "\', \'" + last + "\') RETURNING *";
       }
 
-      console.log(insertvalues);
+      console.log(params.storage.name,insertvalues);
       
       params.client.query(insertvalues, async (err, res) =>{
         if (err){
-          console.log(insertvalues + " ==> " + err);
+          console.log(params.storage.name,insertvalues + " ==> " + err);
           throw err;
         }
         if (!params.storage.process.data_timestamp){
           params.storage.process.description = params.storage.process.description ? params.storage.process.description : " ";
           var insert_msg = "INSERT INTO " + params.schema + "." + service_table_message + " \
             (log_id, type, description, timestamp) VALUES(\
-            " + params.storage.id + ", " + params.storage.process.status + ", \'\
-            " + params.storage.process.description + "\', \'" + last + "\')";
-            console.log(insert_msg);
+            " + res.rows[0].id + ", " + params.storage.process.status + ", \
+            \'" + params.storage.process.description + "\', \'" + last + "\')";
+            console.log(params.storage.name,insert_msg);
             params.client.query(insert_msg);
           }
-      });
-      return resolve(true);
+          return resolve(true);
+        });
     }
     catch(e){
       params.logger.error(params.storage.name + ": "  + e);
@@ -556,6 +576,65 @@ async function updateMessages(params){
   });
 };
 
+async function getMessages(client, service_table_message, id){
+  return new Promise(async function resolvePromise(resolve, reject){
+    try{
+      var selec_messages = "SELECT * FROM " + service_table_message + " WHERE id = \'"  + id + "\'";
+      console.log(selec_messages);
+
+      var res = await client.query(selec_messages);
+      var messages = [];
+      if (res.rowCount){
+        row = res.rows[0];
+        var msg = {
+          id : row.id,
+          log_id : row.log_id,
+          type : row.type,
+          description : row.description,
+          timestamp : row.timestamp
+        }
+        messages.push(msg);
+      }
+
+      return resolve(messages);
+    }
+    catch(err){
+      console.log(err);
+      return reject(err);
+    }
+  });
+};
+
+
+async function getProcessLog(client, selec_log, service_table_message){
+  return new Promise(async function resolvePromise(resolve, reject){
+
+    try{
+      var logs = [];
+      var res = await client.query(selec_log);
+      for await (const row of res.rows){
+        var log ={
+          id : row.id,
+          process_id : row.process_id,
+          status : row.status,
+          start_timestamp : row.start_timestamp,
+          data_timestamp : row.data_timestamp,
+          last_process_timestamp : row.last_process_timestamp,
+          data : row.data
+        }
+  
+        var messages = await getMessages(client, service_table_message, log.id);
+        log.messages = messages;
+        logs.push(log);
+      }
+      return resolve(logs);
+    }
+    catch(err){
+      console.log(err);
+      return reject(err);
+    }
+  });
+};
 
 module.exports = {
 /**
@@ -591,8 +670,8 @@ module.exports = {
             REFERENCES " + params.schema + "." + service_table +"(id) MATCH SIMPLE\
             ON UPDATE NO ACTION ON DELETE NO ACTION)";
       
-      console.log(createtable);
-      console.log(createtable_messages);
+      console.log(params.storage.name,createtable);
+      console.log(params.storage.name,createtable_messages);
       var res1 = await params.client.query(createtable);
       var res2 = await params.client.query(createtable_messages);
     }
@@ -648,8 +727,10 @@ module.exports = {
         if (params.storage.keep_data > 0){
           data_until_store.subtract(params.storage.keep_data, params.storage.keep_data_unit);
         }
-        else
-          await backup_Messages(params);
+
+        //if filter, erase all messages to collect/analysis all again, from filter origin date
+        if (params.storage.filter)
+          backup_Messages(params);
 
         var dateObj = new Date(res_data.rows[0].max);
         var momentObj = moment(dateObj);
@@ -673,36 +754,31 @@ module.exports = {
         var uri = res1.rows[0].uri;
         var mask = res1.rows[0].value;
         var path = uri.slice(uri.indexOf("//") +2, uri.lenght) + "/" + mask.slice(0,mask.indexOf("/"));
-        console.log("path "+path);
+        console.log(params.storage.name,"path "+path);
         var regexString = await storageUtils.terramaMask2Regex( mask.slice(mask.indexOf("/")+1, mask.lenght));
         const regex = new Regex(regexString);
         console.log ("no store " + regexString);
 
-        var data_provider_out = "Select data_providers.uri from \
-        " + params.schema + ".data_providers," + params.schema + ".storages WHERE \
-        data_providers.id = \'" + params.storage.data_provider_id+"\'";
-
-        var res3 = await params.client.query(data_provider_out);
-        var data_out = res3.rows[0].uri;
+        var data_out = params.storage.uri;
 
         if (params.storage.zip){
-          data_out = data_out.slice(data_out.indexOf("//")+2, data_out.lenght) + "/" + params.storage.uri + "/" + mask.slice(0,mask.indexOf("%"));
+          data_out = data_out.slice(params.storage.uri.indexOf("//")+2, params.storage.uri.lenght) + "/" + mask.slice(0,mask.indexOf("%"));
+          console.log("ZIPFILE", data_out);
           var zip = new AdmZip();
         }
         else{
-          data_out = data_out.slice(data_out.indexOf("//")+2, data_out.lenght) + "/" + params.storage.uri + "/" + mask.slice(0,mask.indexOf("/"));
-          console.log(data_out); 
+          data_out = data_out.slice(params.storage.uri.indexOf("//")+2, params.storage.uri.lenght) + "/" + params.storage.uri + "/" + mask.slice(0,mask.indexOf("/"));
+          console.log(params.storage.name,data_out); 
         }
 
+        var moved_files = 0;
+        var deleted_files = 0;
         await fs.readdir(path, async function(err4, files){
           if (err4){
             params.logger.error(params.storage.name + ": "  + err4);
             throw err4;
           }
-          var moved_files = 0;
-          var deleted_files = 0;
-          for(var i=0; i<files.length; i++){
-            var file = files[i];
+          for (var file of files){
             var match = regex.exec(file);
             //test if filename match with mask
             if (match){
@@ -765,13 +841,14 @@ module.exports = {
             var maskzip = mask.slice(mask.indexOf("%"), mask.indexOf("."));
             maskzip = maskzip.replace(/%/g,'');
             var zipfile = data_out + moment().format(maskzip) + ".zip";
-            console.log(zipfile);
-            if (deleted_files > 0)
-              zip.writeZip(zipfile);
+            console.log(params.storage.name,zipfile);
+            zip.writeZip(zipfile);
           }
-
+  
+          params.storage.process.status = StatusLog.DONE;
+  
           updateMessages(params);
-
+  
           var obj = {
             flag: true,
             moved_files: moved_files,
@@ -781,7 +858,7 @@ module.exports = {
             data_timestamp: data_timestamp,
             zipfile : zipfile
           }; 
-
+  
           return resolve(obj);
         });
       }
@@ -817,14 +894,14 @@ module.exports = {
       service_types.id = service_instances.service_type_id AND \
       service_instances.id =  \'" + params.storage.service_instance_id + "\' AND \
       storages.id = \'" + params.storage.id + "\'";
-      console.log(select_sql);
-      console.log('Executing ' + params.storage.name);
+      console.log(params.storage.name,select_sql);
+      console.log(params.storage.name,'Executing ' + params.storage.name);
       params.logger.log('info', "Initializing execution of " + params.storage.name);
 
       try{
         var res1 = await params.client.query(select_sql);
 
-        //console.log(JSON.stringify(res1.rows[0], null, 4));
+        //console.log(params.storage.name,JSON.stringify(res1.rows[0], null, 4));
 
         var params1 = {
           storage : params.storage,
@@ -833,7 +910,7 @@ module.exports = {
           logger: params.logger,
           table_name : table_name,
           database_project : res1.rows[0].uri,
-          table_name_back : params.storage.uri,
+          table_name_back : params.storage.uri.slice(params.storage.uri.lastIndexOf("/")+1, params.storage.uri.length),
           timestamp_prop : 'datetime'
         };
 
@@ -904,6 +981,36 @@ module.exports = {
         return reject(err);
       }
     });
-  }
+  },
 
+  getLogs: async function(client, schema, service_instance_id, process_id, begin, end){
+    return new Promise(async function resolvePromise(resolve, reject){
+      if(begin > end)
+        swap(begin, end);
+  
+      var rowNumbers = (end - begin) + 1;
+
+      var service_table = "storage_" + service_instance_id;
+      var service_table_message = schema + "." + service_table + "_messages";
+
+      var selec_log = "SELECT * FROM " + schema + "." + service_table + " WHERE process_id = \'" + process_id + "\' \
+      ORDER BY id DESC LIMIT \'" + rowNumbers + "\' OFFSET \'" + begin + "\'";
+      console.log(selec_log);
+
+      await getProcessLog(client, selec_log, service_table_message)
+      .catch(err => {
+        console.log(err);
+      })
+      .then (logs => {
+        var obj ={
+          instance_id : service_instance_id,
+          process_id : process_id,
+          log : logs
+        }
+        var objs=[];
+        objs.push(obj);
+        return resolve(objs);
+      });
+    });
+  }
 }

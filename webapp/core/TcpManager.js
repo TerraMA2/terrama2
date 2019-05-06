@@ -193,7 +193,8 @@ function _getClient(connection) {
 var logs = {
   collectors: [],
   analysis: [],
-  views: []
+  views: [],
+  storages: []
 };
 
 /**
@@ -490,8 +491,11 @@ TcpManager.prototype.initialize = function(client) {
       case ServiceType.ANALYSIS:
         target = logs.analysis;
         break;
-      case ServiceType.VIEW:
+        case ServiceType.VIEW:
         target = logs.views;
+        break;
+      case ServiceType.STORAGE:
+        target = logs.storages;
         break;
     }
 

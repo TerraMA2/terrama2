@@ -219,6 +219,7 @@ var DataManager = module.exports = {
             var storageService = Object.assign({}, collectorService);
             storageService.name = "Local Storage";
             storageService.description = "Local service for Storage";
+            storageService.pathToBinary = "storage_app.js",
             storageService.port = 5000;
             storageService.service_type_id = Enums.ServiceType.STORAGE;
 

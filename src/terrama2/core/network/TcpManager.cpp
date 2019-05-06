@@ -417,6 +417,9 @@ void terrama2::core::TcpManager::sendSignalSlot(QTcpSocket* tcpSocket, TcpSignal
 {
   TERRAMA2_LOG_DEBUG() << QObject::tr("Sending signal information...");
 
+  QByteArray docByteArray = answer.toJson(QJsonDocument::Compact);
+  std::cout << "sendSignalSlot " << docByteArray.toStdString() << std::endl;
+
   const std::string beginOfMessage = "(BOM)";
   const std::string endOfMessage = "(EOM)";
 
