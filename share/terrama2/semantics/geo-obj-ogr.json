@@ -6,7 +6,7 @@
     "type": "GEOMETRIC_OBJECT",
     "temporality": "DYNAMIC",
     "format": "OGR",
-    "providers_type_list": ["FILE", "FTP" ],
+    "providers_type_list": ["FILE", "FTP", "HTTP", "HTTPS" ],
     "metadata": {
       "input_geometry_property": "OGR_GEOMETRY",
       "geometry_property": "geom",
@@ -93,7 +93,7 @@
     "type": "GEOMETRIC_OBJECT",
     "temporality": "DYNAMIC",
     "format": "OGR",
-    "providers_type_list": ["FILE", "FTP"],
+    "providers_type_list": ["FILE", "FTP", "HTTP", "HTTPS"],
     "metadata": {
       "input_timestamp_property": "data",
       "input_geometry_property": "OGR_GEOMETRY",

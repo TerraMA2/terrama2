@@ -1,16 +1,16 @@
 define([],()=> {
   class QueryBuilderComponent {
-    constructor(i18n) {
+    constructor(i18n, debounce) {
       this.title = i18n.__("Query Builder");
-    }
 
-    onChangeQueryBuilder() {
-      const { model } = this;
-      this.onChange({ query: model });
+      this.onChangeQueryBuilder = debounce(() => {
+        const { model } = this;
+        this.onChange({ query: model });
+      }, 1000, false);
     }
   }
 
-  QueryBuilderComponent.$inject = ["i18n"];
+  QueryBuilderComponent.$inject = ['i18n', 'debounce'];
 
   const component = {
     bindings : {

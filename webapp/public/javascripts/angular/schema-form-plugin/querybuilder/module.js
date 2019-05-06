@@ -11,7 +11,8 @@ define([
         </label>
         <div class="form-group">
           <div class="row">
-            <query-builder model="ctrl.analysis.metadata.queryBuilder" ng-init=\"$$value$$=$$value$$||[];ctrl.init($$value$$)\" attributes="ctrl.attributes">
+            <query-builder model="$$value$$" ng-init=\"$$value$$=$$value$$||[];ctrl.init($$value$$)\" attributes="ctrl.attributes"
+                           on-change="ctrl.onChange(queryBuilder)">
             </query-builder>
           </div>
         </div>

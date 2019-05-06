@@ -1,5 +1,9 @@
-#show-menu, #show-menu .sidebar-toggle .icon-bar {
+#show-menu, #show-menu .sidebar-toggle .icon-bar, .sidebar-toggle {
   display: none
+}
+
+.sidebar-toggle{
+  font-size: 20px
 }
 
 .imgs img, .main-header .logo-mini>img, .sidebar-mini.sidebar-collapse #dynamic {
@@ -8,6 +12,10 @@
 
 #content, #terrama2-map, .content, .content-wrapper, body, html {
   overflow: hidden!important
+}
+
+#terrama2-map{
+  width: 100%;
 }
 
 .map {
@@ -280,10 +288,7 @@ img[src=""] {
       margin-left: 50px
   }
   #map-tools {
-      display: inline
-  }
-  .sidebar-toggle {
-      display: none
+      display: inline-block;
   }
 }
 
@@ -358,7 +363,6 @@ img[src=""] {
 }
 
 #currentDate, .animate-tool-button, .map-tool-button {
-  z-index: 9999;
   padding: 3px;
   max-height: 350px;
   background-color: rgba(0, 0, 0, .4)
@@ -425,9 +429,10 @@ img[src=""] {
 }
 
 .map-tool-button {
-  position: absolute;
   border-radius: 2px;
-  right: 15px
+  right: 15px !important;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 .animate-tool-button {
@@ -488,15 +493,8 @@ img[src=""] {
 #map-tools {
   z-index: 999999;
   position: absolute;
-  right: 0
-}
-
-#loginButton {
-  top: 20px
-}
-
-#terrama2-map .ol-zoom {
-  top: 60px
+  right: 15px;
+  margin-top: 40px;
 }
 
 #terrama2-map .ol-attribution, #terrama2-map .ol-zoom {
@@ -507,33 +505,9 @@ img[src=""] {
   bottom: 20px
 }
 
-#toggleButton {
-  top: 130px
-}
-
 #toggleButton>button {
   color: #000;
   font-size: 22px
-}
-
-#moveMap {
-  top: 170px
-}
-
-#dragbox {
-  top: 210px
-}
-
-#legendsButton {
-  top: 250px
-}
-
-#getAttributes {
-  top: 290px
-}
-
-#tableButton {
-  top: 330px
 }
 
 #reloadAnimation {
@@ -725,6 +699,10 @@ img[src=""] {
   margin-right: 9px
 }
 
+.terrama2-layerexplorer-checkbox{
+  margin-bottom: -26px !important
+}
+
 #layer-toolbox .layer-toolbox-body, #legend-box>.legend-body {
   padding: 10px;
   overflow: auto;
@@ -781,7 +759,7 @@ img[src=""] {
 }
 
 #projects {
-  background-color: #1a2226;
+  background-color: rgb(34, 45, 50);
   color: #b8c7ce;
   border: none;
   width: 100%;
@@ -793,7 +771,30 @@ img[src=""] {
   background-image: url(../images/arrow-down.png);
   background-size: 17px;
   background-repeat: no-repeat;
-  background-position: 204px 12px
+  background-position: 204px 12px;
+  text-shadow: 1px 1px #000;
+  font-weight: bold
+}
+
+.header, .layer-name, #about-btn{
+  text-shadow: 1px 1px #000;
+  font-weight: bold;
+  color: #b8c7ce;
+}
+.header:hover{
+  background-color: rgba(26, 34, 38)
+}
+.header:hover, .layer-name:hover, #about-btn:hover{
+  color: #8a989e;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#projects:hover {
+  color: #8a989e;
+  text-decoration: none;
+  cursor: pointer;
+  background-color: rgba(26, 34, 38)
 }
 
 #projects::-ms-expand {
@@ -820,26 +821,19 @@ img[src=""] {
   color: #09d409
 }
 
-#authentication-div {
-  background-color: #e2e2e2;
-  padding: 10px;
-  list-style-type: none;
-  top: 20px;
-  position: absolute;
-  z-index: 9999999;
-  right: 60px;
-  width: 250px;
-  border-radius: 5px;
-  border: 1px solid #c5c5c5
-}
-
 #about-dialog {
   padding: 0!important;
   margin: 0 auto;
   text-align: justify;
-  font-size: 18px
+  font-size: 18px;
 }
 
+.ui-dialog{
+  width: calc(100% - 230px) !important;
+  height: calc(100% - 80px) !important;
+  bottom: 50px;
+  overflow: auto
+}
 #programa-cerrado-image, #terrama2-about-image {
   background-size: 300px;
   background-repeat: no-repeat;
@@ -1021,8 +1015,6 @@ img[src=""] {
 .header-logo {
   display: flex;
   flex-direction: row;
-  align-items: center;
-  justify-content: center
 }
 
 .main-header.navbar {
@@ -1033,9 +1025,340 @@ img[src=""] {
   .main-sidebar, .left-side {
       padding-top: 50px!important;
   }
+  .ui-dialog{
+    width: 100% !important;
+    height: calc(100% - 70px) !important;
+    bottom: 50px;
+    overflow: auto;
+  }
+  .sidebar-toggle{
+    display: block;
+  }
 }
 
 .sidebar-toggle {
   color: #fff!important;
   font-size: 22px!important
+}
+
+.chart-panel{
+  width: calc(100% - 20px);
+  margin: 10px;
+  left: -100%;
+  background-color: rgba(0,0,0,.2);
+  border: 1px solid rgba(0,0,0,.2);
+  border-radius: 5px;
+  padding-top: 15px;
+  display: none;
+  overflow-x: auto;
+  overflow-y: auto;
+  cursor: default;
+  position: absolute;
+  padding-top: 0px !important;
+  z-index: 9999999;
+  max-height: calc(100% - 80px);
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px transparent; 
+  border-radius: 10px;
+}
+ 
+::-webkit-scrollbar-thumb {
+  background: rgba(70, 70, 70, 0.3); 
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #000;
+}
+
+.chart-panel > .panel-group{
+  margin-bottom: 0 !important
+}
+
+.panel-heading:hover {
+  cursor: pointer;
+  background-color: #eeefef
+}
+
+.closeChart{
+  font-size: 20px;
+  cursor: pointer;
+  position: fixed;
+  right: 16px;
+  top: 70px;
+}
+
+.closeChart:hover{
+  color: #666
+}
+
+.chart {
+  background-color: rgba(255,255,255,.85);
+  border: 1px solid rgba(0,0,0,.1);
+  box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,.1);
+}
+.chart > svg{
+  width: 100% !important;
+}
+
+.logo-container > .logo-img{
+  height: 40px;
+}
+
+.logo-container{
+  display: flex;
+  padding: 10px;
+  float: left;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo-container > .logo-text{
+  font-size: 22px;
+  font-weight: bold;
+  text-shadow: 1px 1px #000;
+  color: #eee;
+  padding-left: 10px 
+}
+
+.daterangepicker{
+  z-index: 9999999 !important
+}
+
+.group-name:hover, .terrama2-layerexplorer-checkbox-span:hover{
+  color: #8a989e;
+  text-decoration: none;
+  cursor: pointer;
+  background-color: rgba(26, 34, 38)
+}
+
+.group-name, .terrama2-layerexplorer-checkbox-span{
+  text-shadow: 1px 1px #000 !important;
+  font-weight: bold !important;
+  padding: 8px !important
+}
+
+#authentication-div {
+  background-color: #e2e2e2;
+  padding: 10px;
+  list-style-type: none;
+  position: absolute;
+  z-index: 9999999;
+  right: 60px;
+  width: 250px;
+  border-radius: 5px;
+  border: 1px solid #c5c5c5
+}
+
+#terrama2-map .ol-zoom {
+  top: unset;
+  left: unset;
+  right: 15px !important;
+  bottom: 15px !important;
+  position: fixed !important
+}
+
+.ol-attribution{
+  display: none !important;
+}
+
+.ol-rotate{
+  display: none !important;
+}
+
+.d-none {
+  display: none !important;
+}
+
+.d-inline {
+  display: inline !important;
+}
+
+.d-inline-block {
+  display: inline-block !important;
+}
+
+.d-block {
+  display: block !important;
+}
+
+.d-flex {
+  display: -ms-flexbox !important;
+  display: flex !important;
+}
+
+.flex-row {
+  -ms-flex-direction: row !important;
+  flex-direction: row !important;
+}
+
+.flex-column {
+  -ms-flex-direction: column !important;
+  flex-direction: column !important;
+}
+
+.flex-row-reverse {
+  -ms-flex-direction: row-reverse !important;
+  flex-direction: row-reverse !important;
+}
+
+.flex-column-reverse {
+  -ms-flex-direction: column-reverse !important;
+  flex-direction: column-reverse !important;
+}
+
+.flex-wrap {
+  -ms-flex-wrap: wrap !important;
+  flex-wrap: wrap !important;
+}
+
+.flex-nowrap {
+  -ms-flex-wrap: nowrap !important;
+  flex-wrap: nowrap !important;
+}
+
+.flex-wrap-reverse {
+  -ms-flex-wrap: wrap-reverse !important;
+  flex-wrap: wrap-reverse !important;
+}
+
+.flex-fill {
+  -ms-flex: 1 1 auto !important;
+  flex: 1 1 auto !important;
+}
+
+.flex-grow-0 {
+  -ms-flex-positive: 0 !important;
+  flex-grow: 0 !important;
+}
+
+.flex-grow-1 {
+  -ms-flex-positive: 1 !important;
+  flex-grow: 1 !important;
+}
+
+.flex-shrink-0 {
+  -ms-flex-negative: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+.flex-shrink-1 {
+  -ms-flex-negative: 1 !important;
+  flex-shrink: 1 !important;
+}
+
+.justify-content-start {
+  -ms-flex-pack: start !important;
+  justify-content: flex-start !important;
+}
+
+.justify-content-end {
+  -ms-flex-pack: end !important;
+  justify-content: flex-end !important;
+}
+
+.justify-content-center {
+  -ms-flex-pack: center !important;
+  justify-content: center !important;
+}
+
+.justify-content-between {
+  -ms-flex-pack: justify !important;
+  justify-content: space-between !important;
+}
+
+.justify-content-around {
+  -ms-flex-pack: distribute !important;
+  justify-content: space-around !important;
+}
+
+.align-items-start {
+  -ms-flex-align: start !important;
+  align-items: flex-start !important;
+}
+
+.align-items-end {
+  -ms-flex-align: end !important;
+  align-items: flex-end !important;
+}
+
+.align-items-center {
+  -ms-flex-align: center !important;
+  align-items: center !important;
+}
+
+.align-items-baseline {
+  -ms-flex-align: baseline !important;
+  align-items: baseline !important;
+}
+
+.align-items-stretch {
+  -ms-flex-align: stretch !important;
+  align-items: stretch !important;
+}
+
+.align-content-start {
+  -ms-flex-line-pack: start !important;
+  align-content: flex-start !important;
+}
+
+.align-content-end {
+  -ms-flex-line-pack: end !important;
+  align-content: flex-end !important;
+}
+
+.align-content-center {
+  -ms-flex-line-pack: center !important;
+  align-content: center !important;
+}
+
+.align-content-between {
+  -ms-flex-line-pack: justify !important;
+  align-content: space-between !important;
+}
+
+.align-content-around {
+  -ms-flex-line-pack: distribute !important;
+  align-content: space-around !important;
+}
+
+.align-content-stretch {
+  -ms-flex-line-pack: stretch !important;
+  align-content: stretch !important;
+}
+
+.align-self-auto {
+  -ms-flex-item-align: auto !important;
+  align-self: auto !important;
+}
+
+.align-self-start {
+  -ms-flex-item-align: start !important;
+  align-self: flex-start !important;
+}
+
+.align-self-end {
+  -ms-flex-item-align: end !important;
+  align-self: flex-end !important;
+}
+
+.align-self-center {
+  -ms-flex-item-align: center !important;
+  align-self: center !important;
+}
+
+.align-self-baseline {
+  -ms-flex-item-align: baseline !important;
+  align-self: baseline !important;
+}
+
+.align-self-stretch {
+  -ms-flex-item-align: stretch !important;
+  align-self: stretch !important;
 }

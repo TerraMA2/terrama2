@@ -194,7 +194,7 @@ double terrama2::services::analysis::core::grid::zonal::forecast::accum::operato
         {
           std::vector<double> values;
 
-          utils::getRasterValues<double>(geomResult, raster, band, tempValuesMap);
+          terrama2::core::getRasterValues<double>(geomResult, raster.get(), band, tempValuesMap);
           transform(tempValuesMap.cbegin(), tempValuesMap.cend(), back_inserter(values), [](const std::pair<std::pair<int, int>, double>& val){ return val.second;} );
 
           if(!values.empty())

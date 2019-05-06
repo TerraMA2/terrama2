@@ -8,7 +8,9 @@
     "format": "GDAL",
     "providers_type_list": [
       "FILE",
-      "FTP"
+      "FTP",
+      "HTTP",
+      "HTTPS"
     ],
     "metadata": {
       "timestamp_property": "file_timestamp"
@@ -177,7 +179,9 @@
     "format": "GDAL",
     "providers_type_list": [
       "FILE",
-      "FTP"
+      "FTP",
+      "HTTP",
+      "HTTPS"
     ],
     "allow_storage": true,
     "metadata": {
@@ -388,7 +392,9 @@
     "format": "GDAL",
     "providers_type_list": [
       "FILE",
-      "FTP"
+      "FTP",
+      "HTTP",
+      "HTTPS"
     ],
     "metadata": {
       "timestamp_property": "file_timestamp"
@@ -558,7 +564,9 @@
     "format": "GDAL",
     "providers_type_list": [
       "FILE",
-      "FTP"
+      "FTP",
+      "HTTP",
+      "HTTPS"
     ],
     "metadata": {
       "timestamp_property": "file_timestamp"

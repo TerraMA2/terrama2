@@ -81,7 +81,8 @@ define([], function() {
      */
     self.scheduleOptions = {
       showHistoricalOption: true,
-      showAutomaticOption: true
+      showAutomaticOption: true,
+      showFileNameOnTimeUnit: false
     };
     /**
      * It defines a helper messages associated a components. For example, there is no active service... The validate button will be disabled with
@@ -675,6 +676,7 @@ define([], function() {
           if (self.analysis.grid) {
             delete self.analysis.grid;
           }
+          self.scheduleOptions.showFileNameOnTimeUnit = false;
 
           self.dataSeriesBoxName = i18n.__("Additional Data");
           switch(intTypeId) {
@@ -690,6 +692,8 @@ define([], function() {
               self.dataSeriesBoxName = i18n.__("Grid Data Series");
               dataseriesFilterType = 'GRID';
               delete self.operators.attributes.data;
+
+              self.scheduleOptions.showFileNameOnTimeUnit = true;
               break;
             case AnalysisService.types.MONITORED:
               semanticsType = DataSeriesService.DataSeriesType.ANALYSIS_MONITORED_OBJECT;
@@ -1200,6 +1204,9 @@ define([], function() {
               var dt = scheduleValues.schedule_time;
               scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
               scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
+              break;
+            case 'file':
+              scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
               break;
             default:
               if (scheduleValues.scheduleType == "4"){

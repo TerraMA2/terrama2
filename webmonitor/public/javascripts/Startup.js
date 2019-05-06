@@ -11,6 +11,7 @@ requirejs(
     'components/Slider',
     'components/AttributesTable',
     'components/Legends',
+    'components/Charts',
     'components/GetAttributesTool',
     'components/MapTools',
     'components/Utils',
@@ -27,6 +28,7 @@ requirejs(
     Slider,
     AttributesTable,
     Legends,
+    Charts,
     GetAttributesTool,
     MapTools,
     Utils,
@@ -60,6 +62,7 @@ requirejs(
         Slider.init();
         AttributesTable.init();
         Legends.init();
+        Charts.init();
         GetAttributesTool.init();
         MapTools.init();
         AddLayerByUri.init();

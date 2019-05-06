@@ -11,8 +11,12 @@ module.exports = function(app) {
   var DataSeriesTemporality = require('./../../core/Enums').TemporalityType;
   var TokenCode = require('./../../core/Enums').TokenCode;
   var ScheduleType = require('./../../core/Enums').ScheduleType;
+  // data model
+  var DataModel = require('./../../core/data-model');
   // Facade
+  const DataSeriesFacade = require('./../../core/facade/DataSeries')
   var DataProviderFacade = require("./../../core/facade/DataProvider");
+  const CollectorFacade = require('./../../core/facade/Collector');
   var RequestFactory = require("./../../core/RequestFactory");
 
   const { createView, destroyView, validateView } = require('./../../core/utility/createView');
@@ -311,10 +315,13 @@ module.exports = function(app) {
                   collector.schedule = newSchedule;
                 }
               }
-              return DataManager.updateCollector(collector.id, collector, options)
-                .then(() => DataManager.updateDataSeries(parseInt(dataSeriesId), dataSeriesObject.input, options))
-                // try update data series output
-                .then(() => DataManager.updateDataSeries(parseInt(collector.data_series_output), dataSeriesObject.output, options))
+
+              // Update collector data series
+              await DataManager.updateDataSeries(parseInt(dataSeriesId), dataSeriesObject.input, options);
+              await DataManager.updateDataSeries(parseInt(collector.data_series_output), dataSeriesObject.output, options);
+
+              const collectorFacade = new CollectorFacade();
+              return collectorFacade.updateCollector(collector.id, collector, options)
                 // verify if must remove a schedule
                 .then(() => {
                   if (removeSchedule){
@@ -401,14 +408,17 @@ module.exports = function(app) {
                     ]);
                 })
                 // send via TCP
-                .then(function(dSeries) {
+                .then(async function(dSeries) {
                   const dataSeriesOutput = dSeries[0];
                   const dataSeriesInput = dSeries[1];
 
                   collector.project_id = request.session.activeProject.id;
+
+                  const updatedCollector = await DataManager.getCollector({ id: collector.id }, options);
+
                   const output = {
                     "DataSeries": [dataSeriesInput.toObject(), dataSeriesOutput.toObject()],
-                    "Collectors": [collector.toObject()]
+                    "Collectors": [updatedCollector.toObject()]
                   };
 
                   return output;
@@ -753,6 +763,21 @@ module.exports = function(app) {
         const dataProvider = await DataManager.getDataProvider({ id: provider });
         await validateView(dataProvider.uri, tableName, attributes, whereCondition);
         response.json({});
+      } catch (err) {
+        response.status(400);
+        response.json({ error: err.message });
+      }
+    },
+
+    retrieveAsWKT: async (request, response) => {
+      const { id, tableName, where } = request.query;
+
+      try {
+        if (tableName) {
+          response.json(await DataSeriesFacade.retrieveWKT(tableName, null, where));
+        } else {
+          response.json(await DataSeriesFacade.retrieveWKTFromId(id, where));
+        }
       } catch (err) {
         response.status(400);
         response.json({ error: err.message });

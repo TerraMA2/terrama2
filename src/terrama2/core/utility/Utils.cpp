@@ -71,10 +71,11 @@
 #include "Utils.hpp"
 #include "terrama2_config.hpp"
 
-//Qt
+// Qt
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonParseError>
+#include <QUrl>
 
 namespace te
 {
@@ -683,4 +684,11 @@ std::vector<terrama2::core::DataSetAlias> terrama2::core::getAttributesProperty(
   }
 
   return aliasList;
+}
+
+te::core::URI terrama2::core::normalizeURI(const std::string& uri)
+{
+  QUrl wrapURI(QString::fromStdString(uri));
+
+  return te::core::URI(wrapURI.toString(QUrl::NormalizePathSegments).toStdString());
 }
