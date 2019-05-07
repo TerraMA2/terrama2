@@ -103,13 +103,16 @@ let Storages = [];
 */
 let joblist = [];
 
-async function runStorage(clientSocket, client, storage){
+async function runStorage(clientSocket, client, storage1){
   return new Promise(async function resolvePromise(resolve, reject){
     try{
-      console.log("Starting ", storage.name, " ", moment().format());
-      //var buffer =  await TcpManager.makebuffer_be(Signals.START_PROCESS_SIGNAL, {id:storage.id}) ;
-    // console.log(buffer);
-      //clientSocket.write(buffer);
+      console.log("Starting ", storage1.name, " ", moment().format());
+    
+      //Temporary, while frontend update don work well, gets storage from database
+      var sql_get_storage = "SELECT * from "+ schema + ".storages WHERE id = \'"+ storage1.id + "\'";
+      var res_storage = await client.query(sql_get_storage);
+
+      var storage = res_storage.rows[0];
 
       if (storage.erase_all) //flag has priority 
         storage.keep_data = 0;

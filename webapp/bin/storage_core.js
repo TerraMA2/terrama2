@@ -16,15 +16,8 @@ var storageUtils = require("./utils");
  * @param {*} params.client : database client
  * @param {*} params.logger : logger file
  */
-async function backup_Messages(params){
+async function backup_Messages(params, service_table, service_type){
   try{
-    var res_1 = await selectServiceInput(params, function(err){
-      throw err;
-    })
- 
-    var service_table = res_1.service_table;
-    var service_type = res_1.service_type;  
-
     var sel_process = "SELECT " + service_type + ".id FROM \
     " + params.schema + "." + service_type +", " + params.schema + ".storages WHERE \
     " + service_type + ".data_series_output = \'" + params.storage.data_series_id + "\' AND \
@@ -36,8 +29,7 @@ async function backup_Messages(params){
       var process_id = res.rows[0].id;
       
     //Copy messages from process to storage_historics
-      var sql_insert = "INSERT INTO " + params.schema + ".storage_historics (\
-      process_id, status, start_timestamp, data_timestamp, last_process_timestamp, data, \
+      var sql_insert = "INSERT INTO " + params.schema + ".storage_historics (process_id, status, start_timestamp, data_timestamp, last_process_timestamp, data, \
       origin, type, description, storage_id) SELECT \
       a.process_id, a.status, a.start_timestamp, a.data_timestamp, a.last_process_timestamp, \
       a.data, \'" + service_type + "\', b.type, b.description, \'" + params.storage.id + "\' FROM \
@@ -119,99 +111,103 @@ async function backup_Messages(params){
 
 
 async function insertTable(uri, table_name, params){
-  try{
-    pg.connect(uri, async (err, client, done) =>{
-      console.log(params.storage.name,"Conectou "+ uri);
+  return new Promise(async function resolvePromise(resolve, reject){
+    try{
+      pg.connect(uri, async (err, client, done) =>{
+        console.log(params.storage.name,"Conectou "+ uri);
 
-      var date_attr;
-      var create_table;
+        var date_attr;
+        var create_table;
 
-      if (params.seq){
-        var create_seq = "CREATE SEQUENCE IF NOT EXISTS " + params.seq.sequence_name + " \
-        INCREMENT " + params.seq.increment + " \
-        MINVALUE " + params.seq.minimum_value + " \
-        MAXVALUE " + params.seq.maximum_value + " \
-        START " + params.seq.start_value + " \
-        CACHE 1";
+        if (params.seq){
+          var create_seq = "CREATE SEQUENCE IF NOT EXISTS " + params.seq.sequence_name + " \
+          INCREMENT " + params.seq.increment + " \
+          MINVALUE " + params.seq.minimum_value + " \
+          MAXVALUE " + params.seq.maximum_value + " \
+          START " + params.seq.start_value + " \
+          CACHE 1";
 
-        console.log(params.storage.name,create_seq);
+          console.log(params.storage.name,create_seq);
 
-        var sequence = await client.query(create_seq);
+          var sequence = await client.query(create_seq);
 
-        create_table = "CREATE TABLE IF NOT EXISTS " + table_name + " ("
-                
-        for (let column of params.columns) {
-          create_table += column.column_name;
-          if (column.data_type == 'USER-DEFINED'){
-              create_table += " " + column.udt_name + "(" + column.type + "," + column.srid + ")";
-          }
-          else{
-            create_table +=  " " + column.data_type;
-            if (column.data_type == 'character varying')
-            create_table += "(" + column.character_maximum_length + ")"
-            if (!column.is_nullable)
-              create_table += " NOT NULL";
-            if (column.column_default)
-              create_table += " DEFAULT " + column.column_default;
-          }
-          create_table += ", ";
-        }
-        create_table += "CONSTRAINT " + params.key.constraint_name + " \
-        PRIMARY KEY (" + params.key.column_name + "))";
-      }
-      else{
-        create_table = "CREATE TABLE IF NOT EXISTS " + table_name + " ("
-                
-        for (let column of params.columns) {
-          create_table += column.column_name + " " + column.type;
-          if (column.notNull)
-            table_name += " NOT NULL";
-          if (column.default)
-            table_name += " DEFAULT " + column.default;
-          create_table += ", ";
-        }
-
-      }
-
-      console.log(params.storage.name,create_table);
-
-      var rows_added = 0;
-      var rows_read = 0;
-      client.query(create_table, async (err1, res1) => {
-        if (err1){
-          throw err1;
-        }
-        var insert = "INSERT INTO " + table_name + "(" + Object.keys(params.values.rows[0]) + ") VALUES (";
-        console.log(params.storage.name,insert);
-        for await (let row of params.values.rows){
-          var insert_values = insert;
-          var row_values = Object.values(row);
-          for await (let val of row_values){
-            if (Object.prototype.toString.call(val)=== '[object Date]')
-              insert_values += "\'" + moment(val).format('YYYY-MM-DD HH:mm:ss') + "\',";
-            else if (val !== null){
-              if (typeof(val) === 'string')
-                val = val.replace("\'", "\'\'")
-              insert_values += "\'" + val + "\',";
+          create_table = "CREATE TABLE IF NOT EXISTS " + table_name + " ("
+                  
+          for (let column of params.columns) {
+            create_table += column.column_name;
+            if (column.data_type == 'USER-DEFINED'){
+                create_table += " " + column.udt_name + "(" + column.type + "," + column.srid + ")";
             }
-            else
-              insert_values += "null,";
+            else{
+              create_table +=  " " + column.data_type;
+              if (column.data_type == 'character varying')
+              create_table += "(" + column.character_maximum_length + ")"
+              if (!column.is_nullable)
+                create_table += " NOT NULL";
+              if (column.column_default)
+                create_table += " DEFAULT " + column.column_default;
+            }
+            create_table += ", ";
           }
-          var n = insert_values.length;
-          insert_values = insert_values.slice(0, n-1); //remove last ','
-          insert_values += ") ON CONFLICT DO NOTHING";
-          console.log(params.storage.name,insert_values);
-          var res2 = await client.query(insert_values);
-          rows_added += res2.rowCount;
+          create_table += "CONSTRAINT " + params.key.constraint_name + " \
+          PRIMARY KEY (" + params.key.column_name + "))";
         }
-        params.logger.info(params.storage.name + ": " + rows_added + " rows added in table " + table_name);
+        else{
+          create_table = "CREATE TABLE IF NOT EXISTS " + table_name + " ("
+                  
+          for (let column of params.columns) {
+            create_table += column.column_name + " " + column.type;
+            if (column.notNull)
+              table_name += " NOT NULL";
+            if (column.default)
+              table_name += " DEFAULT " + column.default;
+            create_table += ", ";
+          }
+
+        }
+
+        console.log(params.storage.name,create_table);
+
+        var rows_added = 0;
+        var rows_read = 0;
+        client.query(create_table, async (err1, res1) => {
+          if (err1){
+            throw err1;
+          }
+          var insert = "INSERT INTO " + table_name + "(" + Object.keys(params.values.rows[0]) + ") VALUES (";
+          console.log(params.storage.name,insert);
+          for await (let row of params.values.rows){
+            var insert_values = insert;
+            var row_values = Object.values(row);
+            for await (let val of row_values){
+              if (Object.prototype.toString.call(val)=== '[object Date]')
+                insert_values += "\'" + moment(val).format('YYYY-MM-DD HH:mm:ss') + "\',";
+              else if (val !== null){
+                if (typeof(val) === 'string')
+                  val = val.replace("\'", "\'\'")
+                insert_values += "\'" + val + "\',";
+              }
+              else
+                insert_values += "null,";
+            }
+            var n = insert_values.length;
+            insert_values = insert_values.slice(0, n-1); //remove last ','
+            insert_values += ") ON CONFLICT DO NOTHING";
+            console.log(params.storage.name,insert_values);
+            var res2 = await client.query(insert_values);
+            rows_added += res2.rowCount;
+          }
+          params.logger.info(params.storage.name + ": " + rows_added + " rows added in table " + table_name);
+          return resolve(true);
+        });
       });
-    });
-  }
-  catch(err){
-    params.looger.error(params.storage.name + ": " + err);
-    throw err;
-  }
+   //   return resolve(false);
+    }
+    catch(err){
+      params.looger.error(params.storage.name + ": " + err);
+      return reject(err);
+    }
+  });
 };
 
 var getPostgisUriInfo = function(uri) {
@@ -281,7 +277,7 @@ async function StoreNTable_1(params, res){
   return new Promise(async function resolvePromise(resolve, reject){
     try{
       for (var row of res.rows){
-        var table_name_back = params.storage.uri;
+        var table_name_back = params.storage.uri.slice(params.storage.uri.lastIndexOf("/")+1, params.storage.uri.length);
         if (res.rowCount > 1) 
           table_name_back += "_" + row.value;
 
@@ -301,7 +297,9 @@ async function StoreNTable_1(params, res){
           data_set_formats.data_set_id = \'" + row.id + "\'";
           console.log(params.storage.name,sel_geom);
 
+          //Gets a attribute name of DataTime
           var res1 = await params.client.query(sel_timestamp);
+          //Gets a attribute name of GeometryData
           var res2 = await params.client.query(sel_geom);
 
           if (res1.rowCount)
@@ -312,12 +310,11 @@ async function StoreNTable_1(params, res){
         else
           timestamp = analysisTimestampPropertyName; //"execution_date"
         
-        updateMessages(params);
-
         var paramsout = {
           storage : params.storage,
           schema : params.schema,
           client : params.client,
+          logger : params.logger,
           table_name : row.value,
           database_project : row.uri,
           table_name_back : table_name_back,
@@ -325,7 +322,15 @@ async function StoreNTable_1(params, res){
           geometry_prop: geometry
         };
 
-        await StoreTable(paramsout);
+        var paramsreturn = await StoreTable(paramsout);
+        if (paramsreturn){
+          params.storage.process.last_process_timestamp = moment().format();
+          params.storage.process.data_timestamp = paramsreturn.data_timestamp;
+          params.storage.process.description = paramsreturn.description;
+          params.storage.process.status = paramsreturn.status;
+
+          updateMessages(params);
+        }
 
         return resolve();
       }
@@ -344,34 +349,14 @@ async function StoreTable(params)
       var database_proj_name = params.database_project.slice(params.database_project.lastIndexOf("/")+1, params.database_project.length);
       console.log (database_proj_name);
 
-      var res_1 =  await selectServiceInput(params);
+      var res_data = await getDataUntilStore(params);
 
-      var service_table = res_1.service_table;
-      var service_type = res_1.service_type; 
-
-      var sel_date = "SELECT MAX(data_timestamp) FROM \
-      " + params.schema + "." + service_table + ", \
-      " + params.schema + "." + service_type + " WHERE \
-      " + service_table + ".process_id = " + service_type + ".id  AND \
-      " + service_type + ".data_series_output = " + params.storage.data_series_id;
-      var res_data = await params.client.query(sel_date);
-
-      var data_until_store = res_data.rowCount ? new moment(res_data.rows[0].max) : new moment();
-      data_until_store = data_until_store._isValid ? data_until_store : new moment();
       var data_timestamp;
-
-      // if keep_data equal zero, erases everything
-      if (params.storage.keep_data > 0){
-        data_until_store.subtract(params.storage.keep_data, params.storage.keep_data_unit);
-      }
-      else //erases all
-        data_until_store = new moment();
-
       //if filter, erase all messages to collect/analysis all again, from filter origin date
       if (params.storage.filter)
-        backup_Messages(params);
+        backup_Messages(params, res_data.service_table, res_data.service_type);
 
-      params.logger.info(params.storage.name + ": Removing data before " + data_until_store.format('YYYY-MM-DD HH:mm:ss'));
+      params.logger.info(params.storage.name + ": Removing data before " + res_data.data_until_store.format('YYYY-MM-DD HH:mm:ss'));
 
       pg.connect(params.database_project, async (err6, client_proj, done) =>{
         if(err6) {
@@ -379,14 +364,23 @@ async function StoreTable(params)
           throw err6;
         }
 
-      var sql_delete = "DELETE FROM " + params.table_name + " WHERE \
-      " + params.table_name + "." + params.timestamp_prop + " < \'" + data_until_store.format('YYYY-MM-DD HH:mm:ss') + "\' \
-      RETURNING *";
-      //  console.log(params.storage.name,sql_delete);
-      //teste ->retornar o código anterior depoius de testar
-      //var sql_delete = "SELECT * FROM " + params.table_name + " WHERE \
-     // " + params.table_name + "." + params.timestamp_prop + " < \'" + data_until_store.format('YYYY-MM-DD HH:mm:ss') + "\' \
-      //ORDER BY " + params.timestamp_prop + " ASC";
+        //Attributes to be included in newtable, key is serial, so it will not be included
+        var sel_columns = "SELECT * FROM information_schema.columns WHERE table_name = \'" + params.table_name + "\'";
+        var res_columns = await client_proj.query(sel_columns, function (err7){
+          if (err7)
+            return reject(err7);
+        });
+        var columns_to_be_back = "";
+        for (var column of res_columns.rows){
+          if (!column.column_default)
+            columns_to_be_back += column.column_name + ", ";
+        }
+        
+        columns_to_be_back = columns_to_be_back.slice(0,columns_to_be_back.lastIndexOf(","));
+
+        var sql_delete = "DELETE FROM " + params.table_name + " WHERE \
+        " + params.table_name + "." + params.timestamp_prop + " < \'" + res_data.data_until_store.format('YYYY-MM-DD HH:mm:ss') + "\' \
+        RETURNING " + columns_to_be_back;
         console.log(params.storage.name,sql_delete);
 
         var res_del = await client_proj.query(sql_delete, function (err){
@@ -398,7 +392,8 @@ async function StoreTable(params)
           var obj = {
             flag: false,
             data_timestamp: "",
-            description : "No data to process"
+            description : "No data to process",
+            status: StatusLog.WARNING
           }; 
 
           return resolve(obj);
@@ -471,36 +466,38 @@ async function StoreTable(params)
           }
 
           for (var row in params_newtable.columns){
-            if (params_newtable.columns[row].column_default)
+            if (params_newtable.columns[row].column_default){
               seq_name = params_newtable.columns[row].column_default.slice(params_newtable.columns[row].column_default.indexOf("(")+1, params_newtable.columns[row].column_default.indexOf(":"))
+              params_newtable.columns[row].column_name = params_newtable.columns[row].column_name.replace(params.table_name, params.table_name_back);
+              var re = new RegExp(params.table_name, 'g'); //to replace all references
+              params_newtable.columns[row].column_default = params_newtable.columns[row].column_default.replace(re, params.table_name_back);
+            }
           }
 
-          var select_key = "SELECT column_name, \
-            constraint_name FROM information_schema.constraint_column_usage WHERE \
-            table_name = \'" + params.table_name + "\'";
+          var select_key = "SELECT column_name, constraint_name FROM information_schema.constraint_column_usage WHERE table_name = \'" + params.table_name + "\'";
+          var select_seq = "SELECT sequence_name, increment, minimum_value, maximum_value, start_value FROM information_schema.sequences WHERE sequence_name = " + seq_name + "";
 
-          var select_seq = "SELECT sequence_name, increment, minimum_value, maximum_value, start_value \
-            FROM information_schema.sequences WHERE sequence_name = " + seq_name + "";
+          console.log(select_key);
+          console.log(select_seq);
 
           var res4 = await client_proj.query(select_key);
 
           var res5 = await client_proj.query(select_seq);
 
-          if (res4.rowCount)
+          if (res4.rowCount){
             params_newtable.key = res4.rows[0];
+            params_newtable.key.column_name = params_newtable.key.column_name.replace(params.table_name, params.table_name_back);
+            params_newtable.key.constraint_name = params_newtable.key.constraint_name.replace(params.table_name, params.table_name_back);
+          }
       
-          if (res5.rowCount)
+          if (res5.rowCount){
             params_newtable.seq = res5.rows[0];
+            params_newtable.seq.sequence_name = params_newtable.seq.sequence_name.replace(re, params.table_name_back);
+          }
 
-          await insertTable(uri, params.table_name_back, params_newtable);
-
+          var res_insert_table = await insertTable(uri, params.table_name_back, params_newtable);
         }
 
-        // if (data_timestamp){
-        //   params.storage.process.data_timestamp = params.storage.process.data_timestamp ? 
-        //   data_timestamp.isAfter(params.storage.process.data_timestamp) ?
-        //   data_timestamp : params.storage.process.data_timestamp : params.storage.process.data_timestamp;
-        // }
         if (data_timestamp)
           params.storage.process.data_timestamp = data_timestamp ;
 
@@ -511,6 +508,7 @@ async function StoreTable(params)
           deleted_register: res_del.rowCount,
           table: params.table_name,
           data_timestamp: params.storage.process.data_timestamp,
+          status: StatusLog.DONE
         }; 
 
         return resolve(obj);
@@ -534,20 +532,19 @@ async function updateMessages(params){
 
       var insertvalues;
       var start = moment(params.storage.process.start_timestamp).format('YYYY-MM-DD HH:mm:ss');
-      var last = moment(params.storage.process.last_process_timestampl).format('YYYY-MM-DD HH:mm:ss');
+      var last = moment(params.storage.process.last_process_timestamp).format('YYYY-MM-DD HH:mm:ss');
       if (params.storage.process.data_timestamp){
         var data_time = moment(params.storage.process.data_timestamp).format('YYYY-MM-DD HH:mm:ss');
-        insertvalues = "INSERT INTO " + params.schema + "." + service_table + " (\
-        process_id, status, start_timestamp, data_timestamp, last_process_timestamp, data) \
-        VALUES(" + params.storage.id + ", " + params.storage.process.status + ", \
-        " + "\'" + start + "\', \'" + data_time + "\', \'" + last + "\', \
-        \'{\"processing_end_time\":[\"" + moment(params.storage.process.last_process_timestampl).format('YYYY-MM-DDTHH:mm:ssZ') + "\"],\
-        \"processing_start_time\":[\"" + moment(params.storage.process.start_process_timestampl).format('YYYY-MM-DDTHH:mm:ssZ') + "\"]}\')";
+        insertvalues = "INSERT INTO " + params.schema + "." + service_table + 
+        " (process_id, status, start_timestamp, data_timestamp, last_process_timestamp, data) VALUES(" + 
+        params.storage.id + ", " + params.storage.process.status + ", " + "\'" + start + "\', \'" + data_time +
+         "\', \'" + last + "\', \'{\"processing_end_time\":[\"" + moment(params.storage.process.last_process_timestampl).format('YYYY-MM-DDTHH:mm:ssZ') + 
+         "\"],\"processing_start_time\":[\"" + moment(params.storage.process.start_process_timestampl).format('YYYY-MM-DDTHH:mm:ssZ') + "\"]}\')";
       }
       else{
-        insertvalues = "INSERT INTO " + params.schema + "."  + service_table + " (\
-        process_id, status, start_timestamp, last_process_timestamp) \
-        VALUES(" + params.storage.id + "," + params.storage.process.status + ", \'" + start + "\', \'" + last + "\') RETURNING *";
+        insertvalues = "INSERT INTO " + params.schema + "."  + service_table + 
+        " (process_id, status, start_timestamp, last_process_timestamp) VALUES(" + 
+        params.storage.id + "," + params.storage.process.status + ", \'" + start + "\', \'" + last + "\') RETURNING *";
       }
 
       console.log(params.storage.name,insertvalues);
@@ -559,15 +556,14 @@ async function updateMessages(params){
         }
         if (!params.storage.process.data_timestamp){
           params.storage.process.description = params.storage.process.description ? params.storage.process.description : " ";
-          var insert_msg = "INSERT INTO " + params.schema + "." + service_table_message + " \
-            (log_id, type, description, timestamp) VALUES(\
-            " + res.rows[0].id + ", " + params.storage.process.status + ", \
-            \'" + params.storage.process.description + "\', \'" + last + "\')";
+          var insert_msg = "INSERT INTO " + params.schema + "." + service_table_message + 
+          " (log_id, type, description, timestamp) VALUES(" + res.rows[0].id + ", " + 
+          params.storage.process.status + ", \'" + params.storage.process.description + "\', \'" + last + "\')";
             console.log(params.storage.name,insert_msg);
             params.client.query(insert_msg);
-          }
-          return resolve(true);
-        });
+        }
+        return resolve(true);
+      });
     }
     catch(e){
       params.logger.error(params.storage.name + ": "  + e);
@@ -635,6 +631,47 @@ async function getProcessLog(client, selec_log, service_table_message){
     }
   });
 };
+
+async function getDataUntilStore(params){
+  return new Promise(async function resolvePromise(resolve, reject){
+    try{
+
+      var res_1 =  await selectServiceInput(params);
+
+      var service_table = res_1.service_table;
+      var service_type = res_1.service_type; 
+
+      var sel_date = "SELECT MAX(data_timestamp) FROM \
+      " + params.schema + "." + service_table + ", \
+      " + params.schema + "." + service_type + " WHERE \
+      " + service_table + ".process_id = " + service_type + ".id  AND \
+      " + service_type + ".data_series_output = " + params.storage.data_series_id;
+      var res_data = await params.client.query(sel_date);
+
+      var data_until_store = res_data.rowCount ? new moment(res_data.rows[0].max) : new moment();
+      data_until_store = data_until_store._isValid ? data_until_store : new moment();
+
+      // if keep_data equal zero, erases everything
+      if (params.storage.keep_data > 0){
+        data_until_store.subtract(params.storage.keep_data, params.storage.keep_data_unit);
+      }
+      else //erases all
+        data_until_store = new moment();
+
+      var res = {
+        service_table : service_table,
+        service_type : service_type,
+        data_until_store : data_until_store
+      }
+      return resolve(res);
+
+    }
+    catch(err){
+      return reject(err);
+    }
+  });
+}
+
 
 module.exports = {
 /**
@@ -715,28 +752,23 @@ module.exports = {
       try{
         var res1 = await params.client.query(select_sql);
 
+        //Get date of data of last success tiff generation
+        var res_data_tiff = await getDataUntilStore(params);
+
         //Get date of data of last success storage
-        var service_table = "storage_" + params.storage.service_instance_id;
-        var sel_date = "SELECT MAX(data_timestamp) FROM " + params.schema + "." + service_table + " WHERE process_id = " + params.storage.id;
-        var res_data = await params.client.query(sel_date);
-
-        var data_until_store = new moment();
-
-        /* if keep_data equal zero, erases everything and saving messages from 
-        collector/analysis message table in storage_historic table */
-        if (params.storage.keep_data > 0){
-          data_until_store.subtract(params.storage.keep_data, params.storage.keep_data_unit);
-        }
+        var service_table_storage = "storage_" + params.storage.service_instance_id;
+        var sel_date_storage = "SELECT MAX(data_timestamp) FROM " + params.schema + "." + service_table_storage + " WHERE process_id = " + params.storage.id;
+        var res_data_storage = await params.client.query(sel_date_storage);
 
         //if filter, erase all messages to collect/analysis all again, from filter origin date
         if (params.storage.filter)
-          backup_Messages(params);
+          backup_Messages(params, res_data_tiff.service_table, res_data_tiff.service_type);
 
-        var dateObj = new Date(res_data.rows[0].max);
+        var dateObj = new Date(res_data_storage.rows[0].max);
         var momentObj = moment(dateObj);
 
-        //test if has data to process
-        if (momentObj.isAfter(data_until_store)){
+        //test if has data to process, that is, if the data was processed after the last storage 
+        if (momentObj.isAfter(res_data_tiff.data_until_store)){
           var obj = {
             flag: false,
             data_out: data_out,
@@ -747,9 +779,9 @@ module.exports = {
           return resolve(obj);
         }
 
-        params.logger.info(params.storage.name + ": Removing data before " + data_until_store.format('YYYY-MM-DD HH:mm:ss'));
+        params.logger.info(params.storage.name + ": Removing data before " + res_data_tiff.data_until_store.format('YYYY-MM-DD HH:mm:ss'));
 
-        console.log("storage " + params.storage.name + " data " + JSON.stringify(data_until_store, null, 4));
+        console.log("storage " + params.storage.name + " data " + JSON.stringify(res_data_tiff.data_until_store, null, 4));
 
         var uri = res1.rows[0].uri;
         var mask = res1.rows[0].value;
@@ -783,7 +815,7 @@ module.exports = {
             //test if filename match with mask
             if (match){
               var year_file = new Number(match[1]);
-              var year_proc = data_until_store.year();
+              var year_proc = res_data_tiff.data_until_store.year();
               var century = year_proc - year_file;
               // If the year is represented by 2 digits it is necessary to know which century. 
               // I considered only the 20th (1900) and 21st (2000) centuries 
@@ -803,7 +835,7 @@ module.exports = {
               else
                 data_timestamp = filedate.isBefore(data_timestamp) ? filedate : data_timestamp;
 
-              if (filedate.isBefore(data_until_store)){
+              if (filedate.isBefore(res_data_tiff.data_until_store)){
                 if (params.storage.backup === true){
                   if (params.storage.zip){
                     zip.addLocalFile(path + "/" + file);
@@ -846,7 +878,9 @@ module.exports = {
           }
   
           params.storage.process.status = StatusLog.DONE;
-  
+          params.storage.process.data_timestamp = data_timestamp;
+          params.storage.process.last_process_timestamp = moment();
+    
           updateMessages(params);
   
           var obj = {
