@@ -26,6 +26,11 @@ define([], function () {
       this.$window = $window;
       this.MessageBox = MessageBox;
 
+      this.scheduleOptions = {
+        showHistoricalOption: false,
+        showAutomaticOption: false
+      };
+
       // Initialize component
       this.init()
         .then(() => console.log('done'))
@@ -58,15 +63,31 @@ define([], function () {
 
             if (this.storage.schedule) {
               this.$scope.$broadcast("updateSchedule", this.storage.schedule);
+            } else {
+              // default is manual
+              this.storage.schedule = { scheduleType: "3" }
             }
 
             // Trigger change
             this.changeDataSeries();
             this.changeDataProvider();
 
-            // Parse URI
-            const { uri } = this.storage;
-            this.storage.path = uri.split('/').slice(-1)[0];
+            if (this.storage.uriObject) {
+              if (this.storage.uriObject.protocol === "FILE") {
+                // Parse URI
+                const providerURI = this.selectedProvider.uri.replace(/([^:]\/\/)\/+/g, "$1");
+                const storageURI = this.storage.uri.replace(/([^:]\/\/)\/+/g, "$1");
+
+                let parsedPath = storageURI.replace(providerURI, '');
+
+                if (parsedPath[0] === '/')
+                  parsedPath = parsedPath.substr(1);
+
+                this.storage.path = parsedPath;
+              } else {
+                this.storage.path = this.storage.uriObject.pathname;
+              }
+            }
           }
         } catch (err) {
           return defer.reject(err);
@@ -103,6 +124,11 @@ define([], function () {
       return this.DataSeries.getDynamicDataSeries({ data_series_semantics: { data_format_name: 'POSTGIS' } });
     }
 
+    /**
+     * Get the respective data series icon in order to fill combobox
+     *
+     * @param {any} dataSeries Data series scope
+     */
     getDataSeriesIcon(dataSeries) {
       if (!dataSeries)
         return "";
@@ -110,13 +136,16 @@ define([], function () {
       return this.DataSeries.getIcon(dataSeries);
     }
 
+    /** Triggered when data series combobox changes. Selects the current data series into scope */
     changeDataSeries() {
       this.selectedDataSeries = this.getDynamicDataSeries().find(ds => ds.id === this.storage.data_series_id);
     }
 
+    /** Triggered when data provider combobox changes. Selects the current provider into scope */
     changeDataProvider() {
       this.selectedProvider = this.getDataProviders().find(provider => provider.id === this.storage.data_provider_id);
     }
+
 
     getDataProviders() {
       const { selectedDataSeries } = this;
@@ -130,6 +159,7 @@ define([], function () {
       return this.Provider.list({ data_provider_type: { id: provider.data_provider_type.id } });
     }
 
+    /** Check if data provider is FILE */
     isDataProviderFile() {
       const { selectedProvider } = this;
 
@@ -150,6 +180,11 @@ define([], function () {
       return this.storageForm.$valid && (this.parametersForm ? this.parametersForm.$valid : true);
     }
 
+    /** Trigger when cancel button clicked. It redirects to the previous page */
+    onCancelClicked() {
+      this.$window.history.back();
+    }
+
     async save() {
       if (!this.validate()) {
         this.MessageBox.danger(this.i18n.__('Error'), this.i18n.__('There are invalid fields on form'))
@@ -162,6 +197,7 @@ define([], function () {
       const { Storage } = this;
 
       if (this.storage.schedule) {
+        this.storage.schedule_type = this.storage.schedule.scheduleType;
         switch(this.storage.schedule.scheduleHandler) {
           case "seconds":
           case "minutes":
@@ -173,7 +209,7 @@ define([], function () {
           case "monthly":
           case "yearly":
             // todo: verify
-            var dt = this.storage.schedule.schedule_time;
+            const dt = this.storage.schedule.schedule_time;
             this.storage.schedule.schedule_unit = this.storage.schedule.scheduleHandler;
             this.storage.schedule.schedule_time = moment(dt).format("HH:mm:ss");
             break;
@@ -187,12 +223,14 @@ define([], function () {
       }
 
       try {
-        if (this.isUpdate)
+        if (this.isUpdate) {
+          this.storage.schedule_type = this.storage.scheduleType;
           await Storage.update(this.storageId, this.storage);
-        else
+        } else {
           await Storage.save(this.storage);
+        }
 
-        this.$window.location = `${BASE_URL}configuration/storages`;
+        this.$window.location = `${BASE_URL}administration/storages`;
       } catch (err) {
         console.error(err);
 
@@ -200,7 +238,7 @@ define([], function () {
       }
     }
   }
-
+  // Angular Inject dependencies
   StoragerController.$inject = [
     '$scope',
     'i18n',

@@ -37,7 +37,7 @@ define(function() {
          * @return {string}
          */
         function formatter(value) {
-          var m = moment(value || null);
+          var m = moment(value, fmt || 'LLLL');
           var valid = m.isValid();
           if (valid) {
             return m.format(fmt || "LLLL");

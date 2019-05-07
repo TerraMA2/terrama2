@@ -3,7 +3,7 @@
         <i class="fa fa-refresh fa-spin" style="position: fixed !important;"></i>
     </div>
 
-    <terrama2-alert-box2 handler="$ctrl.MessageBox.alertBox" close="$ctrl.close()"></terrama2-alert-box2>
+    <terrama2-alert-box2 handler="$ctrl.MessageBox.alertBox" close="$ctrl.closeBox()"></terrama2-alert-box2>
     <terrama2-box title="i18n.__('General Data')" css="css">
       <div class="col-md-12 terrama2-nopadding-box ng-scope">
         <form name="$ctrl.storageForm">
@@ -241,11 +241,11 @@
 
     <terrama2-box title="i18n.__('Schedule')" css="css">
         <div class="col-md-12 terrama2-nopadding-box ng-scope">
-            <terrama2-schedule model="$ctrl.storage.schedule" options="scheduleOptions"></terrama2-schedule>
+            <terrama2-schedule model="$ctrl.storage.schedule" options="$ctrl.scheduleOptions"></terrama2-schedule>
         </div>
     </terrama2-box>
 
     <div class="box-footer">
       <button type="submit" class="btn btn-primary pull-right" ng-click="$ctrl.save();" style="margin-left: 10px;">{{ i18n.__("Save") }}</button>
-      <a ng-href="{{ redirectUrl }}" class="btn btn-primary pull-left">{{ i18n.__("Cancel") }}</a>
+      <a ng-click="$ctrl.onCancelClicked()" class="btn btn-primary pull-left">{{ i18n.__("Cancel") }}</a>
     </div>

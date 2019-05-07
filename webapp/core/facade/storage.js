@@ -1,6 +1,7 @@
 const { ValidationErrorItem } = require('sequelize');
 const DataManager = require("./../DataManager");
-const ScheduleModel = require('./../data-model/Schedule');
+const URIBuilder = require('./../UriBuilder');
+const { ScheduleType, Uri } = require('./../Enums');
 
 class StorageError extends Error {
   constructor(errors, code = 400) {
@@ -33,6 +34,11 @@ class StorageError extends Error {
 }
 
 class storageFacade {
+  /**
+   * Retrieves list of storages based in query restriction
+   *
+   * @param {any} restriction Query restriction.
+   */
   async list(restriction = {}){
     const storages = await DataManager.orm.models.Storages.findAll({
       ...restriction,
@@ -45,6 +51,9 @@ class storageFacade {
     return storages.map(storage => {
       const storageOut = storage.get();
 
+      if (storageOut.uri)
+        storageOut.uriObject = URIBuilder.buildObject(storageOut.uri, Uri);
+
       if (storage.Schedule) {
         storageOut.schedule = storage.Schedule.get();
         storageOut.schedule.scheduleType = storage.schedule_type.toString();
@@ -55,31 +64,28 @@ class storageFacade {
     });
   }
 
+  /**
+   * Find storage by id
+   *
+   * @param {number} id Storage identifier
+   */
   async get(id) {
     const matched = await this.list({ where: { id }, limit: 1 });
 
     return matched[0];
   }
 
-  async validate(storage) {
-    try {
-      const options = { validate: true }
-      await DataManager.orm.models.Storages.create(storage, options);
-
-      if (storage.schedule)
-        await DataManager.orm.models.Schedule.create(storage.schedule, options);
-    } catch (err) {
-      throw new StorageError(err.errors);
-    }
-  }
-
+  /**
+   * Persists the storager into database
+   *
+   * @throws {ScheduleError} for any error occurred in operation
+   *
+   * @param {any} storage Storage to save
+   */
   async save(storage){
     let transaction = await DataManager.orm.transaction();
 
     try {
-      // Validate model
-      // await this.validate(storage);
-
       const options = { transaction };
 
       if (storage.schedule && (storage.schedule.scheduleType !== "3")) {
@@ -108,31 +114,59 @@ class storageFacade {
 
     try {
       const options = { transaction };
-
+      // Retrieves context storage
       const oldStorage = await this.get(storageId);
+
+      // We should define this variable since we cannot remove directly a schedule which belongs to storager
+      // due CASCADE operation. We must keep which schedule to remove and after Storage update
+      // perform operation.
+      let scheduleToRemove = null;
 
       // If there already schedule
       if (oldStorage.schedule_id) {
-        // When no schedule sent, remove
-        if (!storage.schedule)
-          await DataManager.removeSchedule({ id: oldStorage.schedule_id }, options);
-        else if (storage.schedule.scheduleType !== "3")
+        // When no schedule sent, set storager schedule to none and keep id to remove after update sequency
+        if (storage.schedule.scheduleType == ScheduleType.MANUAL) {
+          scheduleToRemove = oldStorage.schedule_id;
+          storage.schedule_id = null;
+        } else
           await DataManager.updateSchedule(oldStorage.schedule_id, storage.schedule, { transaction });
-        else
-          await DataManager.removeSchedule({ id: oldStorage.schedule_id }, options);
-      } else if (storage.schedule.scheduleType !== "3"){
-        const createdSchedule = await DataManager.addSchedule(storage.schedule, options);
+      } else {
+        if (storage.schedule && storage.schedule.scheduleType != ScheduleType.MANUAL) {
+          const createdSchedule = await DataManager.addSchedule(storage.schedule, options);
+          storage.schedule_type = storage.schedule.scheduleType;
 
-        storage.schedule_id = createdSchedule.id;
+          storage.schedule_id = createdSchedule.id;
+        }
       }
-      
-      storage.schedule_type = storage.schedule.scheduleType;
-
+      // Update entire storage entity
       await DataManager.orm.models.Storages.update(storage, { where: { id: storageId }, ...options });
 
+      // Remove schedule when updating to manual type
+      if (scheduleToRemove !== null) {
+        await DataManager.removeSchedule({ id: scheduleToRemove }, options);
+      }
+
+      // Persists the operation
       await transaction.commit();
 
       return;
+    } catch (err) {
+      await transaction.rollback();
+
+      throw new StorageError(err.errors);
+    }
+  }
+
+  async delete(id) {
+    let transaction = await DataManager.orm.transaction();
+
+    try {
+      const options = { transaction };
+
+      await DataManager.orm.models.Storages.destroy({ where: { id }, ...options });
+
+      // Persists the operation
+      await transaction.commit();
     } catch (err) {
       await transaction.rollback();
 

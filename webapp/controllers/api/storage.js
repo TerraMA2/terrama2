@@ -45,6 +45,20 @@ module.exports = function(app) {
         await facade.update(request.params.id, mergeStorageWithProject(request, request.body));
 
         response.status(204);
+        response.json({});
+      } catch (err) {
+        response.status(err.code);
+        response.json(err.getErrors());
+      }
+    },
+    delete: async (request, response) => {
+      try {
+        const facade = new storageFacade();
+
+        await facade.delete(request.params.id);
+
+        response.status(204)
+        response.json({});
       } catch (err) {
         response.status(err.code);
         response.json(err.getErrors());
