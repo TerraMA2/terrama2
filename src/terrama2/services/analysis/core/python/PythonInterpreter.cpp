@@ -64,7 +64,7 @@
 
 // pragma to silence python macros warnings
 #pragma GCC diagnostic push
-//#pragma GCC diagnostic ignored "-Wunused-local-typedef"
+#pragma GCC diagnostic ignored "-Wunused-local-typedef"
 
 using namespace boost::python;
 
@@ -616,7 +616,8 @@ void terrama2::services::analysis::core::python::readInfoFromDict(OperatorCache&
       Py_DECREF(columnKey);
       break;
     }
-
+    default:
+      break;
   }
 
   Py_DECREF(analysisKey);
@@ -696,7 +697,7 @@ std::string terrama2::services::analysis::core::python::getCurrentExecutionDate(
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
   // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
   // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
-  //bool exceptionOccurred = false;
+  bool exceptionOccurred = false;
 
   auto& contextManager = ContextManager::getInstance();
   auto analysis = cache.analysisPtr;
@@ -755,7 +756,7 @@ std::string terrama2::services::analysis::core::python::getAttributeValueAsJson(
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
   // After the operator lock is released it's not allowed to return any value because it doesn' have the interpreter lock.
   // In case an exception is thrown, we need to set this boolean. Once the code left the lock is acquired we should return NAN.
-  //bool exceptionOccurred = false;
+  bool exceptionOccurred = false;
 
   auto& contextManager = ContextManager::getInstance();
   auto analysis = cache.analysisPtr;

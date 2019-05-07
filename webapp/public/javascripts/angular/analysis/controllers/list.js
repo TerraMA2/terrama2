@@ -47,7 +47,7 @@ define([], function() {
         if(response.online) {
           if(serviceCache[response.service]) {
             Socket.emit('run', serviceCache[response.service].process_ids);
-            delete $scope.disabledButtons[serviceCache[response.service].service_id];          
+            delete $scope.disabledButtons[serviceCache[response.service].service_id];
             delete serviceCache[response.service];
           }
 
@@ -122,7 +122,7 @@ define([], function() {
             var errorWhenDeleteMessage = i18n.__("Can not delete the analysis if the service is not running. ");
             if (err.service && err.service.instance_name)
               errorWhenDeleteMessage += i18n.__("Service") + ": " + err.service.instance_name;
-            return MessageBoxService.danger(i18n.__(title), errorWhenDeleteMessage);            
+            return MessageBoxService.danger(i18n.__(title), errorWhenDeleteMessage);
           } else {
             MessageBoxService.danger(i18n.__(title), i18n.__(err.message));
             return;
@@ -167,6 +167,8 @@ define([], function() {
           return BASE_URL + "images/analysis/monitored-object/monitored-object_analysis.png";
         case globals.enums.AnalysisType.GRID:
           return BASE_URL + "images/analysis/grid/grid_analysis.png";
+        case globals.enums.AnalysisType.VP:
+          return `${BASE_URL}images/analysis/vectorial-processing/vector-processing.svg`;
         default:
           return BASE_URL + "images/analysis/dcp/dcp_analysis.png";
       }

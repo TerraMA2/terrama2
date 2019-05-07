@@ -28,8 +28,9 @@
 */
 
 #include "ContextManager.hpp"
-#include "MonitoredObjectContext.hpp"
 #include "GridContext.hpp"
+#include "MonitoredObjectContext.hpp"
+#include "VectorProcessingContext.hpp"
 
 #include "../../../core/utility/Logger.hpp"
 
@@ -71,6 +72,26 @@ void terrama2::services::analysis::core::ContextManager::addGridContext(const An
   }
 }
 
+void terrama2::services::analysis::core::ContextManager::addVectorProcessingContext(const AnalysisHashCode analysisHashCode,
+                                                                                    terrama2::services::analysis::core::VectorProcessingContextPtr context)
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+
+  try
+  {
+    vectorProcessingContextMap_.at(analysisHashCode);
+
+    QString errMsg = QObject::tr("Geometry Intersection Context already registered.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ContextManagerException() << ErrorDescription(errMsg);
+  }
+  catch(const std::out_of_range&)
+  {
+    vectorProcessingContextMap_.emplace(analysisHashCode, context);
+    analysisMap_.emplace(analysisHashCode, context->getAnalysis());
+  }
+}
+
 terrama2::services::analysis::core::MonitoredObjectContextPtr terrama2::services::analysis::core::ContextManager::getMonitoredObjectContext(const AnalysisHashCode analysisHashCode) const
 {
   std::lock_guard<std::recursive_mutex> lock(mutex_);
@@ -82,6 +103,23 @@ terrama2::services::analysis::core::MonitoredObjectContextPtr terrama2::services
   catch(const std::out_of_range&)
   {
     QString errMsg = QObject::tr("Unable to locate Monitored Object Context.");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw ContextManagerException() << ErrorDescription(errMsg);
+  }
+}
+
+terrama2::services::analysis::core::VectorProcessingContextPtr
+terrama2::services::analysis::core::ContextManager::getVectorProcessingContext(const AnalysisHashCode analysisHashCode) const
+{
+  std::lock_guard<std::recursive_mutex> lock(mutex_);
+
+  try
+  {
+    return vectorProcessingContextMap_.at(analysisHashCode);
+  }
+  catch(const std::out_of_range&)
+  {
+    QString errMsg = QObject::tr("Unable to locate Geometry Intersection Context");
     TERRAMA2_LOG_ERROR() << errMsg;
     throw ContextManagerException() << ErrorDescription(errMsg);
   }

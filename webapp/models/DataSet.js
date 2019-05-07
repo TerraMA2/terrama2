@@ -28,6 +28,7 @@ module.exports = function(sequelize, DataTypes) {
               case DataSeriesType.GRID:
                 return this.getDataSetGrid(options);
               case DataSeriesType.ANALYSIS_MONITORED_OBJECT:
+              case DataSeriesType.VECTOR_PROCESSING_OBJECT:
                 return this.getDataSetMonitored(options);
               default:
                 // Static Data

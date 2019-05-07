@@ -71,6 +71,8 @@ terrama2::services::analysis::core::AnalysisType terrama2::services::analysis::c
       return AnalysisType::MONITORED_OBJECT_TYPE;
     case 3:
       return AnalysisType::GRID_TYPE;
+    case 4:
+      return AnalysisType::VECTORIAL_PROCESSING_TYPE;
   }
 
   QString errMsg = QObject::tr("Invalid analysis type");

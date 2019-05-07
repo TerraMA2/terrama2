@@ -46,7 +46,8 @@ namespace terrama2
       OCCURRENCE = 2,//!< Dated-positioned occurrence.
       GRID = 3,//!< Spatialy indexed data matrix.
       GEOMETRIC_OBJECT = 5, //!< Group  of vector-spatial-geometry.
-      ANALYSIS_MONITORED_OBJECT = 6 //!< Analysis result data series.
+      ANALYSIS_MONITORED_OBJECT = 6, //!< Analysis result data series.
+      VECTOR_PROCESSING_OBJECT = 7 //!< Analysis Vectorial Processing
     };
 
     enum class DataSeriesTemporality

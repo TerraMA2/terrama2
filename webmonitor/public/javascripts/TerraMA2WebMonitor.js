@@ -131,6 +131,12 @@ define(
         } else {
           $('#terrama2-sortlayers').find('li#' + layerObject.htmlId).removeClass('hide');
           Layers.changeLayerVisible(layerObject.id, true);
+
+          if (layerObject.subLayers) {
+            for(const subLayer of layerObject.subLayers) {
+              Layers.changeLayerVisible(subLayer.id, true);
+            }
+          }
         }
 
         $("#terrama2-map").trigger("setGetFeatureInfoToolSelect");
@@ -353,36 +359,58 @@ define(
         var currentProject = $("#projects").val();
 
         for(var i = 0, viewsLength = viewsData.views.length; i < viewsLength; i++) {
-          var layerName = (viewsData.views[i].workspace ? viewsData.views[i].workspace + ":" + viewsData.views[i].layers[0] : viewsData.views[i].layers[0]);
+          const currentView = viewsData.views[i];
 
-          viewsData.views[i].properties = [
-            {
-              key: "Layer Name",
-              value: layerName
-            }
-          ];
+          for(const layer of currentView.layers) {
+            const workspace = viewsData.views[i].workspace;
 
-          var layerObject = Layers.createLayerObject(viewsData.views[i]);
-          var newLayer = Layers.getLayerById(layerObject.id) == null ? true : false;
+            const layerName = workspace ? `${workspace}:${layer}` : layer;
 
-          if(newLayer) {
-            Layers.addLayer(layerObject);
+            viewsData.views[i].properties = [
+              {
+                key: "Layer Name",
+                value: layerName
+              }
+            ];
 
-            if(!viewsData.initialRequest && layerObject.projectId == currentProject) {
-              Layers.fillLayersData([layerObject]);
+            var layerObject = Layers.createLayerObject(currentView);
+            var createdLayer = Layers.getLayerById(layerObject.id);
+
+            if(!createdLayer) {
+              Layers.addLayer(layerObject);
+
+              if(!viewsData.initialRequest && layerObject.projectId == currentProject) {
+                Layers.fillLayersData([layerObject]);
+                Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
+                Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
+              }
+            } else if(layerObject.projectId == currentProject) {
+              if (!createdLayer.subLayers)
+                createdLayer.subLayers = [];
+
+              const { subLayers } = createdLayer;
+              const foundSubLayer = subLayers.find(internalLayer => internalLayer.id === layerObject.id);
+              if (!foundSubLayer) {
+                const subLayer = Layers.createLayerObject(currentView, layerName);
+                subLayer.id = layerName;
+                subLayer.name = layerName;
+                subLayers.push(subLayer);
+
+                Layers.addLayer(subLayer);
+              }
+
               Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
               Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
+              Layers.getLayerCapabilities(layerObject.uriGeoServer, layerObject.workspace, layerObject.nameId, layerObject.id, layerObject.parent, true);
+              checkIfAutoUpdate(layerObject);
             }
-          } else if(layerObject.projectId == currentProject) {
-            Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
-            Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
-            Layers.getLayerCapabilities(layerObject.uriGeoServer, layerObject.workspace, layerObject.nameId, layerObject.id, layerObject.parent, true);
-            checkIfAutoUpdate(layerObject);
           }
         }
 
         if(viewsData.initialRequest)
           Layers.fillLayersData();
+
+        Layers.addLayersToSort();
       });
 
       // Checking map server connection response
