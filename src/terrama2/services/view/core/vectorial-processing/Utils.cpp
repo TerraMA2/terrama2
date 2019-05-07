@@ -12,6 +12,7 @@
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 
 // TerraLib Filter Enconding
+#include <terralib/fe/Filter.h>
 #include <terralib/fe/Globals.h>
 #include <terralib/fe/Literal.h>
 #include <terralib/fe/PropertyName.h>
