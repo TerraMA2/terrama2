@@ -480,9 +480,7 @@ std::shared_ptr<te::da::DataSetType> terrama2::services::analysis::core::Analysi
       uk->add(pkProperty);
       fk->add(pkProperty);
 
-      std::vector<te::dt::Property *> prop;
-      prop.push_back(property);
-      fk->setReferencedProperties(prop);
+      fk->addRefProperty(property);
     }
   }
   else
@@ -496,9 +494,7 @@ std::shared_ptr<te::da::DataSetType> terrama2::services::analysis::core::Analysi
     uk->add(identifierProperty);
     fk->add(identifierProperty);
 
-    std::vector<te::dt::Property *> prop;
-    prop.push_back(moDsContext->series.teDataSetType->getProperty(moDsContext->identifier));
-    fk->setReferencedProperties(prop);
+    fk->addRefProperty(moDsContext->series.teDataSetType->getProperty(moDsContext->identifier));
   }
   dt->add(fk.release());
 

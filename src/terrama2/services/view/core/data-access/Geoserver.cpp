@@ -2314,7 +2314,8 @@ void terrama2::services::view::core::GeoServer::createMosaicTable(std::shared_pt
   geomProp->setSRID(srid);
 
   // the newDataSetType takes ownership of the pointer
-  std::unique_ptr<te::da::Index> spatialIndex(new te::da::Index("spatial_index_" + tableName, te::da::B_TREE_TYPE, {geomProp.get()}));
+  std::unique_ptr<te::da::Index> spatialIndex(new te::da::Index("spatial_index_" + tableName, te::da::B_TREE_TYPE));
+  spatialIndex->add(geomProp.get());
 
   std::unique_ptr<te::dt::StringProperty> filenameProp(new te::dt::StringProperty("location", te::dt::VAR_STRING, 255, true));
 
