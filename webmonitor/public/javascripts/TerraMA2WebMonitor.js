@@ -133,7 +133,7 @@ define(
           Layers.changeLayerVisible(layerObject.id, true);
 
           if (layerObject.subLayers) {
-            for(const subLayer of layerObject.subLayers) {
+            for(let subLayer of layerObject.subLayers) {
               Layers.changeLayerVisible(subLayer.id, true);
             }
           }
@@ -361,7 +361,7 @@ define(
         for(var i = 0, viewsLength = viewsData.views.length; i < viewsLength; i++) {
           const currentView = viewsData.views[i];
 
-          for(const layer of currentView.layers) {
+          for(let layer of currentView.layers) {
             const workspace = viewsData.views[i].workspace;
 
             const layerName = workspace ? `${workspace}:${layer}` : layer;
