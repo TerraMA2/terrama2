@@ -326,7 +326,8 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
 
         std::string SQL = "";
 
-        if(inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
+        if(inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT ||
+           inputDataSeries->semantics.dataSeriesType == terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT)
         {
           const auto& id = dataset->format.find("monitored_object_id");
           if(id == dataset->format.end())
