@@ -28,6 +28,7 @@
 
 // TerraLib
 #include <terralib/core/uri/URI.h>
+#include <terralib/dataaccess/dataset/DataSetType.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 
 // STL
@@ -44,10 +45,13 @@ namespace terrama2
       {
         namespace vp
         {
-          std::vector<std::string> getIntersectionTables(te::da::DataSourceTransactor* transactor, const std::string& analysisTableNameResult);
+          std::unique_ptr<te::da::DataSetType> getIntersectionTable(te::da::DataSourceTransactor* transactor, const std::string& analysisTableNameResult);
 
-          std::string prepareSQLIntersection(const std::vector<std::string>& listOfIntersectionTables,
-                                             const std::string& monitoredTableName);
+          std::string prepareSQLIntersection(const std::string& tableName,
+                                             te::da::DataSetType* monitoredDataSeriesType,
+                                             te::da::DataSetType* dynamicDataSeriesType,
+                                             const std::string& geometryName,
+                                             te::da::DataSetType* additionalDataSeriesType = nullptr);
 
           std::unique_ptr<View::Legend> generateVectorProcessingLegend(const std::vector<std::string>& listOfIntersectionTables);
         }
