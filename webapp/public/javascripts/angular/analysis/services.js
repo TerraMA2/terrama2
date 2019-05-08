@@ -4,15 +4,16 @@ define([
   'use strict';
 
   var moduleName = "terrama2.analysis.services";
-    
+
   angular.module(moduleName, [commonServiceApp])
     .constant("AnalysisType", {
       DCP: 1,
       MONITORED: 2,
-      GRID: 3
+      GRID: 3,
+      VP: 4
     })
     .service("AnalysisService", ["BaseService", "AnalysisType", AnalysisService]);
-  
+
   /**
    * It handles Analysis DAO using API calls
    * @class AnalysisService
@@ -30,11 +31,11 @@ define([
     this.model = [];
     /**
      * It defines target API URL
-     * @type {string} 
+     * @type {string}
      */
     this.url = BASE_URL + "api/Analysis";
     /**
-     * It defines enum for Analysis 
+     * It defines enum for Analysis
      * @type {AnalysisType}
      */
     this.types = AnalysisType;
@@ -45,7 +46,7 @@ define([
     this.BaseService = BaseService;
     /**
      * It initializes Analysis DAO service, retrieving analysis instances and caching them
-     * 
+     *
      * @param {Object} restriction - A query restriction
      * @returns {angular.Promise<Analysis[]>}
      */
@@ -62,7 +63,7 @@ define([
     };
    /**
     * It sends a built analysis in order to validate in backend
-    * 
+    *
     * @param {Object} analysisObject - A javascript object with analysis values
     * @returns {angular.IPromise<any>} Response object with status code to identify state mode
     */
@@ -72,15 +73,15 @@ define([
 
     /**
      * It retrives cached analysis. You can filter given query restriction.
-     * 
+     *
      * @example
      * AnalysisService
      *   .init()
      *   .then((data) => {
-     *     console.log(AnalysisService.list({type_id: AnalysisType.GRID})); // it will display all grid analysis 
+     *     console.log(AnalysisService.list({type_id: AnalysisType.GRID})); // it will display all grid analysis
      *   })
-     * 
-     *  
+     *
+     *
      * @param {Object} restriction - A query restriction
      * @returns {Analysis[]}
      */
@@ -94,7 +95,7 @@ define([
 
     /**
      * It creates a analysis resource on remote host using API POST and then retrieve the resource created.
-     * 
+     *
      * @param {Object} analysisObject - A javascript object with analysis values
      * @returns {angular.IPromise<Analysis>}
      */

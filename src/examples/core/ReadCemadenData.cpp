@@ -5,6 +5,9 @@
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 
+// STL
+#include <iostream>
+
 std::shared_ptr<te::da::DataSet> getDataSet(const std::string& fileUri, const std::string& dataSetName)
 {
     // creates a DataSource to the data and filters the dataset,

@@ -146,6 +146,18 @@ namespace terrama2
                                             PyThreadState* mainThreadState);
 
             /*!
+              \brief Prepare the context for a CAR Data object analysis and run the analysis.
+              \param dataManager A smart pointer to the data manager.
+
+              \param threadPool Smart pointer to the thread pool.
+            */
+            void runVectorialProcessingAnalysis(DataManagerPtr dataManager,
+                                                terrama2::core::StoragerManagerPtr storagerManager,
+                                                AnalysisPtr analysis,
+                                                std::shared_ptr<te::dt::TimeInstantTZ> startTime,
+                                                ThreadPoolPtr threadPool);
+
+            /*!
               \brief Prepare the context for a DCP analysis and run the analysis.
               \param dataManager A smart pointer to the data manager.
               \param startTime Start time of analysis execution.
@@ -180,6 +192,8 @@ namespace terrama2
            */
            void storeMonitoredObjectAnalysisResult(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, MonitoredObjectContextPtr context);
 
+           void storeVectorProcessingResult(DataManagerPtr dataManager, terrama2::core::StoragerManagerPtr storagerManager, MonitoredObjectContextPtr context);
+
            /*!
              \brief Reads the analysis result from context and stores it to the configured output dataset.
              \param dataManager A smart pointer to the data manager.
@@ -193,6 +207,14 @@ namespace terrama2
                                                                te::dt::Property* identifierProperty,
                                                                std::unordered_map<int, std::map<std::string, boost::any> > resultMap,
                                                                std::shared_ptr<te::dt::TimeInstantTZ>  date);
+
+            std::shared_ptr<te::mem::DataSet> addVectorProcessingToDataSet(std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> moDsContext,
+                                                                           std::shared_ptr<te::da::DataSetType> dt,
+                                                                           te::da::PrimaryKey* pkMonitoredObject,
+                                                                           te::dt::Property* identifierProperty,
+                                                                           std::unordered_map<int, std::map<std::string, boost::any> > resultMap,
+                                                                           std::shared_ptr<te::dt::TimeInstantTZ>  date);
+
             std::shared_ptr<te::da::DataSetType> createDatasetType(std::shared_ptr<terrama2::services::analysis::core::ContextDataSeries> moDsContext,
                                                                    te::da::PrimaryKey* pkMonitoredObject,
                                                                    te::dt::Property* identifierProperty,

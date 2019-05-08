@@ -5,7 +5,7 @@ define([], function() {
    * It represents a Controller to handle View form registration.
    * @class ViewRegistration
    */
-  function ViewRegisterUpdate($scope, $q, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StringFormat, ColorFactory, StyleType, Socket, DataProviderService) {
+  function ViewRegisterUpdate($scope, $q, i18n, ViewService, $log, $http, $timeout, MessageBoxService, $window, DataSeriesService, Service, StyleType, Socket, DataProviderService, AnalysisService) {
     /**
      * @type {ViewRegisterUpdate}
      */
@@ -196,63 +196,44 @@ define([], function() {
       return displayDataSeries;
     };
 
+    function isVectorialProcessing() {
+      const { view } = self;
+
+      if (!view || !view.data_series_id)
+        return false;
+
+      return getVectorialProcessingAnalysis(view.data_series_id);
+    }
+
+    function getVectorialProcessingAnalysis(dataSeriesId) {
+      return AnalysisService.list().find(analysis => (
+        analysis.type.id === AnalysisService.types.VP && analysis.dataSeries.id === dataSeriesId
+      ));
+    }
+
+    self.isVectorialProcessing = isVectorialProcessing;
+
     self.getImageUrl = getImageUrl;
 
     function getImageUrl(dataSeries){
-      if (typeof dataSeries != 'object'){
-        return '';
-      }
-      switch(dataSeries.data_series_semantics.data_series_type_name){
-        case DataSeriesService.DataSeriesType.DCP:
-          return BASE_URL + "images/dynamic-data-series/dcp/dcp.png";
-          break;
-        case DataSeriesService.DataSeriesType.OCCURRENCE:
-          return BASE_URL + "images/dynamic-data-series/occurrence/occurrence.png";
-          break;
-        case DataSeriesService.DataSeriesType.GRID:
-          if (dataSeries.data_series_semantics.temporality == "STATIC"){
-            return BASE_URL + "images/static-data-series/grid/grid.png";
-            break;
-          } else {
-            if (dataSeries.isAnalysis){
-              return BASE_URL + "images/analysis/grid/grid_analysis.png";
-            } else {
-              return BASE_URL + "images/dynamic-data-series/grid/grid.png";
-            }
-            break;
-          }
-        case DataSeriesService.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
-          if (dataSeries.type.id == 1)
-            return BASE_URL + "images/analysis/dcp/dcp_analysis.png";
-          else
-            return BASE_URL + "images/analysis/monitored-object/monitored-object_analysis.png";
-          break;
-        case DataSeriesService.DataSeriesType.POSTGIS:
-        case DataSeriesService.DataSeriesType.GEOMETRIC_OBJECT:
-          if (dataSeries.data_series_semantics.temporality == "STATIC"){
-            return BASE_URL + "images/static-data-series/vetorial/vetorial.png";
-            break;
-          } else {
-            return BASE_URL + "images/dynamic-data-series/geometric-object/geometric-object.png";
-            break;
-          }
-        default:
-          return BASE_URL + "images/dynamic-data-series/occurrence/occurrence.png";
-          break;
+      if (!dataSeries || !isNaN(dataSeries))
+        return;
 
-      }
+      const analysisVP = getVectorialProcessingAnalysis(dataSeries.id);
+
+      return DataSeriesService.getIcon(dataSeries, analysisVP ? analysisVP.metadata.operationType : null);
     }
 
     /**
      * It retrieves all data provider type to get HTTP fields
      */
-    $http.get(BASE_URL + "api/DataProviderType", {}).then(function(response) {
-      var data = response.data;
+    $http.get(BASE_URL + "api/DataProviderType", {}).then(async () => {
+      await AnalysisService.init();
 
       /**
        * Retrieve all service instances
        */
-      self.ServiceInstance.init().then(function() {
+      self.ServiceInstance.init().then(() => {
         // setting all view services in cache
         self.filteredServices = self.ServiceInstance.list({'service_type_id': self.ServiceInstance.types.VIEW});
         /**
@@ -268,8 +249,6 @@ define([], function() {
               self.dataSeries.push(data);
             }
           });
-
-          var styleCache = config.view.style;
 
           if (self.view.data_series_id) {
             self.onDataSeriesChanged(self.view.data_series_id);
@@ -300,16 +279,14 @@ define([], function() {
               self.legend.metadata = legend.metadata;
 
               // notify component to refil begin/end
-              $timeout(function() {
-                $scope.$broadcast("updateStyleColor");
-              });
+              $timeout(() => $scope.$broadcast("updateStyleColor"));
             }
           }
           /**
            * Configuring Schema form http. This sentence is important because child controller may be not initialized yet.
            * Using $timeout 0 forces to execute when angular ready state is OK.
            */
-          $timeout(function() {
+          $timeout(() => {
             if (self.isUpdating) {
               self.schedule = {};
               self.view.schedule.scheduleType = self.view.schedule_type.toString();
@@ -382,38 +359,42 @@ define([], function() {
      * @param {DataSeries}
      */
     function onDataSeriesChanged(dataSeriesId) {
-      self.dataSeries.some(function(dSeries) {
-        if (dSeries.id === dataSeriesId) {
+      for(const internalDataSeries of self.dataSeries) {
+        if (internalDataSeries.id === dataSeriesId) {
           // setting view data series
-          self.viewDataSeries = dSeries;
+          self.viewDataSeries = internalDataSeries;
           // setting target data series type name in order to display style view
-          self.targetDataSeriesType = dSeries.data_series_semantics.data_series_type_name;
+          self.targetDataSeriesType = internalDataSeries.data_series_semantics.data_series_type_name;
 
           if(self.targetDataSeriesType == "DCP") {
             applyStyleDCPBehavior();
           }
 
+          // TODO: It is temporary.
+          // Remove style legend and use a default when DataSeries is generated
+          // from Analysis Vectorial Processing Type
+          if (isVectorialProcessing()) {
+            this.legend = {};
+          }
+
           // extra comparison just to setting if it is dynamic or static.
           // Here avoids to setting to true in many cases below
-          self.isDynamic = dSeries.data_series_semantics.temporality !== 'STATIC';
-          if (dSeries.data_series_semantics.data_series_format_name === "GDAL") {
+          self.isDynamic = internalDataSeries.data_series_semantics.temporality !== 'STATIC';
+          if (internalDataSeries.data_series_semantics.data_series_format_name === "GDAL") {
             self.isValid = false;
             MessageBoxService.danger(i18n.__("View"), i18n.__("You selected a GRID data series. Only GDAL data series format are supported"));
           } else {
             self.isValid = true;
           }
-          self.view.source_type = getSourceType(dSeries);
+          self.view.source_type = getSourceType(internalDataSeries);
 
-          if (dSeries.data_series_semantics.format == "POSTGIS"){
-            self.postgisData["dataProvider"] = dSeries.data_provider;
-            self.postgisData["tableName"] = dSeries.dataSets[0].format.table_name;
-            listColumns(dSeries.data_provider, dSeries.dataSets[0].format.table_name);
+          if (internalDataSeries.data_series_semantics.format === "POSTGIS"){
+            self.postgisData["dataProvider"] = internalDataSeries.data_provider;
+            self.postgisData["tableName"] = internalDataSeries.dataSets[0].format.table_name;
+            listColumns(internalDataSeries.data_provider, internalDataSeries.dataSets[0].format.table_name);
           }
-
-          // breaking loop
-          return true;
         }
-      });
+      }
     }
     /**
      * Helper to reset alert box instance
@@ -423,7 +404,7 @@ define([], function() {
     }
     /**
      * Lists the columns from a given table.
-     * 
+     *
      * @returns {void}
      */
     var listColumns = function(dataProvider, tableName) {
@@ -474,56 +455,58 @@ define([], function() {
             return;
           }
 
-          if(!self.legend.metadata.creation_type)
-            return MessageBoxService.danger(i18n.__("View"), i18n.__("Select the Style Creation Type"));
+          if (!isVectorialProcessing()) {
+            if(!self.legend.metadata.creation_type)
+              return MessageBoxService.danger(i18n.__("View"), i18n.__("Select the Style Creation Type"));
 
-          if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type == "editor") {
-            if (!self.legend.colors || self.legend.colors.length === 0) {
-              return MessageBoxService.danger(i18n.__("View"), i18n.__("You must generate the style colors to classify Data Series"));
-            }
-            for(var i = 0; i < self.legend.colors.length; ++i) {
-              var colorIt = self.legend.colors[i];
-              if (colorIt.isDefault) {
-                continue;
+            if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type == "editor") {
+              if (!self.legend.colors || self.legend.colors.length === 0) {
+                return MessageBoxService.danger(i18n.__("View"), i18n.__("You must generate the style colors to classify Data Series"));
               }
-              for(var j = i + 1; j < self.legend.colors.length; ++j) {
-                if (self.legend.colors[j].value === colorIt.value) {
-                  return MessageBoxService.danger(i18n.__("View"), i18n.__("The colors must have unique values"));
+              for(var i = 0; i < self.legend.colors.length; ++i) {
+                var colorIt = self.legend.colors[i];
+                if (colorIt.isDefault) {
+                  continue;
+                }
+                for(var j = i + 1; j < self.legend.colors.length; ++j) {
+                  if (self.legend.colors[j].value === colorIt.value) {
+                    return MessageBoxService.danger(i18n.__("View"), i18n.__("The colors must have unique values"));
+                  }
                 }
               }
             }
-          }
-          else if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type == "xml" && (self.legend.metadata.xml_style == "" || self.legend.metadata.xml_style == undefined) ) {
-            return MessageBoxService.danger(i18n.__("View"), i18n.__("You must fill the SLD field"));
-          }
-          else if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type != "editor" && self.legend.metadata.creation_type != "xml"){
-            if (self.legend.fieldsToReplace){
-              var prefixValueToReplace = "Band";
-              if (self.legend.metadata.hasOwnProperty("hasOneBand") && self.legend.metadata.hasOneBand){
-                prefixValueToReplace = "";
-                self.legend.metadata.band = 0;
-              }
-              self.legend.fieldsToReplace.forEach(function(field){
-                //Must increase 1 because geoserver starts the band name from 1
-                var bandNumber = self.legend.metadata[field] + 1;
-                self.legend.metadata.xml_style = self.legend.metadata.xml_style.split("%"+field).join(prefixValueToReplace+bandNumber);
-              });
-              delete self.legend.fieldsToReplace;
+            else if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type == "xml" && (self.legend.metadata.xml_style == "" || self.legend.metadata.xml_style == undefined) ) {
+              return MessageBoxService.danger(i18n.__("View"), i18n.__("You must fill the SLD field"));
             }
-          }
+            else if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type != "editor" && self.legend.metadata.creation_type != "xml"){
+              if (self.legend.fieldsToReplace){
+                var prefixValueToReplace = "Band";
+                if (self.legend.metadata.hasOwnProperty("hasOneBand") && self.legend.metadata.hasOneBand){
+                  prefixValueToReplace = "";
+                  self.legend.metadata.band = 0;
+                }
+                self.legend.fieldsToReplace.forEach(function(field){
+                  //Must increase 1 because geoserver starts the band name from 1
+                  var bandNumber = self.legend.metadata[field] + 1;
+                  self.legend.metadata.xml_style = self.legend.metadata.xml_style.split("%"+field).join(prefixValueToReplace+bandNumber);
+                });
+                delete self.legend.fieldsToReplace;
+              }
+            }
 
-          if(self.legend.metadata.creation_type == "editor") {
-            delete self.legend.metadata.xml_style;
-          } else if(self.legend.metadata.creation_type == "xml") {
-            self.legend.colors = [];
-            delete self.legend.bands;
-            delete self.legend.beginColor;
-            delete self.legend.endColor;
-          } else {
-            self.legend.colors = [];
-            delete self.legend.bands;
-            delete self.legend.beginColor;
-            delete self.legend.endColor;
+            if(self.legend.metadata.creation_type == "editor") {
+              delete self.legend.metadata.xml_style;
+            } else if(self.legend.metadata.creation_type == "xml") {
+              self.legend.colors = [];
+              delete self.legend.bands;
+              delete self.legend.beginColor;
+              delete self.legend.endColor;
+            } else {
+              self.legend.colors = [];
+              delete self.legend.bands;
+              delete self.legend.beginColor;
+              delete self.legend.endColor;
+            }
           }
 
           // If dynamic, schedule validation is required
@@ -587,7 +570,7 @@ define([], function() {
   }
 
   ViewRegisterUpdate.$inject = ["$scope", "$q", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window",
-    "DataSeriesService", "Service", "StringFormat", "ColorFactory", "StyleType", "Socket", "DataProviderService"];
+    "DataSeriesService", "Service", "StyleType", "Socket", "DataProviderService", "AnalysisService"];
 
   return ViewRegisterUpdate;
 });

@@ -244,6 +244,7 @@ var DataManager = module.exports = {
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.GRID, description: "Data Series Grid type"}));
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.ANALYSIS_MONITORED_OBJECT, description: "Data Series Analysis Monitored Object"}));
         inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.GEOMETRIC_OBJECT, description: "Data Series Geometric object"}));
+        inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.VECTOR_PROCESSING_OBJECT, description: "Vectorial Processing DataSeries Object"}));
 
         // data formats semantics defaults
         inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.CSV, description: "CSV description"}));
@@ -258,6 +259,7 @@ var DataManager = module.exports = {
         inserts.push(models.db.AnalysisType.create({id: Enums.AnalysisType.DCP, name: "Dcp", description: "Description Dcp"}));
         inserts.push(models.db.AnalysisType.create({id: Enums.AnalysisType.GRID, name: "Grid", description: "Description Grid"}));
         inserts.push(models.db.AnalysisType.create({id: Enums.AnalysisType.MONITORED, name: "Monitored Object", description: "Description Monitored"}));
+        inserts.push(models.db.AnalysisType.create({id: Enums.AnalysisType.VP, name: "Monitored Object", description: "Description Monitored"}));
 
         // analysis data series type
         inserts.push(models.db.AnalysisDataSeriesType.create({
@@ -1888,7 +1890,7 @@ var DataManager = module.exports = {
         var obj = dataSerie.get();
 
         // getting semantics
-        dataSerie.getDataSeriesSemantic().then(function(dataSemantics) {
+        dataSerie.getDataSeriesSemantic(options).then(function(dataSemantics) {
           obj.DataSeriesSemantic = dataSemantics;
           output = new DataModel.DataSeries(obj);
 
@@ -2427,6 +2429,7 @@ var DataManager = module.exports = {
               models.db.DataSetGrid.create({data_set_id: dataSet.id}, options).then(onSuccess).catch(onError);
               break;
             case DataSeriesType.ANALYSIS_MONITORED_OBJECT:
+            case DataSeriesType.VECTOR_PROCESSING_OBJECT:
               models.db.DataSetMonitored.create({data_set_id: dataSet.id}, options).then(onSuccess).catch(onError);
               break;
             default:

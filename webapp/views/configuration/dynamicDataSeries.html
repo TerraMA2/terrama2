@@ -43,30 +43,6 @@
       return "{[ BASE_URL ]}api/DataSeries/dynamic/changeStatus/" + object.id;
     },
     servicesInstances: {},
-    iconFn: function(object) {
-      switch(object.data_series_semantics.data_series_type_name) {
-        case globals.enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT:
-          return "{[ BASE_URL ]}images/analysis/monitored-object/monitored-object_analysis.png";
-          break;
-        case globals.enums.DataSeriesType.GRID:
-          if (object.isAnalysis){
-            return "{[ BASE_URL ]}images/analysis/grid/grid_analysis.png";
-          } else if (object.isInterpolator) {
-            return "{[ BASE_URL ]}images/interpolation/grid/grid.png";
-          } else {
-            return "{[ BASE_URL ]}images/dynamic-data-series/grid/grid.png";
-          }
-          break;
-        case globals.enums.DataSeriesType.OCCURRENCE:
-          return "{[ BASE_URL ]}images/dynamic-data-series/occurrence/occurrence.png";
-          break;
-        case globals.enums.DataSeriesType.GEOMETRIC_OBJECT:
-          return "{[ BASE_URL ]}images/dynamic-data-series/geometric-object/geometric-object.png";
-          break;
-        default:
-          return "{[ BASE_URL ]}images/dynamic-data-series/dcp/dcp.png";
-      }
-    },
     iconProperties: {
       type: "img"
     },
@@ -88,8 +64,8 @@
           <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
         </div>
 
-        <terrama2-table fields="fields" model="model" link="link" status-change-link="statusChangeLink" services-instances="servicesInstances" icon-properties="iconProperties" 
-                        link-to-add="linkToAdd" icon="iconFn" remove="remove(object)" 
+        <terrama2-table fields="fields" model="model" link="link" status-change-link="statusChangeLink" services-instances="servicesInstances" icon-properties="iconProperties"
+                        link-to-add="linkToAdd" icon="getIcon" remove="remove(object)"
                         extra="extra" order-by="'name'"></terrama2-table>
       </div>
     </div>
