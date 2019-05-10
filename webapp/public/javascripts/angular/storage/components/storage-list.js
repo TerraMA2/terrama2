@@ -71,7 +71,7 @@ define([], () => {
     /**
      * Tries to dispatch the execution of storage
      *
-     * @param {any} object Storager to run
+     * @param {any} object Storage to run
      */
     async run(object) {
       const { DataSeries, Service, Socket } = this;

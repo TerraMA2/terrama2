@@ -1,10 +1,10 @@
 define([], function () {
   /**
-   * Controller of StoragerComponent
+   * Controller of StorageComponent
    *
-   * @class StoragerController
+   * @class StorageController
    */
-  class StoragerController {
+  class StorageController {
     // Angular Dependency Injector
 
     /**
@@ -115,7 +115,7 @@ define([], function () {
     }
 
     /** Retrieves all Storage Services */
-    getStoragerServices() {
+    getStorageServices() {
       return this.Service.list({ service_type_id: this.Service.types.STORAGE });
     }
 
@@ -239,7 +239,7 @@ define([], function () {
     }
   }
   // Angular Inject dependencies
-  StoragerController.$inject = [
+  StorageController.$inject = [
     '$scope',
     'i18n',
     'DataSeriesService',
@@ -255,8 +255,8 @@ define([], function () {
     bindings: {
       storageId: '='
     },
-    controller: StoragerController,
-    templateUrl: BASE_URL + "dist/templates/storager/templates/storage-component.html"
+    controller: StorageController,
+    templateUrl: BASE_URL + "dist/templates/storage/templates/storage-component.html"
   };
 
   return storageComponent;
