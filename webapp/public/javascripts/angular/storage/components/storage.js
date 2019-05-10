@@ -256,7 +256,7 @@ define([], function () {
       storageId: '='
     },
     controller: StoragerController,
-    templateUrl: BASE_URL + "dist/templates/storager/templates/storage-component.html"
+    templateUrl: BASE_URL + "dist/templates/storage/templates/storage-component.html"
   };
 
   return storageComponent;

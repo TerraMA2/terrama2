@@ -14,7 +14,7 @@ define([
   "TerraMA2WebApp/alerts/app",
   "TerraMA2WebApp/legends/app",
   "TerraMA2WebApp/interpolator/app",
-  "./storager/app"
+  "./storage/app"
 
 ], function(moduleLoader, commonModule, countriesModule, alertBoxModule, serviceModule, projectModule,
             statusModule, dataProviderModule, dataSeriesModule, viewsModule, analysisModule, userModule, alertModule, legendModule, interpolatorModule, storageModule) {
