@@ -103,13 +103,17 @@ let Storages = [];
 */
 let joblist = [];
 
-async function runStorage(clientSocket, client, storage){
+async function runStorage(clientSocket, client, storage1){
   return new Promise(async function resolvePromise(resolve, reject){
     try{
-      console.log("Starting ", storage.name, " ", moment().format());
-      //var buffer =  await TcpManager.makebuffer_be(Signals.START_PROCESS_SIGNAL, {id:storage.id}) ;
-    // console.log(buffer);
-      //clientSocket.write(buffer);
+      console.log("Starting ", storage1.name, " ", moment().format());
+      logger.debug("Starting: ", storage1.name );
+    
+      //Temporary, while frontend update don work well, gets storage from database
+      var sql_get_storage = "SELECT * from "+ schema + ".storages WHERE id = \'"+ storage1.id + "\'";
+      var res_storage = await client.query(sql_get_storage);
+
+      var storage = res_storage.rows[0];
 
       if (storage.erase_all) //flag has priority 
         storage.keep_data = 0;
@@ -125,13 +129,14 @@ async function runStorage(clientSocket, client, storage){
       await sto_core.createMessageTable(params);
 
       //Verifies which data_serie type will be stored
+      logger.debug(storage.name + ": Checking which date will be deleted");
       var select_data_type= "SELECT data_series_semantics.code FROM \
       "+schema+".storages, \
       "+schema+".data_series, \
       "+schema+".data_series_semantics WHERE \
       data_series_semantics.id = data_series.data_series_semantics_id AND \
       data_series.id = \'" + storage.data_series_id + "\'";
-      console.log(select_data_type);
+     // console.log(select_data_type);
       var res1 = await client.query(select_data_type);
 
       var data_serie_code = res1.rows[0].code;
@@ -187,6 +192,7 @@ async function runStorage(clientSocket, client, storage){
 
         default:
         console.log("erro -");
+        logger.error(storage.name + ": Invalid Data Serie Type!");
         throw("Invalid Data Serie Type!");
       }
 
@@ -304,7 +310,8 @@ async function addStorage(clientSocket, client, storages_new, projects){
                     for (var job of joblist) {
                       if (job.job === this){
                         storage = Storages.find(s => s.id === job.id) ;
-                        console.log(storage.name, moment().format(), storage.name, " job ", job.job.cronTime.source, " this ", this.cronTime.source);
+                        //.log(storage.name, moment().format(), storage.name, " job ", job.job.cronTime.source, " this ", this.cronTime.source);
+                        logger.debug(storage.name + ": Setting schedule " + this.cronTime.source);
                         this.stop();
                         runStorage(clientSocket, client, storage)
                         .catch(err =>{
@@ -316,6 +323,7 @@ async function addStorage(clientSocket, client, storages_new, projects){
                           // console.log(buffer.toString());
                           clientSocket.write(buffer);
                           console.log("Finishing", obj.storage.name, " ", moment().format())
+                          logger.debug(storage.name + ": Finished");
                           this.start();
                         });
                         break;
@@ -433,12 +441,12 @@ async function messageTreatment(clientSocket, parsed, client_Terrama2_db){
       if (parsed.message.Storages){
         try{
           await addStorage(clientSocket, client_Terrama2_db, parsed.message.Storages, parsed.message.Projects);
-          joblist.forEach(job => {
-            console.log("job: ", job.id, job.job.cronTime.source);
-          });
+          // joblist.forEach(job => {
+          //   console.log("job: ", job.id, job.job.cronTime.source);
+          // });
 
           var buffer =  await TcpManager.makebuffer_be(Signals.VALIDATE_PROCESS_SIGNAL, {}) ;
-          console.log("Depois do ADD", buffer.toString());
+          //console.log("Depois do ADD", buffer.toString());
           clientSocket.write(buffer);
         }
         catch(e){
@@ -458,18 +466,24 @@ async function messageTreatment(clientSocket, parsed, client_Terrama2_db){
         if (job.id === storage_id){
           var storage = Storages.find(s => s.id === job.id) ;
           if (job.job){
-            console.log(storage.name, moment().format(), storage.name, " job ", job.job.cronTime.source, " this ", this.cronTime.source);
-            job.job.stop();
+          //   console.log(storage.name, moment().format(), storage.name, " job ", job.job.cronTime.source, " this ", this.cronTime.source);
+             job.job.stop();
           }
           var obj ={
-            automatic: true,
-            execution_date: moment().format(),
             instance_id: storage.service_instance_id,
-            process_id: storage_id,
-            result: true
+            log:{
+              data: "",
+              data_timestamp: "",
+              last_process_timestamp: moment().format(),
+              messages: [],
+              process_id: storage_id,
+              start_timestamp: moment().format(),
+              status: 2
+            },
+            process_id: storage_id
           }
 
-          var buffer = TcpManager.makebuffer_be(Signals.START_PROCESS_SIGNAL, obj) ;
+          var buffer = TcpManager.makebuffer_be(Signals.LOG_SIGNAL, obj) ;
           console.log(buffer.toString());
           clientSocket.write(buffer);
 
@@ -495,14 +509,14 @@ async function messageTreatment(clientSocket, parsed, client_Terrama2_db){
       var begin = parsed.message.begin;
       var end = parsed.message.end;
       var process_id = parsed.message.process_ids; //lista com ids dos processos
-      // sto_core.getLogs(client_Terrama2_db, schema, service_instance_id, process_id[0], begin, end)
-      // .catch(err =>{
-      //   console.log(err);
-      // })
-      // .then(logs=>{
-      //   var buffer = TcpManager.makebuffer_be(Signals.LOG_SIGNAL, logs) ;
-      //   clientSocket.write(buffer);
-      // });
+      sto_core.getLogs(client_Terrama2_db, schema, service_instance_id, process_id, begin, end)
+      .catch(err =>{
+        console.log(err);
+      })
+      .then(logs=>{
+        var buffer = TcpManager.makebuffer_be(Signals.LOG_SIGNAL, logs) ;
+        clientSocket.write(buffer);
+      });
       break;
 
     case Signals.REMOVE_DATA_SIGNAL:
@@ -551,24 +565,12 @@ async function messageTreatment(clientSocket, parsed, client_Terrama2_db){
 
 let pool = new pg.Pool(config_db);
 
-// let job0 = new CronJob("*/30 * * * * *", function(){
-//   console.log("Crop executando a cada 30 segundos ", moment().format());
-// });
-
-
 pool.connect().then(client_Terrama2_db => {
   server.on('connection', async function(clientSocket) {
     console.log('CONNECTED: ' + clientSocket.remoteAddress + ':' + clientSocket.remotePort);
 
     start_time = moment().format();
 
-    // joblist.push({
-    //   id: 0,
-    //   job: job0
-    // });
-
-    // job0.start();
-    
     clientSocket.on('data', async function(byteArray) {
 
       console.log("RECEIVED: ", byteArray);
@@ -663,7 +665,7 @@ process.on('SIGINT', async () => {
   TcpService.disconnect();
 
    server.close(() => {
-     console.log('Storage finalized');
+     //console.log('Storage finalized');
 
      process.exit(0);
    });
