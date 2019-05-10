@@ -7,6 +7,7 @@ var execAsync = require("child_process").exec;
 var OS = require('./../Enums').OS;
 var ScreenAdapter = require('./adapters/ScreenAdapter');
 var LocalSystemAdapter = require("./adapters/LocalSystemAdapter");
+var ServiceType = require("./../Enums").ServiceType; 
 
 
 /**
@@ -59,6 +60,7 @@ LocalExecutor.prototype.connect = function(serviceInstance) {
  */
 LocalExecutor.prototype.execute = function(command, commandArgs, options) {
   var self = this;
+  console.log("LocalExecutor.prototype.execute", command,  commandArgs, options);
   return new Promise(function(resolve, reject) {
     options.detached = true;
 
@@ -93,6 +95,7 @@ LocalExecutor.prototype.execute = function(command, commandArgs, options) {
 
     if (self.adapter instanceof LocalSystemAdapter) {
 
+      console.log("local.js 97 ", command,  commandArgs, options);
       child = spawnAsync(command, commandArgs, options);
 
       if (options.stdio != 'ignore'){
@@ -121,6 +124,7 @@ LocalExecutor.prototype.execute = function(command, commandArgs, options) {
       child.unref();
 
     } else {
+      console.log("local.js 126 ", command,  commandArgs, options);
       child = execAsync(command + " " + (commandArgs || []).join(" "));
 
       var responseMessage = "";
@@ -142,7 +146,7 @@ LocalExecutor.prototype.execute = function(command, commandArgs, options) {
         if (command === "uname") {
           defineAdapter(data.toString());
         }
-        else if(command.search('storage_app') != -1)
+        else if(command.search('storage_service') != -1)
           responseMessage = data.toString();
       });
 

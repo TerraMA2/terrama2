@@ -1,17 +1,19 @@
 define([
   "TerraMA2WebApp/common/services/index",
   "TerraMA2WebApp/table/table",
-  "TerraMA2WebApp/alert-box/app"
-],function(commonServiceModule, tableModule, alertBoxModule) {
+  "TerraMA2WebApp/alert-box/app",
+  "TerraMA2WebApp/storage/app"
+],function(commonServiceModule, tableModule, alertBoxModule, storageApp) {
   "use strict";
 
   var moduleName = "terrama2.status";
 
-  angular.module(moduleName, [commonServiceModule, tableModule, alertBoxModule])
-    .controller('StatusController', ['$scope', '$HttpTimeout', 'Socket', 'i18n', '$window', 'MessageBoxService', '$timeout',
-    function($scope, $HttpTimeout, Socket, i18n, $window, MessageBoxService, $timeout) {
+  angular.module(moduleName, [commonServiceModule, tableModule, alertBoxModule, storageApp])
+    .controller('StatusController', ['$scope', '$HttpTimeout', 'Socket', 'i18n', '$window', 'MessageBoxService', '$timeout', 'StorageService',
+    async function($scope, $HttpTimeout, Socket, i18n, $window, MessageBoxService, $timeout, StorageService) {
       var Globals = $window.globals;
       var config = $window.configuration;
+      await StorageService.init();
       $scope.logSize = 0;
       $scope.i18n = i18n;
       $scope.globals = Globals;
@@ -223,6 +225,12 @@ define([
             targetMessage = "Interpolator";
             targetKey = "dataSeriesOutput";
             url += `configuration/interpolator/new/${id}`;
+            break;
+          case Globals.enums.ServiceType.STORAGE:
+            targetArray = StorageService.list();
+            targetMessage = "Storage";
+            targetKey = "";
+            url += `configuration/storages/${id}`;
             break;
         }
 

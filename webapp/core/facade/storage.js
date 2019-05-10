@@ -2,6 +2,7 @@ const { ValidationErrorItem } = require('sequelize');
 const DataManager = require("./../DataManager");
 const URIBuilder = require('./../UriBuilder');
 const { ScheduleType, Uri } = require('./../Enums');
+const TcpService = require('./tcp-manager/TcpService');
 
 class StorageError extends Error {
   constructor(errors, code = 400) {
@@ -100,6 +101,8 @@ class storageFacade {
       const createdStorage = await DataManager.orm.models.Storages.create(storage, options);
 
       transaction.commit();
+      
+      await TcpService.send({'Storages': [createdStorage]});
 
       return createdStorage;
     } catch (error) {
@@ -148,6 +151,10 @@ class storageFacade {
 
       // Persists the operation
       await transaction.commit();
+      
+      const updatedStorage = await this.get(storageId);
+      
+      await TcpService.send({'Storages': [updatedStorage]});
 
       return;
     } catch (err) {
@@ -167,6 +174,8 @@ class storageFacade {
 
       // Persists the operation
       await transaction.commit();
+      
+      await TcpService.remove({'Storages': [id]});
     } catch (err) {
       await transaction.rollback();
 

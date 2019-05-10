@@ -6,14 +6,11 @@
  * It defines which context nodejs should initialize. The context names are available in {@link config/instances}
  * @typeof {string}
  */
-var nodeContext = process.argv[2];
-console.log('nodeContext ' +nodeContext );
 
-/**
- * It defines which port nodejs should use. When this variables is used, it overrides port number from {@link config/instances}
- */
-var nodeContextPort = process.argv[3];
-console.log('nodeContextPort ' + nodeContextPort);
+//console.log("No storage_Service.js", process.argv);
+
+var nodeContext = "";//process.argv[1];
+//console.log('nodeContext ' +nodeContext );
 
 /**
  * It defines TerraMA² global configuration (Singleton). Make sure it initializes before everything
@@ -49,17 +46,35 @@ var ScheduleType = require("./../core/Enums").ScheduleType;
 var storageUtils = require('./utils');
 var sto_core = require('./storage_core');
 
-var app = require('../app');
-
-var portNumber = '3600'; //default port
+var portNumber = '3600'; //TerraMA2 default port
+var nodeContextPort = '5000'; //storage default port
 
 let version = Application.get().metadata.version;
+
+for (var v of process.argv){
+  if (v === '--version'){
+    console.log(version);
+    process.exit(0);
+  }
+  if (!isNaN(v))
+    nodeContextPort = v;
+}
+
+/**
+ * It defines which port nodejs should use. When this variables is used, it overrides port number from {@link config/instances}
+ */
+//var nodeContextPort = process.argv[3];
+console.log('nodeContextPort ' + nodeContextPort);
+
+var app = require('../app');
 
 // storing active connections
 var connections = {};
 let settings = Application.getContextConfig();
 
 let contextConfig = settings.db;
+
+console.log("contextConfig",contextConfig);
 
 var debugMessage = "";
 let schema = contextConfig.define.schema; // getting terrama2 schema
@@ -233,13 +248,11 @@ async function addStorage(clientSocket, client, storages_new, projects){
       if (storagefound){
         updateStorage(storage);
         logger.debug("Storage Updated: ", storage.name);
-        console.log ("Updating ", storage.name)
        }
       else {
         Storages.push(storage);
         if (storage.active){
           logger.debug("Storage Added: ", storage.name);
-          console.log ("Adding ", storage.name)
         }
       }
       if (storage.active){
@@ -285,24 +298,37 @@ async function addStorage(clientSocket, client, storages_new, projects){
                       case 'sec':
                       case 'second':
                       case 'seconds':
-                        rule = "*/" + freq + " * * * * *";
+                        rule = "*/"+freq + " * * * * *";
                         break;
                       case 'min':
                       case 'minute':
                       case 'minutes':
-                        rule = "* */" + freq + " * * * *";
+                       // if (freq === 1) //60 sec
+                       //   rule = "*/60 * * * * *";
+                       // else
+                          rule = "0 */" + freq + " * * * *";
+                        //freq *= 60;
                         break;
                       case 'h':
                       case 'hour':
                       case 'hours':
-                        rule = "* * */" + freq + " * * *";
+                        // if (freq === 1) //60 min
+                       //    rule = "* */60 * * * *";
+                        // else
+                           rule = "0 0 */" + freq + " * * *";
+                        //freq *= 3600;
                         break;
                       case 'd':
                       case 'day':
                       case 'days':
-                        rule = "* * * */" + freq + " * *";
+                        // if (freq === 1) //24 hours
+                         //  rule = "* * */24 * * *";
+                        // else
+                           rule = "0 0 0 */" + freq + " * *";
+                       // freq *= 86400;
                         break;
                     }
+                    //rule = "*/" + freq + " * * * * *";
                   }
     
                   var newjob = new CronJob(rule, async function(){
@@ -310,8 +336,8 @@ async function addStorage(clientSocket, client, storages_new, projects){
                     for (var job of joblist) {
                       if (job.job === this){
                         storage = Storages.find(s => s.id === job.id) ;
-                        //.log(storage.name, moment().format(), storage.name, " job ", job.job.cronTime.source, " this ", this.cronTime.source);
                         logger.debug(storage.name + ": Setting schedule " + this.cronTime.source);
+                        console.log(storage.name, job.job.cronTime.source);
                         this.stop();
                         runStorage(clientSocket, client, storage)
                         .catch(err =>{
@@ -322,10 +348,13 @@ async function addStorage(clientSocket, client, storages_new, projects){
                           var buffer = TcpManager.makebuffer_be(Signals.PROCESS_FINISHED_SIGNAL, obj) ;
                           // console.log(buffer.toString());
                           clientSocket.write(buffer);
-                          console.log("Finishing", obj.storage.name, " ", moment().format())
+                          //console.log("Finishing", obj.storage.name, " ", moment().format())
                           logger.debug(storage.name + ": Finished");
                           this.start();
                         });
+                        var lastdate = this.lastDate();
+                        var nextdates = this.nextDates();
+                        logger.debug(storage.name + ": lastdate " + lastdate + " nextdate " + nextdates.format());
                         break;
                       }
                     }
@@ -404,6 +433,8 @@ let config_db = {
   database: contextConfig.database
 };
 
+console.log('Config_db', config_db);
+
 async function messageTreatment(clientSocket, parsed, client_Terrama2_db){
 
   switch(parsed.signal){
@@ -441,19 +472,12 @@ async function messageTreatment(clientSocket, parsed, client_Terrama2_db){
       if (parsed.message.Storages){
         try{
           await addStorage(clientSocket, client_Terrama2_db, parsed.message.Storages, parsed.message.Projects);
-          // joblist.forEach(job => {
-          //   console.log("job: ", job.id, job.job.cronTime.source);
-          // });
 
           var buffer =  await TcpManager.makebuffer_be(Signals.VALIDATE_PROCESS_SIGNAL, {}) ;
-          //console.log("Depois do ADD", buffer.toString());
           clientSocket.write(buffer);
         }
         catch(e){
-          console.log(e);
-        //  var buffer = beginOfMessage + TcpManager.makebuffer_be(Signals.UPDATE_SERVICE_SIGNAL, parsed.message) + endOfMessage;
-        //  console.log("ADD_ERROR", buffer);
-        //  clientSocket.write(buffer);
+          logger.error(e);
         }
       }
     
@@ -482,19 +506,20 @@ async function messageTreatment(clientSocket, parsed, client_Terrama2_db){
             },
             process_id: storage_id
           }
+          var objs =[];
+          objs.push(obj);
 
-          var buffer = TcpManager.makebuffer_be(Signals.LOG_SIGNAL, obj) ;
+          var buffer = TcpManager.makebuffer_be(Signals.LOG_SIGNAL, objs) ;
           console.log(buffer.toString());
           clientSocket.write(buffer);
 
           runStorage(clientSocket, client_Terrama2_db, storage)
           .catch(err =>{
-            console.log(storage.name, err);
+            logger.error(err);
             if (job.job) job.job.start();
           })
           .then(obj1 => {
             var buffer = TcpManager.makebuffer_be(Signals.PROCESS_FINISHED_SIGNAL, obj1) ;
-            // console.log(buffer.toString());
             clientSocket.write(buffer);
             console.log("Finishing", obj1.storage.name, " ", moment().format())
             if (job.job) job.job.start();
@@ -505,13 +530,13 @@ async function messageTreatment(clientSocket, parsed, client_Terrama2_db){
       break;
 
     case Signals.LOG_SIGNAL:
-      console.log("LOG - process_ids",  parsed.message.process_ids[0]);
+      //console.log("LOG - process_ids",  parsed.message.process_ids);
       var begin = parsed.message.begin;
       var end = parsed.message.end;
       var process_id = parsed.message.process_ids; //lista com ids dos processos
       sto_core.getLogs(client_Terrama2_db, schema, service_instance_id, process_id, begin, end)
       .catch(err =>{
-        console.log(err);
+        logger.error(err);
       })
       .then(logs=>{
         var buffer = TcpManager.makebuffer_be(Signals.LOG_SIGNAL, logs) ;
@@ -525,6 +550,7 @@ async function messageTreatment(clientSocket, parsed, client_Terrama2_db){
 
     case Signals.PROCESS_FINISHED_SIGNAL:
       console.log("PROCESS_FINISHED_SIGNAL");
+      serviceLoaded_ = false;
       break;
 
     case Signals.UPDATE_SERVICE_SIGNAL:
@@ -555,7 +581,6 @@ async function messageTreatment(clientSocket, parsed, client_Terrama2_db){
       break;
 
     case Signals.VALIDATE_PROCESS_SIGNAL:
-      console.log("VALIDATE_PROCESS_SIGNAL");
       var buffer =  await TcpManager.makebuffer_be(Signals.VALIDATE_PROCESS_SIGNAL, obj) ;
       console.log("VALIDATE_PROCESS_SIGNAL", buffer);
       clientSocket.write(buffer);
@@ -581,8 +606,7 @@ pool.connect().then(client_Terrama2_db => {
       tempBuffer = storageUtils._createBufferFrom(tempBuffer, byteArray);
 
       let completeMessage = true;
-      // process all messages in the buffer
-      // or until we get a incomplete message
+      // process all messages in the buffer or until we get a incomplete message
       while(tempBuffer && completeMessage) {
         try  {
           let bom = tempBuffer.toString('utf-8', 0, beginOfMessage.length);
@@ -648,7 +672,7 @@ pool.connect().then(client_Terrama2_db => {
           await messageTreatment(clientSocket, parsed, client_Terrama2_db);
         }
         catch(e){
-          console.log(e);
+          logger.error(e);
           throw (e);
         }
       }
@@ -665,7 +689,7 @@ process.on('SIGINT', async () => {
   TcpService.disconnect();
 
    server.close(() => {
-     //console.log('Storage finalized');
+     logger.log('info','Storage finalized');
 
      process.exit(0);
    });

@@ -333,9 +333,9 @@ TcpManager.prototype.startService = function(serviceInstance) {
     }
 
     return instance.connect(serviceInstance).then(function() {
-      if (serviceInstance.service_type_id == ServiceType.STORAGE)
-        var obj = [];
-      else 
+      // if (serviceInstance.service_type_id == ServiceType.STORAGE)
+      //   var obj = ['', serviceInstance.port];
+      // else 
        var obj = ['--version', '-platform', 'minimal'];
        
       return PromiseClass.all([

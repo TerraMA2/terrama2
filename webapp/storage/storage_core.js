@@ -48,7 +48,7 @@ async function backup_Messages(params, service_table, service_type){
         a.process_id, a.status, a.start_timestamp, a.data_timestamp, a.last_process_timestamp, \
         a.data, \'" + service_type + "\', \'" + params.storage.id + "\' FROM \
         " + params.schema + "." + service_table + " a WHERE a.process_id = \'" + process_id + "\'";
-        console.log(params.storage.name, sql_insert1);
+       // console.log(params.storage.name, sql_insert1);
         params.client.query(sql_insert1);
 
       }
@@ -332,9 +332,9 @@ async function StoreNTable_1(params, res){
 
           updateMessages(params);
         }
-
-        return resolve();
       }
+
+      return resolve();
     }
     catch(e){
       return reject(e);
@@ -357,7 +357,7 @@ async function StoreTable(params)
       if (params.storage.filter)
         backup_Messages(params, res_data.service_table, res_data.service_type);
 
-      params.logger.log('info', params.storage.name + ": Removing data before " + res_data.data_until_store.format('YYYY-MM-DD HH:mm:ss'));
+      params.logger.log('info', params.storage.name + ": Removing data before " + res_data.data_until_store.format('YYYY-MM-DD HH:mm:ss') + " from " + params.table_name);
 
       pg.connect(params.database_project, async (err6, client_proj, done) =>{
         if(err6) {
@@ -382,7 +382,7 @@ async function StoreTable(params)
         var sql_delete = "DELETE FROM " + params.table_name + " WHERE \
         " + params.table_name + "." + params.timestamp_prop + " < \'" + res_data.data_until_store.format('YYYY-MM-DD HH:mm:ss') + "\' \
         RETURNING " + columns_to_be_back;
-        //console.log(params.storage.name,sql_delete);
+        //params.logger.debug(params.storage.name,sql_delete);
 
         var res_del = await client_proj.query(sql_delete, function (err){
           if (err)
@@ -390,6 +390,7 @@ async function StoreTable(params)
         });
  
         if (!res_del.rowCount){
+          params.logger.debug(params.storage.name, "None registers to delete from "+ params.table_name);
           var obj = {
             flag: false,
             data_timestamp: "",
@@ -482,8 +483,9 @@ async function StoreTable(params)
           var select_key = "SELECT column_name, constraint_name FROM information_schema.constraint_column_usage WHERE table_name = \'" + params.table_name + "\'";
           var select_seq = "SELECT sequence_name, increment, minimum_value, maximum_value, start_value FROM information_schema.sequences WHERE sequence_name = " + seq_name + "";
 
-          //console.log(select_key);
-          //console.log(select_seq);
+          //params.logger.debug(select_key);
+          //params.logger.debug(select_seq);
+
           var res4 = await client_proj.query(select_key);
           var res5 = await client_proj.query(select_seq);
 
@@ -550,7 +552,7 @@ async function updateMessages(params){
         params.storage.id + "," + params.storage.process.status + ", \'" + start + "\', \'" + last + "\') RETURNING *";
       }
 
-     // console.log(params.storage.name,insertvalues);
+      //params.logger.debug(params.storage.name,insertvalues);
       
       params.client.query(insertvalues, async (err, res) =>{
         if (err){
@@ -562,8 +564,8 @@ async function updateMessages(params){
           var insert_msg = "INSERT INTO " + params.schema + "." + service_table_message + 
           " (log_id, type, description, timestamp) VALUES(" + res.rows[0].id + ", " + 
           params.storage.process.status + ", \'" + params.storage.process.description + "\', \'" + last + "\')";
-            //console.log(params.storage.name,insert_msg);
-            params.client.query(insert_msg);
+          //params.logger.debug(params.storage.name,insert_msg);
+          params.client.query(insert_msg);
         }
         return resolve(true);
       });
@@ -579,7 +581,6 @@ async function getMessages(client, service_table_message, id){
   return new Promise(async function resolvePromise(resolve, reject){
     try{
       var selec_messages = "SELECT * FROM " + service_table_message + " WHERE log_id = \'"  + id + "\'";
-      console.log(selec_messages);
 
       var res = await client.query(selec_messages);
       var messages = [];
@@ -622,7 +623,6 @@ async function getProcessLog(client, selec_log, service_table_message){
           data : row.data
         }
   
-        console.log("LOG:",log);
         var messages = await getMessages(client, service_table_message, log.id);
         log.messages = messages;
         logs.push(log);
@@ -787,26 +787,22 @@ module.exports = {
 
         params.logger.log('info', params.storage.name + ": Removing data before " + res_data_tiff.data_until_store.format('YYYY-MM-DD HH:mm:ss'));
 
-        console.log("storage " + params.storage.name + " data " + JSON.stringify(res_data_tiff.data_until_store, null, 4));
+        //console.log("storage " + params.storage.name + " data " + JSON.stringify(res_data_tiff.data_until_store, null, 4));
 
         var uri = res1.rows[0].uri;
         var mask = res1.rows[0].value;
         var path = uri.slice(uri.indexOf("//") +2, uri.lenght) + "/" + mask.slice(0,mask.indexOf("/"));
-        console.log(params.storage.name,"path "+path);
         var regexString = await storageUtils.terramaMask2Regex( mask.slice(mask.indexOf("/")+1, mask.lenght));
         const regex = new Regex(regexString);
-       // console.log ("no store " + regexString);
 
         var data_out = params.storage.uri;
 
         if (params.storage.zip){
           data_out = data_out.slice(params.storage.uri.indexOf("//")+2, params.storage.uri.lenght) + "/" + mask.slice(0,mask.indexOf("%"));
-        //  console.log("ZIPFILE", data_out);
           var zip = new AdmZip();
         }
         else{
           data_out = data_out.slice(params.storage.uri.indexOf("//")+2, params.storage.uri.lenght) + "/" + mask.slice(0,mask.indexOf("/"));
-        //  console.log(params.storage.name,data_out); 
         }
 
         var moved_files = 0;
@@ -879,7 +875,6 @@ module.exports = {
             var maskzip = mask.slice(mask.indexOf("%"), mask.indexOf("."));
             maskzip = maskzip.replace(/%/g,'');
             var zipfile = data_out + moment().format(maskzip) + ".zip";
-          //  console.log(params.storage.name,zipfile);
             zip.writeZip(zipfile);
           }
   

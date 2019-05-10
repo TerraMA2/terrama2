@@ -6,7 +6,10 @@
     "grunt": "grunt"
   },
   "devDependencies": {
-    "grunt": "^1.0.2",
+    "@babel/core": "^7.0.0-beta.49",
+    "@babel/preset-env": "^7.0.0-beta.49",
+    "grunt": "^1.0.4",
+    "grunt-babel": "^7.0.0",
     "grunt-banner": "^0.6.0",
     "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-cssmin": "^1.0.1",
@@ -14,9 +17,6 @@
     "grunt-jsdoc": "^2.1.0",
     "jsdoc": "^3.4.0",
     "requirejs": "^2.2.0",
-    "@babel/core": "^7.0.0-beta.49",
-    "@babel/preset-env": "^7.0.0-beta.49",
-    "grunt-babel": "^7.0.0",
     "uglify-es": "^3.3.9"
   }
 }

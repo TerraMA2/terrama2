@@ -79,14 +79,14 @@ define([], () => {
       // Make sure service exists on server side before run
       const storageService = await Service.get(object.service_instance_id);
 
-      // Make sure Data Series is active
-      const storageDataSeries = DataSeries.list({ id: object.data_series_id })[0];
+      // Make sure Data Series is inactive to run Storager
+      //const storageDataSeries = DataSeries.list({ id: object.data_series_id })[0];
 
-      if (storageDataSeries.active) {
+      //if (!storageDataSeries.active) {
         return Socket.emit('run', { ids: [ object.id ], service_instance: storageService.id });
-      }
+      //}
 
-      this.MessageBox.danger(this.i18n.__('Process'), this.i18n.__(`The storage "${object.name}" can't be executed due data series "${storageDataSeries.name}" is inactive.`))
+      //this.MessageBox.danger(this.i18n.__('Process'), this.i18n.__(`The storage "${object.name}" can't be executed due data series "${storageDataSeries.name}" is active. Make sure the data series is disabled in order to execute Storager.`))
     }
   }
 
