@@ -86,7 +86,7 @@ define([], () => {
         return Socket.emit('run', { ids: [ object.id ], service_instance: storageService.id });
       }
 
-      this.MessageBox.danger(this.i18n.__('Process'), this.i18n.__(`The storage "${object.name}" can't be executed due data series "${storageDataSeries.name}" is active. Make sure the data series is disable in order to execute Storager.`))
+      this.MessageBox.danger(this.i18n.__('Process'), this.i18n.__(`The storage "${object.name}" can't be executed due data series "${storageDataSeries.name}" is active. Make sure the data series is disabled in order to execute Storager.`))
     }
   }
 
