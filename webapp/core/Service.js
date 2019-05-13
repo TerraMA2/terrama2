@@ -155,52 +155,34 @@ var Service = module.exports = function(serviceInstance) {
         const messageSizeReceived = tempBuffer.readUInt32BE(beginOfMessage.length);
         const headerSize = beginOfMessage.length + endOfMessage.length;
         const expectedLength = messageSizeReceived + 4;
-        console.log("messageSizeReceived", messageSizeReceived, "headerSize", headerSize, "expectedLength", expectedLength);
-        // var eom0 = tempBuffer.toString('ascii', tempBuffer.length -  endOfMessage.length);
-        // if (eom0 != endOfMessage){
-          if(tempBuffer.length < expectedLength+headerSize) {
-            // if we don't have the complete message
-            // wait for the rest
-            completeMessage = false;
-            return;
-          }
+        if(tempBuffer.length < expectedLength+headerSize) {
+          // if we don't have the complete message
+          // wait for the rest
+          completeMessage = false;
+          return;
+        }
 
-          const eom = tempBuffer.toString('ascii', expectedLength + beginOfMessage.length, expectedLength+headerSize);
-          if(eom !== endOfMessage) {
-            // we should have a complete message and and end of message mark
-            // if we arrived here we got an ill-formed message
-            // clear the buffer and raise an error
-//            console.log("tempBuffer ", tempBuffer.toString('ascii'));
-//            console.log("byteArray ", byteArray.toString('ascii'));
-            tempBuffer = undefined;
-            throw new Error("Invalid message (EOM)");
-          }
-          // if we got many messages at once
-          // hold the buffer we the extra messages for processing
-          if(tempBuffer.length > expectedLength+headerSize) {
-            extraData = new Buffer.from(tempBuffer.slice(expectedLength + headerSize));
-          } else {
-            extraData = undefined;
-          }
-          tempBuffer = new Buffer.from(tempBuffer.slice(beginOfMessage.length, expectedLength+beginOfMessage.length));
-//         }
-//         else{
-//           extraData = undefined;
-// //        tempBuffer = new Buffer.from(tempBuffer.slice(beginOfMessage.length-1, tempBuffer.length-endOfMessage.length));
-//           tempBuffer = new Buffer.from(tempBuffer.slice(beginOfMessage.length, expectedLength+beginOfMessage.length));
-//          console.log("tempBuffer ", tempBuffer.toString());
-//        }
-//console.log("BOM",beginOfMessage.readUInt32BE );
-//console.log("tempBuffer", tempBuffer);
-//console.log("byteArray", byteArray);
+        const eom = tempBuffer.toString('ascii', expectedLength + beginOfMessage.length, expectedLength+headerSize);
+        if(eom !== endOfMessage) {
+          // we should have a complete message and and end of message mark
+          // if we arrived here we got an ill-formed message
+          // clear the buffer and raise an error
+          tempBuffer = undefined;
+          throw new Error("Invalid message (EOM)");
+        }
+        // if we got many messages at once
+        // hold the buffer we the extra messages for processing
+        if(tempBuffer.length > expectedLength+headerSize) {
+          extraData = new Buffer.from(tempBuffer.slice(expectedLength + headerSize));
+        } else {
+          extraData = undefined;
+        }
+        tempBuffer = new Buffer.from(tempBuffer.slice(beginOfMessage.length, expectedLength+beginOfMessage.length));
         // get only the first message for processing
         const parsed = parseByteArray(tempBuffer);
 
         // get next message in the buffer for processing
         tempBuffer = extraData;
- //       console.log("tempBuffer ", tempBuffer);
- 
-        console.log("Size: " + parsed.size + " Signal: " + parsed.signal + " Message: " + JSON.stringify(parsed.message, null, 4));
  
         switch(parsed.signal) {
           case Signals.LOG_SIGNAL:
@@ -290,7 +272,6 @@ var Service = module.exports = function(serviceInstance) {
     }
 
     self.answered = false;
-    console.log("Service.js 293", buffer.toString());
     self.writeData(buffer, 300000, function() {
       if (!self.answered) {
         self.emit("serviceError", new Error("Status Timeout exceeded."));
@@ -318,7 +299,6 @@ var Service = module.exports = function(serviceInstance) {
     // tmp.set(new Buffer.from(buffer), beginOfMessage.length);
     // tmp.set(new Buffer.from(endOfMessage), buffer.length+beginOfMessage.length);
 
-    console.log("Service.js 321", buffer.toString());
     self.writeData(buffer, null, null, () => { });
   };
 
@@ -346,7 +326,6 @@ var Service = module.exports = function(serviceInstance) {
     }
 
     self.answered = false;
-    console.log("Service.js 347 ", buffer.toString());
     self.writeData(buffer, 10000, function() {
       if (!self.answered) {
         self.emit("serviceError", new Error("Log Timeout exceeded."));

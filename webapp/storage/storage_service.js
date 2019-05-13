@@ -122,7 +122,7 @@ async function runStorage(clientSocket, client, storage1){
   return new Promise(async function resolvePromise(resolve, reject){
     try{
       console.log("Starting ", storage1.name, " ", moment().format());
-      logger.debug("Starting: ", storage1.name );
+      logger.log("info","Starting: ", storage1.name );
     
       //Temporary, while frontend update don work well, gets storage from database
       var sql_get_storage = "SELECT * from "+ schema + ".storages WHERE id = \'"+ storage1.id + "\'";
@@ -247,12 +247,12 @@ async function addStorage(clientSocket, client, storages_new, projects){
 
       if (storagefound){
         updateStorage(storage);
-        logger.debug("Storage Updated: ", storage.name);
+        logger.log("info", "Storage Updated: ", storage.name);
        }
       else {
         Storages.push(storage);
         if (storage.active){
-          logger.debug("Storage Added: ", storage.name);
+          logger.log("info", "Storage Added: ", storage.name);
         }
       }
       if (storage.active){
@@ -303,32 +303,19 @@ async function addStorage(clientSocket, client, storages_new, projects){
                       case 'min':
                       case 'minute':
                       case 'minutes':
-                       // if (freq === 1) //60 sec
-                       //   rule = "*/60 * * * * *";
-                       // else
                           rule = "0 */" + freq + " * * * *";
-                        //freq *= 60;
                         break;
                       case 'h':
                       case 'hour':
                       case 'hours':
-                        // if (freq === 1) //60 min
-                       //    rule = "* */60 * * * *";
-                        // else
-                           rule = "0 0 */" + freq + " * * *";
-                        //freq *= 3600;
+                          rule = "0 0 */" + freq + " * * *";
                         break;
                       case 'd':
                       case 'day':
                       case 'days':
-                        // if (freq === 1) //24 hours
-                         //  rule = "* * */24 * * *";
-                        // else
-                           rule = "0 0 0 */" + freq + " * *";
-                       // freq *= 86400;
-                        break;
+                          rule = "0 0 0 */" + freq + " * *";
+                       break;
                     }
-                    //rule = "*/" + freq + " * * * * *";
                   }
     
                   var newjob = new CronJob(rule, async function(){
@@ -346,15 +333,13 @@ async function addStorage(clientSocket, client, storages_new, projects){
                         })
                         .then(obj => {
                           var buffer = TcpManager.makebuffer_be(Signals.PROCESS_FINISHED_SIGNAL, obj) ;
-                          // console.log(buffer.toString());
                           clientSocket.write(buffer);
-                          //console.log("Finishing", obj.storage.name, " ", moment().format())
                           logger.debug(storage.name + ": Finished");
                           this.start();
                         });
                         var lastdate = this.lastDate();
                         var nextdates = this.nextDates();
-                        logger.debug(storage.name + ": lastdate " + lastdate + " nextdate " + nextdates.format());
+                        logger.debug(storage.name + ": lastdate " + lastdate + " nextdate " + nextdates.format().toDate());
                         break;
                       }
                     }

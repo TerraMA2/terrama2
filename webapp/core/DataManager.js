@@ -6725,96 +6725,23 @@ var DataManager = module.exports = {
   getStorage: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      var restrictionOutput = {};
-      if (restriction.output) {
-        Object.assign(restrictionOutput, restriction.output);
-        delete restriction.output;
-      }
-
-      models.db.Storage.findOne(Utils.extend({
-        where: restriction,
-        include: [
-          {
-            model: models.db.Schedule
-          },
-          {
-            model: models.db.DataSeries,
-            where: restrictionOutput
+      self.listStorages(restriction, options)
+        .then(function(storages) {
+          if (storages.length === 0) {
+            return reject(new Error("No storage retrieved"));
           }
-        ]
-      }, options)).then(function(storageResult) {
-        if (storageResult) {
-          var storageInstance = new DataModel.Storage(storageResult.get());
 
-          return self.getDataSeries({id: storageResult.data_series_output})
-            .then(function(dataSeries) {
-              storageInstance.dataSeriesOutput = dataSeries;
-              return resolve(storageInstance);
-            }).catch(function(err) {
-              logger.error("Retrieved null while getting storage", err);
-              return reject(new exceptions.storageError("Could not find storage. " + err.toString()));
-            });
-        } else {
-          logger.error("Retrieved null while getting storage", storageResult);
-          return reject(new exceptions.storageErrorNotFound("Could not find storage. "));
-        }
-      }).catch(function(err) {
-        logger.error(err);
-        return reject(new exceptions.storageError("Could not find storage. " + err.toString()));
-      });
+          if (storages.length > 1) {
+            return reject(new Error("Get operation retrieved more than a storage"));
+          }
+
+          return resolve(storages[0]);
+        })
+        .catch(function(err) {
+          return reject(err);
+        });
     });
   },
-
-  /**
-   * It retrieves a storage of database from given restriction. If no storage is found, a null value is returned.
-   *
-   * @param {Object} restriction - A query restriction
-   * @param {Object} options - A query options
-   * @param {Transaction} options.transaction - An ORM transaction
-   * @returns {Promise<Storage>}
-   */
-  getStorageAcceptNull: function(restriction, options) {
-    var self = this;
-    return new Promise(function(resolve, reject) {
-      var restrictionOutput = {};
-      if (restriction.output) {
-        Object.assign(restrictionOutput, restriction.output);
-        delete restriction.output;
-      }
-
-      models.db.Storage.findOne(Utils.extend({
-        where: restriction,
-        include: [
-          {
-            model: models.db.Schedule
-          },
-          {
-            model: models.db.DataSeries,
-            where: restrictionOutput
-          }
-        ]
-      }, options)).then(function(storageResult) {
-        if (storageResult) {
-          var storageInstance = new DataModel.Storage(storageResult.get());
-
-          return self.getDataSeries({id: storageResult.data_series_output})
-            .then(function(dataSeries) {
-              storageInstance.dataSeriesOutput = dataSeries;
-              return resolve(storageInstance);
-            }).catch(function(err) {
-              logger.error("Retrieved null while getting storage", err);
-              return reject(new exceptions.StorageError("Could not find storage. " + err.toString()));
-            });
-        } else {
-          return resolve(null);
-        }
-      }).catch(function(err) {
-        logger.error(err);
-        return reject(new exceptions.StorageError("Could not find storage. " + err.toString()));
-      });
-    });
-  },
-
 
 };
 
