@@ -1,3 +1,9 @@
+# 4.0.11
+
+## Buffix:
+
+- Revert commit 7b9f813 - Performance issues on specific rasters
+
 # 4.0.10
 
 ## New Features:
