@@ -61,6 +61,15 @@ namespace terrama2
             namespace utils
             {
               /*!
+                \brief Get a map of <row, column> of values of the raster intersection with the geometry
+              */
+              template<class T>
+              void getRasterValues(std::shared_ptr<te::gm::Geometry> geom,
+                                   const std::shared_ptr<te::rst::Raster>& raster,
+                                   const size_t band,
+                                   std::map<std::pair<int, int>, T>& valuesMap);
+
+              /*!
                 \brief Get a map of <row, column> of the <accumulated values, count of values> of the raster intersection with the geometry
               */
               template<class T>
@@ -78,6 +87,46 @@ namespace terrama2
     } /* analysis */
   } /* services */
 } /* terrama2 */
+
+template<class T>
+void terrama2::services::analysis::core::grid::zonal::utils::getRasterValues(std::shared_ptr<te::gm::Geometry> geom,
+                      const std::shared_ptr<te::rst::Raster>& raster,
+                      const size_t band,
+                      std::map<std::pair<int, int>, T>& valuesMap)
+{
+  terrama2::core::BitsetIntersection intersection = terrama2::core::BitsetIntersection::bitsetIntersection(geom, raster);
+
+  auto grid = raster->getGrid();
+  uint32_t lowerLeftCol, lowerLeftRow;
+  std::tie(lowerLeftCol, lowerLeftRow) = terrama2::core::geoToGrid(intersection.lowerLeft(), grid);
+  if(lowerLeftCol == std::numeric_limits<uint32_t>::max()) lowerLeftCol = 0;
+  if(lowerLeftRow == std::numeric_limits<uint32_t>::max()) lowerLeftRow = grid->getNumberOfRows()-1;
+
+  uint32_t upperRightCol, upperRightRow;
+  std::tie(upperRightCol, upperRightRow) = terrama2::core::geoToGrid(intersection.upperRight(), grid);
+  if(upperRightRow == std::numeric_limits<uint32_t>::max()) upperRightRow = 0;
+  if(upperRightCol == std::numeric_limits<uint32_t>::max()) upperRightCol = grid->getNumberOfColumns()-1;
+
+  auto rasterBand = raster->getBand(band);
+  double noData = rasterBand->getProperty()->m_noDataValue;
+  auto bitset = intersection.bitset();
+  uint32_t i = 0;
+  for(uint32_t row = upperRightRow; row <= lowerLeftRow; ++row)
+  {
+    for(uint32_t column = lowerLeftCol; column <= upperRightCol; ++column)
+    {
+      if(bitset[i])
+      {
+        auto key = std::make_pair(row, column);
+        double value = noData;
+        rasterBand->getValue(column, row, value);
+        if(value != noData)
+          valuesMap[key] = value;
+      }
+      ++i;
+    }
+  }
+}
 
 template<class T>
 std::unordered_map<std::pair<int, int>, std::pair<T, int>, boost::hash<std::pair<int, int> > >
@@ -155,7 +204,7 @@ terrama2::services::analysis::core::grid::zonal::utils::getAccumulatedMap(
     for(const auto& raster : rasterList)
     {
       std::map<std::pair<int, int>, T> tempValuesMap;
-      terrama2::core::getRasterValues<T>(geomResult, raster.get(), band, tempValuesMap);
+      utils::getRasterValues<T>(geomResult, raster, band, tempValuesMap);
 
       for_each(tempValuesMap.cbegin(), tempValuesMap.cend(), [&valuesMap](const std::pair<std::pair<int, int>, T>& val)
       {
