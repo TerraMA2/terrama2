@@ -230,7 +230,7 @@ define([
             targetArray = StorageService.list();
             targetMessage = "Storage";
             targetKey = "";
-            url += `configuration/storages/${id}`;
+            url += `administration/storages/${id}`;
             break;
         }
 
