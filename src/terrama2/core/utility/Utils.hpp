@@ -30,34 +30,28 @@
 #ifndef __TERRAMA2_CORE_UTILS_HPP__
 #define __TERRAMA2_CORE_UTILS_HPP__
 
-// TerraLib
-#include <terralib/core/Config.h>
-#include <terralib/core/uri/URI.h>
 #include <terralib/dataaccess/dataset/DataSet.h>
 #include <terralib/dataaccess/dataset/DataSetType.h>
+#include <terralib/core/Config.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
+// TerraLib
 #include <terralib/geometry/Coord2D.h>
-#include <terralib/raster/Band.h>
-#include <terralib/raster/BandProperty.h>
 #include <terralib/raster/Raster.h>
-
-// STL
+#include <terralib/core/uri/URI.h>
 #include <memory>
+// STL
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "../Shared.hpp"
 #include "../Typedef.hpp"
-
 // TerraMA2
 #include "../data-model/DataProvider.hpp"
 #include "../data-model/DataSeries.hpp"
 #include "../data-model/DataSeriesSemantics.hpp"
 #include "../data-model/DataSet.hpp"
 #include "../data-model/Filter.hpp"
-#include "../utility/BitsetIntersection.hpp"
-#include "../utility/GeoUtils.hpp"
 
 // Forward declaration
 class QJsonDocument;
@@ -249,12 +243,6 @@ namespace terrama2
      * \return Clean URI object
      */
     TECOREEXPORT te::core::URI normalizeURI(const std::string& uri);
-
-    template<class T>
-    void getRasterValues(std::shared_ptr<te::gm::Geometry> geom,
-                         const std::unique_ptr<te::rst::Raster>& raster,
-                         const size_t band,
-                         std::map<std::pair<int, int>, T>& valuesMap);
   } // end namespace core
 }   // end namespace terrama2
 
@@ -265,47 +253,6 @@ namespace std
     {
         size_t operator()(terrama2::core::Filter const& filter) const;
     };
-}
-
-
-template<class T>
-void terrama2::core::getRasterValues(std::shared_ptr<te::gm::Geometry> geom,
-                                     const std::unique_ptr<te::rst::Raster>& raster,
-                                     const size_t band,
-                                     std::map<std::pair<int, int>, T>& valuesMap)
-{
-  terrama2::core::BitsetIntersection intersection = terrama2::core::BitsetIntersection::bitsetIntersection(geom, raster);
-
-  auto grid = raster->getGrid();
-  uint32_t lowerLeftCol, lowerLeftRow;
-  std::tie(lowerLeftCol, lowerLeftRow) = terrama2::core::geoToGrid(intersection.lowerLeft(), grid);
-  if(lowerLeftCol == std::numeric_limits<uint32_t>::max()) lowerLeftCol = 0;
-  if(lowerLeftRow == std::numeric_limits<uint32_t>::max()) lowerLeftRow = grid->getNumberOfRows()-1;
-
-  uint32_t upperRightCol, upperRightRow;
-  std::tie(upperRightCol, upperRightRow) = terrama2::core::geoToGrid(intersection.upperRight(), grid);
-  if(upperRightRow == std::numeric_limits<uint32_t>::max()) upperRightRow = 0;
-  if(upperRightCol == std::numeric_limits<uint32_t>::max()) upperRightCol = grid->getNumberOfColumns()-1;
-
-  auto rasterBand = raster->getBand(band);
-  double noData = rasterBand->getProperty()->m_noDataValue;
-  auto bitset = intersection.bitset();
-  uint32_t i = 0;
-  for(uint32_t row = upperRightRow; row <= lowerLeftRow; ++row)
-  {
-    for(uint32_t column = lowerLeftCol; column <= upperRightCol; ++column)
-    {
-      if(bitset[i])
-      {
-        auto key = std::make_pair(row, column);
-        double value = noData;
-        rasterBand->getValue(column, row, value);
-        if(value != noData)
-          valuesMap[key] = value;
-      }
-      ++i;
-    }
-  }
 }
 
 #endif // __TERRAMA2_CORE_UTILS_HPP__
