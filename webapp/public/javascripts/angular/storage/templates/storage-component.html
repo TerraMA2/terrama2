@@ -92,11 +92,17 @@
                 <div class="col-md-6">
                     <div class="form-group has-feedback" terrama2-show-errors>
                     <label>{{ i18n.__("Time interval") }}:</label>
-                    <input class="form-control"
-                            name="timeInterval"
-                            ng-model="$ctrl.storage.keep_data"
-                            placeholder="{{ i18n.__('Time interval') }}"
+                    <select class="form-control"
+                            name="keep_data_unit"
+                            ng-model="$ctrl.storage.keep_data_unit"
+                            placeholder="{{ i18n.__('Time unit') }}"
                             type="text" terrama2-server-errors="serverErrors" required>
+                            <option value=""></option>
+                            <option value="hours">{{ i18n.__('Hours') }}</option>
+                            <option value="days">{{ i18n.__('Days') }}</option>
+                            <option value="weeks">{{ i18n.__('Weeks') }}</option>
+                            <option value="months">{{ i18n.__('Months') }}</option>
+                    </select>
 
                     <span class="form-control-feedback glyphicon" ng-show="$ctrl.storageForm.timeInterval.$dirty" ng-class="{'glyphicon-ok': $ctrl.storageForm.timeInterval.$valid, 'glyphicon-remove': $ctrl.storageForm.timeInterval.$invalid }"></span>
 
