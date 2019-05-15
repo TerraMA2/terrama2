@@ -9,6 +9,9 @@ const AdmZip = require('adm-zip');
 var StatusLog = require("./../core/Enums").StatusLog;
 var storageUtils = require("./utils");
 
+const analysisTimestampPropertyName = "execution_date";
+
+
 /**
  * performs the backup of the data control execution messages of the dynamic data/analysis
  * @param {*} params.storage : storage service is running
@@ -243,12 +246,12 @@ async function selectServiceInput (params)
       else{
         var res1 = await params.client.query(is_analysis);
         service_type = "analysis"
-        service_table = "analysis_" + res.rows[0].instance_id;
+        service_table = "analysis_" + res1.rows[0].instance_id;
       }
       return resolve({service_table, service_type});
     }
     catch(e){
-      params.logger.error(params.storage.name + ": "  + e.watch());
+      params.logger.error(params.storage.name + ": "  + e);
       return reject(e);
     }
   });
@@ -664,11 +667,23 @@ async function getDataUntilStore(params){
       var service_table = res_1.service_table;
       var service_type = res_1.service_type; 
 
-      var sel_date = "SELECT MAX(data_timestamp) FROM \
-      " + params.schema + "." + service_table + ", \
-      " + params.schema + "." + service_type + " WHERE \
-      " + service_table + ".process_id = " + service_type + ".id  AND \
-      " + service_type + ".data_series_output = " + params.storage.data_series_id;
+      var sel_date;
+      if (service_type === "collectors"){
+        sel_date = "SELECT MAX(data_timestamp) FROM \
+        " + params.schema + "." + service_table + ", \
+        " + params.schema + "." + service_type + " WHERE \
+        " + service_table + ".process_id = " + service_type + ".id  AND \
+        " + service_type + ".data_series_output = " + params.storage.data_series_id;
+      }
+      else{
+        sel_date = "SELECT MAX(data_timestamp) FROM \
+        " + params.schema + "." + service_table + ", \
+        " + params.schema + "." + service_type + ", \
+        " + params.schema + ".data_sets WHERE \
+        " + service_table + ".process_id = " + service_type + ".id  AND \
+        " + service_type + ".dataset_output = data_sets.id AND data_sets.data_series_id = " + params.storage.data_series_id;
+      }
+
       var res_data = await params.client.query(sel_date);
 
       var data_until_store = res_data.rowCount ? new moment(res_data.rows[0].max) : new moment();

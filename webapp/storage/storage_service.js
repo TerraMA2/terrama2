@@ -80,8 +80,6 @@ var debugMessage = "";
 let schema = contextConfig.define.schema; // getting terrama2 schema
 let databaseName = contextConfig.database; // getting terrama2 database name
 
-const analysisTimestampPropertyName = "execution_date";
-
 if (PortScanner.isValidPort(Number(nodeContextPort))) {
   portNumber = nodeContextPort;
 } else {
@@ -231,12 +229,11 @@ async function runStorage(clientSocket, client, storage){
 
 function updateStorage(newstorage)
 {
-  return Storages.some(function(storage) {
-    if (storage.id === newstorage.id){
-      storage = newstorage;
-      return storage;
+  for(let i = 0; i < Storages.length; i++) {
+    if (Storages[i].id === newstorage.id){
+      return Storages.splice(i,1, newstorage);
     } 
-  });
+  };
 }
 
 /**
@@ -266,7 +263,7 @@ async function addStorage(clientSocket, client, storages_new, projects){
         var res = await client.query("Select * from " + schema + ".projects where id = \'" + storage.project_id + "\'");
         if (res.rowCount){
           if (res.rows[0].active){
-            if (storage.schedule_type.toString() === ScheduleType.MANUAL){//without schedule, manual, so not cron
+            if (storage.schedule_type.toString() === ScheduleType.MANUAL || !storage.schedule_id){//without schedule, manual, so not cron
               joblist.push({
                 id: storage.id,
                 job: undefined
