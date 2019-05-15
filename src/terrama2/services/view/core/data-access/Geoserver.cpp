@@ -318,7 +318,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
       {
         TableInfo tableInfo = DataAccess::getPostgisTableInfo(dataset, inputDataSeries, inputDataProvider);
 
-        std::string tableName = tableInfo.tableName;
+        std::string tableName = QString::fromStdString(tableInfo.tableName).toLower().toStdString();
         std::string layerName = viewLayerName(viewPtr);
         std::string timestampPropertyName = tableInfo.timestampPropertyName;
 
@@ -337,7 +337,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
             continue;
           }
 
-          terrama2::core::DataSeriesPtr monitoredObjectDataSeries = dataManager->findDataSeries(std::stoi(id->second));
+          terrama2::core::DataSeriesPtr monitoredObjectDataSeries = dataManager->findDataSeries(static_cast<uint32_t>(std::stoi(id->second)));
           terrama2::core::DataProviderPtr monitoredObjectProvider = dataManager->findDataProvider(monitoredObjectDataSeries->dataProviderId);
 
           QUrl monitoredObjectUrl(monitoredObjectProvider->uri.c_str());
@@ -905,12 +905,14 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const terra
                                                                      const std::string& timestampPropertyName,
                                                                      const std::string& sql) const
 {
+  const std::string normalizedGeometryColumnName = QString(geometryColumnName.c_str()).replace('.', '_').toStdString();
+
   try
   {
     if (dataSeriesType == terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT)
     {
       // Remove internal layer
-      const std::string internalLayerName = layerName + "_" + geometryColumnName;
+      const std::string internalLayerName = layerName + "_" + normalizedGeometryColumnName;
 
       deleteVectorLayer(dataStoreName, internalLayerName, true);
     }
@@ -933,7 +935,7 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const terra
   // When vector processing, join viewname with geometry column in order to identify which geometry the
   // layer is responsible for.
   if (dataSeriesType == terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT)
-    viewName += "_" + geometryColumnName;
+    viewName += "_" + normalizedGeometryColumnName;
   xml += "<name>" + viewName + "</name>";
 
   switch(dataSeriesType)
@@ -1006,7 +1008,7 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const terra
       srid = std::to_string(geomProperty->getSRID());
     }
 
-    if (!srid.empty() || srid == "0")
+    if (srid.empty() || srid == "0")
     {
       const std::string msg("The SRID of layer '"+ layerName +"' is " + srid + ".");
 

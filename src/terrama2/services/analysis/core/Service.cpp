@@ -125,7 +125,7 @@ void terrama2::services::analysis::core::Service::addReprocessingToQueue(terrama
     // When frequency is hour,seconds,weeks, use parent add reprocessing scope
     if (schedule.frequencyUnit != "file")
     {
-      Service::addReprocessingToQueue(process);
+      terrama2::core::Service::addReprocessingToQueue(process);
       return;
     }
 

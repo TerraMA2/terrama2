@@ -134,7 +134,7 @@ define(
 
           if (layerObject.subLayers) {
             for(let subLayer of layerObject.subLayers) {
-              Layers.changeLayerVisible(subLayer.id, true);
+              TerraMA2WebComponents.MapDisplay.addImageWMSLayer(subLayer.id, subLayer.name, subLayer.name, subLayer.uriGeoServer + '/ows', subLayer.serverType, true, false, "terrama2-layerexplorer", { version: "1.1.0" })
             }
           }
         }
@@ -395,8 +395,7 @@ define(
                 subLayer.id = layerName;
                 subLayer.name = layerName;
                 subLayers.push(subLayer);
-
-                Layers.addLayer(subLayer);
+                currentView.subLayers = subLayers;
               }
 
               Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);

@@ -194,12 +194,16 @@ define(
           var htmlId = allLayers[i].htmlId;
           const currentLayer = allLayers[i];
 
-          var spanIcon = "<span class='terrama2-layer-tools terrama2-datepicker-icon' data-i18n='[title]Layer Tools'>" + (allLayers[i].parent != 'custom' && allLayers[i].parent != 'template' ? " <i class='glyphicon glyphicon-resize-full'></i>" : "") + " <i class='fa fa-gear'></i></span>";
+          var spanIcon = `
+            <span class='terrama2-layer-tools terrama2-datepicker-icon' data-i18n='[title]Layer Tools'>
+              ${currentLayer.subLayers && currentLayer.subLayers.length > 0 ? '<i class="fa chevron-right">' : ''}
+              ${(allLayers[i].parent != 'custom' && allLayers[i].parent != 'template' ? " <i class='glyphicon glyphicon-resize-full'></i>" : "")}<i class='fa fa-gear'></i>
+            </span>`;
 
           let subLayerItems = '';
 
           if (currentLayer.subLayers && currentLayer.subLayers.length > 0) {
-            for(const subLayer of currentLayer.subLayers) {
+            for(let subLayer of currentLayer.subLayers) {
               subLayerItems += `<br><span class="layer-name">${subLayer}</span> ${spanIcon}`;
             }
           }
@@ -244,6 +248,7 @@ define(
           LayerStatus.changeGroupStatusIcon(parent, LayerStatusEnum.ONLINE);
           LayerStatus.addLayerStatusIcon(htmlId);
           LayerStatus.changeLayerStatusIcon(htmlId, LayerStatusEnum.ONLINE);
+
           Sortable.addLayerToSort(layerId, layerName, parent);
 
           Utils.getSocket().emit('checkConnection', {
