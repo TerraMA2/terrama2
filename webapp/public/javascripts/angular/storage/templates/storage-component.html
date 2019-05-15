@@ -91,7 +91,7 @@
             <div class="row" ng-if="$ctrl.storage.erase_all == false">
                 <div class="col-md-6">
                     <div class="form-group has-feedback" terrama2-show-errors>
-                    <label>{{ i18n.__("Time interval") }}:</label>
+                    <label>{{ i18n.__("Time unit") }}:</label>
                     <select class="form-control"
                             name="keep_data_unit"
                             ng-model="$ctrl.storage.keep_data_unit"
@@ -104,10 +104,10 @@
                             <option value="months">{{ i18n.__('Months') }}</option>
                     </select>
 
-                    <span class="form-control-feedback glyphicon" ng-show="$ctrl.storageForm.timeInterval.$dirty" ng-class="{'glyphicon-ok': $ctrl.storageForm.timeInterval.$valid, 'glyphicon-remove': $ctrl.storageForm.timeInterval.$invalid }"></span>
+                    <span class="form-control-feedback glyphicon" ng-show="$ctrl.storageForm.timeUnit.$dirty" ng-class="{'glyphicon-ok': $ctrl.storageForm.timeUnit.$valid, 'glyphicon-remove': $ctrl.storageForm.timeUnit.$invalid }"></span>
 
-                    <span class="help-block" ng-show="$ctrl.storageForm.timeInterval.$dirty && $ctrl.storageForm.timeInterval.$error.required">{{ i18n.__('Time interval is required') }}</span>
-                    <span class="help-block" ng-show="$ctrl.storageForm.timeInterval.$error.terrama2Error">
+                    <span class="help-block" ng-show="$ctrl.storageForm.timeUnit.$dirty && $ctrl.storageForm.timeUnit.$error.required">{{ i18n.__('Time unit is required') }}</span>
+                    <span class="help-block" ng-show="$ctrl.storageForm.timeUnit.$error.terrama2Error">
                         {{ i18n.__("Storage") + " " + serverErrors.name.message }}
                     </span>
                     </div>
@@ -115,17 +115,17 @@
 
                 <div class="col-md-6">
                     <div class="form-group has-feedback" terrama2-show-errors>
-                    <label>{{ i18n.__("Time unit") }}:</label>
+                    <label>{{ i18n.__("Time Interval") }}:</label>
                     <input class="form-control"
-                            name="keep_data_unit"
-                            ng-model="$ctrl.storage.keep_data_unit"
-                            placeholder="{{ i18n.__('Time unit') }}"
+                            name="keep_data"
+                            ng-model="$ctrl.storage.keep_data"
+                            placeholder="{{ i18n.__('Time Interval') }}"
                             type="text" terrama2-server-errors="serverErrors" required>
 
-                    <span class="form-control-feedback glyphicon" ng-show="$ctrl.storageForm.timeUnit.$dirty" ng-class="{'glyphicon-ok': $ctrl.storageForm.keep_data_unit.$valid, 'glyphicon-remove': $ctrl.storageForm.keep_data_unit.$invalid }"></span>
+                    <span class="form-control-feedback glyphicon" ng-show="$ctrl.storageForm.timeInterval.$dirty" ng-class="{'glyphicon-ok': $ctrl.storageForm.keep_data.$valid, 'glyphicon-remove': $ctrl.storageForm.keep_data.$invalid }"></span>
 
-                    <span class="help-block" ng-show="$ctrl.storageForm.keep_data_unit.$dirty && $ctrl.storageForm.timeUnit.$error.required">{{ i18n.__('Time unit is required') }}</span>
-                    <span class="help-block" ng-show="$ctrl.storageForm.keep_data_unit.$error.terrama2Error">
+                    <span class="help-block" ng-show="$ctrl.storageForm.keep_data.$dirty && $ctrl.storageForm.timeInterval.$error.required">{{ i18n.__('Time interval is required') }}</span>
+                    <span class="help-block" ng-show="$ctrl.storageForm.keep_data.$error.terrama2Error">
                         {{ i18n.__("Storage") + " " + serverErrors.name.message }}
                     </span>
                     </div>
@@ -156,13 +156,13 @@
       </div>
     </terrama2-box>
 
-    <terrama2-box title="i18n.__('General Data')" css="css" ng-if="$ctrl.storage.backup">
+    <terrama2-box title="i18n.__('Storage backup parameters')" css="css" ng-if="$ctrl.storage.backup">
       <div class="col-md-12 terrama2-nopadding-box ng-scope">
         <form name="$ctrl.parametersForm">
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group has-feedback" terrama2-show-errors>
-                    <label>{{ i18n.__("Store data") }}:</label>
+                    <label>{{ i18n.__("Storage backup parameters") }}:</label>
                     <select class="form-control"
                             name="storeData"
                             ng-model="$ctrl.storage.data_provider_id"

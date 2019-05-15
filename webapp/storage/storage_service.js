@@ -270,9 +270,11 @@ async function addStorage(clientSocket, client, storages_new, projects){
               console.log(sql);
               var res1 = await client.query(sql);
               if (res1.rowCount){
-                var freq = res1.rows[0].frequency;
-                var unit = res1.rows[0].frequency_unit;
-                if (!freq || !unit){//without schedule, manual, so not cron
+                //when it is weekly, it should subtract one from the value, the bank stores from 1 to 7, 
+                //but cron uses from 0 to 6 (Sunday to Saturday) 
+                var freq = res1.rows[0].frequency ? res1.rows[0].frequency : res1.rows[0].schedule - 1;
+                var unit = res1.rows[0].frequency_unit ? res1.rows[0].frequency_unit : res1.rows[0].schedule_unit;
+                if (freq === undefined || unit === undefined){//without schedule, manual, so not cron
                   joblist.push({
                     id: storage.id,
                     job: undefined
@@ -280,7 +282,10 @@ async function addStorage(clientSocket, client, storages_new, projects){
                 }
                 else{  
                   var freq_seconds = moment.duration(freq, unit).asSeconds();
-                  var start = res1.rows[0].frequency_start_time ? new moment(res1.rows[0].frequency_start_time, "HH:mm:ss") : undefined;
+                  var start_time = res1.rows[0].frequency_start_time ? 
+                  new moment(res1.rows[0].frequency_start_time, "HH:mm:ssZ") : res1.rows[0].schedule_time ?
+                  new moment(res1.rows[0].schedule_time, "HH:mm:ssZ") : "0:0:0";
+
                   var rule;
                   if (res1.rows[0].schedule){
                     switch (res1.rows[0].schedule_unit.toLowerCase()){
@@ -288,7 +293,7 @@ async function addStorage(clientSocket, client, storages_new, projects){
                       case 'wk':
                       case 'week':
                       case 'weeks':
-                        rule = "* * * * * " + freq;
+                        rule = start_time.second() + " " + start_time.minute() + " " + start_time.hour() + " * * " + freq;
                         break;
                     }
                   }
@@ -303,17 +308,17 @@ async function addStorage(clientSocket, client, storages_new, projects){
                       case 'min':
                       case 'minute':
                       case 'minutes':
-                          rule = "0 */" + freq + " * * * *";
+                          rule = start_time.second() + " */" + freq + " * * * *";
                         break;
                       case 'h':
                       case 'hour':
                       case 'hours':
-                          rule = "0 0 */" + freq + " * * *";
+                          rule = start_time.second() + " " + start_time.minute() + " */" + freq + " * * *";
                         break;
                       case 'd':
                       case 'day':
                       case 'days':
-                          rule = "0 0 0 */" + freq + " * *";
+                          rule = start_time.second() + " " + start_time.minute() + " " + start_time.hour() + " */" + freq + " * *";
                        break;
                     }
                   }
@@ -339,12 +344,14 @@ async function addStorage(clientSocket, client, storages_new, projects){
                         });
                         var lastdate = this.lastDate();
                         var nextdates = this.nextDates();
-                        logger.debug(storage.name + ": lastdate " + lastdate + " nextdate " + nextdates.format().toDate());
+                        logger.log("info", storage.name + ": last date " + lastdate + " next date execution " + nextdates.format().toDate());
                         break;
                       }
                     }
                   });
-    
+
+                  logger.log("info", storage.name + " scheduled to run: " + newjob.nextDates().format());
+
                   var update = false;
                   for (var job of joblist){
                     if (job.id === storage.id){
@@ -360,20 +367,7 @@ async function addStorage(clientSocket, client, storages_new, projects){
                       job: newjob
                     });
                   
-                  var now = new Date();
-                  if (start){
-                    if (now > start){ //It's past time, then fire
-                      newjob.start();
-                    }
-                    else{ //else wait time
-                      var rule = start.seconds() + " " + start.minutes() + " " + start.hours() + " * * *";
-                      CronJob(rule, async function(){
-                        newjob.start();
-                      });
-                    }
-                  }
-                  else //Initial time not defined, then fire
-                    newjob.start();
+                  newjob.start();
                 }
               }
             }

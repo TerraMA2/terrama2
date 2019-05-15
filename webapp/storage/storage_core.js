@@ -110,7 +110,12 @@ async function backup_Messages(params, service_table, service_type){
   }
 };
 
-
+/**
+ * Adds the values ​​in the backup table
+ * @param {*} uri data provider
+ * @param {*} table_name backup table name
+ * @param {*} params 
+ */
 async function insertTable(uri, table_name, params){
   return new Promise(async function resolvePromise(resolve, reject){
     try{
@@ -235,6 +240,9 @@ var getPostgisUriInfo = function(uri) {
   return params;
 };
 
+/**
+ * Selects the input data type and corresponding control table (collector or analysis)
+ */
 async function selectServiceInput (params) 
 {
   return new Promise(async function resolvPromise(resolve, reject){
@@ -527,6 +535,10 @@ async function StoreTable(params)
   });
 };
 
+/**
+ * Updates the collector_* or analysis_* and collector_messages or analysis_messages tables
+ * @param {*} params 
+ */
 async function updateMessages(params){
   params.logger.debug (params.storage.name, ": Updating messages in storages table messages");
   return new Promise(async function resolvePromise(resolve, reject){
@@ -636,6 +648,14 @@ async function getProcessLog(client, selec_log, service_table_message){
   });
 };
 
+/**
+ * Return until date to remove
+ * @param {
+ * logger: logger file
+ * schema: terrama2 database schema
+ * storage: storage service
+ * } params 
+ */
 async function getDataUntilStore(params){
   return new Promise(async function resolvePromise(resolve, reject){
     try{
@@ -723,7 +743,12 @@ module.exports = {
     }
   },
 
-  //To backup/erase GRID-geotiff
+  
+  /**
+   * To backup/erase GRID-geotif
+   * Delete the files according to the last valid collection / analysis, that is, 
+   * the data_timestamp of the message control table
+   */
   StoreTIFF: async function (params)
   {
     return new Promise(async function resolvePromise(resolve, reject){
