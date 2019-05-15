@@ -38,7 +38,6 @@ async function backup_Messages(params, service_table, service_type){
       " + params.schema + "." + service_type + " c, " + params.schema + ".storages d\
       WHERE b.log_id = a.id AND  \
       a.process_id = \'" + process_id + "\'";
-      //console.log(params.storage.name, sql_insert);
       var res = await params.client.query(sql_insert);
 
       if (!res.rowCount){ //Don't have messages, so never have error, brings only data
@@ -48,7 +47,6 @@ async function backup_Messages(params, service_table, service_type){
         a.process_id, a.status, a.start_timestamp, a.data_timestamp, a.last_process_timestamp, \
         a.data, \'" + service_type + "\', \'" + params.storage.id + "\' FROM \
         " + params.schema + "." + service_table + " a WHERE a.process_id = \'" + process_id + "\'";
-       // console.log(params.storage.name, sql_insert1);
         params.client.query(sql_insert1);
 
       }
@@ -114,13 +112,18 @@ async function backup_Messages(params, service_table, service_type){
  * Adds the values ​​in the backup table
  * @param {*} uri data provider
  * @param {*} table_name backup table name
- * @param {*} params 
+ * @param {*} params parameters for new table
+ * @param {*} params.storage storage parameters
+ * @param {*} params.logger logger file
+ * @param {*} params.values values to insert in new table
+ * @param {*} params.columns columns copied
+ * @param {*} params.key key for new table
+ * @param {*} params.seq sequence for new table
  */
 async function insertTable(uri, table_name, params){
   return new Promise(async function resolvePromise(resolve, reject){
     try{
       pg.connect(uri, async (err, client, done) =>{
-       // console.log(params.storage.name,"Conectou "+ uri);
 
         var date_attr;
         var create_table;
@@ -215,31 +218,6 @@ async function insertTable(uri, table_name, params){
   });
 };
 
-var getPostgisUriInfo = function(uri) {
-  var params = {};
-  params.protocol = uri.split(':')[0];
-  var hostData = uri.split('@')[1];
-
-  if(hostData) {
-    params.hostname = hostData.split(':')[0];
-    params.port = hostData.split(':')[1].split('/')[0];
-    params.database = hostData.split('/')[1];
-  }
-
-  var auth = uri.split('@')[0];
-
-  if(auth) {
-    var userData = auth.split('://')[1];
-
-    if(userData) {
-      params.user = userData.split(':')[0];
-      params.password = userData.split(':')[1];
-    }
-  }
-
-  return params;
-};
-
 /**
  * Selects the input data type and corresponding control table (collector or analysis)
  */
@@ -252,13 +230,10 @@ async function selectServiceInput (params)
     " + params.schema + ".analysis, " + params.schema + ".data_sets, " + params.schema + ".data_series WHERE \
     analysis.dataset_output = data_sets.id AND data_series.id = " + params.storage.data_series_id;
 
-    //console.log(params.storage.name,is_dynamicData);
-    //console.log(params.storage.name,is_analysis);
     var service_table ;
     var service_type;
 
     try{
-      //var res= await client.query(select_service);
       var res = await params.client.query(is_dynamicData);
 
       if (res.rowCount){
@@ -280,6 +255,21 @@ async function selectServiceInput (params)
 
 };
 
+/**
+ * Executes the storage in type data: 
+ * "DCP-postgis", "ANALYSIS_MONITORED_OBJECT-postgis", "OCCURRENCE-postgis"
+ * Multiple tables
+ * @param {
+ * clientSocket terraMA2 application client
+ * schema terrama2 database schema 
+ * storage storage
+ * client database client,
+ * logger logger file
+ * } params 
+ * @param {*} res.uri data provider where to backup
+ * @param {*} res.value backup table name
+ * @param {*} res.id dataset id
+ */
 async function StoreNTable_1(params, res){
   return new Promise(async function resolvePromise(resolve, reject){
     try{
@@ -291,18 +281,17 @@ async function StoreNTable_1(params, res){
         var timestamp = "";
         var geometry = "";
 
+        //If is monitored object is need to know what the date and geometry attributes
         if (params.storage.data_serie_code != "ANALYSIS_MONITORED_OBJECT-postgis"){
           var sel_timestamp = "SELECT data_set_formats.value FROM \
           " + params.schema + ".data_set_formats WHERE \
           data_set_formats.key = \'timestamp_property\' AND \
           data_set_formats.data_set_id = \'" + row.id + "\'";
-          //console.log(params.storage.name,sel_timestamp);
 
           var sel_geom = "SELECT data_set_formats.value FROM \
           " + params.schema + ".data_set_formats WHERE \
           data_set_formats.key = \'geometry_property\' AND \
           data_set_formats.data_set_id = \'" + row.id + "\'";
-          //console.log(params.storage.name,sel_geom);
 
           //Gets a attribute name of DataTime
           var res1 = await params.client.query(sel_timestamp);
@@ -351,12 +340,25 @@ async function StoreNTable_1(params, res){
 
 };
 
+/**
+ * Erase data from the table and save it to the backup table
+ * @param {
+ * storage : storage
+ * schema : schema
+ * client : client
+ * logger : logger
+ * table_name : value
+ * database_project : uri
+ * table_name_back : table_name_back
+ * timestamp_prop : timestamp
+ * geometry_prop: geometry
+* } params 
+ */
 async function StoreTable(params)
 {
   return new Promise(async function resolvePromise(resolve, reject){
     try{  
       var database_proj_name = params.database_project.slice(params.database_project.lastIndexOf("/")+1, params.database_project.length);
-      //console.log (database_proj_name);
 
       var res_data = await getDataUntilStore(params);
 
@@ -367,6 +369,7 @@ async function StoreTable(params)
 
       params.logger.log('info', params.storage.name + ": Removing data before " + res_data.data_until_store.format('YYYY-MM-DD HH:mm:ss') + " from " + params.table_name);
 
+      //Connect to database where data will be storaged
       pg.connect(params.database_project, async (err6, client_proj, done) =>{
         if(err6) {
           params.logger.error(params.storage.name + ": "  + err6);
@@ -426,9 +429,7 @@ async function StoreTable(params)
           storages.id = \'" + params.storage.id + "\'";
         
           var data_provider_out = await params.client.query(sql_data_provider_out);
-          //console.log(params.storage.name,JSON.stringify(res3.rows[0], null, 4));
           uri = data_provider_out.rows[0].uri;
-          //console.log(params.storage.name,uri);
 
           //To verify if table contains geometric information
           params.logger.debug(params.storage.name + ": Verifying if table contains geometric information => "+  params.table_name);
@@ -490,9 +491,6 @@ async function StoreTable(params)
           params.logger.debug(params.storage.name + ": Creating key and sequence in backup table => "+ params.table_name_back);
           var select_key = "SELECT column_name, constraint_name FROM information_schema.constraint_column_usage WHERE table_name = \'" + params.table_name + "\'";
           var select_seq = "SELECT sequence_name, increment, minimum_value, maximum_value, start_value FROM information_schema.sequences WHERE sequence_name = " + seq_name + "";
-
-          //params.logger.debug(select_key);
-          //params.logger.debug(select_seq);
 
           var res4 = await client_proj.query(select_key);
           var res5 = await client_proj.query(select_seq);
@@ -933,7 +931,18 @@ module.exports = {
     });
   },
 
-  StoreSingleTable: async function (params)
+/**
+ * Executes the storage in type data "DCP-single_table"
+ * Single table
+ * @param {
+ * clientSocket terraMA2 application client
+ * schema terrama2 database schema 
+ * storage storage
+ * client database client,
+ * logger logger file
+ * } params 
+ */
+StoreSingleTable: async function (params)
   {
     return new Promise(async function resolvePromise(resolve, reject){
       //server.emit('startService');
@@ -954,14 +963,11 @@ module.exports = {
       service_types.id = service_instances.service_type_id AND \
       service_instances.id =  \'" + params.storage.service_instance_id + "\' AND \
       storages.id = \'" + params.storage.id + "\'";
-     // console.log(params.storage.name,select_sql);
       console.log(params.storage.name,'Executing ' + params.storage.name);
       params.logger.log('info', "Initializing execution of " + params.storage.name);
 
       try{
         var res1 = await params.client.query(select_sql);
-
-        //console.log(params.storage.name,JSON.stringify(res1.rows[0], null, 4));
 
         var params1 = {
           storage : params.storage,
@@ -996,7 +1002,18 @@ module.exports = {
     });
   },
 
-
+/**
+ * Executes the storage in type data: 
+ * "DCP-postgis", "ANALYSIS_MONITORED_OBJECT-postgis", "OCCURRENCE-postgis"
+ * Multiple tables
+ * @param {
+ * clientSocket terraMA2 application client
+ * schema terrama2 database schema 
+ * storage storage
+ * client database client,
+ * logger logger file
+ * } params 
+ */
   StoreNTable: async function (params)
   {
     return new Promise(async function resolvePromise(resolve, reject){

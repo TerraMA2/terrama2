@@ -118,18 +118,18 @@ let Storages = [];
 */
 let joblist = [];
 
-async function runStorage(clientSocket, client, storage1){
+/**
+ * Executes a storage
+ * @param {*} clientSocket : terraMA2 application client
+ * @param {*} client : terraMA2 database client
+ * @param {*} storage : storage to execute
+ */
+async function runStorage(clientSocket, client, storage){
   return new Promise(async function resolvePromise(resolve, reject){
     try{
-      console.log("Starting ", storage1.name, " ", moment().format());
-      logger.log("info","Starting: ", storage1.name );
+      console.log("Starting ", storage.name, " ", moment().format());
+      logger.log("info","Starting: ", storage.name );
     
-      //Temporary, while frontend update don work well, gets storage from database
-      var sql_get_storage = "SELECT * from "+ schema + ".storages WHERE id = \'"+ storage1.id + "\'";
-      var res_storage = await client.query(sql_get_storage);
-
-      var storage = res_storage.rows[0];
-
       if (storage.erase_all) //flag has priority 
         storage.keep_data = 0;
 
@@ -239,6 +239,13 @@ function updateStorage(newstorage)
   });
 }
 
+/**
+ * adds the storage in the array and schedules the execution in the list of jobs
+ * @param {*} clientSocket : terraMA2 application client
+ * @param {*} client : terraMA2 database client
+ * @param {*} storages_new : new storage to add or update
+ * @param {*} projects : projects list, only to verifiy if project is active
+ */
 async function addStorage(clientSocket, client, storages_new, projects){
   try{
     for (var storage of storages_new){
@@ -324,7 +331,6 @@ async function addStorage(clientSocket, client, storages_new, projects){
                   }
     
                   var newjob = new CronJob(rule, async function(){
-                    //runStorage(clientSocket, client, storage);
                     for (var job of joblist) {
                       if (job.job === this){
                         storage = Storages.find(s => s.id === job.id) ;
@@ -341,10 +347,10 @@ async function addStorage(clientSocket, client, storages_new, projects){
                           clientSocket.write(buffer);
                           logger.debug(storage.name + ": Finished");
                           this.start();
-                        });
-                        var lastdate = this.lastDate();
-                        var nextdates = this.nextDates();
-                        logger.log("info", storage.name + ": last date " + lastdate + " next date execution " + nextdates.format().toDate());
+                          var lastdate = this.lastDate();
+                          var nextdates = this.nextDates();
+                          logger.log("info", storage.name + ": last date " + lastdate + " next date execution " + nextdates.format().toDate());
+                         });
                         break;
                       }
                     }
@@ -414,6 +420,12 @@ let config_db = {
 
 console.log('Config_db', config_db);
 
+/**
+ * Handling received messages from TerraMA2
+ * @param {*} clientSocket : TerraMA2 application client
+ * @param {*} parsed : message received
+ * @param {*} client_Terrama2_db : database client
+ */
 async function messageTreatment(clientSocket, parsed, client_Terrama2_db){
 
   switch(parsed.signal){
