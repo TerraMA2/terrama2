@@ -1,6 +1,6 @@
 #include <terrama2/core/utility/TerraMA2Init.hpp>
 #include <terrama2/core/utility/Raii.hpp>
-
+// TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
@@ -24,6 +24,9 @@ std::shared_ptr<te::da::DataSet> getDataSet(const std::string& fileUri, const st
     return dataset;
 }
 
+// STL
+#include <iostream>
+// Qt
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
