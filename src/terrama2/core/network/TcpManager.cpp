@@ -216,7 +216,7 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
       // read data from buffer
       QByteArray bytearray = tcpSocket->read(blockSize_);
       TERRAMA2_LOG_DEBUG() << "JSon size: " << bytearray.size();
-      TERRAMA2_LOG_DEBUG() << QString(bytearray);
+      //TERRAMA2_LOG_DEBUG() << QString(bytearray);
 
       QJsonParseError error;
       QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
@@ -244,11 +244,6 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
       {
         case TcpSignal::UPDATE_SERVICE_SIGNAL:
         {
-
-          QJsonDocument doc(jsonObject);
-          QByteArray docByteArray = doc.toJson(QJsonDocument::Compact);
-          std::cout << "TcpManager::update_Service " << docByteArray.toStdString() <<std::endl;
-
           serviceManager_->updateService(jsonObject);
           break;
         }
@@ -269,10 +264,6 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
         case TcpSignal::ADD_DATA_SIGNAL:
         {
           TERRAMA2_LOG_DEBUG() << "ADD_DATA_SIGNAL";
-
-          QJsonDocument doc(jsonObject);
-          QByteArray docByteArray = doc.toJson(QJsonDocument::Compact);
-          std::cout << "TcpManager::add_data " << docByteArray.toStdString() <<std::endl;
 
           try
           {
@@ -298,11 +289,6 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
         case TcpSignal::VALIDATE_PROCESS_SIGNAL:
         {
           TERRAMA2_LOG_DEBUG() << "VALIDATE_PROCESS_SIGNAL";
-
-          QJsonDocument doc(jsonObject);
-          QByteArray docByteArray = doc.toJson(QJsonDocument::Compact);
-          std::cout << "TcpManager::validate_process " << docByteArray.toStdString() <<std::endl;
-
           std::shared_ptr<terrama2::core::DataManager> dataManager = dataManager_.lock();
           dataManager->validateJSon(jsonObject);
           break;
@@ -310,11 +296,6 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
         case TcpSignal::REMOVE_DATA_SIGNAL:
         {
           TERRAMA2_LOG_DEBUG() << "REMOVE_DATA_SIGNAL";
-
-          QJsonDocument doc(jsonObject);
-          QByteArray docByteArray = doc.toJson(QJsonDocument::Compact);
-          std::cout << "TcpManager::removedata " << docByteArray.toStdString() <<std::endl;
-
           std::shared_ptr<terrama2::core::DataManager> dataManager = dataManager_.lock();
           dataManager->removeJSon(jsonObject);
           break;
@@ -322,13 +303,7 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
         case TcpSignal::START_PROCESS_SIGNAL:
         {
           TERRAMA2_LOG_DEBUG() << "START_PROCESS_SIGNAL";
-
-          QJsonDocument doc(jsonObject);
-          QByteArray docByteArray = doc.toJson(QJsonDocument::Compact);
-          std::cout << "TcpManager::Start_PRocess " << docByteArray.toStdString() <<std::endl;
-
           sendStartProcess(jsonObject);
-
           break;
         }
         case TcpSignal::STATUS_SIGNAL:
@@ -336,10 +311,6 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
           auto jsonObj = ServiceManager::getInstance().status();
           jsonObj.insert("instance_id", static_cast<int>(serviceManager_->instanceId()));
           QJsonDocument doc(jsonObj);
-
-          QByteArray docByteArray = doc.toJson(QJsonDocument::Compact);
-          std::cout << "TcpManager::statusSiganl " << docByteArray.toStdString() <<std::endl;
-
           sendSignalSlot(tcpSocket, TcpSignal::STATUS_SIGNAL, doc);
           break;
         }
@@ -417,9 +388,6 @@ void terrama2::core::TcpManager::sendSignalSlot(QTcpSocket* tcpSocket, TcpSignal
 {
   TERRAMA2_LOG_DEBUG() << QObject::tr("Sending signal information...");
 
-  QByteArray docByteArray = answer.toJson(QJsonDocument::Compact);
-  std::cout << "sendSignalSlot " << docByteArray.toStdString() << std::endl;
-
   const std::string beginOfMessage = "(BOM)";
   const std::string endOfMessage = "(EOM)";
 
@@ -467,10 +435,6 @@ void terrama2::core::TcpManager::sendSignalSlot(QTcpSocket* tcpSocket, TcpSignal
 
   TERRAMA2_LOG_DEBUG() << QObject::tr("Send buffer data: ");
   // wait while sending message
-
-   std::cout << "TcpManager::sendSignalSlot " << message.toStdString() <<std::endl;
-   std::cout << "Signal " << static_cast<std::underlying_type<TcpSignal>::type>(signal) << std::endl;
-   std::cout << "buffer" << buffer.data() << std::endl;
 
   qint64 written = tcpSocket->write(buffer);
   if(written == -1 || !tcpSocket->waitForBytesWritten(30000))
