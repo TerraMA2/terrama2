@@ -2532,39 +2532,6 @@ std::string terrama2::services::view::core::GeoServer::workspaceName(const ViewP
   }
 }
 
-void terrama2::services::view::core::GeoServer::registerLayerWithStyle(const terrama2::services::view::core::ViewPtr viewPtr,
-                                                                       const std::string& dataStoreName,
-                                                                       terrama2::core::DataSeriesType dataSeriesType,
-                                                                       std::map<std::string, std::string> connInfo,
-                                                                       const std::string& tableName,
-                                                                       const std::string& layerName,
-                                                                       const std::unique_ptr<te::da::DataSetType>& dataSetType,
-                                                                       std::shared_ptr<terrama2::core::ProcessLogger> logger,
-                                                                       const RegisterId logId,
-                                                                       const std::string& geometryColumnName,
-                                                                       const std::string& timestampPropertyName,
-                                                                       const std::string& sql) const
-{
-  registerPostgisTable(viewPtr,
-                       dataStoreName,
-                       dataSeriesType,
-                       connInfo,
-                       tableName,
-                       layerName,
-                       dataSetType,
-                       logger,
-                       logId,
-                       geometryColumnName,
-                       timestampPropertyName,
-                       sql);
-
-//  std::string styleName(layerName + "_style");
-
-//  auto layerLegend = vp::generateVectorProcessingLegend()
-
-//  registerStyle(styleName, )
-}
-
 std::string terrama2::services::view::core::GeoServer::viewLayerName(const ViewPtr& viewPtr) const
 {
   try

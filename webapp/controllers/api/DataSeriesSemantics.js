@@ -3,7 +3,6 @@ var Utils = require("../../core/Utils");
 var DataSeriesSemanticsError = require("../../core/Exceptions").DataSeriesSemanticsError;
 var DataSeriesSemanticsFactory = require('./../../core/data-series-semantics/Factory');
 var logger = require("./../../core/Logger");
-const Application = require('./../../core/Application')
 
 function makeMetadata(identifier, metadata) {
   try {
@@ -43,8 +42,6 @@ module.exports = function(app) {
 
       var queryParams = {};
       var filterByTemporality = semanticsType ? true : false;
-
-      Application.load();
 
       // get just one semantics
       if (semanticsName) {
