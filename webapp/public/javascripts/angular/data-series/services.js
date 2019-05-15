@@ -25,7 +25,8 @@ define([
       GRID: 'GRID',
       ANALYSIS_MONITORED_OBJECT: 'ANALYSIS_MONITORED_OBJECT',
       GEOMETRIC_OBJECT: 'GEOMETRIC_OBJECT',
-      POSTGIS: 'POSTGIS'
+      POSTGIS: 'POSTGIS',
+      VECTOR_PROCESSING_OBJECT: 'VECTOR_PROCESSING_OBJECT'
     })
     .service("DataSeriesService", ["BaseService", "DataSeriesType", "$filter", "$q", DataSeriesService])
     .service("DataSeriesSemanticsService", ["BaseService", "$q", DataSeriesSemanticsService])
@@ -137,6 +138,24 @@ define([
   };
 
   /**
+   *
+   */
+  DataSeriesService.prototype.validateView = async function(tableName, provider, queryBuilder) {
+    const { BaseService, url } = this;
+
+    const bodyData = { provider, tableName, whereCondition: queryBuilder };
+
+    try {
+      const response = await BaseService.$request(`${url}/validateView`, "POST", { data: bodyData });
+
+      return response.status === 200;
+    } catch (errResponse) {
+      throw new Error(`View Error: ${errResponse.data.error}`);
+    }
+
+  };
+
+  /**
    * Retrieves icon information of DataSeries based in semantics
    *
    * @param {object} dataSeries - DataSeries metadata to compose icon
@@ -149,6 +168,8 @@ define([
     switch(dataSeriesTypeName) {
       case DataSeriesType.ANALYSIS_MONITORED_OBJECT:
         return `${BASE_URL}images/analysis/monitored-object/monitored-object_analysis.png`;
+      case DataSeriesType.VECTOR_PROCESSING_OBJECT:
+        return `${BASE_URL}images/analysis/vectorial-processing/vector-processing.svg`;
       case DataSeriesType.GRID:
         if (dataSeries.isAnalysis){
           return `${BASE_URL}images/analysis/grid/grid_analysis.png`;
@@ -170,6 +191,29 @@ define([
         return `${BASE_URL}images/dynamic-data-series/dcp/dcp.png`;
     }
   };
+
+  /**
+   * It retrieves all dynamic data series from API
+   *
+   * @param {Object} restriction - a query restriction
+   * @returns {ng.IPromise}
+   */
+
+  DataSeriesService.prototype.dynamicDataSeries = function() {
+    return this.list({data_series_semantics:{temporality:"DYNAMIC", "format": "POSTGIS"}});
+  }
+
+  /**
+   * It retrieves all static data series from API
+   *
+   * @param {Object} restriction - a query restriction
+   * @returns {ng.IPromise}
+   */
+
+  DataSeriesService.prototype.staticDataSeries = function() {
+    return this.list({data_series_semantics:{temporality:"STATIC", "format": "POSTGIS"}});
+  }
+
   /**
    * It duplicates a Data Series of another project on remote API
    *

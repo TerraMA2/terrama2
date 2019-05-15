@@ -33,9 +33,9 @@ var _context = "default";
 
 /**
  * It defines a TerraMA² Application metadata.
- * 
+ *
  * It loads WebApp metadata (package.json), Database configuration (config/instances/*.json)
- * 
+ *
  * @class Application
  */
 function Application() {
@@ -44,7 +44,7 @@ function Application() {
 
 /**
  * It loads TerraMA² WebApp package json into memory.
- * 
+ *
  * @throws TypeError When read content is not a valid json
  */
 Application.prototype.load = function() {
@@ -84,7 +84,7 @@ Application.prototype.load = function() {
 /**
  * It sets current terrama2 context
  *
- * @throws {Error} When a contexts is not in instances/*.json 
+ * @throws {Error} When a contexts is not in instances/*.json
  * @param {string} context
  * @returns {void}
  */
@@ -94,10 +94,10 @@ Application.prototype.setCurrentContext = function(context) {
   }
   // checking if there is a context in configuration file
   if (_data.settings && !_data.settings.hasOwnProperty(context)) {
-    var msg = util.format("\"%s\" not found in configuration file. Please check \"webapp/config/instances\"", context);
+    var msg = `"${context}" not found in configuration file. Please check "webapp/config/instances"`;
     throw new Error(msg);
   }
-  
+
   _context = context;
 
   if (_data.settings[context].webAppId === undefined || _data.settings[context].webAppId === "")
@@ -106,7 +106,7 @@ Application.prototype.setCurrentContext = function(context) {
 
 /**
  * It retrieves a current context config
- * 
+ *
  * @returns {Object}
  */
 Application.prototype.getContextConfig = function() {
@@ -115,7 +115,7 @@ Application.prototype.getContextConfig = function() {
 
 /**
  * It retrieves all context configs
- * 
+ *
  * @returns {Object}
  */
 Application.prototype.getAllConfigs = function() {
@@ -124,7 +124,7 @@ Application.prototype.getAllConfigs = function() {
 
 /**
  * It retrieves a TerraMA² running aplication settings. It contains name, version
- * 
+ *
  * @param {string} settingName - Defines which values want to return. Used it as much as possible for performance reasons
  * @returns {Object}
  */

@@ -36,14 +36,16 @@ define(
       return layersToReturn;
     };
 
-    var createLayerObject = function(layerData) {
+    var createLayerObject = function(layerData, layerName) {
+      const internalGetLayerName = (str) => str.replace(":", "").split('.').join('\\.');
+
       var layerObject = {};
-      layerObject.name = layerData.name;
+      layerObject.name = (layerName ? `${layerData.name}_${layerName.split(':')[1]}` : '') || layerData.name;
       layerObject.description = layerData.description;
-      layerObject.nameId = layerData.layers[0];
+      layerObject.nameId = (layerName ? layerName.split(':')[1] : '') || layerData.layers[0];
       layerObject.workspace = layerData.workspace;
-      layerObject.id = layerData.workspace ? layerData.workspace + ":" + layerData.layers[0] : layerData.layers[0];
-      layerObject.htmlId = layerObject.id.replace(":", "").split('.').join('\\.');
+      layerObject.id = layerName || layerData.workspace ? layerData.workspace + ":" + layerData.layers[0] : layerData.layers[0];
+      layerObject.htmlId = internalGetLayerName(layerName || layerObject.id);
       layerObject.uriGeoServer = layerData.uriGeoserver;
       layerObject.parent = layerData.type;
       layerObject.serverType = layerData.serverType;
@@ -133,9 +135,9 @@ define(
             AnimatedLayer.windStart(layerId);
           } else if(newVisible === false){
             AnimatedLayer.windStop(layerId);
-          }  
+          }
         }
-        
+
       }
     };
 
@@ -190,10 +192,29 @@ define(
         if(!allLayers[i].projectId) {
           var layerId = allLayers[i].id;
           var htmlId = allLayers[i].htmlId;
+          const currentLayer = allLayers[i];
 
-          var spanIcon = "<span class='terrama2-layer-tools terrama2-datepicker-icon' data-i18n='[title]Layer Tools'>" + (allLayers[i].parent != 'custom' && allLayers[i].parent != 'template' ? " <i class='glyphicon glyphicon-resize-full'></i>" : "") + " <i class='fa fa-gear'></i></span>";
+          var spanIcon = `
+            <span class='terrama2-layer-tools terrama2-datepicker-icon' data-i18n='[title]Layer Tools'>
+              ${currentLayer.subLayers && currentLayer.subLayers.length > 0 ? '<i class="fa chevron-right">' : ''}
+              ${(allLayers[i].parent != 'custom' && allLayers[i].parent != 'template' ? " <i class='glyphicon glyphicon-resize-full'></i>" : "")}<i class='fa fa-gear'></i>
+            </span>`;
 
-          itens += '<li id="' + htmlId + '" data-layerid="' + layerId + '" data-parentid="terrama2-layerexplorer" class="hide" title="' + allLayers[i].name + '"><span class="layer-name">' + allLayers[i].name + '</span>' + spanIcon + '</li>';
+          let subLayerItems = '';
+
+          if (currentLayer.subLayers && currentLayer.subLayers.length > 0) {
+            for(let subLayer of currentLayer.subLayers) {
+              subLayerItems += `<br><span class="layer-name">${subLayer}</span> ${spanIcon}`;
+            }
+          }
+
+          itens += `
+            <li id="${htmlId}" data-layerid="${layerId}" data-parentid="terrama2-layerexplorer" class="hide" title="${allLayers[i].name}">
+              <span class="layer-name">${allLayers[i].name}</span> ${spanIcon}
+
+              ${subLayerItems}
+            </li>
+          `;
         }
       }
 
@@ -227,6 +248,7 @@ define(
           LayerStatus.changeGroupStatusIcon(parent, LayerStatusEnum.ONLINE);
           LayerStatus.addLayerStatusIcon(htmlId);
           LayerStatus.changeLayerStatusIcon(htmlId, LayerStatusEnum.ONLINE);
+
           Sortable.addLayerToSort(layerId, layerName, parent);
 
           Utils.getSocket().emit('checkConnection', {

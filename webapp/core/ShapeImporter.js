@@ -21,7 +21,7 @@ function execute(command) {
     child_process.exec(command, { maxBuffer: 20 * 1024 * 1024 }, (commandErr, stdOut, stdErr) => {
       if (commandErr)
         return reject(commandErr);
-      return resolve(commandErr || stdErr);
+      return resolve(stdErr || stdOut);
     });
   });
 }
@@ -170,7 +170,7 @@ class ShapeImporter {
         }
 
         // Build shp2pgsql command
-        const commandStr = `${connectionString.exportPassword} ${Exportation.shp2pgsql()} -I -s ${this.srid} -W " ${this.encoding}" ${this.shapeFile} ${tableName} | ${connectionString.connectionString}`;
+        const commandStr = `${connectionString.exportPassword} ${Exportation.shp2pgsql()} -I -s ${this.srid} -W " ${this.encoding}" ${this.shapeFile} public.${tableName} | ${connectionString.connectionString}`;
 
         // Once command built, tries to execute shp2pgsql import
         const output = await execute(commandStr);

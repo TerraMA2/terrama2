@@ -37,6 +37,7 @@
 // TerraLib
 #include <terralib/geometry/Coord2D.h>
 #include <terralib/raster/Raster.h>
+#include <terralib/core/uri/URI.h>
 #include <memory>
 // STL
 #include <string>
@@ -232,6 +233,16 @@ namespace terrama2
       It is used for reprocessing historical data.
     */
     TECOREEXPORT void erasePreviousResult(DataManagerPtr dataManager, DataSeriesId dataSeriesId, std::shared_ptr<te::dt::TimeInstantTZ> startTime);
+
+    /*!
+     * \brief This method aims to clean up extra slashes on URI object
+     *
+     * \todo This method should be part of te::core::URI implementation. When implemented, it must be deprecated
+     *
+     * \param uri URI string
+     * \return Clean URI object
+     */
+    TECOREEXPORT te::core::URI normalizeURI(const std::string& uri);
   } // end namespace core
 }   // end namespace terrama2
 

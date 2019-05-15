@@ -7,7 +7,7 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="generator" content="HelpNDoc Standard Edition 5.7.0.575">
+  <meta name="generator" content="HelpNDoc Standard Edition 6.0.0.154">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="favicon.ico"/>
 
@@ -16,6 +16,8 @@
   <meta name="keywords" content="">
 
 
+
+  
 
   <!-- Twitter Card data -->
   <meta name="twitter:card" content="summary">
@@ -29,19 +31,19 @@
   <meta property="og:site_name" content="Plataforma de Monitoramento Ambiental TerraMA&sup2;" /> 
 
   <!-- Bootstrap core CSS -->
-  <link href="vendors/bootstrap-3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="vendors/bootstrap-3.4.0/css/bootstrap.min.css" rel="stylesheet"/>
 
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <link href="vendors/bootstrap-3.3.6/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
+  <link href="vendors/bootstrap-3.4.0/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
 
   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
   <!--[if lt IE 9]>
-      <script src="vendors/html5shiv-3.7.2/html5shiv.min.js"></script>
+      <script src="vendors/html5shiv-3.7.3/html5shiv.min.js"></script>
       <script src="vendors/respond-1.4.2/respond.min.js"></script>
     <![endif]-->
 
   <!-- JsTree styles -->
-  <link href="vendors/jstree-3.3.2/themes/default/style.min.css" rel="stylesheet"/>
+  <link href="vendors/jstree-3.3.7/themes/default/style.min.css" rel="stylesheet"/>
 
   <!-- Hnd styles -->
   <link href="css/layout.min.css" rel="stylesheet" />
@@ -183,18 +185,18 @@
             <div class="main-content">
                 
 <p></p>
-<p class="rvps22"><a class="rvts37" href="Operadores.html#lista_op_obj_monitor">Lista de Operadores sobre obj monitorado</a><span class="rvts36"> &nbsp;</span><img alt="" style="vertical-align: middle; padding : 1px;" src="lib/lista.jpg"></p>
+<p class="rvps22"><a class="rvts37" href="Operadores.html#lista_op_obj_monitor">Lista de Operadores sobre obj monitorado</a><span class="rvts36">&nbsp; </span><img alt="" style="vertical-align: middle; padding : 1px;" src="lib/lista.jpg"></p>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
 <p class="rvps23"><span class="rvts22">Em geral, análises baseadas em objeto monitorado são realizadas pela sobreposição de dados estáticos vetoriais com um dos três tipos de dados dinâmicos, isto é, grades retangulares, PCD ou ocorrências, que foram coletados, gerados ou apenas disponíveis na base de dados. Resultados de outras análises também podem ser utilizados.</span></p>
-<p class="rvps23"><span class="rvts22">A sobreposição dos objetos monitorados com os dados dinâmicos é realizada com uso dos </span><a class="rvts34" href="OperadoressobreObjetosMonitorado.html">operadores geográficos</a><span class="rvts22"> criados exclusivamente para uso na plataforma, juntamente com os recursos que a linguagem de programação Python proporciona.</span></p>
+<p class="rvps23"><span class="rvts22">A sobreposição dos objetos monitorados com os dados dinâmicos é realizada com uso dos </span><a class="rvts34" href="OperadoressobreObjetosMonitorado.html">operadores geográficos</a><span class="rvts22">&nbsp;criados exclusivamente para uso na plataforma, juntamente com os recursos que a linguagem de programação Python proporciona.</span></p>
 <p class="rvps23"><span class="rvts22">Os resultados desses operadores são armazenados em variáveis locais do Python, que podem ser armazenadas em uma nova tabela de atributos que estará associada a tabela do objeto monitorado. Nessa nova tabela são armazenados ainda a data/hora toda vez que é realizada a análise.</span></p>
 <p class="rvps23"><span class="rvts22"><br/></span></p>
 <p class="rvps23"><span class="rvts22">A seguir apresentamos um exemplo típico da utilização de análise baseada em objeto monitorado que compara um atributo do objeto com o valor máximo de um dado matricial de chuva (Figura 3.6). Assim, no exemplo abaixo considere o seguinte cenário: </span></p>
 <ol style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: decimal;">
-<li value="1" style="margin-left: 0px" class="rvps104"><span class="rvts22">O objeto monitorado selecionado contém um atributo denominado “</span><span class="rvts38">limiar_critico</span><span class="rvts22">” que contém um limite de chuva acumulada nas últimas 24 horas a partir do qual deve ser emitido um alerta para a área.</span></li>
-<li value="2" style="margin-left: 0px" class="rvps104"><span class="rvts22">A série de dados “</span><span class="rvts38">hidro_diario</span><span class="rvts22">” contém uma grade com o total de chuva acumulada nas últimas 24 horas.</span></li>
-<li value="3" style="margin-left: 0px" class="rvps104"><span class="rvts22">Se a chuva acumulada estiver abaixo do limiar definido para cada objeto, o nível de alerta deve ser 0. Se estiver até 20% acima do limiar, o nível será 1. Chuvas acima de 20% do limiar, o nível será 2.</span></li>
-<li value="4" style="margin-left: 0px" class="rvps104"><span class="rvts22">O resultado da análise será armazenado em uma nova tabela de nome “</span><span class="rvts38">tab_an_max</span><span class="rvts22">” que estará associada a tabela do objeto “</span><span class="rvts38">tab_obj</span><span class="rvts22">”.</span></li>
+<li value="1" style="margin-left: 0px" class="rvps106"><span class="rvts22">O objeto monitorado selecionado contém um atributo denominado “</span><span class="rvts38">limiar_critico</span><span class="rvts22">” que contém um limite de chuva acumulada nas últimas 24 horas a partir do qual deve ser emitido um alerta para a área.</span></li>
+<li value="2" style="margin-left: 0px" class="rvps106"><span class="rvts22">A série de dados “</span><span class="rvts38">hidro_diario</span><span class="rvts22">” contém uma grade com o total de chuva acumulada nas últimas 24 horas.</span></li>
+<li value="3" style="margin-left: 0px" class="rvps106"><span class="rvts22">Se a chuva acumulada estiver abaixo do limiar definido para cada objeto, o nível de alerta deve ser 0. Se estiver até 20% acima do limiar, o nível será 1. Chuvas acima de 20% do limiar, o nível será 2.</span></li>
+<li value="4" style="margin-left: 0px" class="rvps106"><span class="rvts22">O resultado da análise será armazenado em uma nova tabela de nome “</span><span class="rvts38">tab_an_max</span><span class="rvts22">” que estará associada a tabela do objeto “</span><span class="rvts38">tab_obj</span><span class="rvts22">”.</span></li>
 </ol>
 <p class="rvps2"><span class="rvts11"><br/></span></p>
 <p class="rvps3"><img alt="" style="padding : 1px;" src="lib/Fig3_6_web.png"></p>
@@ -203,33 +205,33 @@
 <span class="rvts20">Figura 3.6 – </span><span class="rvts21">Exemplo de análise com objeto monitorado.</span></p>
 <p class="rvps9"><span class="rvts18"><br/></span></p>
 <p class="rvps9"><span class="rvts18">Para uma melhor compreensão do programa de análise do exemplo, vamos analisá-la por partes.</span></p>
-<p class="rvps98"><span class="rvts91">nivel = 0</span></p>
+<p class="rvps100"><span class="rvts92">nivel = 0</span></p>
 <p class="rvps9"><span class="rvts18">Essa linha define uma nova variável denominada de “</span><span class="rvts19">nivel</span><span class="rvts18">” que será inicializada com o valor 0 (zero). No exemplo, um único objeto (representado por um polígono) está sendo analisado. Caso outros objetos existissem no mapa estático, a variável “nível” seria inicializada em 0 para cada objeto. Em outras palavras, o programa todo é executado para cada objeto.</span></p>
-<p class="rvps99"><span class="rvts92"># Cálculo do valor zonal máximo</span></p>
-<p class="rvps100"><span class="rvts91">var1 = </span><span class="rvts93">grid.zonal.max</span><span class="rvts91">(</span><span class="rvts94">“hidro_diario”, 0</span><span class="rvts91">)</span></p>
+<p class="rvps101"><span class="rvts93"># Cálculo do valor zonal máximo</span></p>
+<p class="rvps102"><span class="rvts92">var1 = </span><span class="rvts94">grid.zonal.max</span><span class="rvts92">(</span><span class="rvts95">“hidro_diario”, 0</span><span class="rvts92">)</span></p>
 <p class="rvps9"><span class="rvts18">Essa linha define uma nova variável denominada de “</span><span class="rvts19">var1</span><span class="rvts18">” que será inicializada com o valor do operador zonal “</span><span class="rvts19">maximo</span><span class="rvts18">” aplicado à grade “</span><span class="rvts19">hidro_diario</span><span class="rvts18">”. Na prática, estamos buscando qual o valor de chuva acumulada na área em análise a partir da grade. Mais adiante será feita uma discussão maior sobre operadores zonais. Observe que “</span><span class="rvts19">hidro_diario</span><span class="rvts18">” é o nome do dado dinâmico que contém as informações de chuva e deve estar cadastrado no projeto.</span></p>
-<p class="rvps99"><span class="rvts92"># Recupera valor do atributo do objeto</span></p>
-<p class="rvps100"><span class="rvts91">var2 = </span><span class="rvts93">get_value</span><span class="rvts91">(</span><span class="rvts94">“limiar_critico”</span><span class="rvts91">)</span></p>
+<p class="rvps101"><span class="rvts93"># Recupera valor do atributo do objeto</span></p>
+<p class="rvps102"><span class="rvts92">var2 = </span><span class="rvts94">get_value</span><span class="rvts92">(</span><span class="rvts95">“limiar_critico”</span><span class="rvts92">)</span></p>
 <p class="rvps9"><span class="rvts18">Essa linha define uma nova variável denominada de “</span><span class="rvts19">var2</span><span class="rvts18">” que será inicializada com o valor do atributo “</span><span class="rvts19">limiar_critico</span><span class="rvts18">” de cada objeto monitorado.</span></p>
-<p class="rvps99"><span class="rvts92"># Compara valor máximo com atributo</span></p>
-<p class="rvps100"><span class="rvts95">if</span><span class="rvts91"> &nbsp;var1 &nbsp;&lt; &nbsp;var2 :</span></p>
+<p class="rvps101"><span class="rvts93"># Compara valor máximo com atributo</span></p>
+<p class="rvps102"><span class="rvts96">if</span><span class="rvts92">&nbsp;&nbsp;var1 &nbsp;&lt; &nbsp;var2 :</span></p>
 <p class="rvps9"><span class="rvts18">Na linha acima estamos comparando o valor da chuva acumulada obtida da grade com o limiar definido em um objeto em particular, que tem valor 80. Lembrando que a fonte de objeto monitorado pode ter vários objetos (polígonos) com limiares diferentes.</span></p>
-<p class="rvps101"><span class="rvts91">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nivel =0</span></p>
-<p class="rvps102"><span class="rvts95">elif</span><span class="rvts91"> &nbsp;var1 &lt; var2 &nbsp;* 1.2:</span></p>
-<p class="rvps102"><span class="rvts91">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nível = 1</span></p>
-<p class="rvps102"><span class="rvts95">else :</span></p>
-<p class="rvps103"><span class="rvts91">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nivel = 2</span></p>
+<p class="rvps103"><span class="rvts92">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nivel =0</span></p>
+<p class="rvps104"><span class="rvts96">elif</span><span class="rvts92">&nbsp;&nbsp;var1 &lt; var2 &nbsp;* 1.2:</span></p>
+<p class="rvps104"><span class="rvts92">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nível = 1</span></p>
+<p class="rvps104"><span class="rvts96">else :</span></p>
+<p class="rvps105"><span class="rvts92">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nivel = 2</span></p>
 <p class="rvps9"><span class="rvts18">Nas linhas a seguir estamos estabelecendo &nbsp;os níveis de alerta determinados &nbsp;pela comparação como um limiar pré-definido. Se o valor de chuva acumulada for menor do que o valor do limiar de chuva para esta área, vamos retornar o nível = 0. Seguindo as definições do exemplo, a seguir retornamos nível = 1 se a chuva acumulada superar o limite em menos de 20%, isto é o valor de 96 (= 80 x 1.2). Caso contrário o valor de nível = 2.</span></p>
-<p class="rvps101"><span class="rvts92"># Adiciona valor a tabela</span></p>
-<p class="rvps103"><span class="rvts96">add_value</span><span class="rvts91">(“nivel_risco”, nivel)</span></p>
+<p class="rvps103"><span class="rvts93"># Adiciona valor a tabela</span></p>
+<p class="rvps105"><span class="rvts97">add_value</span><span class="rvts92">(“nivel_risco”, nivel)</span></p>
 <p class="rvps9"><span class="rvts18">Outro ponto importante a ser observado no exemplo, é a presença de comentários que não tem qualquer significado na execução do programa, apenas para fins de documentação. Use o sinal &nbsp;# &nbsp;para adicionar uma linha de comentário.</span></p>
 <p class="rvps23"><span class="rvts22">A última linha do programa utiliza o comando “</span><span class="rvts38">add_value</span><span class="rvts22">” da plataforma para adicionar uma nova coluna na tabela “</span><span class="rvts38">tab_an_max</span><span class="rvts22">” e para armazenar o valor do nível. É obrigatório o uso desse operador pelo menos uma vez.</span></p>
 <p class="rvps23"><span class="rvts6"><br/></span></p>
-<div class="rvps106"><table width="756" border="0" cellpadding="4" cellspacing="0" style="border-width: 0px; border-spacing: 0px;">
+<div class="rvps108"><table width="756" border="0" cellpadding="4" cellspacing="0" style="border-width: 0px; border-spacing: 0px;">
 <tr valign="top">
 <td width="76" height="105" valign="top" style="padding: 0px 9px;"><p class="rvps2"><img width="69" height="69" alt="" style="padding : 1px;" src="lib/Logo_Python.png"></p>
 </td>
-<td width="644" height="105" valign="top" style="padding: 0px 9px;"><p class="rvps105"><span class="rvts22">Para uma maior compreensão da sintaxe da linguagem ou uso de opções avançadas, recomenda-se a leitura do </span><a class="rvts34" href="python.html">anexo A2</a><span class="rvts22">, a documentação disponível em português em </span><a class="rvts34" href="https://wiki.python.org.br">https://wiki.python.org.br</a><span class="rvts22"> ou site oficial em &nbsp;</span><a class="rvts40" href="https://www.python.org/">https://www.python.org/</a><span class="rvts41"> .</span></p>
+<td width="644" height="105" valign="top" style="padding: 0px 9px;"><p class="rvps107"><span class="rvts22">Para uma maior compreensão da sintaxe da linguagem ou uso de opções avançadas, recomenda-se a leitura do </span><a class="rvts34" href="python.html">anexo A2</a><span class="rvts22">, a documentação disponível em português em </span><a class="rvts34" href="https://wiki.python.org.br">https://wiki.python.org.br</a><span class="rvts22">&nbsp;ou site oficial em &nbsp;</span><a class="rvts40" href="https://www.python.org/">https://www.python.org/</a><span class="rvts41">&nbsp;.</span></p>
 </td>
 </tr>
 </table>
@@ -240,7 +242,7 @@
 
             </div>
             
-            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2018 by INPE. All Rights Reserved.</div></div>
+            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2019 by INPE. All Rights Reserved.</div></div>
         </div>  <!-- /#topic-content -->
     </article>
 
@@ -268,20 +270,21 @@
   </div>
 
   <!-- Scripts -->
-  <script src="vendors/jquery-1.11.3/jquery.min.js"></script>
-  <script src="vendors/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+  <script src="vendors/jquery-3.3.1/jquery.min.js"></script>
+  <script src="vendors/bootstrap-3.4.0/js/bootstrap.min.js"></script>
   <script src="vendors/fastclick-1.0.6/fastclick.min.js"></script>
-  <script src="vendors/markjs-8.8.3/jquery.mark.min.js"></script>
-  <script src="vendors/uri-1.18.9/uri.min.js"></script>
+  <script src="vendors/markjs-8.11.1/jquery.mark.min.js"></script>
+  <script src="vendors/uri-1.19.1/uri.min.js"></script>
+  <script src="vendors/imageMapResizer-1.0.7/imageMapResizer.min.js"></script>
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <script src="vendors/bootstrap-3.3.6/js/ie10-viewport-bug-workaround.js"></script>
+  <script src="vendors/bootstrap-3.4.0/js/ie10-viewport-bug-workaround.js"></script>
   
   <!-- Headroom -->
-  <script src="vendors/headroom-0.9.3/headroom.min.js"></script>
-  <script src="vendors/headroom-0.9.3/jquery.headroom.min.js"></script>
+  <script src="vendors/headroom-0.9.4/headroom.min.js"></script>
+  <script src="vendors/headroom-0.9.4/jquery.headroom.min.js"></script>
 
   <!-- JsTree -->
-  <script src="vendors/jstree-3.3.2/jstree.min.js"></script>
+  <script src="vendors/jstree-3.3.7/jstree.min.js"></script>
 
   <!-- HelpNDoc scripts -->
   <script src="_translations.js"></script>
@@ -298,6 +301,8 @@
       var app = new Hnd.App();
       // Update translations
       hnd_ut(app);
+	  // Instanciate imageMapResizer
+	  imageMapResize();
 	  // Custom JS
 	  
       // Boot the app

@@ -109,6 +109,9 @@ file(GLOB TERRAMA2_GRID_FORECAST_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/ter
 file(GLOB TERRAMA2_GRID_FORECAST_INTERVAL_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/forecast/interval/*.cpp)
 file(GLOB TERRAMA2_GRID_FORECAST_INTERVAL_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/grid/forecast/interval/*.hpp)
 
+file(GLOB TERRAMA2_VECTOR_PROCESSING_SRC_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/vector-processing/*.cpp)
+file(GLOB TERRAMA2_VECTOR_PROCESSING_HDR_FILES ${TERRAMA2_ABSOLUTE_ROOT_DIR}/src/terrama2/services/analysis/core/vector-processing/*.hpp)
+
 
 
 source_group("Source Files"  FILES ${TERRAMA2_SRC_FILES})
@@ -170,6 +173,9 @@ source_group("Source Files\\grid\\forecast"  FILES ${TERRAMA2_GRID_HISTORY_SRC_F
 source_group("Header Files\\grid\\forecast"  FILES ${TERRAMA2_GRID_HISTORY_HDR_FILES})
 source_group("Source Files\\grid\\forecast\\interval"  FILES ${TERRAMA2_GRID_HISTORY_INTERVAL_SRC_FILES})
 source_group("Header Files\\grid\\forecast\\interval"  FILES ${TERRAMA2_GRID_HISTORY_INTERVAL_HDR_FILES})
+
+source_group("Source Files\\vector-processing"  FILES ${TERRAMA2_VECTOR_PROCESSING_SRC_FILES})
+source_group("Header Files\\vector-processing"  FILES ${TERRAMA2_VECTOR_PROCESSING_HDR_FILES})
 
 include_directories ( SYSTEM
   ${Boost_INCLUDE_DIR}
@@ -246,7 +252,10 @@ add_library(terrama2_analysis_core SHARED ${TERRAMA2_SRC_FILES}
                                           ${TERRAMA2_GRID_FORECAST_SRC_FILES}
                                           ${TERRAMA2_GRID_FORECAST_HDR_FILES}
                                           ${TERRAMA2_GRID_FORECAST_INTERVAL_SRC_FILES}
-                                          ${TERRAMA2_GRID_FORECAST_INTERVAL_HDR_FILES})
+                                          ${TERRAMA2_GRID_FORECAST_INTERVAL_HDR_FILES}
+
+                                          ${TERRAMA2_VECTOR_PROCESSING_SRC_FILES}
+                                          ${TERRAMA2_VECTOR_PROCESSING_HDR_FILES})
 
 qt5_use_modules(terrama2_analysis_core Core)
 

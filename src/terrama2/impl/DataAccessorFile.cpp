@@ -52,8 +52,8 @@
 //terralib
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
-#include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
 #include <terralib/dataaccess/dataset/DataSetAdapter.h>
+#include <terralib/dataaccess/dataset/DataSetTypeConverter.h>
 #include <terralib/dataaccess/utils/Utils.h>
 #include <terralib/datatype/DateTimeProperty.h>
 #include <terralib/memory/DataSetItem.h>
@@ -100,7 +100,14 @@ void terrama2::core::DataAccessorFile::retrieveDataCallback(const terrama2::core
     // Do nothing
   }
 
-  dataRetriever->retrieveDataCallback(mask, filter, timezone, remover, "", folderPath, processFile);
+  dataRetriever->retrieveDataCallback(mask, filter, timezone, remover, "", folderPath, [processFile](const std::string& uri, const std::string& file, const std::string& folderMatched) {
+    processFile(uri, folderMatched);
+
+    const QUrl urlToFile(QString::fromStdString(uri + "/" + folderMatched + "/" + file.c_str()));
+    // Remove files to free disk
+    QFile removeFile(urlToFile.toString(QUrl::NormalizePathSegments | QUrl::RemoveScheme));
+    removeFile.remove();
+  });
 }
 
 std::shared_ptr<te::mem::DataSet> terrama2::core::DataAccessorFile::createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const

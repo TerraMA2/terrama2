@@ -349,7 +349,7 @@ async function addStorage(clientSocket, client, storages_new, projects){
                           this.start();
                           var lastdate = this.lastDate();
                           var nextdates = this.nextDates();
-                          logger.log("info", storage.name + ": last date " + lastdate + " next date execution " + nextdates.format().toDate());
+                          logger.log("info", storage.name + ": last date " + lastdate + " next date execution " + nextdates.format());
                          });
                         break;
                       }

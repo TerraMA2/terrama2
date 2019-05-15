@@ -71,6 +71,9 @@
 #include "Utils.hpp"
 #include "terrama2_config.hpp"
 
+// Qt
+#include <QUrl>
+
 namespace te
 {
   namespace common
@@ -247,6 +250,8 @@ terrama2::core::DataSeriesType terrama2::core::dataSeriesTypeFromString(const st
     return terrama2::core::DataSeriesType::GEOMETRIC_OBJECT;
   else if(type == "ANALYSIS_MONITORED_OBJECT")
     return terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT;
+  else if(type == "VECTOR_PROCESSING_OBJECT")
+    return terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT;
   else
   {
     QString errMsg = QObject::tr("Unknown DataSeriesType: %1.").arg(QString::fromStdString(type));
@@ -641,4 +646,11 @@ std::string terrama2::core::getTableNameProperty(terrama2::core::DataSetPtr data
     TERRAMA2_LOG_ERROR() << errMsg;
     throw UndefinedTagException() << ErrorDescription(errMsg);
   }
+}
+
+te::core::URI terrama2::core::normalizeURI(const std::string& uri)
+{
+  QUrl wrapURI(QString::fromStdString(uri));
+
+  return te::core::URI(wrapURI.toString(QUrl::NormalizePathSegments).toStdString());
 }

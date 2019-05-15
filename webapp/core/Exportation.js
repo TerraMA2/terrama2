@@ -14,10 +14,10 @@ var memberConfig = require('./Application').getContextConfig();
 var memberFs = require('fs');
 // 'path' module
 var memberPath = require('path');
-// 'pg' module
-var memberPg = require('pg');
 // 'Utils' model
 var memberUtils = require('./Utils.js');
+
+const { Connection } = require('./utility/connection');
 
 /**
  * Exportation model, which contains exportation related database manipulations.
@@ -113,9 +113,8 @@ class Exportation {
    * @inner
    */
   tableExists(tableName, dataProviderId) {
-    var self = this;
     return new memberPromise(function(resolve, reject) {
-      return memberDataManager.getDataProvider({ id: dataProviderId }).then(function(dataProvider) {
+      return memberDataManager.getDataProvider({ id: dataProviderId }).then(async function(dataProvider) {
         var uriObject = memberUriBuilder.buildObject(dataProvider.uri, {
           HOST: 'host',
           PORT: 'port',
@@ -126,26 +125,19 @@ class Exportation {
 
         uriObject.database = (uriObject.database.charAt(0) === '/' ? uriObject.database.substr(1) : uriObject.database);
 
-        var client = new memberPg.Client(uriObject);
+        var client = new Connection(dataProvider.uri);
 
-        client.on('error', function(err) {
+        try {
+          await client.connect();
+
+          const result = await client.execute(`SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_name = '${tableName}';`);
+
+          return resolve(result.rows.length !== 0);
+        } catch (err) {
           return reject(err.toString());
-        });
-
-        client.connect(function(err) {
-          if(err)
-            return reject(err.toString());
-
-          client.query("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_name = $1;", [tableName], function(err, result) {
-            client.end();
-
-            if(err) {
-              return reject(err.toString())
-            }
-
-            return resolve(result.rows.length !== 0);
-          });
-        });
+        } finally {
+          await client.disconnect();
+        }
       }).catch(function(err) {
         return reject(err.toString());
       });
@@ -165,7 +157,7 @@ class Exportation {
   getPrimaryKeyColumn(tableName, dataProviderId) {
     var self = this;
     return new memberPromise(function(resolve, reject) {
-      return memberDataManager.getDataProvider({ id: dataProviderId }).then(function(dataProvider) {
+      return memberDataManager.getDataProvider({ id: dataProviderId }).then(async function(dataProvider) {
         var uriObject = memberUriBuilder.buildObject(dataProvider.uri, {
           HOST: 'host',
           PORT: 'port',
@@ -176,24 +168,25 @@ class Exportation {
 
         uriObject.database = (uriObject.database.charAt(0) === '/' ? uriObject.database.substr(1) : uriObject.database);
 
-        var client = new memberPg.Client(uriObject);
+        var client = new Connection(dataProvider.uri);
 
-        client.on('error', function(err) {
+        try {
+          await client.connect();
+
+          const result = await client.query(`
+            SELECT a.attname as column_name
+              FROM pg_index i
+              JOIN pg_attribute a ON a.attrelid = i.indrelid
+               AND a.attnum = ANY(i.indkey)
+             WHERE i.indrelid = public."${tableName}"::regclass AND i.indisprimary;
+          `);
+
+          return resolve(result);
+        } catch (err) {
           return reject(err.toString());
-        });
-
-        client.connect(function(err) {
-          if(err)
-            return reject(err.toString());
-
-          client.query("SELECT a.attname as column_name FROM pg_index i JOIN pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey) " +
-            "WHERE i.indrelid = $1::regclass AND i.indisprimary;", ['public.' + tableName], function(err, result) {
-            client.end();
-
-            if(err) return reject(err.toString());
-            else return resolve(result);
-          });
-        });
+        } finally {
+          await client.disconnect();
+        }
       }).catch(function(err) {
         return reject(err.toString());
       });

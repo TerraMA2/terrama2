@@ -117,6 +117,10 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
       filter.lastValues = std::make_shared<std::size_t>(1);
       filter.isReprocessingHistoricalData = true;
     }
+    else
+    {
+      filter.lastValues = std::make_shared<size_t>(1);
+    }
 
     auto datasets = dataSeries->datasetList;
     for(const auto& dataset : datasets)
