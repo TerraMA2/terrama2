@@ -8,7 +8,7 @@
       <div class="col-md-12 terrama2-nopadding-box ng-scope">
         <form name="$ctrl.storageForm">
             <div class="row">
-                <div class="col-md-10">
+                <div class="col-md-6">
                     <div class="form-group has-feedback" terrama2-show-errors>
                     <label>{{ i18n.__("Name") }}:</label>
                     <input class="form-control"
@@ -26,6 +26,21 @@
                     </div>
                 </div>
 
+                <div class="col-md-4">
+                    <div class="form-group has-feedback" terrama2-show-errors>
+                    <label>{{ i18n.__("Service") }}:</label>
+                    <select class="form-control"
+                            name="service"
+                            ng-model="$ctrl.storage.service_instance_id"
+                            ng-options="service.id as service.name for service in $ctrl.getStorageServices()"
+                            required>
+                    </select>
+
+                    <span class="help-block" ng-show="$ctrl.storageForm.service.$dirty && $ctrl.storageForm.service.$invalid" ng-class="{'has-error': $ctrl.storageForm.service.$invalid}">{{ i18n.__('Service data is required') }}</span>
+                    </div>
+                    <!-- /.form-group -->
+                </div>
+
                 <div class="col-md-2">
                   <div class="form-group">
                     <div class="checkbox">
@@ -35,6 +50,7 @@
                     </div>
                   </div>
                 </div>
+
             </div>
             <div class="row">
                 <div class="col-md-12">
@@ -162,7 +178,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group has-feedback" terrama2-show-errors>
-                    <label>{{ i18n.__("Storage backup parameters") }}:</label>
+                    <label>{{ i18n.__("Data Store") }}:</label>
                     <select class="form-control"
                             name="storeData"
                             ng-model="$ctrl.storage.data_provider_id"
@@ -172,21 +188,6 @@
                     </select>
 
                     <span class="help-block" ng-show="$ctrl.parametersForm.storeData.$dirty && $ctrl.parametersForm.storeData.$invalid" ng-class="{'has-error': $ctrl.parametersForm.storeData.$invalid}">{{ i18n.__('Store data data is required') }}</span>
-                    </div>
-                    <!-- /.form-group -->
-                </div>
-
-                <div class="col-md-6">
-                    <div class="form-group has-feedback" terrama2-show-errors>
-                    <label>{{ i18n.__("Service") }}:</label>
-                    <select class="form-control"
-                            name="service"
-                            ng-model="$ctrl.storage.service_instance_id"
-                            ng-options="service.id as service.name for service in $ctrl.getStorageServices()"
-                            required>
-                    </select>
-
-                    <span class="help-block" ng-show="$ctrl.parametersForm.service.$dirty && $ctrl.parametersForm.service.$invalid" ng-class="{'has-error': $ctrl.parametersForm.service.$invalid}">{{ i18n.__('Service data is required') }}</span>
                     </div>
                     <!-- /.form-group -->
                 </div>

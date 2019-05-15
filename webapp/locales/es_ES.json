@@ -1117,5 +1117,17 @@
 	"DCP - PostGIS (Single Table)": "DCP - PostGIS (Tabela única)",
 	"DCP - PostGIS (N-Table)": "DCP - PostGIS (N-Tabelas)",
 	"Valid time interval": "Intervalo de tiempo válido",
-  "Interpolation Registration": "Registro de interpolador"
+  "Interpolation Registration": "Registro de interpolador",
+  "Dynamic/Analysis data": "Datos Dinámicos/Análisis",
+  "Dynamic/analysis data is required" : "Datos Dinámicos/Análisis es obligatorio",
+  "Erase everything": "Borrar todo",
+  "Partial erase": "Borrar parcial",
+  "Redefine start (Filter date will be considered)": "Restablecer el inicio (Se considerará la fecha del filtro)",
+  "Storage": "Almacenamiento",
+  "Storage backup parameters": "Parámetros de copia de seguridad de almacenamiento",
+  "Storage Registration": "Registro de almacenamiento",
+  "Store data": "Servidor de Datos de Destino",
+  "Store data data is required": "El servidor de datos de destino es obligatorio",
+  "Store removed data history": "Almacenamiento de datos eliminados",
+  "Table name": "Nombre de tabla"
 }
