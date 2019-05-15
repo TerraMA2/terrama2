@@ -23,4 +23,10 @@ const resultSetWithOneAttribute = {
   rowCount: 3
 }
 
-module.exports = { resultSet, resultSetLimitedToOne, resultSetWithOneAttribute };
+const resultSetDrop = {
+  rowCount: NaN,
+  rows: [],
+  command: 'DROP',
+}
+
+module.exports = { resultSet, resultSetDrop, resultSetLimitedToOne, resultSetWithOneAttribute };

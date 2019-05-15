@@ -319,6 +319,14 @@ void terrama2::core::Service::addReprocessingToQueue(ProcessPtr process) noexcep
     auto reprocessingHistoricalData = schedule.reprocessingHistoricalData;
 
     auto executionDate = reprocessingHistoricalData->startDate;
+
+    auto utcDt = terrama2::core::TimeUtils::stringToTimestamp("2019-05-03 03:00:00+00", terrama2::core::TimeUtils::webgui_timefacet);
+    auto comTz = terrama2::core::TimeUtils::stringToTimestamp("2019-05-03 00:00:00-03", terrama2::core::TimeUtils::webgui_timefacet);
+
+    std::cout << "UTC = " << utcDt->toString() << std::endl;
+    std::cout << "Timezone = " << comTz->toString() << std::endl;
+    std::cout << executionDate->toString() << " igual (por objeto Data) " << (utcDt == comTz) << std::endl;
+    std::cout << "Igual por string " << (utcDt->toString() == comTz->toString()) << std::endl;
     auto endDate = reprocessingHistoricalData->endDate->getTimeInstantTZ();
     boost::local_time::local_date_time titz = executionDate->getTimeInstantTZ();
 

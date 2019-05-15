@@ -38,49 +38,6 @@ END;
 $$
 LANGUAGE 'plpgsql';
 
-
-CREATE OR REPLACE FUNCTION retrieve_intersection(monitored_dataseries VARCHAR,
-                                                 monitored_geometry_column VARCHAR,
-                                                 monitored_srid INTEGER,
-                                                 additional_dataseries VARCHAR,
-                                                 additional_dataseries_geometry_column VARCHAR,
-                                                 condition VARCHAR)
-    RETURNS TABLE(monitored_id VARCHAR, additional_id VARCHAR, intersection_geom GEOMETRY) AS
-$$
-DECLARE
-    additional_str TEXT;
-    monitored_str TEXT;
-    pk_monitored TEXT;
-    pk_additional TEXT;
-    query TEXT;
-    query_helper TEXT;
-BEGIN
-
-    monitored_str := format('%s.%s', monitored_dataseries, monitored_geometry_column);
-    additional_str := format('%s.%s', additional_dataseries, additional_dataseries_geometry_column);
-
-    query_helper := format('(%s, %s)', monitored_str, additional_str);
-
-    EXECUTE 'SELECT get_primary_key($1)' INTO pk_monitored USING monitored_dataseries;
-    EXECUTE 'SELECT get_primary_key($1)' INTO pk_additional USING additional_dataseries;
-
-    query := format('SELECT %s.%s::VARCHAR as monitored_id,
-                            %s.%s::VARCHAR AS additional_id,
-                            ST_Intersection(%s, ST_Transform(%s, %s)) FROM %s, %s
-                      WHERE ST_Intersects(%s, ST_Transform(%s, %s)) AND ',
-                      monitored_dataseries, pk_monitored,
-                      additional_dataseries, pk_additional,
-                      monitored_str, additional_str, monitored_srid, monitored_dataseries, additional_dataseries,
-                      monitored_str, additional_str, monitored_srid);
-    query := query || condition;
-
-    -- RAISE NOTICE 'SQL %', query;
-    RETURN QUERY EXECUTE query USING monitored_dataseries, additional_dataseries;
-END;
-$$
-LANGUAGE 'plpgsql';
-
-
 CREATE OR REPLACE FUNCTION vectorial_processing_intersection(analysis_id INTEGER,
                                                              monitored_dataseries VARCHAR,
                                                              intersect_dataseries VARCHAR,
@@ -158,7 +115,12 @@ BEGIN
             condition);
 
     join_query := '';
-    fields_name := format('%s.monitored_id, %s.intersect_id, %s.monitored_geom, %s.intersection_geom', intersection_table, intersection_table, intersection_table, intersection_table);
+    fields_name := format('%s.monitored_id,
+                           %s.intersect_id,
+                           %s.monitored_geom,
+                           %s.intersection_geom,
+                           ST_Area(%s.intersection_geom) AS %s.intersection_geom_area',
+                           intersection_table, intersection_table, intersection_table, intersection_table, intersection_table, intersection_table);
 
     FOR i IN 1..array_length(additional_dataseries_list, 1)
     LOOP
@@ -239,4 +201,4 @@ END;
 $$
 LANGUAGE 'plpgsql';
 
-SELECT vectorial_processing_intersection(1, 'car_area_imovel', 'alertas_mpmt', ARRAY['app', 'reserva_legal', 'area_topo_morro', 'uso_restrito'], 'view_date::date > ''2018-01-01''');
+-- SELECT vectorial_processing_intersection(1, 'car_area_imovel', 'alertas_mpmt', ARRAY['app', 'reserva_legal', 'area_topo_morro', 'uso_restrito'], 'view_date::date > ''2018-01-01''');

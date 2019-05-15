@@ -88,65 +88,19 @@ std::string terrama2::services::view::core::vp::prepareSQLIntersection(const std
   return sql;
 }
 
-std::unique_ptr<terrama2::services::view::core::View::Legend>
-terrama2::services::view::core::vp::generateVectorProcessingLegend(const std::vector<std::string>& /*listOfIntersectionTables*/)
+std::unique_ptr<te::se::Style>
+terrama2::services::view::core::vp::generateVectorProcessingStyle(const std::string& layerName,
+                                                                  const std::string& geometryColumnName)
 {
-  std::unique_ptr<terrama2::services::view::core::View::Legend> legend(new terrama2::services::view::core::View::Legend);
-
   std::unique_ptr<te::se::Style> style(new te::se::FeatureTypeStyle());
+  std::unique_ptr<te::se::Symbolizer> symbolizer(getSymbolizer(te::gm::MultiPolygonType, "#AAAAAA", "1"));
+  std::unique_ptr<te::se::Rule> rule(new te::se::Rule);
 
-  std::vector<View::Legend::Rule> legendRules = legend->rules;
+  std::unique_ptr<te::fe::PropertyName> propertyName (new te::fe::PropertyName(geometryColumnName));
 
-  if(legend->operation == View::Legend::OperationType::VALUE)
-  {
-    if(legend->classify == View::Legend::ClassifyType::INTERVALS)
-    {
-      std::sort(legendRules.begin(), legendRules.end(), View::Legend::Rule::compareByNumericValue);
-    }
-  }
+  rule->push_back(symbolizer.release());
 
-  if(legend->operation == View::Legend::OperationType::VALUE)
-  {
-    std::vector<std::unique_ptr<te::se::Rule> > rules;
-    std::unique_ptr<te::se::Rule> ruleDefault;
-
-    for(std::size_t i = 0; i < legendRules.size(); ++i)
-    {
-      auto legendRule = legendRules[i];
-      std::unique_ptr<te::se::Symbolizer> symbolizer(getSymbolizer(te::gm::MultiPolygonType, legendRule.color, legendRule.opacity));
-
-      std::unique_ptr<te::se::Rule> rule(new te::se::Rule);
-      rule->push_back(symbolizer.release());
-      rule->setName(new std::string(legendRule.title));
-
-      if(legendRule.isDefault)
-      {
-        ruleDefault = std::move(rule);
-        continue;
-      }
-
-      std::unique_ptr<te::fe::PropertyName> propertyName (new te::fe::PropertyName("category"));
-      std::unique_ptr<te::fe::Literal> value (new te::fe::Literal(legendRule.value));
-
-      // Defining OGC Style Filter
-      std::unique_ptr<te::fe::Filter> filter(new te::fe::Filter);
-
-      rule->setFilter(filter.release());
-
-      rules.push_back(std::move(rule));
-    }
-
-    if(ruleDefault)
-      style->push_back(ruleDefault.release());
-
-    for(auto& rule : rules)
-    {
-      if(rule)
-        style->push_back(rule.release());
-    }
-  }
-
-  return legend;
+  return style;
 }
 
 std::unique_ptr<te::da::DataSetType>

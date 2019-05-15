@@ -60,7 +60,7 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
   obj.insert("srid", static_cast<int32_t>(view->srid));
   obj.insert("schedule", terrama2::core::toJson(view->schedule));
 
-  obj.insert("dataseries_id", static_cast<int32_t>(view->dataSeriesID));
+  obj.insert("data_series_id", static_cast<int32_t>(view->dataSeriesID));
 
   obj.insert("legend", toJson(*view->legend.get()));
 

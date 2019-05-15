@@ -463,7 +463,7 @@ define([], function() {
         var count = 0;
 
         if(object !== undefined && object !== null && typeof object === "object")
-          for(key in object) if(object.hasOwnProperty(key)) count++;
+          for(let key in object) if(object.hasOwnProperty(key)) count++;
 
         return count;
       };
@@ -1652,7 +1652,7 @@ define([], function() {
       };
 
       $scope.isAliasValid = function(value, dcpsObject) {
-        for(key in dcpsObject) {
+        for(let key in dcpsObject) {
           if(dcpsObject.hasOwnProperty(key)) {
             if(dcpsObject[key].alias == value)
               return false;

@@ -2,25 +2,25 @@ const expect = require('chai').expect;
 const sinon = require('sinon');
 
 // TerraMA2
-const { createView, /*destroyView, validateView,*/ } = require('./../../../core/utility/createView');
-const { Connection } = require('./../../../core/utility/connection');
-const { resultSet, resultSetLimitedToOne, resultSetWithOneAttribute } = require('./mocks/createView');
+const { Connection, QueryError } = require('./../../../core/utility/connection');
+const { createView, destroyView/*, validateView,*/ } = require('./../../../core/utility/createView');
+const { resultSet, resultSetDrop, resultSetLimitedToOne, resultSetWithOneAttribute } = require('./mocks/createView');
 
 describe('createView module test', () => {
+  let connectionStub = null;
+  const fakeURI = 'postgres://localhost/db';
+  const fakeViewName = 'fakeView';
+  const fakeTableName = 'fakeTable';
+
+  beforeEach(() => {
+    connectionStub = sinon.stub(Connection.prototype, 'connect').returns(Promise.resolve());
+  });
+
+  afterEach(() => {
+    connectionStub.restore();
+  })
+
   describe('#createView', () => {
-    let connectionStub = null;
-    const fakeURI = 'postgres://localhost/db';
-    const fakeViewName = 'fakeView';
-    const fakeTableName = 'fakeTable';
-
-    beforeEach(() => {
-      connectionStub = sinon.stub(Connection.prototype, 'connect').returns(Promise.resolve());
-    });
-
-    afterEach(() => {
-      connectionStub.restore();
-    })
-
     it('must create view in database from entire table', async () => {
       const queryStub = sinon.stub(Connection.prototype, 'execute').returns(Promise.resolve(resultSet));
 
@@ -59,10 +59,6 @@ describe('createView module test', () => {
       queryStub.restore();
     })
 
-    // it('must not create view due invalid attribute', async () => {
-
-    // })
-
     it('must not create view due where condition is invalid', async () => {
       const queryStub = sinon.stub(Connection.prototype, 'execute').returns(Promise.reject(new Error(`Invalid query`)));
 
@@ -78,5 +74,34 @@ describe('createView module test', () => {
 
       queryStub.restore();
     })
+  });
+
+  describe('#destroyView', () => {
+    it('must destroy view from database', async () => {
+      const executeStub = sinon.stub(Connection.prototype, 'execute').returns(Promise.resolve(resultSetDrop));
+
+      const res = await destroyView(fakeURI, 'fakeView');
+
+      expect(res.command).equals('DROP');
+      expect(res.rowCount).is.NaN;
+
+      executeStub.restore();
+    });
+
+    it('must throws QueryError when view does not exists', async () => {
+      const executeStub = sinon.stub(Connection.prototype, 'execute').returns(Promise.reject(new QueryError('QueryError')));
+
+      try {
+        await destroyView(fakeURI, 'fakeView');
+      } catch (err) {
+        expect(err).to.be.instanceOf(QueryError);
+      } finally {
+        executeStub.restore();
+      }
+    });
+
+    // it('must handle when invalid URI', async () => {
+
+    // })
   });
 });

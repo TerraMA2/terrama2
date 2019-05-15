@@ -418,6 +418,19 @@ namespace terrama2
              */
             std::string workspaceName(const ViewPtr& viewPtr);
 
+            void registerLayerWithStyle(const ViewPtr viewPtr,
+                                        const std::string& dataStoreName,
+                                        terrama2::core::DataSeriesType dataSeriesType,
+                                        std::map<std::string, std::string> connInfo,
+                                        const std::string& tableName,
+                                        const std::string& layerName,
+                                        const std::unique_ptr<te::da::DataSetType>& dataSetType,
+                                        std::shared_ptr<terrama2::core::ProcessLogger> logger,
+                                        const RegisterId logId,
+                                        const std::string& geometryColumnName = "",
+                                        const std::string& timestampPropertyName = "",
+                                        const std::string& sql = "") const;
+
             /*!
              * \brief Helper to retrieve common view name with view id.
              * \param id View identifier
