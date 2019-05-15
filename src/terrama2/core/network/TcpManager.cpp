@@ -216,7 +216,7 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
       // read data from buffer
       QByteArray bytearray = tcpSocket->read(blockSize_);
       TERRAMA2_LOG_DEBUG() << "JSon size: " << bytearray.size();
-      //TERRAMA2_LOG_DEBUG() << QString(bytearray);
+      // TERRAMA2_LOG_DEBUG() << QString(bytearray);
 
       QJsonParseError error;
       QJsonDocument jsonDoc = QJsonDocument::fromJson(bytearray, &error);
@@ -232,6 +232,7 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
         TERRAMA2_LOG_ERROR() << QObject::tr("Error receiving remote configuration.\nNo webAppId available.");
         return;
       }
+
       auto remoteWebAppId = jsonObject["webAppId"].toString().toStdString();
       auto localWebAppId = serviceManager_->webAppId();
       if(serviceManager_->serviceLoaded() && localWebAppId != remoteWebAppId)
@@ -264,7 +265,6 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
         case TcpSignal::ADD_DATA_SIGNAL:
         {
           TERRAMA2_LOG_DEBUG() << "ADD_DATA_SIGNAL";
-
           try
           {
             std::shared_ptr<terrama2::core::DataManager> dataManager = dataManager_.lock();
@@ -304,6 +304,7 @@ void terrama2::core::TcpManager::readReadySlot(QTcpSocket* tcpSocket) noexcept
         {
           TERRAMA2_LOG_DEBUG() << "START_PROCESS_SIGNAL";
           sendStartProcess(jsonObject);
+
           break;
         }
         case TcpSignal::STATUS_SIGNAL:
@@ -435,7 +436,6 @@ void terrama2::core::TcpManager::sendSignalSlot(QTcpSocket* tcpSocket, TcpSignal
 
   TERRAMA2_LOG_DEBUG() << QObject::tr("Send buffer data: ");
   // wait while sending message
-
   qint64 written = tcpSocket->write(buffer);
   if(written == -1 || !tcpSocket->waitForBytesWritten(30000))
     TERRAMA2_LOG_WARNING() << QObject::tr("Unable to write to server.");

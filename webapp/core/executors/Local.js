@@ -60,7 +60,6 @@ LocalExecutor.prototype.connect = function(serviceInstance) {
  */
 LocalExecutor.prototype.execute = function(command, commandArgs, options) {
   var self = this;
-  console.log("LocalExecutor.prototype.execute", command,  commandArgs, options);
   return new Promise(function(resolve, reject) {
     options.detached = true;
 
@@ -95,7 +94,6 @@ LocalExecutor.prototype.execute = function(command, commandArgs, options) {
 
     if (self.adapter instanceof LocalSystemAdapter) {
 
-      console.log("local.js 97 ", command,  commandArgs, options);
       child = spawnAsync(command, commandArgs, options);
 
       if (options.stdio != 'ignore'){
@@ -124,7 +122,6 @@ LocalExecutor.prototype.execute = function(command, commandArgs, options) {
       child.unref();
 
     } else {
-      console.log("local.js 126 ", command,  commandArgs, options);
       child = execAsync(command + " " + (commandArgs || []).join(" "));
 
       var responseMessage = "";

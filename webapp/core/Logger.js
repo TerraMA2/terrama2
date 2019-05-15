@@ -18,7 +18,7 @@
       new (winston.transports.Console)({
         timestamp: format,
         colorize: true,
-        level: 'debug', // defining debug to log console
+        level: process.env.NODE_ENV === 'PRODUCTION' ? 'info' : 'debug', // defining debug to log console
         formatter: loggerFormat
       })
     ],

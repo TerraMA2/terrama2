@@ -49,33 +49,17 @@ ScreenAdapter.prototype.make = function(serviceInstance, command) {
 ScreenAdapter.prototype.executeCommand = function(executor, command, serviceInstance, extra) {
   var self = this;
   return new Promise(function(resolve, reject) {
-    // if (serviceInstance.service_type_id === ServiceType.STORAGE){
-    //   var screenCommand = self.make(serviceInstance, command);
-    //   var args = ["", serviceInstance.port ];
-    //   var localOptions = {};
-  
-    //   return executor.execute(screenCommand, args, localOptions)
-    //     .then(function(code) {
-    //       return resolve(code);
-    //     })
-    //     .catch(function(err) {
-    //       return reject(err, -1);
-    //     });
-    // }
-    // else
-    {
-      var screenCommand = self.make(serviceInstance, command);
-      logger.debug(screenCommand);
-      var localOptions = {};
-  
-      return executor.execute(screenCommand, [], localOptions)
-        .then(function(code) {
-          return resolve(code);
-        })
-        .catch(function(err) {
-          return reject(err, -1);
-        });
-    }
+    var screenCommand = self.make(serviceInstance, command);
+    logger.debug(screenCommand);
+    var localOptions = {};
+
+    return executor.execute(screenCommand, [], localOptions)
+      .then(function(code) {
+        return resolve(code);
+      })
+      .catch(function(err) {
+        return reject(err, -1);
+      });
   });
 };
 
