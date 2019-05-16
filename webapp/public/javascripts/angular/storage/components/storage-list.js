@@ -45,8 +45,8 @@ define([], () => {
 
       Socket.on('errorResponse', this.onErrorResponse.bind(this));
       Socket.on('runResponse', () => {
-        const message = i18n.__("The process was started successfully");
-        this.MessageBox.success(i18n.__(`Storage`), message);
+        const message = this.i18n.__("The process was started successfully");
+        this.MessageBox.success(this.i18n.__(`Storage`), message);
       });
     }
 
