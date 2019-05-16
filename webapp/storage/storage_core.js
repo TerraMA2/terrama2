@@ -70,6 +70,9 @@ async function backup_Messages(params, service_table, service_type){
         params.logger.log('info', params.storage.name + ": Removed " + res1.rowCount + " rows from " + service_table + "_messages");
         params.logger.log('info', params.storage.name + ": Removed " + res2.rowCount + " rows from " + service_table);
       }
+      else{
+        params.logger.log('info', params.storage.name + ": None messages from process to moved to storage_historics");
+      }
     }
   }
   catch(err)
@@ -324,16 +327,17 @@ async function StoreNTable_1(params, res){
         };
 
         var paramsreturn = await StoreTable(paramsout);
-        if (paramsreturn){
-          params.storage.process.last_process_timestamp = moment().format();
-          params.storage.process.data_timestamp = paramsreturn.data_timestamp;
-          params.storage.process.description = paramsreturn.description;
-          params.storage.process.status = paramsreturn.status;
-
-          updateMessages(params);
-        }
       }
 
+      if (paramsreturn){
+        params.storage.process.last_process_timestamp = moment().format();
+        params.storage.process.data_timestamp = paramsreturn.data_timestamp;
+        params.storage.process.description = paramsreturn.description;
+        params.storage.process.status = paramsreturn.status;
+
+        updateMessages(params);
+      }
+      
       return resolve();
     }
     catch(e){
@@ -685,6 +689,7 @@ async function getDataUntilStore(params){
       }
 
       var res_data = await params.client.query(sel_date);
+      params.logger.debug(params.storage.name + ": max data_time_stamp " + res_data.rows[0].max);
 
       var data_until_store = res_data.rowCount ? new moment(res_data.rows[0].max) : new moment();
       data_until_store = data_until_store._isValid ? data_until_store : new moment();

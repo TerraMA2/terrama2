@@ -402,6 +402,7 @@ let start_time;
  */
 server.listen(port, 'localhost', () =>{
   console.log('Storage is running on port ' + port +'.');
+  logger.log('info', 'Storage is running on port ' + port);
 });
 
 server.on('error', onError);
@@ -429,9 +430,9 @@ async function messageTreatment(clientSocket, parsed, client_Terrama2_db){
     case Signals.TERMINATE_SERVICE_SIGNAL:
     console.log("TERMINATE_SERVICE_SIGNAL");
     isShuttingDown_ = true;
+    logger.log('info', 'Storage service finalized');
     var buffer = await TcpManager.makebuffer_be(Signals.TERMINATE_SERVICE_SIGNAL);
     clientSocket.write(buffer);
-    
     process.exit(0);
 
     break;
@@ -498,7 +499,7 @@ async function messageTreatment(clientSocket, parsed, client_Terrama2_db){
           objs.push(obj);
 
           var buffer = TcpManager.makebuffer_be(Signals.LOG_SIGNAL, objs) ;
-          console.log(buffer.toString());
+          //console.log(buffer.toString());
           clientSocket.write(buffer);
 
           runStorage(clientSocket, client_Terrama2_db, storage)
@@ -563,14 +564,14 @@ async function messageTreatment(clientSocket, parsed, client_Terrama2_db){
       }
       else{
         var buffer =  await TcpManager.makebuffer_be(Signals.UPDATE_SERVICE_SIGNAL, parsed.message) ;
-        console.log("UPDATE_SERVICE_SIGNAL", buffer);
+        console.log("UPDATE_SERVICE_SIGNAL",);
         clientSocket.write(buffer);
       }
       break;
 
     case Signals.VALIDATE_PROCESS_SIGNAL:
       var buffer =  await TcpManager.makebuffer_be(Signals.VALIDATE_PROCESS_SIGNAL, obj) ;
-      console.log("VALIDATE_PROCESS_SIGNAL", buffer);
+      console.log("VALIDATE_PROCESS_SIGNAL");
       clientSocket.write(buffer);
       break;
     }
@@ -579,14 +580,16 @@ async function messageTreatment(clientSocket, parsed, client_Terrama2_db){
 let pool = new pg.Pool(config_db);
 
 pool.connect().then(client_Terrama2_db => {
+  logger.log('info', 'Conected to database ' + config_db.database);
   server.on('connection', async function(clientSocket) {
     console.log('CONNECTED: ' + clientSocket.remoteAddress + ':' + clientSocket.remotePort);
+    logger.log('info','CONNECTED: ' + clientSocket.remoteAddress + ':' + clientSocket.remotePort);
 
     start_time = moment().format();
 
     clientSocket.on('data', async function(byteArray) {
 
-      console.log("RECEIVED: ", byteArray);
+      //console.log("RECEIVED: ", byteArray);
 
       clientSocket.answered = true;
 
@@ -655,7 +658,7 @@ pool.connect().then(client_Terrama2_db => {
             tempBuffer = extraData;
           }
           
-          console.log("Size: " + parsed.size + " Signal: " + parsed.signal + " Message: " + JSON.stringify(parsed.message, null, 4));
+          //console.log("Size: " + parsed.size + " Signal: " + parsed.signal + " Message: " + JSON.stringify(parsed.message, null, 4));
       
           await messageTreatment(clientSocket, parsed, client_Terrama2_db);
         }
@@ -677,7 +680,7 @@ process.on('SIGINT', async () => {
   TcpService.disconnect();
 
    server.close(() => {
-     logger.log('info','Storage finalized');
+     logger.log('info','Storage Service finalized');
 
      process.exit(0);
    });
