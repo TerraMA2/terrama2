@@ -44,8 +44,11 @@
             case ServiceType.VIEW:
               handler = self.handleRegisteredViews(response);
               break;
-            case ServiceType.ALERT:
+              case ServiceType.ALERT:
               handler = self.handleFinishedAlert(response);
+              break;
+              case ServiceType.STORAGE:
+              handler = self.handleFinishedStorage(response);
               break;
             default:
               throw new ServiceTypeError(Utils.format("Invalid instance id %s", response.instance_id));
@@ -243,6 +246,35 @@
       }
     });
   }
+
+  ProcessFinished.handleFinishedStorage = function(storageResultObject){
+    return new PromiseClass(function(resolve, reject){
+      if (storageResultObject.result){
+        return DataManager.orm.transaction(function(t){
+          var options = {transaction: t};
+          // Get storage object that run
+          return DataManager.getStorage({id: storageResultObject.process_id}, options)
+            .then(function(storage){
+              var dataSeriesId = storage.data_series_id;
+              var restritions = {
+                data_ids: {
+                  $contains: [dataSeriesId]
+                }
+              };
+              // return the process are conditioned by collector
+              return listConditionedProcess(restritions, options, resolve, reject);
+            })
+            .catch(function(err){
+              return reject(new Error(err.toString()));
+            });
+        });
+      } else {
+        return reject(new Error("The storage process finished with error"));
+      }
+    });
+  }
+
+
   /**
    * Function to list conditioned process
    */

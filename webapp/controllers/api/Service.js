@@ -9,20 +9,25 @@ module.exports = function(app) {
   return {
     get: function(request, response) {
       var type = request.query.type;
-      var serviceId = request.query.serviceId;
-
+      
       if (!serviceId) {
+        var serviceId = request.query.serviceId;
         //todo: improve it
         var restriction = {};
-        switch (type) {
-          case "COLLECT":
-            restriction = {service_type_id: 1};
-            break;
-          case "ANALYSIS":
-            restriction = {service_type_id: 2};
-            break;
-          default:
-            break;
+
+        if (isNaN(type)) {
+          switch (type) {
+            case "COLLECT":
+              restriction = {service_type_id: 1};
+              break;
+              case "ANALYSIS":
+              restriction = {service_type_id: 2};
+              break;
+            default:
+              break;
+          }
+        } else {
+          restriction.service_type_id = type;
         }
 
         return DataManager.listServiceInstances(restriction).then(function(services) {

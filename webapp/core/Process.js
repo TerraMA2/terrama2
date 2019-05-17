@@ -49,14 +49,18 @@ Process.prototype.startService = function(command) {
     var port = serviceInstance.port.toString();
     var serviceTypeString = Utils.getServiceTypeName(serviceInstance.service_type_id);
 
-    if(config.disablePDF && !config.debug) {
-      var command = util.format("%s %s %s %s %s %s %s %s %s", "sudo", "-H", "-u", "terrama2", executable, serviceTypeString, port, '-platform', 'minimal');
-    } else if(!config.disablePDF && !config.debug) {
-      var command = util.format("%s %s %s %s %s %s %s", "sudo", "-H", "-u", "terrama2", executable, serviceTypeString, port);
-    } else if(config.disablePDF && config.debug) {
-      var command = util.format("%s %s %s %s %s", executable, serviceTypeString, port, '-platform', 'minimal');
-    } else {
-      var command = util.format("%s %s %s", executable, serviceTypeString, port);
+    if (serviceTypeString === "STORAGE")
+      var command = util.format("node %s \"\" %s", executable, port);
+    else{
+      if(config.disablePDF && !config.debug) {
+        var command = util.format("%s %s %s %s %s %s %s %s %s", "sudo", "-H", "-u", "terrama2", executable, serviceTypeString, port, '-platform', 'minimal');
+      } else if(!config.disablePDF && !config.debug) {
+        var command = util.format("%s %s %s %s %s %s %s", "sudo", "-H", "-u", "terrama2", executable, serviceTypeString, port);
+      } else if(config.disablePDF && config.debug) {
+          var command = util.format("%s %s %s %s %s", executable, serviceTypeString, port, '-platform', 'minimal');
+      } else {
+        var command = util.format("%s %s %s", executable, serviceTypeString, port);
+      }
     }
 
     return self.adapter.startService(command)

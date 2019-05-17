@@ -14,7 +14,7 @@
   "dependencies": {
     "ace-builds": "=1.2.8",
     "active-ftp": "git+https://github.com/TerraMA2/active-ftp.git",
-    "adm-zip": "^0.4.11",
+    "adm-zip": "^0.4.13",
     "admin-lte": "=2.3.0",
     "almond": "=0.3.3",
     "angular": "=1.6.5",
@@ -41,8 +41,8 @@
     "connect-flash": "^0.1.1",
     "connect-multiparty": "^2.0.0",
     "cookie-parser": "~1.3.5",
+    "cron": "^1.7.0",
     "datatables": "=1.10.13",
-    "dc": "^3.0.12",
     "debug": "~2.2.0",
     "eonasdan-bootstrap-datetimepicker": "=4.17.47",
     "express": "~4.13.1",
@@ -52,7 +52,7 @@
     "font-awesome": "=4.6.3",
     "fs": "0.0.1-security",
     "glob": "^7.0.3",
-    "grunt": "^1.0.2",
+    "grunt": "^1.0.3",
     "grunt-contrib-clean": "^1.0.0",
     "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-cssmin": "^1.0.2",
@@ -69,12 +69,14 @@
     "moment": "=2.18.1",
     "morgan": "~1.6.1",
     "ng-file-upload": "=12.2.13",
+    "node-schedule": "^1.3.2",
     "nodemailer": "=2.7.2",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
-    "pg": "^4.5.1",
+    "pg": "=6.0.0",
     "pg-format": "^1.0.4",
     "pg-hstore": "^2.3.2",
+    "pg-pool": "^2.0.6",
     "request": "^2.87.0",
     "requirejs": "^2.3.2",
     "rimraf": "^2.6.1",
@@ -87,7 +89,8 @@
     "swig": "1.4.2",
     "ui-select": "=0.19.8",
     "unzip2": "^0.2.5",
-    "winston": "^2.3.0"
+    "winston": "^2.4.3",
+    "xregexp": "^4.2.4"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-beta.49",
@@ -97,5 +100,10 @@
     "mocha": "^5.2.0",
     "sinon": "^7.2.3",
     "uglify-es": "^3.3.9"
-  }
+  },
+  "description": "**NOTE:** **NOTE:*** **Check the website for the most recent stable version: http://www.terrama2.dpi.inpe.br/** * **If you have any question, please, send us an e-mail at: terrama2-team@dpi.inpe.br.**",
+  "main": "Gruntfile.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }

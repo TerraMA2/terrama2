@@ -1,7 +1,7 @@
 {% set MENU_URLS = {} %}
 
 {# set MENU_URLS = {"projects": {name: 'Projects', url: "configuration/projects", icon: "fa-sitemap"}} #}
-{% set MENU_URLS["data-provider"] = {name: 'Data Servers', url: "configuration/providers", icon: "fa-database"} %}
+{% set MENU_URLS["data-provider"] = {name: 'Data Servers', url: "configuration/providers", icon: "fa-server"} %}
 {% set MENU_URLS["dynamic-data"] = {name: 'Dynamic Data', url: "configuration/dynamic/dataseries", icon: "fa-clock-o"} %}
 {% set MENU_URLS["static-data"] = {name: 'Static Data', url: "configuration/static/dataseries", icon: "fa-folder"} %}
 {% set MENU_URLS["analysis"] = {name: 'Analysis', url: "configuration/analysis", icon: "fa-search"} %}
@@ -190,7 +190,7 @@
               <i class="fa fa-angle-left pull-right"></i>
             </a>
             <ul class="treeview-menu"
-              style="display: {% if (tabActive === 'services' || tabActive === 'users') %} block; {% else %} none;{% endif %}">
+              style="display: {% if (tabActive === 'services' || tabActive === 'users' || tabActive === 'storage') %} block; {% else %} none;{% endif %}">
               <li class="treeview {% if (tabActive === 'services') %} active {% endif %}">
                 <a href="{[ BASE_URL ]}administration/services">
                   <i class="fa fa-cog"></i> <span ng-bind="i18n.__('Services')"></span>
@@ -199,6 +199,12 @@
               <li class="treeview {% if (tabActive === 'users') %} active {% endif %}">
                 <a href="{[ BASE_URL ]}administration/users">
                   <i class="fa fa-users"></i> <span ng-bind="i18n.__('Users')"></span>
+                </a>
+              </li>
+
+              <li class="treeview {% if (tabActive === 'storage') %} active {% endif %}">
+                <a href="{[ BASE_URL ]}administration/storages">
+                  <i class="fa fa-database"></i> <span ng-bind="i18n.__('Storage')"></span>
                 </a>
               </li>
             </ul>
@@ -271,7 +277,7 @@
         event.preventDefault();
       });
 
-      var collapsed = { [collapsed]};
+      var collapsed = {[collapsed]};
 
       $("#collapseButton").click(function (event) {
         var self = this;

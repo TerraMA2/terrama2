@@ -105,6 +105,7 @@ var DataManager = module.exports = {
   init: function(dbConfigPath, callback) {
     var self = this;
     logger.info("Initializing database...");
+    logger.info(dbConfigPath);
 
     return Database.init(dbConfigPath).then(function(dbORM) {
       logger.info("Database loaded.");
@@ -139,6 +140,7 @@ var DataManager = module.exports = {
         inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.VIEW, name: "VIEW"}));
         inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.ALERT, name: "ALERT"}));
         inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.INTERPOLATION, name: "INTERPOLATION"}));
+        inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.STORAGE, name: "STORAGE"}));
 
         // data provider type defaults
         inserts.push(self.addDataProviderType({id: 1, name: "FILE", description: "Desc File"}));
@@ -214,11 +216,19 @@ var DataManager = module.exports = {
             interpolationService.port = 6547;
             interpolationService.service_type_id = Enums.ServiceType.INTERPOLATION;
 
+            var storageService = Object.assign({}, collectorService);
+            storageService.name = "Local Storage";
+            storageService.description = "Local service for Storage";
+            storageService.pathToBinary = "../storage/storage_service.js",
+            storageService.port = 5000;
+            storageService.service_type_id = Enums.ServiceType.STORAGE;
+
             servicesInsert.push(self.addServiceInstance(collectorService));
             servicesInsert.push(self.addServiceInstance(analysisService));
             servicesInsert.push(self.addServiceInstance(viewService));
             servicesInsert.push(self.addServiceInstance(alertService));
             servicesInsert.push(self.addServiceInstance(interpolationService));
+            servicesInsert.push(self.addServiceInstance(storageService));
           }
           return Promise.all(servicesInsert);
         });
@@ -3231,7 +3241,7 @@ var DataManager = module.exports = {
               return reject(new exceptions.CollectorError("Could not find collector. " + err.toString()));
             });
         } else {
-          logger.error("Retrieved null while getting collector", collectorResult);
+          logger.error("Retrieved null while getting collector", restriction, collectorResult);
           return reject(new exceptions.CollectorErrorNotFound("Could not find collector. "));
         }
       }).catch(function(err) {
@@ -6629,5 +6639,66 @@ var DataManager = module.exports = {
         return reject(err);
       });
     });
-  }
+  },
+
+  /**
+   * It retrieves all storages from database
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Array<Object>>}
+   */
+  listStorages: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      var _reject = function(err) {
+        logger.error(err);
+        reject(err);
+      };
+
+      return models.db.Storages.findAll({})
+      .then(function(storages){
+        var output = [];
+        storages.forEach(function(storage) {
+          output.push(storage.get());
+        });
+        resolve(output);
+      }).catch(function(err) {
+        reject(new Error("Could not retrieve storage " + err.toString()));
+      });
+
+    });
+  },
+
+  /**
+   * It retrieves a storage of database from given restriction
+   *
+   * @param {Object} restriction - A query restriction
+   * @param {Object} options - A query options
+   * @param {Transaction} options.transaction - An ORM transaction
+   * @returns {Promise<Storage>}
+   */
+  getStorage: function(restriction, options) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+      self.listStorages(restriction, options)
+        .then(function(storages) {
+          if (storages.length === 0) {
+            return reject(new Error("No storage retrieved"));
+          }
+
+          if (storages.length > 1) {
+            return reject(new Error("Get operation retrieved more than a storage"));
+          }
+
+          return resolve(storages[0]);
+        })
+        .catch(function(err) {
+          return reject(err);
+        });
+    });
+  },
+
 };
+

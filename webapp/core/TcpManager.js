@@ -13,9 +13,13 @@ var EventEmitter = require('events').EventEmitter;
 var ServiceType = require('./Enums').ServiceType;
 var PromiseClass = require('./Promise');
 var Application = require('./Application');
+const { NoSuchConnectionError } = require('./Exceptions');
 
 // Facades
 var ProcessFinished = require("./facade/tcp-manager/ProcessFinished");
+
+let beginOfMessage = "(BOM)\0";
+let endOfMessage = "(EOM)\0";
 
 /**
  * It handles entire TCP communication between TerraMA² NodeJS application and C++ Services.
@@ -93,6 +97,59 @@ TcpManager.prototype.makebuffer = function(signal, object) {
     // // Writes the signal (unsigned 32-bit integer) in the buffer with big endian format
     buffer.writeUInt32BE(signal, 4);
 
+   // console.log("TcpMAnager.makebuffer", buffer);
+    return buffer;
+  } catch (e) {
+    throw e;
+  }
+};
+
+
+/**
+ This method prepares a byte array to send in tcp socket.
+ @param {Signals} signal - a valid TerraMA2 tcp signal
+ @param {Object} object - a javascript object message to send
+ */
+TcpManager.prototype.makebuffer_be = function(signal, object) {
+  try {
+    if(isNaN(signal)) { throw TypeError(signal + " is not a valid signal!"); }
+
+    var totalSize;
+    var jsonMessage = "";
+
+    var hasMessage = !_.isEmpty(object);
+
+    if (hasMessage) {
+      jsonMessage = JSON.stringify(object).replace(/\":/g, "\": ");
+
+      // The size of the message plus the size of two integers, 4 bytes each
+      totalSize = jsonMessage.length + 4;
+    } else { totalSize = 4; }
+
+    // creating buffer to store message
+    var bufferMessage = new Buffer(jsonMessage);
+
+    // Creates the buffer to be sent
+    var buffer = new Buffer(bufferMessage.length + 8 + 12);
+
+    if (hasMessage) {
+      // Writes the message (string) in the buffer with UTF-8 encoding
+      bufferMessage.copy(buffer, 14, 0, bufferMessage.length);
+    }
+
+    // checking bufferMessage length. If it is bigger than jsonMessage,
+    // then there are special chars and the message size must be adjusted.
+    if (bufferMessage.length > jsonMessage.length) { totalSize = bufferMessage.length + 4; }
+
+    // Writes the buffer size (unsigned 32-bit integer) in the buffer with big endian format
+    buffer.write(beginOfMessage, 0);
+    buffer.writeUInt32BE(totalSize, 6);
+
+    // // Writes the signal (unsigned 32-bit integer) in the buffer with big endian format
+    buffer.writeUInt32BE(signal, 10);
+    buffer.write(endOfMessage, buffer.length - 6);
+    
+   // console.log("TcpMAnager.makebuffer_be", buffer);
     return buffer;
   } catch (e) {
     throw e;
@@ -136,7 +193,8 @@ function _getClient(connection) {
 var logs = {
   collectors: [],
   analysis: [],
-  views: []
+  views: [],
+  storages: []
 };
 
 /**
@@ -152,10 +210,16 @@ TcpManager.prototype.$send = function(serviceInstance, data, signal) {
 
     var config = Application.getContextConfig();
     data.webAppId = config.webAppId;
-    var buffer = this.makebuffer(signal, data);
+
+    if (serviceInstance.service_type_id == ServiceType.STORAGE)
+      var buffer =  this.makebuffer_be(signal, data);
+    else
+      var buffer = this.makebuffer(signal, data);
+    
     //logger.debug(buffer);
     logger.debug("BufferToString: ", buffer.toString());
     logger.debug("BufferToString size: ", buffer.length);
+    logger.debug("Send Signal: ", signal, " serviceInstance: ", serviceInstance.name)
 
     client.send(buffer);
   } catch (e) {
@@ -213,13 +277,17 @@ TcpManager.prototype.logData = function(serviceInstance, data) {
 
     // checking first attempt when there is no active socket (listing services)
     if (!client.isOpen()) {
-      self.emit('error', client.service, new Error("There is no active connection"));
+      self.emit('tcpError', client.service, new NoSuchConnectionError(client.service, data.process_ids));
       return;
     }
 
     var config = Application.getContextConfig();
     data.webAppId = config.webAppId;
-    var buffer = self.makebuffer(Signals.LOG_SIGNAL, data);
+    if (serviceInstance.service_type_id == ServiceType.STORAGE)
+      var buffer = self.makebuffer_be(Signals.LOG_SIGNAL, data);
+    else
+      var buffer = self.makebuffer(Signals.LOG_SIGNAL, data);
+    logger.debug("LOG_SIGNAL", buffer.toString());
     // requesting for log
     client.log(buffer);
 
@@ -265,8 +333,13 @@ TcpManager.prototype.startService = function(serviceInstance) {
     }
 
     return instance.connect(serviceInstance).then(function() {
+      // if (serviceInstance.service_type_id == ServiceType.STORAGE)
+      //   var obj = ['', serviceInstance.port];
+      // else 
+       var obj = ['--version', '-platform', 'minimal'];
+       
       return PromiseClass.all([
-        instance.adapter.execute(serviceInstance.pathToBinary, ['--version', '-platform', 'minimal'], {}),
+        instance.adapter.execute(serviceInstance.pathToBinary, obj, {}),
         instance.startService()
       ]).spread(function(versionResponse, startResponse) {
         self.emit("serviceVersion", serviceInstance, versionResponse.data);
@@ -312,17 +385,21 @@ TcpManager.prototype.statusService = function(serviceInstance) {
   var self = this;
   try {
     var config = Application.getContextConfig();
-    var buffer = self.makebuffer(Signals.STATUS_SIGNAL, {webAppId: config.webAppId});
+    if (serviceInstance.service_type_id == ServiceType.STORAGE)
+      var buffer = self.makebuffer_be(Signals.STATUS_SIGNAL, {webAppId: config.webAppId});
+    else
+      var buffer = self.makebuffer(Signals.STATUS_SIGNAL, {webAppId: config.webAppId});
     //logger.debug(buffer);
 
     var client = _getClient(serviceInstance);
 
     // checking first attempt when there is no active socket (listing services)
     if (!client.isOpen()) {
-      self.emit('error', client.service, new Error("There is no active connection"));
+      self.emit('tcpError', client.service, new NoSuchConnectionError(client.service));
       return;
     }
 
+    logger.debug("StatusService", buffer.toString());
     client.status(buffer);
 
   } catch (e) {
@@ -362,7 +439,10 @@ TcpManager.prototype.stopService = function(serviceInstance) {
   var self = this;
   try {
     var config = Application.getContextConfig();
-    var buffer = self.makebuffer(Signals.TERMINATE_SERVICE_SIGNAL, {webAppId: config.webAppId});
+    if (serviceInstance.service_type_id == ServiceType.STORAGE)
+      var buffer = self.makebuffer_be(Signals.TERMINATE_SERVICE_SIGNAL, {webAppId: config.webAppId});
+    else
+      var buffer = self.makebuffer(Signals.TERMINATE_SERVICE_SIGNAL, {webAppId: config.webAppId});
 
     var client = _getClient(serviceInstance);
 
@@ -411,8 +491,11 @@ TcpManager.prototype.initialize = function(client) {
       case ServiceType.ANALYSIS:
         target = logs.analysis;
         break;
-      case ServiceType.VIEW:
+        case ServiceType.VIEW:
         target = logs.views;
+        break;
+      case ServiceType.STORAGE:
+        target = logs.storages;
         break;
     }
 
@@ -452,7 +535,8 @@ TcpManager.prototype.initialize = function(client) {
             if (response.automatic !== false
                 && (targetProcess.serviceType == ServiceType.COLLECTOR
                     || targetProcess.serviceType == ServiceType.ANALYSIS
-                    || targetProcess.serviceType == ServiceType.INTERPOLATION)){
+                    || targetProcess.serviceType == ServiceType.INTERPOLATION 
+                    || targetProcess.serviceType == ServiceType.STORAGE)){
               targetProcess.processToRun.forEach(function(processToRun){
                 if (processToRun && processToRun.object && processToRun.object.active){
                   self.startProcess(processToRun.instance, {ids: processToRun.ids, execution_date: response.execution_date});

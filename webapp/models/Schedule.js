@@ -65,6 +65,14 @@ module.exports = function(sequelize, DataTypes) {
               allowNull: false
             }
           });
+
+          Schedule.hasOne(models.Storages, {
+            onDelete: "CASCADE",
+            foreignKey: {
+              name: "schedule_id",
+              allowNull: true
+            }
+          });
         }
       }
     }

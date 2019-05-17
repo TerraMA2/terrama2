@@ -1,0 +1,39 @@
+{% extends "../base/layout.html" %}
+
+{% set tabActive = "storage" %}
+
+{% block title %} TerraMA² {{ i18n.__('Storage') }} {% endblock %}
+
+{% block javascripts %}
+
+<script type="text/javascript">
+ var globals = {
+   enums: {
+     DataSeriesType: {[ Enums.DataSeriesType|json|safe ]}
+   }
+ };
+
+ var baseUrl = "{[ BASE_URL ]}administration/storages/";
+ var configuration = {
+   message: "{[ message ]}",
+   dataSeriesType: 'static',
+   link: function(object) {
+     return baseUrl + object.id;
+   },
+   statusChangeLink: function(object) {
+     return "{[ BASE_URL ]}api/DataSeries/static/changeStatus/" + object.id;
+   },
+  hasProjectPermission: {[ hasProjectPermission ]}
+ };
+
+ configuration.linkToAdd = baseUrl + "new";
+
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+<storage-list-component has-project-permission="configuration.hasProjectPermission"></storage-list-component>
+
+{% endblock %}

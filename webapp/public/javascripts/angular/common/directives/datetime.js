@@ -44,7 +44,10 @@ define(
           $timeout(function () {
             if (!!ngModelCtrl.$viewValue) {
               if (!(ngModelCtrl.$viewValue instanceof moment)) {
-                ngModelCtrl.$setViewValue(moment(scope.date));
+                const { options } = scope;
+                let fmt = options ? (options.format || 'LLL') : 'LLL';
+
+                ngModelCtrl.$setViewValue(moment(scope.dateTime, fmt));
               }
               element.data('DateTimePicker').date(ngModelCtrl.$viewValue);
             }

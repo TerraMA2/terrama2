@@ -7,6 +7,7 @@ var execAsync = require("child_process").exec;
 var OS = require('./../Enums').OS;
 var ScreenAdapter = require('./adapters/ScreenAdapter');
 var LocalSystemAdapter = require("./adapters/LocalSystemAdapter");
+var ServiceType = require("./../Enums").ServiceType; 
 
 
 /**
@@ -142,8 +143,8 @@ LocalExecutor.prototype.execute = function(command, commandArgs, options) {
         if (command === "uname") {
           defineAdapter(data.toString());
         }
-
-        responseMessage = data.toString();
+        else if(command.search('storage_service') != -1)
+          responseMessage = data.toString();
       });
 
       // stream for handling errors data

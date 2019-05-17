@@ -4,6 +4,7 @@
 var util = require('util');
 var logger = require("./../../Logger");
 var Promise = require('./../../Promise');
+var ServiceType = require("./../../Enums").ServiceType; 
 
 /**
  * It defines a generic interface to handle command executors

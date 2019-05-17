@@ -13,9 +13,11 @@ define([
   "TerraMA2WebApp/users/app",
   "TerraMA2WebApp/alerts/app",
   "TerraMA2WebApp/legends/app",
-  "TerraMA2WebApp/interpolator/app"
-], function(moduleLoader, commonModule, countriesModule, alertBoxModule, serviceModule, projectModule, 
-            statusModule, dataProviderModule, dataSeriesModule, viewsModule, analysisModule, userModule, alertModule, legendModule, interpolatorModule) {
+  "TerraMA2WebApp/interpolator/app",
+  "./storage/app"
+
+], function(moduleLoader, commonModule, countriesModule, alertBoxModule, serviceModule, projectModule,
+            statusModule, dataProviderModule, dataSeriesModule, viewsModule, analysisModule, userModule, alertModule, legendModule, interpolatorModule, storageModule) {
   var moduleName = "terrama2";
 
   var deps = [commonModule, countriesModule];
@@ -32,6 +34,7 @@ define([
   moduleLoader(alertModule, deps);
   moduleLoader(legendModule, deps);
   moduleLoader(interpolatorModule, deps);
+  moduleLoader(storageModule, deps);
 
   var terrama2Module = angular.module(moduleName, deps);
 

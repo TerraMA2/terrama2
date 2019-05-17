@@ -173,6 +173,7 @@
             "DataSeries": [],
             "Legends": [],
             "Views": [],
+            "Storages": [],
             "Projects": [new ProjectModel(project).toObject()]
           };
 
@@ -219,6 +220,12 @@
               objectToSend.Views.push(view.id);
             });
 
+            return DataManager.listStorages({ project_id: projectId });
+          }).then(function(storages) {
+            storages.forEach(function(storage) {
+              objectToSend.Storages.push(storage.id);
+            });
+
             return Promise.all(collectorPromises).catch(function(err) {
               if(!err.name || (err.name && err.name != "CollectorErrorNotFound"))
                 return reject(new ProjectError("Failed to load dependents"));
@@ -246,7 +253,10 @@
                 delete objectToSend.Legends;
 
               if(objectToSend.Views.length === 0)
-                delete objectToSend.Views;
+              delete objectToSend.Views;
+
+              if(objectToSend.Storages.length === 0)
+              delete objectToSend.Storages;
 
               if(
                 objectToSend.hasOwnProperty("Alerts") ||
@@ -255,7 +265,8 @@
                 objectToSend.hasOwnProperty("DataProvider") ||
                 objectToSend.hasOwnProperty("DataSeries") ||
                 objectToSend.hasOwnProperty("Legends") ||
-                objectToSend.hasOwnProperty("Views")
+                objectToSend.hasOwnProperty("Views") ||
+                objectToSend.hasOwnProperty("Storages")
               ) {
                 TcpService.remove(objectToSend);
               }

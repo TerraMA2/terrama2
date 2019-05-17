@@ -123,9 +123,13 @@ var Service = module.exports = function(serviceInstance) {
     self.answered = true;
     var formatMessage = "Socket %s received %s";
     logger.debug(Utils.format(formatMessage, self.service.name, byteArray));
+    console.log("REceived byteArray.size ", byteArray.length)
+//    console.log("byteArray ", byteArray);
 
     // append and check if the complete message has arrived
     tempBuffer = _createBufferFrom(tempBuffer, byteArray);
+
+   // console.log("tempBuffer ", tempBuffer);
 
     let completeMessage = true;
     // process all messages in the buffer
@@ -166,7 +170,6 @@ var Service = module.exports = function(serviceInstance) {
           tempBuffer = undefined;
           throw new Error("Invalid message (EOM)");
         }
-
         // if we got many messages at once
         // hold the buffer we the extra messages for processing
         if(tempBuffer.length > expectedLength+headerSize) {
@@ -174,14 +177,13 @@ var Service = module.exports = function(serviceInstance) {
         } else {
           extraData = undefined;
         }
-
-        // get only the first message for processing
         tempBuffer = new Buffer.from(tempBuffer.slice(beginOfMessage.length, expectedLength+beginOfMessage.length));
+        // get only the first message for processing
         const parsed = parseByteArray(tempBuffer);
 
         // get next message in the buffer for processing
         tempBuffer = extraData;
-
+ 
         switch(parsed.signal) {
           case Signals.LOG_SIGNAL:
             self.emit("log", parsed.message);
@@ -214,6 +216,7 @@ var Service = module.exports = function(serviceInstance) {
         // we got an error, empty buffer.
         tempBuffer = undefined;
         logger.debug(Utils.format("Error parsing bytearray received from %s. %s", self.service.name, e.toString()));
+        console.log(byteArray.toString());
         self.emit("serviceError", e);
         if (callbackError) {
           callbackError(e);

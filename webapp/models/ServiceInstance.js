@@ -90,6 +90,12 @@ module.exports = function(sequelize, DataTypes) {
               allowNull: false
             }
           });
+
+          ServiceInstance.hasMany(models.Storages, {
+            foreignKey: {
+              allowNull: false
+            }
+          });
         }
       }
     }

@@ -190,6 +190,10 @@ define([], function() {
               break;
             case 5:
               service.type = i18n.__("Interpolation");
+              break;
+            case 6:
+              service.type = i18n.__("Storage");
+              break;
             default:
               break;
           }
@@ -244,7 +248,10 @@ define([], function() {
         case 5:
           return BASE_URL + "images/services/interpolation/interpolation_service.png";
           break;
-        default:
+        case 6:
+          return BASE_URL + "images/services/interpolation/storage_service.png";
+          break;
+         default:
           break;
       }
     };
