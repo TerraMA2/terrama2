@@ -85,7 +85,8 @@ define([], function () {
 
                 this.storage.path = parsedPath;
               } else {
-                this.storage.path = this.storage.uriObject.pathname;
+                const path = this.storage.uriObject.pathname;
+                this.storage.path = path.slice(path.lastIndexOf("/")+1, path.length);
               }
             }
           }
