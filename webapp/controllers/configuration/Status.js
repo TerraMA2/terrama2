@@ -41,6 +41,10 @@ module.exports = function(app) {
           return interpolator.rawObject();
         });
 
+        // var outputStorages = storages.map(function(storage){
+        //   return storage.rawObject();
+        // });
+
         var renderParams = {
           "Enums": Enums,
           "analysis": outputAnalysis,

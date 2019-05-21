@@ -431,7 +431,7 @@ define(
     var addLayerGroup = function(id, name, parentGroup) {
       var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
       var layerGroupExists = layerGroup !== null;
-
+      
       if(layerGroupExists) {
         var layers = layerGroup.getLayers();
 

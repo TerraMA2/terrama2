@@ -32,3 +32,4 @@ exports.Interpolator = require("./Interpolator");
 exports.AlertAttachedView = require("./AlertAttachedView");
 exports.AlertAttachment = require("./AlertAttachment");
 exports.Project = require('./Project');
+exports.Storage = require('./Storage');

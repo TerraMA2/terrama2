@@ -113,16 +113,6 @@
   }
 
   /**
-   * It builds a database representation of View
-   */
-  View.prototype.rawObject = function() {
-    var obj = this.toObject();
-    delete obj.dataseries_id;
-    obj.data_series_id = this.dataSeriesId;
-    return obj;
-  };
-
-  /**
    * It builds a standardized TCP format
    * 
    * @returns {Object}
@@ -139,7 +129,7 @@
       name: this.name,
       description: this.description,
       style: this.style,
-      dataseries_id: this.dataSeriesId,
+      data_series_id: this.dataSeriesId,
       dataSeries: this.dataSeries instanceof AbstractClass ? this.dataSeries.toObject() : {},
       schedule: this.schedule instanceof AbstractClass ? this.schedule.toObject() : {},
       automatic_schedule: this.automaticSchedule instanceof AbstractClass ? this.automaticSchedule.toObject() : {},

@@ -19,6 +19,8 @@ var ViewsRetriever = function(app) {
   // 'TcpService' class
   var memberTcpService = require('./../../core/facade/tcp-manager/TcpService');
 
+  // var ChartFacade = require('../../core/facade/Chart');
+
   var retrieveFunction = function(params, response) {
     var sendPrivate = false;
 
@@ -28,8 +30,10 @@ var ViewsRetriever = function(app) {
       if(params.type === memberViewsCache.TYPES.NEW_AND_UPDATED && (params.initialRequest || params.onlyPrivate)) {
         return memberDataManager.listRegisteredViews().then(function(views) {
           return memberDataManager.listAnalysis({}).then(function(analysisList) {
-            return memberDataManager.listAlerts().then(function(alerts) {
-              var viewsObjects = views.map(function(view) {
+            return memberDataManager.listAlerts().then(async function(alerts) {
+              // const chartFacade = new ChartFacade();
+              var viewsObjects = [];
+              for (const view of views) {
                 var description = null;
 
                 if(view.dataSeries) {
@@ -43,13 +47,13 @@ var ViewsRetriever = function(app) {
                   }
                 }
 
-                var viewObject = view.toObject();
-                if(description) {
-                  viewObject.description = description;
-                }
-
-                return viewObject;
-              });
+                // var viewObject = view.toObject();
+                // viewObject.charts = await chartFacade.list(view.view.id);
+                // if(description) {
+                //   viewObject.description = description;
+                // }
+                // viewsObjects.push(viewObject);
+              }
 
               for(var i = 0, viewsLength = viewsObjects.length; i < viewsLength; i++) {
                 if((viewsObjects[i].private && sendPrivate) || (!params.onlyPrivate && !viewsObjects[i].private))

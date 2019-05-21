@@ -60,6 +60,7 @@ define(
       layerObject.dateInfo = {};
       layerObject.boundingBox = [];
       layerObject.properties = layerData.properties ? layerData.properties : null;
+      // layerObject.charts = layerData.charts;
 
       if(layerData.type)
         layerObject.opacity = 1;
@@ -161,7 +162,7 @@ define(
 
     var removeLayerOfExplorer = function(layer) {
       if(layer.visible)
-        $("#" + layer.htmlId + " input.terrama2-layerexplorer-checkbox").trigger("click");
+        $("#" + layer.htmlId + " .checkbox input").trigger("click");
 
       $("#terrama2-sortlayers").find('li#' + layer.htmlId).remove();
       TerraMA2WebComponents.LayerExplorer.removeLayer(layer.id, "terrama2-layerexplorer");
@@ -238,7 +239,7 @@ define(
           var htmlId = data[i].htmlId;
 
           if(TerraMA2WebComponents.MapDisplay.addImageWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", { version: "1.1.0" })) {
-            TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, parent, null, "treeview unsortable terrama2-truncate-text", null);
+            TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, parent, null, "treeview unsortable terrama2-truncate-text sidebar-subitem", null);
 
             if(parent != 'custom' && parent != 'template') {
               getLayerCapabilities(uriGeoServer, workspace, data[i].nameId, layerId, parent, false);
@@ -248,7 +249,10 @@ define(
           LayerStatus.changeGroupStatusIcon(parent, LayerStatusEnum.ONLINE);
           LayerStatus.addLayerStatusIcon(htmlId);
           LayerStatus.changeLayerStatusIcon(htmlId, LayerStatusEnum.ONLINE);
-
+          
+          // if(data[i].charts && data[i].charts.length > 0){
+          //   LayerStatus.addChartIcon(htmlId);
+          // }
           Sortable.addLayerToSort(layerId, layerName, parent);
 
           Utils.getSocket().emit('checkConnection', {

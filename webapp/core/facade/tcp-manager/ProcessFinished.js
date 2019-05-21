@@ -44,7 +44,10 @@
             case ServiceType.VIEW:
               handler = self.handleRegisteredViews(response);
               break;
-            case ServiceType.ALERT:
+              case ServiceType.ALERT:
+              handler = self.handleFinishedAlert(response);
+              break;
+              case ServiceType.STORAGE:
               handler = self.handleFinishedAlert(response);
               break;
             default:

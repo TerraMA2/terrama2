@@ -6,6 +6,7 @@
   var Enums = require("./../Enums");
   var Utils = require("./../Utils");
   var PromiseClass = require("./../Promise");
+  // var ChartFacade = require("./Chart");
   var _ = require("lodash");
   /**
    * @type {RequestFactory}
@@ -87,8 +88,15 @@
         })
       }
       saveViewPromise
-        .then(function(view) {
+        .then(async view => {
           // sending to the services
+          // const charts = viewObject.charts
+          // if(charts){
+          //   const chartFacade = new ChartFacade();
+          //   const attributeFacade = new AttributeFacade();
+          //   const LegendFacade = new LegendFacade();
+          //   await chartFacade.saveAll(charts, view.id);
+          // }
           sendView(view);
           return resolve(view);
         })
@@ -109,8 +117,11 @@
     return new PromiseClass(function(resolve, reject) {
       if (viewId) {
         return DataManager.getView({id: viewId})
-          .then(function(view) { 
-            return resolve(view.toObject());
+          .then(async view => { 
+            // const charts = await new ChartFacade().list(viewId)
+            const viewResult = view.toObject()
+            // viewResult.charts = charts
+            return resolve(viewResult);
           })
           .catch(function(err) { 
             return reject(err); 

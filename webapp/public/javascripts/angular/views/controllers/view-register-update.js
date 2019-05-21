@@ -126,7 +126,7 @@ define([], function() {
      * It contains view instance values
      * @type {Object}
      */
-    self.view = config.view || {};
+    self.view = config.view || {charts:[]};
     self.targetDataSeriesType = null;
     /**
      * It stores a legend values (Geometric, Grid, etc)
@@ -451,6 +451,7 @@ define([], function() {
         $scope.$apply(function() {
           if ($scope.forms.viewForm.$invalid ||
             $scope.forms.dataSeriesForm.$invalid ||
+            /* $scope.forms.chartForm && $scope.forms.chartForm.$invalid ||*/
             $scope.forms.styleForm && $scope.forms.styleForm.$invalid) {
             return;
           }
@@ -567,6 +568,10 @@ define([], function() {
         });
       });
     }
+  }
+
+  ViewRegisterUpdate.prototype.isViewDataSeriesNull = function() {
+    return Object.keys(this.viewDataSeries).length!=0;
   }
 
   ViewRegisterUpdate.$inject = ["$scope", "$q", "i18n", "ViewService", "$log", "$http", "$timeout", "MessageBoxService", "$window",
