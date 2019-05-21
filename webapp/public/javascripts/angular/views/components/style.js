@@ -9,6 +9,7 @@ define([], function () {
     bindings: {
       formCtrl: "<", // controller binding in order to throw up
       type: "=",
+      // isChart: "=",
       isDynamic: "=",
       isUpdating: "=",
       columnsList: "=",
@@ -184,7 +185,6 @@ define([], function () {
         } else {
           self.model.metadata.creation_type = "default";
         }
-
         self.changeCreationType();
       }
     });

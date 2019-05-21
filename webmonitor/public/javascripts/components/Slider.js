@@ -74,7 +74,7 @@ define(
        */
       $("#terrama2-layerexplorer").on("click", "#terrama2-slider", function(event) {
         var self = $(this);
-        var parentLi = $(self).parent();
+        var parentLi = $(self).closest("li");
         var parentId = $(parentLi).attr("data-layerid");
         var layerObject = Layers.getLayerById(parentId);
         var dateInfo = layerObject.dateInfo;

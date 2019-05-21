@@ -50,7 +50,19 @@ define(
      */
     var createLayerGroup = function(id, name, parent, layers, classes, style) {
       classes = classes !== '' ? ' ' + classes : classes;
-      return "<li data-layerid='" + id + "' data-parentid='" + parent + "' id='" + id.replace(':', '') + "' class='parent_li" + classes + "' style='" + style + "'><span class='group-name'><div class='terrama2-layerexplorer-plus'></div><span>" + name + "</span></span><ul class='children'>" + layers + "</ul></li>";
+      return `
+        <li data-layerid="${id}" data-parentid="${parent}" id="${id.replace(':', '')}" class="parent_li${classes}" style="${style}">
+          <span class='group-name'>
+            <div class="sidebar-item-text">
+              <div class='group-icon'></div>
+              <span>${name}</span>
+            </div>
+            <div class="sidebar-item-icon"></div>
+          </span>
+          <ul class='children sidebar-subitem-container'>
+            ${layers}
+          </ul>
+        </li>`;
     };
 
     /**
@@ -71,11 +83,26 @@ define(
      * @inner
      */
     var createLayer = function(id, name, title, parent, visible, disabled, classes, style) {
-      var check = visible ? "<input type='checkbox' class='terrama2-layerexplorer-checkbox' checked/>" : "<input type='checkbox' class='terrama2-layerexplorer-checkbox'/>";
-      classes = classes !== '' ? classes + ' ' : classes;
-      classes += disabled ? "layer disabled-content" : "layer";
+      classes += disabled ? " layer disabled-content" : " layer"
 
-      return "<li data-layerid='" + id + "' data-parentid='" + parent + "' title='" + title + "' id='" + id.replace(':', '') + "' class='" + classes + "' style='" + style + "'>" + check + "<span class='terrama2-layerexplorer-checkbox-span'>" + name + "</span></li>";
+      let showCog = parent=='template'?"style='display:none'":'';
+      return `<li data-layerid="${id}" data-parentid="${parent}" title="${title}" id="${id.replace(':', '')}" class="${classes}" style="${style}">
+                <div class="sidebar-subitem-text">
+                  <div class="checkbox">
+                    <label>
+                      <input type="checkbox" ${visible?"checked":""} /> 
+                      ${name}
+                    </label>
+                  </div>
+                </div>
+                <div ${showCog} class="sidebar-subitem-icon">
+                  <div class="dropdown dropdown-layer-tools">
+                    <div class="fa fa-cog dropdown-toggle" id="dropdownMenu" data-toggle="dropdown"></div>
+                    <ul class="dropdown-menu"></ul>
+                  </div>
+                </div>
+              </li>
+       `;
     };
 
     /**
@@ -148,7 +175,6 @@ define(
      */
     var buildLayersFromMap = function(layer, parent) {
       var elem = "";
-
       if(layer.getLayers) {
         var sublayersElem = '',
             layers = layer.getLayers().getArray(),
@@ -179,14 +205,14 @@ define(
      */
     var loadEvents = function() {
       $('#terrama2-layerexplorer').on('click', 'span.group-name', function(ev) {
-        var children = $(this).parent('li.parent_li').find(' > ul > li');
+        let children = $(this).parent('li.parent_li').find(' > ul > li');
         if(children.is(":visible")) {
           children.hide('fast');
-          $(this).find('div').addClass('terrama2-layerexplorer-plus').removeClass('terrama2-layerexplorer-minus');
+          $(this).find('.sidebar-item-icon > .fa').addClass('fa-angle-down').removeClass('fa-angle-up');
           $(this).parent('li.parent_li').removeClass('open');
         } else {
           children.show('fast');
-          $(this).find('div').addClass('terrama2-layerexplorer-minus').removeClass('terrama2-layerexplorer-plus');
+          $(this).find('.sidebar-item-icon > .fa').addClass('fa-angle-up').removeClass('fa-angle-down');
           $(this).parent('li.parent_li').addClass('open');
         }
       });
@@ -199,7 +225,7 @@ define(
       });
 
       // Handle visibility control
-      $('#terrama2-layerexplorer').on('click', 'input.terrama2-layerexplorer-checkbox', function(ev) {
+      $('#terrama2-layerexplorer').on('click', '.checkbox input', function(ev) {
         var layerid = $(this).closest('li').data('layerid');
         var layer = memberMapDisplay.findBy(memberMap.getLayerGroup(), 'id', layerid);
 
@@ -207,13 +233,13 @@ define(
           memberMapDisplay.setLayerVisibility(layer);
 
           var children = $(this).parent('li.parent_li').find(' > ul > li');
-          var span = $(this).parent('li.parent_li').find(' > span');
+          var div = $(this).parent('li.parent_li > .group-name > .sidebar-item-icon .fa');
           if(children.is(":visible") || !layer.getVisible()) {
             children.hide('fast');
-            span.find('div').addClass('terrama2-layerexplorer-plus').removeClass('terrama2-layerexplorer-minus');
+            div.addClass('fa-angle-up').removeClass('fa-angle-down');
           } else {
             children.show('fast');
-            span.find('div').addClass('terrama2-layerexplorer-minus').removeClass('terrama2-layerexplorer-plus');
+            div.addClass('fa-angle-down').removeClass('fa-angle-up');
           }
         }
 

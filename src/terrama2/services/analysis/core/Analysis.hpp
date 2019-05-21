@@ -223,12 +223,12 @@ namespace terrama2
               "name" : STRING,
               "description" : STRING,
               "active" : BOOL,
-              "output_dataseries_id" : INT,
+              "output_data_series_id" : INT,
               "metadata" : {
                 "INFLUENCE_TYPE" : INT,
                 "INFLUENCE_RADIUS" : DOUBLE,
                 "INFLUENCE_RADIUS_UNIT" : STRING,
-                "INFLUENCE_DATASERIES_ID" : INT,
+                "INFLUENCE_data_series_id" : INT,
                 "INFLUENCE_ATTRIBUTE" : STRING
               },
               "analysis_dataseries_list" : [ AnalysisDataSeries, ...],

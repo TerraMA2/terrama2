@@ -5,7 +5,8 @@ define(
   ['components/Layers', 'components/Utils', 'TerraMA2WebComponents'],
   function(Layers, Utils, TerraMA2WebComponents) {
     var loadEvents = function() {
-      $('#chartsButton > button').on('click', function() {
+      $('.fa-line-chart').on('click', function() {
+        $(this).closest("li")
         if($(".chart-panel").is(':hidden')){
           $(".chart-panel").css("left", "0");
           $(".chart-panel").toggle("slide", { direction: "left" }, 250);
@@ -145,6 +146,7 @@ define(
             type: 'line'
         },
       });
+      chart.resize();
       var chart = c3.generate({
         bindto: '#chart2',
         data: {
@@ -160,7 +162,7 @@ define(
           }
         }
       });
-    
+      chart.resize();
       var chart = c3.generate({
         bindto: '#chart3',
         data: {
@@ -175,6 +177,7 @@ define(
             onmouseout: function (d, i) { console.log("onmouseout", d, i); }
         },
       });
+      chart.resize();
       var chart = c3.generate({
         bindto: '#chart4',
         data: {
@@ -188,6 +191,83 @@ define(
             }
         }
       });
+
+    // var find_query = function () {
+    //   var _map = window.location.search.substr(1).split('&').map(function (a) {
+    //       return a.split('=');
+    //   }).reduce(function (p, v) {
+    //     p[v[0]] = true;
+    //       if (v.length > 1)
+    //           p[v[0]] = decodeURIComponent(v[1].replace(/\+/g, " "));
+    //       return p;
+    //   }, {});
+    //   return function (field) {
+    //       return _map[field] || null;
+    //   };
+    // }();
+    // var resizeMode = find_query('resize') || 'widhei';
+    
+    // function apply_resizing(chart, adjustX, adjustY, onresize) {
+    //     if (resizeMode.toLowerCase() === 'viewbox') {
+    //         chart
+    //             .width(600)
+    //             .height(400)
+    //             .useViewBoxResizing(true);
+    //         d3.select(chart.anchor()).classed('fullsize', true);
+    //     } else {
+    //         adjustX = adjustX || 0;
+    //         adjustY = adjustY || adjustX || 0;
+    //         chart
+    //             .width(window.innerWidth - adjustX)
+    //             .height(window.innerHeight - adjustY);
+    //         window.onresize = function () {
+    //             if (onresize) {
+    //                 onresize(chart);
+    //             }
+    //             chart
+    //                 .width(window.innerWidth - adjustX)
+    //                 .height(window.innerHeight - adjustY);
+    
+    //             if (chart.rescale) {
+    //                 chart.rescale();
+    //             }
+    //             chart.redraw();
+    //         };
+    //     }
+    // }
+
+    //    d3.csv("https://raw.githubusercontent.com/dc-js/dc.js/master/web/examples/morley.csv").then(data=>{
+    //     let chart = dc.rowChart("#chart");
+    //     var ndx                 = crossfilter(data),
+    //     runDimension        = ndx.dimension(function(d) {return +d.Run;}),
+    //     speedSumGroup       = runDimension.group().reduceSum(function(d) {return d.Speed * d.Run / 1000;});
+    //     chart
+    //       .x(d3.scaleLinear().domain([6,20]))
+    //       .elasticX(true)
+    //       .dimension(runDimension)
+    //       .group(speedSumGroup);
+    //       apply_resizing(chart, 20);
+    //       chart.render();
+    //    });
+
+    //    d3.csv("https://raw.githubusercontent.com/dc-js/dc.js/master/web/examples/morley.csv").then(data=>{
+    //     let chart = dc.barChart("#chart2");
+    //     var ndx                 = crossfilter(data),
+    //     runDimension        = ndx.dimension(function(d) {return +d.Run;}),
+    //     speedSumGroup       = runDimension.group().reduceSum(function(d) {return d.Speed * d.Run / 1000;});
+    //     console.log(runDimension);
+    //     console.log("");
+    //     console.log(speedSumGroup);
+    //     chart
+    //       .x(d3.scaleLinear().domain([6,30]))
+    //       .elasticX(true)
+    //       .brushOn(false)
+    //       .dimension(runDimension)
+    //       .group(speedSumGroup);
+    //       apply_resizing(chart, 30);
+    //       chart.render();
+    //    });
+
       var calendar = $('#chartFilterDate');
       calendar.daterangepicker({
         "timePicker": true,

@@ -7,7 +7,7 @@ define(
     var init = function() {
       $("#terrama2-layerexplorer").on("click", "#terrama2-calendar", function(event) {
         var self = $(this);
-        var parentLi = $(self).parent();
+        var parentLi = $(self).closest("li");
         var layerId = $(parentLi).attr("data-layerid");
         var layerObject = Layers.getLayerById(layerId);
         var dateInfo = layerObject.dateInfo;
