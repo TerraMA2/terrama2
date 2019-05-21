@@ -39,6 +39,7 @@
 #include "../../../../core/utility/FileRemover.hpp"
 
 // TerraLib
+#include <terralib/core/uri/URI.h>
 #include <terralib/raster/Raster.h>
 
 namespace terrama2
@@ -174,6 +175,8 @@ namespace terrama2
         TMANALYSISEXPORT double getOperationResult(OperatorCache& cache, StatisticOperation statisticOperation);
 
         TMANALYSISEXPORT std::pair<size_t, size_t> getBandInterval(terrama2::core::DataSetPtr dataset, double secondsPassed, std::string dateDiscardBefore, std::string dateDiscardAfter);
+
+        TMANALYSISEXPORT void loadDatabaseFunctions(const te::core::URI& connectionURI);
 
       } // end namespace core
     }   // end namespace analysis

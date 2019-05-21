@@ -23,6 +23,7 @@
 */
 
 #include "CurlWrapperHttp.hpp"
+#include "Utils.hpp"
 
 // LibCurl
 #include <curl/curl.h>
@@ -37,4 +38,15 @@ void terrama2::core::CurlWrapperHttp::downloadFile(const std::string &url, std::
   setOption(CURLOPT_UNRESTRICTED_AUTH, 1L);
 
   downloadFile_(url, file, taskProgress);
+}
+
+std::vector<std::string> terrama2::core::CurlWrapperHttp::listFiles(const te::core::URI& uri)
+{
+  clean();
+
+  auto normalizedURI = terrama2::core::normalizeURI(uri.uri());
+
+  auto bufferFileArray = listFiles_(normalizedURI);
+
+  return parseHTTPFiles(bufferFileArray);
 }

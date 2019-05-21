@@ -21,7 +21,7 @@ for aElement in soup.findAll('a'):
   link = getLink(aElement)
 
   if link != "../":
-    files += link + ','
+    files += (link if not link.endswith('/') else link[:len(link)-1]) + ','
 
 if len(files) > 0:
   files = files[:-1]

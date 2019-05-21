@@ -382,3 +382,30 @@ std::string terrama2::services::analysis::core::operationAsString(terrama2::serv
       return "";
   }
 }
+
+void terrama2::services::analysis::core::loadDatabaseFunctions(const te::core::URI& connectionURI)
+{
+  try {
+    std::shared_ptr<te::da::DataSource> dataSource = te::da::DataSourceFactory::make("POSTGIS", connectionURI);
+
+    terrama2::core::OpenClose<std::shared_ptr<te::da::DataSource>> openClose(dataSource); Q_UNUSED(openClose);
+
+    if (dataSource->isOpened())
+    {
+      QString errMsg = QObject::tr("Could not connect to database");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
+    }
+
+    auto transactor = dataSource->getTransactor();
+
+    QFile vectorProcessingFile(terrama2::core::FindInTerraMA2Path("share/terrama2/scripts/vectorial_processing_intersection.sql").c_str());
+    vectorProcessingFile.open(QFile::ReadOnly);
+
+    transactor->execute(vectorProcessingFile.readAll().toStdString());
+  }
+  catch(...)
+  {
+
+  }
+}

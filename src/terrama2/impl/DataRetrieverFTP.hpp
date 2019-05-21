@@ -132,7 +132,7 @@ namespace terrama2
         static DataRetrieverPtr make(DataProviderPtr dataProvider);
         static DataRetrieverType dataRetrieverType() { return "FTP"; }
 
-      private:
+      protected:
         std::unique_ptr<CurlWrapperFtp> curlwrapper_; //!< Curl handler.
     };
   }
