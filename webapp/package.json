@@ -31,13 +31,9 @@
     "angularjs-color-picker": "=2.7.2",
     "angularjs-dropdown-multiselect": "^2.0.0-beta.10",
     "async": "^2.0.0-rc.6",
-<<<<<<< HEAD
     "basic-ftp": "^3.4.4",
     "bcrypt": "3.0.4",
-=======
     "babel-core": "^6.26.3",
-    "bcrypt": "^3.0.4",
->>>>>>> 043cc30ee35dfc10ab9c4b93abaa89bc8c367088
     "bluebird": "^3.3.4",
     "body-parser": "~1.13.2",
     "chart.js": "=2.6.0",
