@@ -30,23 +30,24 @@
 #ifndef __TERRAMA2_CORE_UTILS_HPP__
 #define __TERRAMA2_CORE_UTILS_HPP__
 
+// TerraLib
+#include <terralib/core/Config.h>
+#include <terralib/core/uri/URI.h>
 #include <terralib/dataaccess/dataset/DataSet.h>
 #include <terralib/dataaccess/dataset/DataSetType.h>
-#include <terralib/core/Config.h>
 #include <terralib/dataaccess/datasource/DataSource.h>
-// TerraLib
 #include <terralib/geometry/Coord2D.h>
 #include <terralib/raster/Raster.h>
-#include <terralib/core/uri/URI.h>
-#include <memory>
+
 // STL
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
+// TerraMA2
 #include "../Shared.hpp"
 #include "../Typedef.hpp"
-// TerraMA2
 #include "../data-model/DataProvider.hpp"
 #include "../data-model/DataSeries.hpp"
 #include "../data-model/DataSeriesSemantics.hpp"

@@ -23,9 +23,52 @@
 */
 
 #include "CurlWrapperHttp.hpp"
+#include "Utils.hpp"
+#include "../Exception.hpp"
+#include "../interpreter/InterpreterFactory.hpp"
+
+// Boost
+#include <boost/algorithm/string/split.hpp>
 
 // LibCurl
 #include <curl/curl.h>
+
+
+static std::vector<std::string> parseHTTPFiles(const std::vector<std::string>& bufferHTTPFiles)
+{
+  std::string httpServerHtml;
+
+  for(auto const& s : bufferHTTPFiles) {
+    httpServerHtml += s;
+  }
+
+  boost::replace_all(httpServerHtml, "\"", "\\\"");
+  httpServerHtml.erase(std::remove(httpServerHtml.begin(), httpServerHtml.end(), '\n'), httpServerHtml.end());
+
+  std::string scriptPath = terrama2::core::FindInTerraMA2Path("share/terrama2/scripts/parse-http-server-html.py");
+  std::string script = terrama2::core::readFileContents(scriptPath);
+  boost::replace_all(script, "{HTML_CODE}", httpServerHtml);
+
+  std::vector<std::string> vectorFiles;
+  try
+  {
+    auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
+    interpreter->runScript(script);
+    auto fileNames = interpreter->getString("files");
+
+    if(fileNames)
+      boost::split(vectorFiles, *fileNames, [](char c){return c == ',';});
+  }
+  catch (const terrama2::core::InterpreterException& e)
+  {
+    QString errMsg = "Error listing files:\n";
+    errMsg.append(boost::get_error_info<terrama2::ErrorDescription>(e));
+    throw terrama2::core::DataRetrieverException() << terrama2::ErrorDescription(errMsg);
+  }
+
+  return vectorFiles;
+}
+
 
 void terrama2::core::CurlWrapperHttp::downloadFile(const std::string &url, std::FILE* file, te::common::TaskProgress* taskProgress)
 {
@@ -37,4 +80,15 @@ void terrama2::core::CurlWrapperHttp::downloadFile(const std::string &url, std::
   setOption(CURLOPT_UNRESTRICTED_AUTH, 1L);
 
   downloadFile_(url, file, taskProgress);
+}
+
+std::vector<std::string> terrama2::core::CurlWrapperHttp::listFiles(const te::core::URI& uri)
+{
+  clean();
+
+  auto normalizedURI = terrama2::core::normalizeURI(uri.uri());
+  // Curl returns HTML page fragments
+  auto bufferFileArray = listFiles_(normalizedURI);
+
+  return parseHTTPFiles(bufferFileArray);
 }
