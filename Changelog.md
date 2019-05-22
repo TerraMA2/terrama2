@@ -3,6 +3,7 @@
 ## Buffix:
 
 - Revert commit 7b9f813 - Performance issues on specific rasters
+- Fix Temporal collector for HTTP files
 
 # 4.0.10
 
