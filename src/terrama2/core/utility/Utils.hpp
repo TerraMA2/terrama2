@@ -38,7 +38,6 @@
 #include <terralib/dataaccess/datasource/DataSource.h>
 #include <terralib/geometry/Coord2D.h>
 #include <terralib/raster/Raster.h>
-#include <terralib/ws/core/CurlWrapper.h>
 
 // STL
 #include <memory>
@@ -245,8 +244,6 @@ namespace terrama2
      * \return Clean URI object
      */
     TECOREEXPORT te::core::URI normalizeURI(const std::string& uri);
-
-    TECOREEXPORT std::vector<std::string> parseHTTPFiles(const std::vector<std::string>& bufferHTTPFiles);
   } // end namespace core
 }   // end namespace terrama2
 

@@ -176,8 +176,6 @@ namespace terrama2
 
         TMANALYSISEXPORT std::pair<size_t, size_t> getBandInterval(terrama2::core::DataSetPtr dataset, double secondsPassed, std::string dateDiscardBefore, std::string dateDiscardAfter);
 
-        TMANALYSISEXPORT void loadDatabaseFunctions(const te::core::URI& connectionURI);
-
       } // end namespace core
     }   // end namespace analysis
   }     // end namespace services

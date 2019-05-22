@@ -29,7 +29,6 @@
 
 // TerraMA2
 #include <boost/filesystem.hpp>
-#include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/trim.hpp>
 
 #include <terralib/core/filesystem/FileSystem.h>
@@ -65,7 +64,6 @@
 #include "../data-model/DataSeries.hpp"
 #include "../data-model/DataSet.hpp"
 #include "../data-model/Filter.hpp"
-#include "../interpreter/InterpreterFactory.hpp"
 #include "FileRemover.hpp"
 #include "Logger.hpp"
 #include "Raii.hpp"
@@ -653,39 +651,4 @@ te::core::URI terrama2::core::normalizeURI(const std::string& uri)
   QUrl wrapURI(QString::fromStdString(uri));
 
   return te::core::URI(wrapURI.toString(QUrl::NormalizePathSegments).toStdString());
-}
-
-std::vector<std::string> terrama2::core::parseHTTPFiles(const std::vector<std::string>& bufferHTTPFiles)
-{
-  std::string httpServerHtml;
-
-  for(auto const& s : bufferHTTPFiles) {
-    httpServerHtml += s;
-  }
-
-  boost::replace_all(httpServerHtml, "\"", "\\\"");
-  httpServerHtml.erase(std::remove(httpServerHtml.begin(), httpServerHtml.end(), '\n'), httpServerHtml.end());
-
-  std::string scriptPath = FindInTerraMA2Path("share/terrama2/scripts/parse-http-server-html.py");
-  std::string script = readFileContents(scriptPath);
-  boost::replace_all(script, "{HTML_CODE}", httpServerHtml);
-
-  std::vector<std::string> vectorFiles;
-  try
-  {
-    auto interpreter = terrama2::core::InterpreterFactory::getInstance().make("PYTHON");
-    interpreter->runScript(script);
-    auto fileNames = interpreter->getString("files");
-
-    if(fileNames)
-      boost::split(vectorFiles, *fileNames, [](char c){return c == ',';});
-  }
-  catch (const InterpreterException& e)
-  {
-    QString errMsg = "Error listing files:\n";
-    errMsg.append(boost::get_error_info<terrama2::ErrorDescription>(e));
-    throw DataRetrieverException() << ErrorDescription(errMsg);
-  }
-
-  return vectorFiles;
 }
