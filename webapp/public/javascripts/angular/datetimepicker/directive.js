@@ -43,8 +43,8 @@ define([
               locale = "en";
             }
 
-            this.optionsFrom = {locale: locale, sideBySide: true, toolbarPlacement: "top", allowInputToggle: true, useCurrent: false,  format: "L HH:mm"};
-            this.optionsTo = {locale: locale, sideBySide: true, toolbarPlacement: "top", allowInputToggle: true, useCurrent: false,  format: "L HH:mm"};
+            this.optionsFrom = Object.assign({ locale, sideBySide: true, toolbarPlacement: "top", allowInputToggle: true, useCurrent: false,  format: "L HH:mm", timeZone: 'America/Danmarkshavn' }, this.options);
+            this.optionsTo = Object.assign({ locale, sideBySide: true, toolbarPlacement: "top", allowInputToggle: true, useCurrent: false,  format: "L HH:mm", timeZone: 'America/Danmarkshavn' }, this.options);
 
             $scope.optionsTo = this.optionsTo;
             $scope.optionsFrom = this.optionsFrom;

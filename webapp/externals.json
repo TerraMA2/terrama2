@@ -110,5 +110,9 @@
   {
     "publicUrl": "externals/angularjs-dropdown-multiselect",
     "path": "node_modules/angularjs-dropdown-multiselect"
+  },
+  {
+    "publicUrl": "externals/moment-timezone",
+    "path": "node_modules/moment-timezone"
   }
 ]
