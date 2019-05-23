@@ -47,12 +47,12 @@ var ViewsRetriever = function(app) {
                   }
                 }
 
-                // var viewObject = view.toObject();
+                var viewObject = view.toObject();
                 // viewObject.charts = await chartFacade.list(view.view.id);
                 // if(description) {
                 //   viewObject.description = description;
                 // }
-                // viewsObjects.push(viewObject);
+                viewsObjects.push(viewObject);
               }
 
               for(var i = 0, viewsLength = viewsObjects.length; i < viewsLength; i++) {

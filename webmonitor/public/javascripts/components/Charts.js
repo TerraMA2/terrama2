@@ -40,34 +40,6 @@ define(
           </div>
           <div id="filterPanel" class="panel-collapse collapse in">
             <div class="panel-body">
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label for="continents-graphics">Continentes</label>
-                    <select id="continents-graphics" name="continents-graphics" class="form-control">
-                      <option value>Selecione o continente</option>
-                      <option value="0">Todos os Continentes</option>
-                      <option value="8">América do Sul</option>
-                      <option value="4">Américas</option>
-                      <option value="6">África</option>
-                      <option value="11">Europa</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label for="countries-graphics">Países</label>
-                    <select multiple id="countries-graphics" name="countries-graphics" class="form-control"><option value selected>Todos os países</option><option value="12">Argentina</option><option value="28">Bolivia</option><option value="33">Brasil</option><option value="48">Chile</option><option value="53">Colombia</option><option value="68">Ecuador</option><option value="75">I.Malvinas/Falkland</option><option value="80">French Guiana</option><option value="98">Guyana</option><option value="177">Paraguay</option><option value="178">Peru</option><option value="219">Suriname</option><option value="245">Uruguay</option><option value="249">Venezuela</option></select>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label for="states-graphics">Estados</label>
-                    <select multiple id="states-graphics" name="states-graphics" class="form-control" disabled="disabled"></select>
-                  </div>
-                </div>
-              </div>
-              <label for="countries-graphics">Data</label>
               <div class="input-group date">
                 <input type="text" id="chartFilterDate" class="form-control"/>
                 <span class="input-group-addon">
