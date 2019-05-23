@@ -185,7 +185,7 @@ double terrama2::services::analysis::core::grid::zonal::forecast::operatorImpl( 
         std::map<std::pair<int, int>, double> tempValuesMap;
         for(size_t band = bandBegin; band <= bandEnd; ++ band)
         {
-          terrama2::core::getRasterValues<double>(geomResult, raster.get(), band, tempValuesMap);
+          utils::getRasterValues<double>(geomResult, raster, band, tempValuesMap);
           transform(tempValuesMap.cbegin(), tempValuesMap.cend(), back_inserter(values), [](const std::pair<std::pair<int, int>, double>& val){ return val.second;} );
         }
       }

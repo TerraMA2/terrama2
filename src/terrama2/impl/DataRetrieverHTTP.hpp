@@ -41,9 +41,9 @@
 // TerraMA2
 #include "Config.hpp"
 #include "../core/utility/Raii.hpp"
-#include "../core/data-access/DataRetriever.hpp"
 #include "../core/Shared.hpp"
 #include "../core/utility/CurlWrapperHttp.hpp"
+#include "../impl/DataRetrieverFTP.hpp"
 
 // LibCurl
 #include <curl/curl.h>
@@ -62,7 +62,7 @@ namespace terrama2
        * \warning The DataRetrieverHTTP class only performs the download of files, but does not
        * perform the removal of the files after downloading.
     */
-    class TMIMPLEXPORT DataRetrieverHTTP: public DataRetriever
+    class TMIMPLEXPORT DataRetrieverHTTP: public DataRetrieverFTP
     {
       public:
         /*!
@@ -101,14 +101,6 @@ namespace terrama2
                                          const std::string& temporaryFolder = "",
                                          const std::string& foldersMask = "") const override;
 
-      virtual void retrieveDataCallback(const std::string& mask,
-                                        const Filter& filter,
-                                        const std::string& timezone,
-                                        std::shared_ptr<terrama2::core::FileRemover> remover,
-                                        const std::string& temporaryFolderUri,
-                                        const std::string& foldersMask,
-                                        std::function<void(const std::string& /*uri*/, const std::string& /*filename*/, const std::string &)> processFile) const override;
-
         static DataRetrieverPtr make(DataProviderPtr dataProvider);
         static DataRetrieverType dataRetrieverType() { return "HTTP"; }
 
@@ -119,9 +111,6 @@ namespace terrama2
          * as it depends on the HTML it should be used with caution.
          */
         std::vector<std::string> listFiles(const std::string& uri) const;
-
-      protected:
-        std::unique_ptr<CurlWrapperHttp> curlwrapper_; //!< Curl handler.
     };
   }
 }

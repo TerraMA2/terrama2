@@ -28,6 +28,8 @@
 // TerraMa2
 #include "../Config.hpp"
 
+#include "CurlWrapperFtp.hpp"
+
 // TerraLib
 #include <terralib/ws/core/CurlWrapper.h>
 
@@ -39,7 +41,7 @@ namespace terrama2
      * @brief RAII class for accessing HTTP servers
      * 
      */
-    class TMCOREEXPORT CurlWrapperHttp : public te::ws::core::CurlWrapper
+    class TMCOREEXPORT CurlWrapperHttp : public CurlWrapperFtp
     {
       public:
         using te::ws::core::CurlWrapper::downloadFile;
@@ -51,6 +53,7 @@ namespace terrama2
          * @note This is a wrapper method to set some needed flags in the curl object.
          */
         virtual void downloadFile(const std::string &url, std::FILE* file, te::common::TaskProgress* taskProgress = nullptr) override;
+        virtual std::vector<std::string> listFiles(const te::core::URI& uri) override;
     };
   } /* core */
 } /* terrama2 */

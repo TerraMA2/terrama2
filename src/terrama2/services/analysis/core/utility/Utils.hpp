@@ -39,6 +39,7 @@
 #include "../../../../core/utility/FileRemover.hpp"
 
 // TerraLib
+#include <terralib/core/uri/URI.h>
 #include <terralib/raster/Raster.h>
 
 namespace terrama2

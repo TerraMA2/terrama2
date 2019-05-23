@@ -511,51 +511,12 @@ bool terrama2::core::DataAccessorFile::isValidRaster(std::shared_ptr<Synchronize
         // of the raster image
         unitedGeom->transform(raster->getSRID());
         //clip raster by union
-
-        std::map<std::string, std::string> rLowerInfo;
-        rLowerInfo["FORCE_MEM_DRIVER"] = "TRUE";
-
-        // Clip the raster and get pointer to the Raster In-memory
-        std::unique_ptr<te::rst::Raster> clipedRaster(raster->trim(unitedGeom->getMBR(), rLowerInfo));
-
-        for(std::size_t bandId = 0; bandId < raster->getNumberOfBands(); bandId++)
-        {
-          std::map<std::pair<int, int>, double> tempValuesMap;
-
-          // Intersect raster with filter geometry
-          terrama2::core::getRasterValues<double>(unitedGeom, clipedRaster.get(), bandId, tempValuesMap);
-
-          auto rasterBand = clipedRaster->getBand(bandId);
-
-          const auto columns = clipedRaster->getGrid()->getNumberOfColumns();
-          const auto rows = clipedRaster->getGrid()->getNumberOfRows();
-          const auto noData = rasterBand->getProperty()->m_noDataValue;
-
-          // Fill raster with dummy data
-          for(unsigned int row = 0; row < rows; ++row)
-          {
-            for(unsigned int col = 0; col < columns; ++col)
-            {
-              rasterBand->setValue(col, row, noData);
-            }
-          }
-
-          // Fill intersected values
-          for(const auto& coordinate: tempValuesMap)
-          {
-            rasterBand->setValue(static_cast<unsigned int>(coordinate.first.second),
-                                 static_cast<unsigned int>(coordinate.first.first),
-                                 coordinate.second);
-          }
-        }
-
+        auto clipedRaster = raster->clip({unitedGeom.get()}, {}, "EXPANSIBLE");
         //update raster in the dataset
         std::unique_lock<std::mutex> lock(mutex);
         auto memDataSet = std::dynamic_pointer_cast<te::mem::DataSet>(dataSet->dataset());
         memDataSet->move(index);
-
-        memDataSet->setRaster(rasterColumn, clipedRaster.release());
-
+        memDataSet->setRaster(rasterColumn, clipedRaster);
         //update raster for consistency in the function
         raster = std::shared_ptr< te::rst::Raster >(dataSet->getRaster(index, rasterColumn));
       }

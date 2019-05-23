@@ -44,7 +44,6 @@
 
 #include "../../../../../core/data-model/Filter.hpp"
 #include "../../../../../core/utility/Logger.hpp"
-#include "../../../../../core/utility/Utils.hpp"
 
 // TerraLib
 #include <terralib/dataaccess/utils/Utils.h>
@@ -177,7 +176,7 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
           continue;
 
         std::map<std::pair<int, int>, double> tempValuesMap;
-        terrama2::core::getRasterValues<double>(geomResult, raster.get(), band, tempValuesMap);
+        utils::getRasterValues<double>(geomResult, raster, band, tempValuesMap);
 
         transform(tempValuesMap.cbegin(), tempValuesMap.cend(), back_inserter(values), [](const std::pair<std::pair<int, int>, double>& val){ return val.second;} );
       }
