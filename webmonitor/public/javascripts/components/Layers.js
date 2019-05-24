@@ -60,7 +60,7 @@ define(
       layerObject.dateInfo = {};
       layerObject.boundingBox = [];
       layerObject.properties = layerData.properties ? layerData.properties : null;
-      // layerObject.charts = layerData.charts;
+      layerObject.charts = layerData.charts;
 
       if(layerData.type)
         layerObject.opacity = 1;
@@ -250,9 +250,9 @@ define(
           LayerStatus.addLayerStatusIcon(htmlId);
           LayerStatus.changeLayerStatusIcon(htmlId, LayerStatusEnum.ONLINE);
           
-          // if(data[i].charts && data[i].charts.length > 0){
-          //   LayerStatus.addChartIcon(htmlId);
-          // }
+          if(data[i].charts && data[i].charts.length > 0){
+            LayerStatus.addChartIcon(htmlId);
+          }
           Sortable.addLayerToSort(layerId, layerName, parent);
 
           Utils.getSocket().emit('checkConnection', {

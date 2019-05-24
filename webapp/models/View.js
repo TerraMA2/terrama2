@@ -58,11 +58,11 @@
         allowNull: false,
         comment: "It defines the type of data source that create the view. Alert, Analysis, Static Data or Dynamic Data"
       },
-      // charts: {
-      //   type: DataTypes.JSONB,
-      //   allowNull: true,
-      //   comment: "Charts"
-      // },
+      charts: {
+        type: DataTypes.JSONB,
+        allowNull: true,
+        comment: "Charts"
+      },
     }, {
       underscored: true,
       underscoredAll: true,

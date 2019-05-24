@@ -202,7 +202,7 @@
       <div class="nav-tabs-custom">
       <ul class="nav nav-tabs">
         <li class="active"><a href="#tabMap" data-toggle="tab" aria-expanded="true">{{ i18n.__('Map') }}</a></li>
-        <li><a href="#tabChart" data-toggle="tab" aria-expanded="false" style="display: none;">{{ i18n.__('Chart') }}</a></li>
+        <li><a href="#tabChart" data-toggle="tab" aria-expanded="false">{{ i18n.__('Chart') }}</a></li>
       </ul>
       <div class="tab-content">
         <div class="tab-pane active" id="tabMap">
@@ -212,7 +212,7 @@
           </form>
           <div style="clear: both;"></div>
         </div>
-        <div class="tab-pane" id="tabChart" style="display: none;">
+        <div class="tab-pane" id="tabChart">
           <form name="forms.chartForm">
             <chart ng-if="ctrl.isViewDataSeriesNull()" chart-form="forms.chartForm" table-name="ctrl.viewDataSeries.dataSets[0].format.table_name" model="ctrl.view.charts" provider="ctrl.viewDataSeries.data_provider_id"></chart>
           </form>
