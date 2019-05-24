@@ -24,9 +24,9 @@ define(
       $('#terrama2-layerexplorer #'+htmlLayerId + " .sidebar-subitem-text").prepend(`<img id='image-icon' src=''>`);
     };
 
-    // var addChartIcon = function(htmlLayerId) {
-    //   $('#terrama2-layerexplorer #'+htmlLayerId + " .dropdown-layer-tools ul").append(`<i class="fa fa-line-chart"></i>`);
-    // };
+    var addChartIcon = function(htmlLayerId) {
+      $('#terrama2-layerexplorer #'+htmlLayerId + " .dropdown-layer-tools ul").append(`<i class="fa fa-line-chart"></i>`);
+    };
 
     var changeLayerStatusIcon = function(htmlLayerId, status) {
       var layerElement = $("#" + htmlLayerId).find("#image-icon");
@@ -55,7 +55,7 @@ define(
     return {
       changeLayerStatusIcon: changeLayerStatusIcon,
       addLayerStatusIcon: addLayerStatusIcon,
-      // addChartIcon,
+      addChartIcon,
       changeGroupStatusIcon: changeGroupStatusIcon,
       addGroupSpanIcon: addGroupSpanIcon
     };

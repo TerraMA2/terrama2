@@ -79,8 +79,7 @@ define(
         var layerObject = Layers.getLayerById(parentId);
         var dateInfo = layerObject.dateInfo;
 
-        if(!dateInfo) return;
-        if(!dateInfo.dates instanceof Array) return;
+        if(!dateInfo || !dateInfo.dates instanceof Array) return;
 
         setSlider(dateInfo, parentId);
       });

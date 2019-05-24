@@ -480,9 +480,9 @@ define(
               }
 
             } else if(layerCapabilities[layerIndex].extent instanceof Object) {
-              if(!data.update || !$(li).has("#terrama2-calendar").length)
+              if(!data.update || !$(li).has("#terrama2-calendar").length){
                 span += "<i id='terrama2-calendar' class='fa fa-calendar'></i>";
-
+              }
               if (data.update){
                 if ($('#auto-update-off').hasClass("hidden")){
                   dateObject.startFilterDate = getInitialDateToCalendar(layerCapabilities[layerIndex].extent);

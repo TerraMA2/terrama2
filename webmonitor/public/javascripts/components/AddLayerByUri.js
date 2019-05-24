@@ -28,8 +28,9 @@ define(
             $(li).append(sliderDiv);
 
             if(layer.extent instanceof Array) {
-              if(layer.extent.length > 1)
-              span += "<i id='terrama2-slider' class='fa fa-sliders'></i>";
+              if(layer.extent.length > 1) {
+                span += "<i id='terrama2-slider' class='fa fa-sliders'></i>";
+              }
             } else if(layer.extent instanceof Object) {
               span += "<i id='terrama2-calendar' class='fa fa-calendar'></i>";
             }
