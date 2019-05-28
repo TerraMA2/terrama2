@@ -156,7 +156,7 @@ double terrama2::services::analysis::core::grid::forecast::operatorImpl(terrama2
 
     for(size_t band = bandBegin; band <= bandEnd; ++band)
     {
-      double value = terrama2::services::analysis::core::grid::getValue(raster, interpolator, column, row, band);
+      double value = terrama2::services::analysis::core::grid::getValue(raster, interpolator, analysis->outputGridPtr.get(), column, row, band);
       samples.push_back(value);
     }
 
