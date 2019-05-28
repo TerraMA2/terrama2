@@ -273,7 +273,7 @@ terrama2::services::analysis::core::AnalysisOutputGridPtr terrama2::services::an
 
   outputGrid->analysisId = json["analysis_id"].toInt();
   outputGrid->interpolationMethod = ToInterpolationMethod(json["interpolation_method"].toInt());
-  outputGrid->interpolationDummy = json["script_language"].toDouble();
+  outputGrid->interpolationDummy = json["interpolation_dummy"].toDouble();
   outputGrid->resolutionType =  ToResolutionType(json["resolution_type"].toInt());
   if(!json["resolution_data_series_id"].isNull())
     outputGrid->resolutionDataSeriesId = json["resolution_data_series_id"].toInt();

@@ -43,6 +43,7 @@
 
 double terrama2::services::analysis::core::grid::getValue(std::shared_ptr<te::rst::Raster> raster,
                                                           std::shared_ptr<terrama2::core::SynchronizedInterpolator> interpolator,
+                                                          const terrama2::services::analysis::core::AnalysisOutputGrid* outputGrid,
                                                           double column,
                                                           double row,
                                                           size_t bandIdx)
@@ -51,9 +52,11 @@ double terrama2::services::analysis::core::grid::getValue(std::shared_ptr<te::rs
   interpolator->getValue(column, row, val, bandIdx);
   auto band = raster->getBand(bandIdx);
 
-  double noData = band->getProperty()->m_noDataValue;
+  double noDataInput = band->getProperty()->m_noDataValue;
+  const double noDataOutput = outputGrid->interpolationDummy;
   double value =  val.real();
-  if(value == noData)
+  if((value >= noDataInput && value <= noDataInput) ||
+     (value >= noDataOutput && value <= noDataOutput))
     return std::nan("");
   else
     return value;
@@ -161,7 +164,7 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
       double column, row;
       dsGrid->geoToGrid(point.x, point.y, column, row);
 
-      return getValue(raster, interpolator, column, row, bandIdx);
+      return getValue(raster, interpolator, analysis->outputGridPtr.get(), column, row, bandIdx);
     }
 
     return std::nan("");
