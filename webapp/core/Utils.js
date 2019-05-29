@@ -179,6 +179,9 @@ var Utils = module.exports = {
         case Enums.AnalysisType.MONITORED:
           output = Enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT;
           break;
+        case Enums.AnalysisType.VP:
+          output = Enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT;
+          break;
         default:
           output = null;
       }

@@ -5,9 +5,13 @@ define([], function() {
     $scope.disabledButtons = {};
     $scope.orderBy = "name";
     $scope.MessageBoxService = MessageBoxService;
-    var isDynamic = false;
+    $scope.DataSeriesService = DataSeriesService;
     var title = "Data Series";
     var queryParams = {};
+
+    $scope.getIcon = (dataSeries) => (
+      DataSeriesService.getIcon(dataSeries)
+    );
 
     var serviceCache = {};
 
@@ -93,7 +97,7 @@ define([], function() {
           return interpolator.data_series_output == dataSeries.id;
         });
         return foundCollector || foundAnalysis || foundInterpolator;
-      } else 
+      } else
         return false;
     }
 
@@ -190,8 +194,8 @@ define([], function() {
             var errorWhenDeleteMessage = i18n.__("Can not delete the data series if the service is not running. ");
             if(err.service && err.service.instance_name)
               errorWhenDeleteMessage += i18n.__("Service") + ": " + err.service.instance_name;
-            return MessageBoxService.danger(i18n.__(title), errorWhenDeleteMessage);            
-          } else 
+            return MessageBoxService.danger(i18n.__(title), errorWhenDeleteMessage);
+          } else
             return MessageBoxService.danger(i18n.__(title), err.message);
         }
         MessageBoxService.success(i18n.__(title), data.name + i18n.__(" removed"));

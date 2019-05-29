@@ -15,6 +15,7 @@
 #include <QTimer>
 
 #include "NovaFriburgoTs.hpp"
+#include "GeometryIntersectionTS.hpp"
 
 
 
@@ -34,8 +35,10 @@ int main(int argc, char *argv[])
 
     try
     {
-      NovaFriburgoTs novaFriburgoTS;
-      returnVal += QTest::qExec(&novaFriburgoTS, argc, argv);
+//      NovaFriburgoTs novaFriburgoTS;
+//      returnVal += QTest::qExec(&novaFriburgoTS, argc, argv);
+      GeometryIntersectionTS ts;
+      returnVal += QTest::qExec(&ts, argc, argv);
     }
     catch(...)
     {

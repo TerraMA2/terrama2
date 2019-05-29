@@ -40,9 +40,11 @@ describe('ShapeImporter test', () => {
 
     it('exports shapefile to database', async () => {
       const tableStub = sinon.stub(Exportation.prototype, 'tableExists').onCall(0).resolves(false).onCall(1).resolves(true);
+      const shp2pgsqlStub = sinon.stub(Exportation.prototype, 'shp2pgsql').returns('shp2pgsql');
 
       const undefinedResult = await importer.toDatabase('fakeTable', 1);
 
+      shp2pgsqlStub.restore();
       tableStub.restore();
 
       expect(undefinedResult).to.be.undefined;
@@ -108,7 +110,8 @@ describe('ShapeImporter test', () => {
       const stub = sinon.stub(FileExtract, 'unzip').returns({
         getEntries: () => [
           { entryName: `${temporaryDir}/shape-1.shp` },
-          { entryName: `${temporaryDir}/shape-2.shp` }
+          { entryName: `${temporaryDir}/shape-2.shp` },
+          { entryName: `${temporaryDir}/shape.shp.txt` }
         ]
       });
 

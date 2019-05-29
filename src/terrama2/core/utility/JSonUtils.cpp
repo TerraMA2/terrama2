@@ -166,6 +166,7 @@ terrama2::core::DataSeriesPtr terrama2::core::fromDataSeriesJson(QJsonObject jso
       break;
     case DataSeriesType::GEOMETRIC_OBJECT:
     case DataSeriesType::ANALYSIS_MONITORED_OBJECT:
+    case DataSeriesType::VECTOR_PROCESSING_OBJECT:
       createDataSet = fromDataSetJson;
       break;
     default:
