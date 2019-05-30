@@ -110,5 +110,9 @@
   {
     "publicUrl": "externals/angularjs-dropdown-multiselect",
     "path": "node_modules/angularjs-dropdown-multiselect"
+  },
+  {
+    "publicUrl": "externals/openlayers",
+    "path": "node_modules/openlayers"
   }
 ]

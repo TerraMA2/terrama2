@@ -128,11 +128,13 @@
         },
         {
           "key": "query_builder",
-          "type": "textarea",
-          "htmlClass": "col-md-12 terrama2-schema-form",
+          "type": "querybuilder",
+          "htmlClass": "col-md-12",
           "validationMessage": {
             "202": "Invalid query builder"
-          }
+          },
+          "mapId": "previewMap",
+          "provider": "getDataProvider()"
         }
       ]
     }

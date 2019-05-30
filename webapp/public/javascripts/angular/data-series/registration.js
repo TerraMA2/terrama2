@@ -512,6 +512,13 @@ define([], function() {
         return returnVal;
       };
 
+      function getDataProvider() {
+        debugger;
+        return $scope.dataSeries.data_provider_id;
+      }
+
+      $scope.getDataProvider = getDataProvider;
+
       // it defines when data change combobox has changed and it will adapt the interface
       $scope.onDataSemanticsChange = function() {
         if(!$scope.semanticsSelected)
@@ -2373,6 +2380,21 @@ define([], function() {
       MessageBoxService.success(title, $scope.i18n.__('View is valid!'));
     } catch (err) {
       MessageBoxService.danger(title, $scope.i18n.__(err.message));
+    }
+  };
+
+  RegisterDataSeries.prototype.previewMap = async function() {
+    const { $scope, MapService, DataSeriesService } = this;
+    const { table_name, query_builder } = $scope.model;
+    const providerId = this.$scope.dataSeries.data_provider_id;
+
+    try {
+      const wkts = await DataSeriesService.getWKT(table_name, providerId, query_builder);
+
+      MapService.addLayerFromWKT('previewLayer', wkts, 'EPSG:4326');
+      MapService.zoomToLayer('previewLayer');
+    } catch (err) {
+      debugger;
     }
   };
 
