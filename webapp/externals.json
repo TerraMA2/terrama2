@@ -114,5 +114,9 @@
   {
     "publicUrl": "externals/moment-timezone",
     "path": "node_modules/moment-timezone"
+  },
+  {
+    "publicUrl": "externals/openlayers",
+    "path": "node_modules/openlayers"
   }
 ]

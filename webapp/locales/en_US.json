@@ -1108,7 +1108,7 @@
 	"DCP - PostGIS (N-Table)": "DCP - PostGIS (N-Table)",
 	"Valid time interval": "Valid time interval",
 	"Interpolation Registration": "Interpolation Registration",
-	"Filtered Features table (PostgreSQL/PostGIS)": "Filtered Features table (PostgreSQL/PostGIS)",
+	"Filtered Features table (PostgreSQL/PostGIS)": "Table Views (PostgreSQL/PostGIS)",
 	"Delimiter": "Delimiter",
 	"Base Table/View Name": "Base Table/View Name",
 	"Query Builder Expression": "Query Builder Expression",
