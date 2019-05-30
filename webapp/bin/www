@@ -19,7 +19,7 @@ var logger = require("./../core/Logger");
  * Module dependencies.
  */
 var DataManager = require("../core/DataManager");
-var HTTPFactory = require("./../config/HTTPFactory");
+var HTTPFactory = require("./../core/utility/HTTPFactory");
 var PortScanner = require("./../core/PortScanner");
 var io = require('../io');
 var debug = require('debug')('webapp:server');
@@ -153,7 +153,7 @@ io.attach(server);
 load('sockets').into(io);
 
 (async () => {
-  const Database = require('./../config/Database');
+  const Database = require('./../core/utility/Database');
 
   const orm = await Database.init();
 
@@ -165,8 +165,8 @@ load('sockets').into(io);
     })
     .then(async () => {
       try {
-        // var applicationPath = path.join(__dirname, './../..');
-        // child_process.execSync("python " + applicationPath + "/share/terrama2/scripts/update_database.py " + applicationPath);
+        const applicationPath = path.join(__dirname, './../..');
+        child_process.execSync("python " + applicationPath + "/share/terrama2/scripts/update_database.py " + applicationPath);
 
         // loading terrama2 data
         await DataManager.load();
@@ -194,5 +194,3 @@ load('sockets').into(io);
       }
     });
 })()
-
-

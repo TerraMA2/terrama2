@@ -3,7 +3,7 @@ var path = require("path");
 var Sequelize = require("sequelize");
 const Application = require('./../core/Application');
 
-const sequelize = require('./../config/Sequelize')(Application.getContextConfig().db);
+const sequelize = require('./../core/utility/Sequelize')(Application.getContextConfig().db);
 const isFunction = require("./../core/Utils").isFunction;
 
 const db = {};

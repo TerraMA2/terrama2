@@ -86,7 +86,11 @@ Application.prototype.load = function() {
 
   const dbSettings = require(path.resolve(__dirname, '../config/db.json'));
 
-  const mode = process.NODE_ENV || 'development';
+  const mode = `${process.env.NODE_ENV}` || 'development';
+
+  if (!dbSettings[mode]) {
+    throw new Error(`The mode ${mode} is not located in "config/db.json"`)
+  }
 
   _data.settings.db = dbSettings[mode];
 };

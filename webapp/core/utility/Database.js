@@ -1,8 +1,9 @@
 const pg = require('pg');
-const fs = require('fs');
-const Application = require("./../core/Application");
-const logger = require('./../core/Logger');
-const Promise = require('./../core/Promise');
+const path = require('path');
+const Umzug = require('umzug')
+const Application = require("./../Application");
+const logger = require('./../Logger');
+const Promise = require('./../Promise');
 const Sequelize = require('./Sequelize');
 
 /**
@@ -51,6 +52,92 @@ function exists(query, client) {
     .then(found => (
       Promise.resolve(found.rows.length !== 0)
     ));
+}
+
+/**
+ * Tries to create Schema and Extension for TerraMA²
+ *
+ * @param {pg.Client} client PG client
+ * @param {string} schema Schema name to create
+ * @param {any} config Current Application config
+ * @returns Promise<Sequelize>
+ */
+async function createStructures(client, schema, config) {
+  try {
+    // First of all, we need check if schema already exists
+    const foundSchema = await exists(`SELECT schema_name FROM information_schema.schemata WHERE schema_name = '${schema}'`, client);
+
+    // When not found, tries to create. Remember that user must have right permission
+    if (!foundSchema) {
+      await executeQuery(`CREATE SCHEMA ${schema}`, client);
+    }
+
+    // Same for extension that requires superuser rights
+    const foundExtension = await exists(`SELECT extname FROM pg_extension WHERE extname = 'postgis'`, client);
+
+    if (!foundExtension) {
+      await executeQuery(`CREATE EXTENSION postgis`, client);
+    }
+
+    // Set sequelize db config
+    sequelize = new Sequelize(config);
+
+    client.end();
+    return sequelize;
+  } catch (err) {
+    client.end();
+    throw err;
+  }
+}
+
+async function prepareMigrations() {
+  const migrator = new Umzug({
+    storage: 'sequelize',
+    storageOptions: { sequelize },
+    migrations: {
+      params: [
+        sequelize.getQueryInterface(),
+        require('sequelize')
+      ],
+      path: path.resolve(__dirname, '../../migrations')
+    }
+  })
+
+  try {
+    await migrator.up();
+    logger.info(`Migrations loaded.`)
+
+    await prepareInitialValues();
+
+    return sequelize;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+}
+
+async function prepareInitialValues() {
+  const migrator = new Umzug({
+    storage: 'sequelize',
+    storageOptions: { sequelize },
+    migrations: {
+      params: [
+        sequelize.getQueryInterface(),
+        require('sequelize')
+      ],
+      path: path.resolve(__dirname, '../../seeders')
+    }
+  })
+
+  try {
+    await migrator.up();
+    logger.info(`Done.`)
+
+    return sequelize;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
 }
 
 /**
@@ -143,24 +230,14 @@ class Database {
   /**
    * It initializes database, creating database, schema and postgis support. Once prepared, it retrieves a ORM instance
    *
-   * @param {function} configFile - Optional db configuration file to initialize de Postgres
    * @returns {Promise<Connection>}
    */
-  init(configFile) {
+  init() {
     return new Promise((resolve, reject) => {
       if (this.isInitialized())
         return resolve(sequelize);
 
-      var currentContext;
-      if (configFile){
-        try {
-          currentContext = JSON.parse(fs.readFileSync(configFile, "utf-8"));
-        } catch(err){
-          logger.warn(`Could not read ${configFile} while initializing database: ${err.message}`);
-        }
-      } else {
-        currentContext = Application.getContextConfig();
-      }
+      var currentContext = Application.getContextConfig();
 
       /**
        * Current database configuration context
@@ -178,40 +255,6 @@ class Database {
       }
 
       /**
-       * Tries to create Schema and Extension for TerraMA²
-       *
-       * @param {pg.Client} client PG client
-       * @returns Promise<Sequelize>
-       */
-      const createStructures = async client => {
-        try {
-          // First of all, we need check if schema already exists
-          const foundSchema = await exists(`SELECT schema_name FROM information_schema.schemata WHERE schema_name = '${schema}'`, client);
-
-          // When not found, tries to create. Remember that user must have right permission
-          if (!foundSchema) {
-            await executeQuery(`CREATE SCHEMA ${schema}`, client);
-          }
-
-          // Same for extension that requires superuser rights
-          const foundExtension = await exists(`SELECT extname FROM pg_extension WHERE extname = 'postgis'`, client);
-
-          if (!foundExtension) {
-            await executeQuery(`CREATE EXTENSION postgis`, client);
-          }
-
-          // Set sequelize db config
-          sequelize = new Sequelize(contextConfig);
-
-          client.end();
-          return resolve(sequelize);
-        } catch (err) {
-          client.end();
-          return reject(err);
-        }
-      }
-
-      /**
        * Wrap connection method in order to create data structures
        *
        * @param {string} uri String URI to the database
@@ -220,7 +263,8 @@ class Database {
       const wrapConnect = () => {
         return this.connect(`${uri}/${databaseName}`)
           // On success, just proceed and create schema
-          .then(client => createStructures(client))
+          .then(client => createStructures(client, schema, contextConfig))
+          .then(() => resolve(prepareMigrations()))
       };
 
       // Tries to connect real database and proceed with data structures creation

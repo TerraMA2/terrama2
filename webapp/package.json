@@ -8,14 +8,14 @@
     "grunt": "grunt",
     "test": "mocha -c --reporter=spec --timeout 99999 --recursive 'tests/**/*.spec.js'",
     "sequelize": "sequelize",
-    "db:migrate": "sequelize db:migrate",
+    "db:migrate": "sequelize db:migrate --env production",
     "db:migrate:create": "sequelize db:migrate:create",
-    "db:migrate:undo": "sequelize db:migrate:undo:all",
+    "db:migrate:undo": "sequelize db:migrate:undo:all --env production",
     "db:seed": "sequelize db:seed",
-    "db:seed:all": "sequelize db:seed:all --debug",
-    "db:seed:create": "sequelize seed:create",
-    "db:seed:undo": "sequelize db:seed:undo",
-    "db:seed:undo:all": "sequelize db:seed:undo:all"
+    "db:seed:all": "sequelize db:seed:all --env production --debug",
+    "db:seed:create": "sequelize seed:create --env production",
+    "db:seed:undo": "sequelize db:seed:undo --env production",
+    "db:seed:undo:all": "sequelize db:seed:undo:all --env production"
   },
   "bin": {
     "webapp-stop": "./bin/webapp-stop"
@@ -95,6 +95,7 @@
     "ssh2": "^0.5.0",
     "swig": "1.4.2",
     "ui-select": "=0.19.8",
+    "umzug": "^2.2.0",
     "unzip2": "^0.2.5",
     "winston": "^2.3.0"
   },

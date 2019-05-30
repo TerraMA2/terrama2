@@ -17,6 +17,14 @@ module.exports = {
         allowNull: false,
         comment: "Map server URI"
       },
+      created_at: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+      updated_at: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
       view_id: {
         type: Sequelize.INTEGER,
         references: {

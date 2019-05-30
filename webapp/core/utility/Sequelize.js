@@ -1,9 +1,9 @@
 var Sequelize = require('sequelize');
-var logger = require("./../core/Logger");
+var logger = require("./../Logger");
 
 /**
  * It defines a Sequelize ORM initialization. It depends TerraMA² database config
- * 
+ *
  * @param {Object} config - A database config
  * @param {string} config.database - Database name
  * @param {string} config.username - Database user

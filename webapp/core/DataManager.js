@@ -28,7 +28,7 @@ var Promise = require('bluebird');
 var Utils = require('./Utils');
 var _ = require('lodash');
 var Enums = require('./Enums');
-var Database = require('../config/Database');
+var Database = require('./utility/Database');
 var logger = require("./Logger");
 var Filters = require("./filters");
 const models = require('../models');
@@ -296,6 +296,8 @@ var DataManager = module.exports = {
     return new Promise(function(resolve, reject){
       models.Project.create(projectObject, Utils.extend({}, options)).then(function(project){
         models.User.findAll({}).then(function(users) {
+          const projectObj = project.get()
+
           var userObj = null;
 
           users.forEach(function(user) {
@@ -305,10 +307,10 @@ var DataManager = module.exports = {
             }
           });
 
-          project.user_name = userObj.name;
+          projectObj.user_name = userObj.name;
 
-          self.data.projects.push(project);
-          return resolve(project);
+          self.data.projects.push(projectObj);
+          return resolve(projectObj);
         });
       }).catch(function(e) {
         var message = "Could not save project: ";
