@@ -23,21 +23,20 @@
 */
 
 var Application = require("./Application");
-var modelsFn = require("../models");
 var exceptions = require('./Exceptions');
 var Promise = require('bluebird');
 var Utils = require('./Utils');
 var _ = require('lodash');
 var Enums = require('./Enums');
 var Database = require('../config/Database');
-var orm = null;
-var fs = require('fs');
-var path = require('path');
 var logger = require("./Logger");
 var Filters = require("./filters");
+const models = require('../models');
 
 // data model
 var DataModel = require('./data-model');
+
+var orm = null;
 
 // Available DataSeriesType
 var DataSeriesType = Enums.DataSeriesType;
@@ -66,9 +65,6 @@ function _processFilter(filterObject) {
   return filterValues;
 }
 
-
-var models = null;
-
 /**
  * Controller of the system index.
  * @class DataManager
@@ -95,313 +91,24 @@ var DataManager = module.exports = {
    * It defines a orm instance
    * @type {Sequelize.Transaction}
    */
-  orm: orm,
+  orm: null,
 
   /**
    * It initializes DataManager, loading models and database synchronization
    * @param {function} dbConfigPath - Optional database config file path
    * @param {function} callback - A callback function for waiting async operation
    */
-  init: function(dbConfigPath, callback) {
-    var self = this;
+  init: async function(dbORM) {
     logger.info("Initializing database...");
 
-    return Database.init(dbConfigPath).then(function(dbORM) {
-      logger.info("Database loaded.");
-      self.orm = orm = dbORM;
+    this.orm = orm = dbORM;
+    logger.info("Database loaded.");
 
-      var dbConfig = Application.getContextConfig().db;
-
-      models = modelsFn();
-      models.load(self.orm);
-
-      var fn = function() {
-        var inserts = [];
-
-        // default users
-        var salt = models.db.User.generateSalt();
-
-        // admin
-        inserts.push(models.db.User.create({
-          name: "Administrator",
-          username: "admin",
-          password: models.db.User.generateHash("admin", salt),
-          salt: salt,
-          cellphone: '14578942362',
-          email: 'admin@terrama2.inpe.br',
-          administrator: true,
-          token: models.db.User.generateToken("admin@terrama2.inpe.bradmin")
-        }));
-
-        // services type
-        inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.COLLECTOR, name: "COLLECT"}));
-        inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.ANALYSIS, name: "ANALYSIS"}));
-        inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.VIEW, name: "VIEW"}));
-        inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.ALERT, name: "ALERT"}));
-        inserts.push(models.db.ServiceType.create({id: Enums.ServiceType.INTERPOLATION, name: "INTERPOLATION"}));
-
-        // data provider type defaults
-        inserts.push(self.addDataProviderType({id: 1, name: "FILE", description: "Desc File"}));
-        inserts.push(self.addDataProviderType({id: 2, name: "FTP", description: "Desc FTP"}));
-        inserts.push(self.addDataProviderType({id: 3, name: "HTTP", description: "Desc Http"}));
-        inserts.push(self.addDataProviderType({id: 4, name: "POSTGIS", description: "Desc Postgis"}));
-        //inserts.push(self.addDataProviderType({id: 5, name: "SFTP", description: "Desc SFTP"}));
-        inserts.push(self.addDataProviderType({id: 6, name: "HTTPS", description: "Desc Https"}));
-        inserts.push(self.addDataProviderType({ id: 7, name: "STATIC-HTTP", description: "Desc Static Http" }));
-
-        var listVersionsPromise = self.listVersions({}).then(function(versions) {
-          if(versions.length == 0 ) {
-            var versionFile = require('../../share/terrama2/version.json');
-
-            self.addVersion({
-              major: versionFile.major,
-              minor: versionFile.minor,
-              patch: versionFile.patch,
-              tag: versionFile.tag,
-              database: versionFile.database
-            });
-          }
-        });
-
-        inserts.push(listVersionsPromise);
-
-        var listServicesPromise = self.listServiceInstances({}).then(function(services){
-          var servicesInsert = [];
-          if (services.length == 0 ){
-
-            // default services
-            var collectorService = {
-              name: "Local Collector",
-              description: "Local service for Collect",
-              port: 6543,
-              pathToBinary: "terrama2_service",
-              numberOfThreads: 0,
-              service_type_id: Enums.ServiceType.COLLECTOR,
-              log: {
-                host: "127.0.0.1",
-                port: 5432,
-                user: "postgres",
-                password: "postgres",
-                database: dbConfig.database
-              }
-            };
-
-            var analysisService = Object.assign({}, collectorService);
-            analysisService.name = "Local Analysis";
-            analysisService.description = "Local service for Analysis";
-            analysisService.port = 6544;
-            analysisService.service_type_id = Enums.ServiceType.ANALYSIS;
-
-            var viewService = Object.assign({}, collectorService);
-            viewService.name = "Local View";
-            viewService.description = "Local service for View";
-            viewService.port = 6545;
-            viewService.service_type_id = Enums.ServiceType.VIEW;
-            viewService.metadata = {
-              maps_server: "http://admin:geoserver@localhost:8080/geoserver"
-            };
-
-            var alertService = Object.assign({}, collectorService);
-            alertService.name = "Local Alert";
-            alertService.description = "Local service for Alert";
-            alertService.port = 6546;
-            alertService.service_type_id = Enums.ServiceType.ALERT;
-            alertService.metadata = { };
-
-            var interpolationService = Object.assign({}, collectorService);
-            interpolationService.name = "Local Interpolator";
-            interpolationService.description = "Local service for Interpolator";
-            interpolationService.port = 6547;
-            interpolationService.service_type_id = Enums.ServiceType.INTERPOLATION;
-
-            servicesInsert.push(self.addServiceInstance(collectorService));
-            servicesInsert.push(self.addServiceInstance(analysisService));
-            servicesInsert.push(self.addServiceInstance(viewService));
-            servicesInsert.push(self.addServiceInstance(alertService));
-            servicesInsert.push(self.addServiceInstance(interpolationService));
-          }
-          return Promise.all(servicesInsert);
-        });
-
-        inserts.push(listServicesPromise);
-
-        // data provider intent defaults
-        inserts.push(models.db.DataProviderIntent.create({
-          id: Enums.DataProviderIntentId.COLLECT,
-          name: "COLLECT",
-          description: "Desc Collect intent"
-        }));
-
-        inserts.push(models.db.DataProviderIntent.create({
-          id: Enums.DataProviderIntentId.PROCESSING,
-          name: "PROCESSING",
-          description: "Desc Processing intent"
-        }));
-
-        // data series type defaults
-        inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.DCP, description: "Data Series DCP type"}));
-        inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.OCCURRENCE, description: "Data Series Occurrence type"}));
-        inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.GRID, description: "Data Series Grid type"}));
-        inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.ANALYSIS_MONITORED_OBJECT, description: "Data Series Analysis Monitored Object"}));
-        inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.GEOMETRIC_OBJECT, description: "Data Series Geometric object"}));
-        inserts.push(models.db.DataSeriesType.create({name: DataSeriesType.VECTOR_PROCESSING_OBJECT, description: "Vectorial Processing DataSeries Object"}));
-
-        // data formats semantics defaults
-        inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.CSV, description: "CSV description"}));
-        inserts.push(self.addDataFormat({name: DataSeriesType.OCCURRENCE, description: "Occurrence description"}));
-        inserts.push(self.addDataFormat({name: DataSeriesType.GRID, description: "Grid Description"}));
-        inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.POSTGIS, description: "POSTGIS description"}));
-        inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.OGR, description: "Gdal ogr"}));
-        inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.GDAL, description: "GDAL"}));
-        inserts.push(self.addDataFormat({name: Enums.DataSeriesFormat.GRADS, description: "GRADS"}));
-
-        // analysis type
-        inserts.push(models.db.AnalysisType.create({id: Enums.AnalysisType.DCP, name: "Dcp", description: "Description Dcp"}));
-        inserts.push(models.db.AnalysisType.create({id: Enums.AnalysisType.GRID, name: "Grid", description: "Description Grid"}));
-        inserts.push(models.db.AnalysisType.create({id: Enums.AnalysisType.MONITORED, name: "Monitored Object", description: "Description Monitored"}));
-        inserts.push(models.db.AnalysisType.create({id: Enums.AnalysisType.VP, name: "Monitored Object", description: "Description Monitored"}));
-
-        // analysis data series type
-        inserts.push(models.db.AnalysisDataSeriesType.create({
-          id: Enums.AnalysisDataSeriesType.DATASERIES_DCP_TYPE,
-          name: "Dcp",
-          description: "Description Dcp"
-        }));
-        inserts.push(models.db.AnalysisDataSeriesType.create({
-          id: Enums.AnalysisDataSeriesType.DATASERIES_GRID_TYPE,
-          name: "Grid",
-          description: "Description Grid"
-        }));
-
-        inserts.push(models.db.AnalysisDataSeriesType.create({
-          id: Enums.AnalysisDataSeriesType.DATASERIES_MONITORED_OBJECT_TYPE,
-          name: "Monitored Object",
-          description: "Description Monitored"
-        }));
-
-        inserts.push(models.db.AnalysisDataSeriesType.create({
-          id: Enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE,
-          name: "Additional Data",
-          description: "Description Additional Data"
-        }));
-
-        // area of interest
-        inserts.push(models.db.AnalysisAreaOfInterestType.create({
-          id: Enums.InterestAreaType.UNION.value,
-          name: Enums.InterestAreaType.UNION.name,
-          description: Enums.InterestAreaType.UNION.name
-        }));
-        inserts.push(models.db.AnalysisAreaOfInterestType.create({
-          id: Enums.InterestAreaType.SAME_FROM_DATA_SERIES.value,
-          name: Enums.InterestAreaType.SAME_FROM_DATA_SERIES.name,
-          description: Enums.InterestAreaType.SAME_FROM_DATA_SERIES.name
-        }));
-        inserts.push(models.db.AnalysisAreaOfInterestType.create({
-          id: Enums.InterestAreaType.CUSTOM.value,
-          name: Enums.InterestAreaType.CUSTOM.name,
-          description: Enums.InterestAreaType.CUSTOM.name
-        }));
-
-        // resolution type
-        inserts.push(models.db.AnalysisResolutionType.create({
-          id: Enums.ResolutionType.BIGGEST_GRID.value,
-          name: Enums.ResolutionType.BIGGEST_GRID.name,
-          description: Enums.ResolutionType.BIGGEST_GRID.name
-        }));
-        inserts.push(models.db.AnalysisResolutionType.create({
-          id: Enums.ResolutionType.SMALLEST_GRID.value,
-          name: Enums.ResolutionType.SMALLEST_GRID.name,
-          description: Enums.ResolutionType.SMALLEST_GRID.name
-        }));
-        inserts.push(models.db.AnalysisResolutionType.create({
-          id: Enums.ResolutionType.SAME_FROM_DATA_SERIES.value,
-          name: Enums.ResolutionType.SAME_FROM_DATA_SERIES.name,
-          description: Enums.ResolutionType.SAME_FROM_DATA_SERIES.name
-        }));
-        inserts.push(models.db.AnalysisResolutionType.create({
-          id: Enums.ResolutionType.CUSTOM.value,
-          name: Enums.ResolutionType.CUSTOM.name,
-          description: Enums.ResolutionType.CUSTOM.name
-        }));
-
-        // Interpolation methods
-        inserts.push(models.db.InterpolationMethod.create({
-          id: Enums.InterpolationMethod.NEAREST_NEIGHBOR.value,
-          name: Enums.InterpolationMethod.NEAREST_NEIGHBOR.name,
-          description: Enums.InterpolationMethod.NEAREST_NEIGHBOR.name
-        }));
-        inserts.push(models.db.InterpolationMethod.create({
-          id: Enums.InterpolationMethod.BI_LINEAR.value,
-          name: Enums.InterpolationMethod.BI_LINEAR.name,
-          description: Enums.InterpolationMethod.BI_LINEAR.name
-        }));
-        inserts.push(models.db.InterpolationMethod.create({
-          id: Enums.InterpolationMethod.BI_CUBIC.value,
-          name: Enums.InterpolationMethod.BI_CUBIC.name,
-          description: Enums.InterpolationMethod.BI_CUBIC.name
-        }));
-
-        // script language supported
-        inserts.push(models.db.ScriptLanguage.create({id: Enums.ScriptLanguage.PYTHON, name: "PYTHON"}));
-        inserts.push(models.db.ScriptLanguage.create({id: Enums.ScriptLanguage.LUA, name: "LUA"}));
-
-        // it will match each of semantics with providers
-        inserts.push(models.db.InterpolatorStrategy.create({name: "Nearest neighbor", id: "NEAREST-NEIGHBOR"}));
-        inserts.push(models.db.InterpolatorStrategy.create({name: "Average neighbor", id: "AVERAGE-NEIGHBOR"}));
-        inserts.push(models.db.InterpolatorStrategy.create({name: "Weight average neighbor", id: "W-AVERAGE-NEIGHBOR"}));
-
-        // it will match each of semantics with providers
-        return Promise.all(inserts)
-          .catch(function(err) {
-            logger.debug(err);
-            return null;
-          }).finally(function() {
-            // semantics: temp code: TODO: fix
-            var semanticsObject = Application.get("semantics");
-
-            // storing semantics providers dependency
-            var semanticsWithProviders = {};
-
-            var promises = [];
-
-            semanticsObject.forEach(function(semanticsElement) {
-              semanticsWithProviders[semanticsElement.code] = semanticsElement.providers_type_list;
-              promises.push(self.addDataSeriesSemantics({
-                code: semanticsElement.code,
-                data_format_name: semanticsElement.format,
-                data_series_type_name: semanticsElement.type
-              }, semanticsElement.providers_type_list, semanticsElement.metadata));
-            });
-
-            return Promise.all(promises)
-              .then(function() {
-                logger.debug("DB initialized successfully");
-                return null;
-              })
-              .catch(function(err) {
-                logger.debug(err);
-                return null;
-              })
-              .finally(function() {
-                return callback();
-              });
-          });
-      };
-
-      return orm.authenticate().then(function() {
-        return orm.sync().then(function () {
-          return fn();
-        }).catch(function(err) {
-          logger.debug(err);
-          return fn();
-        });
-      }).catch(function(err) {
-        callback(new Error("Could not initialize TerraMA2 due: " + err.message));
-      });
-    })
-    .catch(function(err) {
-      return callback(err);
-    });
+    try {
+      await this.orm.authenticate();
+    } catch (err) {
+      throw new Error(`Could not initialize TerraMA2 due: ${err.message}`);
+    }
   },
 
   /**
@@ -465,8 +172,8 @@ var DataManager = module.exports = {
         return reject(err);
       };
 
-      return models.db.Project.findAll({}).then(function(projects) {
-        return models.db.User.findAll({}).then(function(users) {
+      return models.Project.findAll({}).then(function(projects) {
+        return models.User.findAll({}).then(function(users) {
           projects.forEach(function(project) {
             var projectObj = project.get();
             var userObj = null;
@@ -483,23 +190,23 @@ var DataManager = module.exports = {
             self.data.projects.push(projectObj);
           });
 
-          return models.db.DataProvider.findAll({ include: [ models.db.DataProviderType, models.db.DataProviderOptions ] }).then(function(dataProviders) {
+          return models.DataProvider.findAll({ include: [ models.DataProviderType, models.DataProviderOptions ] }).then(function(dataProviders) {
             dataProviders.forEach(function(dataProvider) {
               self.data.dataProviders.push(new DataModel.DataProvider(dataProvider));
             });
             // find all data series, providers
-            return models.db.DataSeries.findAll({
+            return models.DataSeries.findAll({
               include: [
                 {
-                  model: models.db.DataProvider,
-                  include: [models.db.DataProviderType]
+                  model: models.DataProvider,
+                  include: [models.DataProviderType]
                 },
-                models.db.DataSeriesSemantics,
+                models.DataSeriesSemantics,
                 {
-                  model: models.db.DataSet,
+                  model: models.DataSet,
                   include: [
                     {
-                      model: models.db.DataSetDcp,
+                      model: models.DataSetDcp,
                       attributes: [
                         // retrieving GeoJSON. Its is important because Sequelize
                         // orm does not retrieve SRID even geometry has. The "2"
@@ -513,18 +220,18 @@ var DataManager = module.exports = {
                       required: false
                     },
                     {
-                      model: models.db.DataSetOccurrence,
+                      model: models.DataSetOccurrence,
                       required: false
                     },
                     {
-                      model: models.db.DataSetMonitored,
+                      model: models.DataSetMonitored,
                       required: false
                     },
                     {
-                      model: models.db.DataSetGrid,
+                      model: models.DataSetGrid,
                       required: false
                     },
-                    models.db.DataSetFormat
+                    models.DataSetFormat
                   ]
                 }
               ]
@@ -564,7 +271,7 @@ var DataManager = module.exports = {
    */
   getWKT: function(geoJSONObject) {
     return new Promise(function(resolve, reject) {
-      models.db.sequelize.query("SELECT ST_AsEwkt(ST_GeomFromGeoJson('" + JSON.stringify(geoJSONObject) + "')) as geom").then(function(wktGeom) {
+      models.sequelize.query("SELECT ST_AsEwkt(ST_GeomFromGeoJson('" + JSON.stringify(geoJSONObject) + "')) as geom").then(function(wktGeom) {
         // it retrieves an array with data result (array) and query executed.
         // if data result is empty or greater than 1, its not allowed.
         if (wktGeom[0].length !== 1) { reject(new exceptions.DataSetError("Invalid wkt retrieved from GeoJSON.")); }
@@ -587,22 +294,21 @@ var DataManager = module.exports = {
   addProject: function(projectObject, options) {
     var self = this;
     return new Promise(function(resolve, reject){
-      models.db.Project.create(projectObject, Utils.extend({}, options)).then(function(project){
-        models.db.User.findAll({}).then(function(users) {
-          var projectObj = project.get();
+      models.Project.create(projectObject, Utils.extend({}, options)).then(function(project){
+        models.User.findAll({}).then(function(users) {
           var userObj = null;
 
           users.forEach(function(user) {
-            if(user.dataValues.id === projectObj.user_id) {
+            if(user.dataValues.id === project.user_id) {
               userObj = user.get();
               return;
             }
           });
 
-          projectObj.user_name = userObj.name;
+          project.user_name = userObj.name;
 
-          self.data.projects.push(projectObj);
-          return resolve(Utils.clone(projectObj));
+          self.data.projects.push(project);
+          return resolve(project);
         });
       }).catch(function(e) {
         var message = "Could not save project: ";
@@ -644,7 +350,7 @@ var DataManager = module.exports = {
           fieldsToUpdate.push("user_id");
         }
 
-        return models.db.Project.update(projectObject, Utils.extend({
+        return models.Project.update(projectObject, Utils.extend({
           fields: fieldsToUpdate,
           where: {
             id: project.id
@@ -707,7 +413,7 @@ var DataManager = module.exports = {
               return self.removeSchedule({id: {$in: scheduleIdentifiers}}, options);
             });
           }).finally(function() {
-            return models.db.Project.destroy({
+            return models.Project.destroy({
               where: {
                 id: projectResult.id
               }
@@ -738,7 +444,7 @@ var DataManager = module.exports = {
   listProjects: function() {
     var projectList = [];
     this.data.projects.forEach(function(project) {
-      projectList.push(Utils.clone(project));
+      projectList.push(project);
     });
     return projectList;
   },
@@ -751,13 +457,13 @@ var DataManager = module.exports = {
    */
   addUser: function(userObject, options) {
     return new Promise(function(resolve, reject) {
-      var salt = models.db.User.generateSalt();
+      var salt = models.User.generateSalt();
       userObject.salt = salt;
       userObject.administrator = userObject.administrator !== undefined && userObject.administrator === true;
-      userObject.token = models.db.User.generateToken(userObject.email + userObject.password);
-      userObject.password = models.db.User.generateHash(userObject.password, salt);
+      userObject.token = models.User.generateToken(userObject.email + userObject.password);
+      userObject.password = models.User.generateHash(userObject.password, salt);
 
-      return models.db.User.create(userObject, options)
+      return models.User.create(userObject, options)
         .then(function(newUser) {
           return resolve(newUser.get());
         })
@@ -782,9 +488,9 @@ var DataManager = module.exports = {
           userObject.password = user.password;
         } else {
           var salt = user.salt;
-          userObject.password = models.db.User.generateHash(userObject.password, salt);
+          userObject.password = models.User.generateHash(userObject.password, salt);
         }
-        return models.db.User.update(userObject, Utils.extend({
+        return models.User.update(userObject, Utils.extend({
           fields: ['name', 'cellphone', 'administrator', 'email', 'password'],
           where: restriction || {}
         }, options)).then(function() {
@@ -809,7 +515,7 @@ var DataManager = module.exports = {
    */
   listUsers: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.User.findAll(Utils.extend({where: restriction || {} }, options)).then(function(users) {
+      models.User.findAll(Utils.extend({where: restriction || {} }, options)).then(function(users) {
         return resolve(users.map(function(userInstance) { return userInstance.get(); }));
       }).catch(function(err) {
         return reject(new exceptions.UserError("Could not update user.", err.errors||[]));
@@ -827,7 +533,7 @@ var DataManager = module.exports = {
    */
   getUser: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.User.findOne(Utils.extend({where: restriction || {}}, options)).then(function(user) {
+      models.User.findOne(Utils.extend({where: restriction || {}}, options)).then(function(user) {
         if (user === null) {
           return reject(new exceptions.UserError("Could not get user.", []));
         }
@@ -840,7 +546,7 @@ var DataManager = module.exports = {
 
   removeUser: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      return models.db.User.destroy(Utils.extend({where: restriction}, options))
+      return models.User.destroy(Utils.extend({where: restriction}, options))
         .then(function() {
           return resolve();
         })
@@ -859,7 +565,7 @@ var DataManager = module.exports = {
    */
   addMonitorState: function(stateObject, options) {
     return new Promise(function(resolve, reject) {
-      return models.db.MonitorState.create(stateObject, options).then(function(newState) {
+      return models.MonitorState.create(stateObject, options).then(function(newState) {
         return resolve(newState.get());
       }).catch(function(err) {
         return reject(new Error(Utils.format("Could not save state due %s", err.toString())));
@@ -878,7 +584,7 @@ var DataManager = module.exports = {
   updateMonitorState: function(restriction, stateObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      return models.db.MonitorState.update(stateObject, Utils.extend({
+      return models.MonitorState.update(stateObject, Utils.extend({
         fields: ['name', 'state'],
         where: restriction || {}
       }, options)).then(function() {
@@ -900,7 +606,7 @@ var DataManager = module.exports = {
    */
   listMonitorStates: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.MonitorState.findAll(Utils.extend({ where: restriction || {} }, options)).then(function(states) {
+      models.MonitorState.findAll(Utils.extend({ where: restriction || {} }, options)).then(function(states) {
         return resolve(
           states.map(function(stateInstance) {
             return stateInstance.get();
@@ -922,7 +628,7 @@ var DataManager = module.exports = {
    */
   getMonitorState: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.MonitorState.findOne(Utils.extend({ where: restriction || {} }, options)).then(function(state) {
+      models.MonitorState.findOne(Utils.extend({ where: restriction || {} }, options)).then(function(state) {
         if(state === null) return reject(new Error("Could not get state.", []));
         return resolve(state);
       }).catch(function(err) {
@@ -941,7 +647,7 @@ var DataManager = module.exports = {
    */
   removeMonitorState: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      return models.db.MonitorState.destroy(Utils.extend({ where: restriction }, options)).then(function() {
+      return models.MonitorState.destroy(Utils.extend({ where: restriction }, options)).then(function() {
         return resolve();
       }).catch(function(err) {
         return reject(new Error("Could not remove state " + err.toString()));
@@ -959,12 +665,12 @@ var DataManager = module.exports = {
   addServiceInstance: function(serviceObject, options) {
     var self = this;
     return new Promise(function(resolve, reject){
-      models.db.ServiceInstance.create(serviceObject, options)
+      models.ServiceInstance.create(serviceObject, options)
         .then(function(serviceResult){
           var service = new DataModel.Service(serviceResult);
           var logObject = serviceObject.log;
           logObject.service_instance_id = serviceResult.id;
-          return models.db.Log.create(logObject, options).then(function(logResult) {
+          return models.Log.create(logObject, options).then(function(logResult) {
             var log = new DataModel.Log(logResult);
             service.log = log.toObject();
             return service;
@@ -1005,7 +711,7 @@ var DataManager = module.exports = {
 
   addServiceMetadata: function addServiceMetadata(metadataObj, options) {
     return new Promise(function(resolve, reject) {
-      models.db.ServiceMetadata.bulkCreate(metadataObj, options)
+      models.ServiceMetadata.bulkCreate(metadataObj, options)
         .then(function(metadataRes) {
           return resolve(Utils.formatMetadataFromDB(metadataRes));
         })
@@ -1018,13 +724,13 @@ var DataManager = module.exports = {
   upsertServiceMetadata: function upsertServiceMetadata(restriction, metadataObj, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db.ServiceMetadata.findOne(Utils.extend({where: restriction}, options))
+      models.ServiceMetadata.findOne(Utils.extend({where: restriction}, options))
         .then(function(metaResult) {
           if (!metaResult) {
             // create new one
             return self.addServiceMetadata([metadataObj], options);
           }
-          return models.db.ServiceMetadata.update(metadataObj, Utils.extend({
+          return models.ServiceMetadata.update(metadataObj, Utils.extend({
             fields: ["key", "value"],
             where: {
               id: metaResult.id
@@ -1049,14 +755,14 @@ var DataManager = module.exports = {
    */
   listServiceInstances: function(restriction, options) {
     return new Promise(function(resolve, reject){
-      return models.db.ServiceInstance.findAll(Utils.extend({
+      return models.ServiceInstance.findAll(Utils.extend({
         where: restriction,
         include: [
           {
-            model: models.db.Log
+            model: models.Log
           },
           {
-            model: models.db.ServiceMetadata,
+            model: models.ServiceMetadata,
             required: false
           }
         ]
@@ -1115,7 +821,7 @@ var DataManager = module.exports = {
         // update collectors removing ID and setting them to inactive
         return self.updateCollectors({service_instance_id: serviceResult.id}, {active: false}, options)
           .then(function() {
-            return models.db.ServiceInstance.destroy(Utils.extend({where: restriction}, options))
+            return models.ServiceInstance.destroy(Utils.extend({where: restriction}, options))
               .then(function() {
                 return resolve();
               }).catch(function(err) {
@@ -1144,7 +850,7 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       self.getServiceInstance({id: serviceId}, options).then(function(serviceResult) {
-        return models.db.ServiceInstance.update(serviceObject, Utils.extend({
+        return models.ServiceInstance.update(serviceObject, Utils.extend({
             fields: ['name', 'description', 'port',
                      'numberOfThreads', 'runEnviroment', 'host',
                      'sshUser', 'sshPort', 'pathToBinary'],
@@ -1184,7 +890,7 @@ var DataManager = module.exports = {
    */
   updateLog: function(logId, logObject, options) {
     return new Promise(function(resolve, reject) {
-      models.db.Log.update(logObject, Utils.extend({
+      models.Log.update(logObject, Utils.extend({
         fields: ['host', 'port', 'user', 'database', 'password'],
         where: {
           id: logId
@@ -1207,7 +913,7 @@ var DataManager = module.exports = {
    */
   addDataProviderType: function(dataProviderTypeObject, options) {
     return new Promise(function(resolve, reject) {
-      models.db.DataProviderType.create(dataProviderTypeObject, options).then(function(result) {
+      models.DataProviderType.create(dataProviderTypeObject, options).then(function(result) {
         return resolve(Utils.clone(result.get()));
       }).catch(function(err) {
         return reject(err);
@@ -1225,7 +931,7 @@ var DataManager = module.exports = {
    */
   listDataProviderType: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      return models.db.DataProviderType.findAll(Utils.extend({where: restriction}, options)).then(function(result) {
+      return models.DataProviderType.findAll(Utils.extend({where: restriction}, options)).then(function(result) {
         var output = [];
         result.forEach(function(element) {
           output.push(Utils.clone(element.get()));
@@ -1248,7 +954,7 @@ var DataManager = module.exports = {
    */
   getDataProviderType: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.DataProviderType.findOne(Utils.extend({where: restriction}, options)).then(function(typeResult) {
+      models.DataProviderType.findOne(Utils.extend({where: restriction}, options)).then(function(typeResult) {
         return resolve(typeResult.get());
       }).catch(function(err) {
         logger.error(err);
@@ -1267,7 +973,7 @@ var DataManager = module.exports = {
    */
   getDataProviderIntent: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.DataProviderIntent.findOne(Utils.extend({where: restriction}, options)).then(function(intentResult) {
+      models.DataProviderIntent.findOne(Utils.extend({where: restriction}, options)).then(function(intentResult) {
         return resolve(intentResult.get());
       }).catch(function(err) {
         logger.error(err);
@@ -1286,7 +992,7 @@ var DataManager = module.exports = {
    */
   addDataFormat: function(dataFormatObject, options) {
     return new Promise(function(resolve, reject) {
-      models.db.DataFormat.create(dataFormatObject, options).then(function(result) {
+      models.DataFormat.create(dataFormatObject, options).then(function(result) {
         return resolve(Utils.clone(result.get()));
       }).catch(function(err) {
         return reject(err);
@@ -1304,7 +1010,7 @@ var DataManager = module.exports = {
    */
   listDataFormats: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.DataFormat.findAll(Utils.extend({where: restriction}, options)).then(function(dataFormats) {
+      models.DataFormat.findAll(Utils.extend({where: restriction}, options)).then(function(dataFormats) {
         var output = [];
 
         dataFormats.forEach(function(dataFormat){
@@ -1349,7 +1055,7 @@ var DataManager = module.exports = {
                 typesResult.map(function(item) { return item.name; })
               )));
           }
-          return models.db.DataSeriesSemantics.create(semanticsObject, options)
+          return models.DataSeriesSemantics.create(semanticsObject, options)
             .then(function(semantics){
               var semanticsProvidersArray = [];
               // building semantics with provider type
@@ -1363,7 +1069,7 @@ var DataManager = module.exports = {
               // add semantics data provider types
               return Promise.all([
                   semantics,
-                  models.db.SemanticsProvidersType.bulkCreate(semanticsProvidersArray)
+                  models.SemanticsProvidersType.bulkCreate(semanticsProvidersArray)
                 ])
                 .spread(function(dataSeriesSemantics, providersTypeBulk) {
                   if (Utils.isObject(semanticsMetadata)) {
@@ -1377,7 +1083,7 @@ var DataManager = module.exports = {
                         });
                       }
                     }
-                    return models.db.SemanticsMetadata.bulkCreate(semanticsMetadataArr)
+                    return models.SemanticsMetadata.bulkCreate(semanticsMetadataArr)
                       .then(function() {
                         // returning promise chain with semantics
                         return dataSeriesSemantics;
@@ -1434,9 +1140,9 @@ var DataManager = module.exports = {
    */
   listDataSeriesSemantics: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      return models.db.DataSeriesSemantics.findAll(Utils.extend({
+      return models.DataSeriesSemantics.findAll(Utils.extend({
         include: [{
-          model: models.db.SemanticsProvidersType
+          model: models.SemanticsProvidersType
         }],
         where: restriction
       }, options))
@@ -1471,7 +1177,7 @@ var DataManager = module.exports = {
    */
   listSemanticsProvidersType: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.SemanticsProvidersType.findAll(Utils.extend({where: restriction}, options))
+      models.SemanticsProvidersType.findAll(Utils.extend({where: restriction}, options))
         .then(function(semanticsProvidersResult) {
           var output = [];
           semanticsProvidersResult.forEach(function(element) {
@@ -1502,9 +1208,9 @@ var DataManager = module.exports = {
         .then(function(dataProviderOptions) {
           if (dataProviderOptions.length === 0) {
             // insert
-            return models.db.DataProviderOptions.create(dataProviderOption, options);
+            return models.DataProviderOptions.create(dataProviderOption, options);
           } else {
-            return models.db.DataProviderOptions.update(dataProviderOption, Utils.extend({
+            return models.DataProviderOptions.update(dataProviderOption, Utils.extend({
               fields: ["key", "value", "data_provider_id"],
               where: {id: dataProviderOptions[0].id}
             }, options));
@@ -1531,7 +1237,7 @@ var DataManager = module.exports = {
   listDataProviderOptions: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      return models.db.DataProviderOptions
+      return models.DataProviderOptions
         .findAll(Utils.extend({
           where: restriction
         }, options))
@@ -1555,7 +1261,7 @@ var DataManager = module.exports = {
   addDataProvider: function(dataProviderObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db.DataProvider.create(dataProviderObject, options).then(function(dataProvider){
+      models.DataProvider.create(dataProviderObject, options).then(function(dataProvider){
         if (dataProviderObject.configuration){
           var configurationList = [];
           var configuration = dataProviderObject.configuration;
@@ -1569,8 +1275,8 @@ var DataManager = module.exports = {
               });
             }
           }
-          return models.db.DataProviderOptions.bulkCreate(configurationList, Utils.extend({data_provider_id: dataProvider.id}, options)).then(function () {
-            return models.db.DataProviderOptions.findAll(Utils.extend({where: {data_provider_id: dataProvider.id}}, options)).then(function(dataSetFormats) {
+          return models.DataProviderOptions.bulkCreate(configurationList, Utils.extend({data_provider_id: dataProvider.id}, options)).then(function () {
+            return models.DataProviderOptions.findAll(Utils.extend({where: {data_provider_id: dataProvider.id}}, options)).then(function(dataSetFormats) {
               return dataProvider.getDataProviderType().then(function(dataProviderType) {
                 var dataProviderObject = dataProvider.get();
                 dataSetFormats.forEach(function(dSetFormat){
@@ -1672,7 +1378,7 @@ var DataManager = module.exports = {
       var dataProvider = Utils.find(self.data.dataProviders, {id: dataProviderId});
 
       if (dataProvider) {
-        models.db.DataProvider.update(dataProviderObject, Utils.extend({
+        models.DataProvider.update(dataProviderObject, Utils.extend({
           fields: ["name", "description", "uri", "active"],
           where: {
             id: dataProvider.id
@@ -1731,7 +1437,7 @@ var DataManager = module.exports = {
       var dataProvider = Utils.find(self.data.dataProviders, restriction);
       dataProvider.active = !dataProvider.active;
 
-      return models.db.DataProvider.update(dataProvider, Utils.extend({
+      return models.DataProvider.update(dataProvider, Utils.extend({
         fields: ["active"],
         where: restriction
       }, options)).then(function() {
@@ -1759,7 +1465,7 @@ var DataManager = module.exports = {
 
       var provider = Utils.remove(self.data.dataProviders, dataProviderParam);
       if (provider) {
-        return models.db.DataProvider.destroy(Utils.extend({where: {id: provider.id}}, options)).then(function() {
+        return models.DataProvider.destroy(Utils.extend({where: {id: provider.id}}, options)).then(function() {
           // remove data series
           var dataSeriesList = Utils.removeAll(self.data.dataSeries, {data_provider_id: provider.id});
           dataSeriesList.forEach(function(dataSeries) {
@@ -1886,7 +1592,7 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       var output;
-      models.db.DataSeries.create(dataSeriesObject, options).then(function(dataSerie){
+      models.DataSeries.create(dataSeriesObject, options).then(function(dataSerie){
         var obj = dataSerie.get();
 
         // getting semantics
@@ -1949,7 +1655,7 @@ var DataManager = module.exports = {
   listDataSetFormats: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      return models.db.DataSetFormat
+      return models.DataSetFormat
         .findAll(Utils.extend({
           where: restriction
         }, options))
@@ -1980,9 +1686,9 @@ var DataManager = module.exports = {
         .then(function(dataSetFormats) {
           if (dataSetFormats.length === 0) {
             // insert
-            return models.db.DataSetFormat.create(dataSetFormat, options);
+            return models.DataSetFormat.create(dataSetFormat, options);
           } else {
-            return models.db.DataSetFormat.update(dataSetFormat, Utils.extend({
+            return models.DataSetFormat.update(dataSetFormat, Utils.extend({
               fields: ["key", "value", "data_set_id"],
               where: {id: dataSetFormats[0].id}
             }, options));
@@ -2017,7 +1723,7 @@ var DataManager = module.exports = {
         return reject(new exceptions.DataSeriesError("Data series not found. ", []));
       }
 
-      return models.db.DataSeries.update(dataSeriesObject, Utils.extend({
+      return models.DataSeries.update(dataSeriesObject, Utils.extend({
         fields: ['name', 'description', 'data_provider_id', 'active', 'data_series_semantics_id'],
         where: {
           id: dataSeriesId
@@ -2193,7 +1899,7 @@ var DataManager = module.exports = {
 
       var analysisPromises = [];
 
-      return models.db.DataSeries.update(dataSeries, Utils.extend({
+      return models.DataSeries.update(dataSeries, Utils.extend({
         fields: ["active"],
         where: restriction
       }, options)).then(function() {
@@ -2214,7 +1920,7 @@ var DataManager = module.exports = {
             objectToSend.Analysis.push(analysis.toObject());
 
             analysisPromises.push(
-              models.db.Analysis.update(analysis, Utils.extend({
+              models.Analysis.update(analysis, Utils.extend({
                 fields: ["active"],
                 where: { id: analysis.id }
               }, options))
@@ -2229,7 +1935,7 @@ var DataManager = module.exports = {
         if(collector) {
           collector.active = dataSeries.active;
 
-          return models.db.Collector.update(collector, Utils.extend({
+          return models.Collector.update(collector, Utils.extend({
             fields: ["active"],
             where: { id: collector.id }
           }, options)).then(function() {
@@ -2239,7 +1945,7 @@ var DataManager = module.exports = {
 
             objectToSend.DataSeries.push(dataSeriesInput.toObject());
 
-            return models.db.DataSeries.update(dataSeriesInput, Utils.extend({
+            return models.DataSeries.update(dataSeriesInput, Utils.extend({
               fields: ["active"],
               where: { id: dataSeriesInput.id }
             }, options));
@@ -2273,7 +1979,7 @@ var DataManager = module.exports = {
 
       dataSeries.active = !dataSeries.active;
 
-      return models.db.DataSeries.update(dataSeries, Utils.extend({
+      return models.DataSeries.update(dataSeries, Utils.extend({
         fields: ["active"],
         where: restriction
       }, options)).then(function() {
@@ -2296,7 +2002,7 @@ var DataManager = module.exports = {
   removeDataSerie: function(dataSeriesParam, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db.DataSeries.destroy(Utils.extend({where: dataSeriesParam}, options))
+      models.DataSeries.destroy(Utils.extend({where: dataSeriesParam}, options))
         .then(function (status) {
           // Removing data set from memory. Its not necessary to remove in database, since on remove cascade is enabled.
           Utils.remove(self.data.dataSeries, dataSeriesParam);
@@ -2330,7 +2036,7 @@ var DataManager = module.exports = {
   addDataSet: function(dataSeriesSemantic, dataSetObject, analysisType, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db.DataSet.create({
+      models.DataSet.create({
         active: dataSetObject.active,
         data_series_id: dataSetObject.data_series_id
       }, options).then(function(dataSet) {
@@ -2360,8 +2066,8 @@ var DataManager = module.exports = {
               }
             }
 
-            return models.db.DataSetFormat.bulkCreate(formatList, Utils.extend({data_set_id: dataSet.id}, options)).then(function () {
-              return models.db.DataSetFormat.findAll(Utils.extend({where: {data_set_id: dataSet.id}}, options)).then(function(dataSetFormats) {
+            return models.DataSetFormat.bulkCreate(formatList, Utils.extend({data_set_id: dataSet.id}, options)).then(function () {
+              return models.DataSetFormat.findAll(Utils.extend({where: {data_set_id: dataSet.id}}, options)).then(function(dataSetFormats) {
                 output.format = {};
                 dataSetFormats.forEach(function(dataSetFormat) {
                   output.format[dataSetFormat.key] = dataSetFormat.value;
@@ -2404,9 +2110,9 @@ var DataManager = module.exports = {
                 data_set_id: dataSet.id,
                 position: dataSetObject.position
               };
-              models.db.DataSetDcp.create(dataSetDcp, options).then(function(dSetDcp) {
+              models.DataSetDcp.create(dataSetDcp, options).then(function(dSetDcp) {
                 // TODO: reuse it. It retrieving entire GeoJSON representation (with SRID)
-                models.db.DataSetDcp.findOne(Utils.extend({
+                models.DataSetDcp.findOne(Utils.extend({
                   attributes: [
                     "id",
                     "data_set_id",
@@ -2420,17 +2126,17 @@ var DataManager = module.exports = {
               }).catch(onError);
               break;
             case DataSeriesType.OCCURRENCE:
-              models.db.DataSetOccurrence.create({data_set_id: dataSet.id}, options).then(onSuccess).catch(onError);
+              models.DataSetOccurrence.create({data_set_id: dataSet.id}, options).then(onSuccess).catch(onError);
               break;
             case DataSeriesType.GEOMETRIC_OBJECT:
               onSuccess(dataSet);
               break;
             case DataSeriesType.GRID:
-              models.db.DataSetGrid.create({data_set_id: dataSet.id}, options).then(onSuccess).catch(onError);
+              models.DataSetGrid.create({data_set_id: dataSet.id}, options).then(onSuccess).catch(onError);
               break;
             case DataSeriesType.ANALYSIS_MONITORED_OBJECT:
             case DataSeriesType.VECTOR_PROCESSING_OBJECT:
-              models.db.DataSetMonitored.create({data_set_id: dataSet.id}, options).then(onSuccess).catch(onError);
+              models.DataSetMonitored.create({data_set_id: dataSet.id}, options).then(onSuccess).catch(onError);
               break;
             default:
               if (!options && !options.transaction) {
@@ -2507,7 +2213,7 @@ var DataManager = module.exports = {
       var dataSet = Utils.find(self.data.dataSets, {id: restriction.id});
 
       if (dataSet) {
-        return models.db.DataSet.findById(dataSet.id, options)
+        return models.DataSet.findById(dataSet.id, options)
           .then(function(result) {
             return result.updateAttributes({active: dataSetObject.active}, options)
               .then(function() {
@@ -2565,7 +2271,7 @@ var DataManager = module.exports = {
       var dataSet = Utils.find(self.data.dataSets, { id: id });
 
       if(dataSet) {
-        models.db.DataSet.findById(id).then(function(result) {
+        models.DataSet.findById(id).then(function(result) {
           result.updateAttributes({active: active}).then(function() {
             dataSet.active = active;
 
@@ -2594,7 +2300,7 @@ var DataManager = module.exports = {
       for(var index = 0; index < self.data.dataSets.length; ++index) {
         var dataSet = self.data.dataSets[index];
         if (dataSet.id === dataSetId.id) {
-          models.db.DataSet.destroy({where: {id: dataSet.id}}).then(function(status) {
+          models.DataSet.destroy({where: {id: dataSet.id}}).then(function(status) {
             resolve(dataSetId);
             self.data.dataSets.splice(index, 1);
           }).catch(function(err) {
@@ -2676,7 +2382,7 @@ var DataManager = module.exports = {
                 intersectionArray.forEach(function(intersect) {
                   intersect.collector_id = collector.id;
                 });
-                return models.db.Intersection.bulkCreate(intersectionArray, Utils.extend({returning: true}, options))
+                return models.Intersection.bulkCreate(intersectionArray, Utils.extend({returning: true}, options))
                   .then(function(bulkIntersectionResult) {
                     collector.setIntersection(bulkIntersectionResult);
                     return resolve({
@@ -2721,14 +2427,14 @@ var DataManager = module.exports = {
     return new Promise(function(resolve, reject) {
       var schedule;
       if (scheduleObject.scheduleType == Enums.ScheduleType.AUTOMATIC){
-        models.db.AutomaticSchedule.create(scheduleObject, options).then(function(schedule) {
+        models.AutomaticSchedule.create(scheduleObject, options).then(function(schedule) {
           return resolve(new DataModel.AutomaticSchedule(schedule.get()));
         }).catch(function(err) {
           // todo: improve error message
           return reject(new exceptions.ScheduleError("Could not save schedule. " + err.toString()));
         });
       } else if (scheduleObject.scheduleType == Enums.ScheduleType.SCHEDULE || scheduleObject.scheduleType == Enums.ScheduleType.REPROCESSING_HISTORICAL){
-        models.db.Schedule.create(scheduleObject, options).then(function(scheduleResult) {
+        models.Schedule.create(scheduleObject, options).then(function(scheduleResult) {
           schedule = scheduleResult;
           // checking if there is historical data to save
           if (_.isEmpty(scheduleObject.historical) || (!scheduleObject.historical.startDate || !scheduleObject.historical.endDate)) {
@@ -2763,7 +2469,7 @@ var DataManager = module.exports = {
    */
   updateSchedule: function(scheduleId, scheduleObject, options) {
     return new Promise(function(resolve, reject) {
-      models.db.Schedule.update(scheduleObject, Utils.extend({
+      models.Schedule.update(scheduleObject, Utils.extend({
         fields: ['schedule', 'schedule_time', 'schedule_unit', 'frequency_unit', 'frequency', 'frequency_start_time'],
         where: {
           id: scheduleId
@@ -2788,7 +2494,7 @@ var DataManager = module.exports = {
    */
   updateAutomaticSchedule: function(scheduleId, scheduleObject, options) {
     return new Promise(function(resolve, reject) {
-      models.db.AutomaticSchedule.update(scheduleObject, Utils.extend({
+      models.AutomaticSchedule.update(scheduleObject, Utils.extend({
         fields: ['data_ids'],
         where: {
           id: scheduleId
@@ -2812,7 +2518,7 @@ var DataManager = module.exports = {
    */
   removeSchedule: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.Schedule.destroy(Utils.extend({where: {id: restriction.id}}, options)).then(function() {
+      models.Schedule.destroy(Utils.extend({where: {id: restriction.id}}, options)).then(function() {
         return resolve();
       }).catch(function(err) {
         logger.error(err);
@@ -2831,7 +2537,7 @@ var DataManager = module.exports = {
    */
   removeAutomaticSchedule: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.AutomaticSchedule.destroy(Utils.extend({where: {id: restriction.id}}, options)).then(function() {
+      models.AutomaticSchedule.destroy(Utils.extend({where: {id: restriction.id}}, options)).then(function() {
         return resolve();
       }).catch(function(err) {
         logger.error(err);
@@ -2851,11 +2557,11 @@ var DataManager = module.exports = {
   getSchedule: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db.Schedule.findOne(Utils.extend({
+      models.Schedule.findOne(Utils.extend({
 
         where: restriction || {},
         include: [{
-          model: models.db.ReprocessingHistoricalData,
+          model: models.ReprocessingHistoricalData,
           required: false
         }]
       }, options)).then(function(schedule) {
@@ -2877,7 +2583,7 @@ var DataManager = module.exports = {
   getAutomaticSchedule: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db.AutomaticSchedule.findOne(Utils.extend({
+      models.AutomaticSchedule.findOne(Utils.extend({
         where: restriction || {}
       }, options)).then(function(schedule) {
         if (schedule) {
@@ -2899,7 +2605,7 @@ var DataManager = module.exports = {
   listAutomaticSchedule: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      return models.db.AutomaticSchedule.findAll(Utils.extend({
+      return models.AutomaticSchedule.findAll(Utils.extend({
         where: restriction || {}
       }, options)).then(function(automaticSchedulesResult){
         return resolve(automaticSchedulesResult.map(function(automaticSchedule){
@@ -2922,7 +2628,7 @@ var DataManager = module.exports = {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-      models.db.Collector.create(collectorObject, options).then(function(collectorResult) {
+      models.Collector.create(collectorObject, options).then(function(collectorResult) {
         var collector = new DataModel.Collector(collectorResult.get());
 
         var schedule;
@@ -2964,7 +2670,7 @@ var DataManager = module.exports = {
               });
             }
 
-            return models.db.CollectorInputOutput.bulkCreate(inputOutputArray, options).then(function(bulkInputOutputResult) {
+            return models.CollectorInputOutput.bulkCreate(inputOutputArray, options).then(function(bulkInputOutputResult) {
               var input_output_map = [];
               bulkInputOutputResult.forEach(function(bulkResult) {
                 input_output_map.push({
@@ -3022,7 +2728,7 @@ var DataManager = module.exports = {
         where: restriction
       }, extra instanceof Object ? extra : {}), options);
 
-      models.db.Collector.update(values, opts).then(function() {
+      models.Collector.update(values, opts).then(function() {
         return resolve();
       }).catch(function(err) {
         logger.error(err);
@@ -3072,7 +2778,7 @@ var DataManager = module.exports = {
   listCollectorInputOutput: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db.CollectorInputOutput.findAll(Utils.extend({where: restriction || {}}, options))
+      models.CollectorInputOutput.findAll(Utils.extend({where: restriction || {}}, options))
         .then(function(inputOutputResult) {
           var output = [];
           inputOutputResult.forEach(function(element) {
@@ -3102,13 +2808,13 @@ var DataManager = module.exports = {
         delete restriction.DataProvider;
       }
 
-      return models.db.Collector.findAll({
+      return models.Collector.findAll({
         where: restriction,
         include: [
-          models.db.Schedule,
-          models.db.CollectorInputOutput,
+          models.Schedule,
+          models.CollectorInputOutput,
           {
-            model: models.db.Filter,
+            model: models.Filter,
             required: false,
             attributes: [
               "id",
@@ -3125,13 +2831,13 @@ var DataManager = module.exports = {
             ]
           },
           {
-            model: models.db.Intersection,
+            model: models.Intersection,
             required: false
           },
           {
-            model: models.db.DataSeries,
+            model: models.DataSeries,
             include: {
-              model: models.db.DataProvider,
+              model: models.DataProvider,
               where: dataProviderRestriction
             }
           }
@@ -3195,26 +2901,26 @@ var DataManager = module.exports = {
         delete restriction.output;
       }
 
-      models.db.Collector.findOne(Utils.extend({
+      models.Collector.findOne(Utils.extend({
         where: restriction,
         include: [
           {
-            model: models.db.Schedule
+            model: models.Schedule
           },
           {
-            model: models.db.DataSeries,
+            model: models.DataSeries,
             where: restrictionOutput
           },
           {
-            model: models.db.CollectorInputOutput
+            model: models.CollectorInputOutput
           },
           {
-            model: models.db.Filter,
+            model: models.Filter,
             required: false,
             attributes: { include: [[orm.fn('ST_AsEwkt', orm.col('region')), 'region_wkt'], [orm.fn('ST_srid', orm.col('region')), 'srid']] }
           },
           {
-            model: models.db.Intersection,
+            model: models.Intersection,
             required: false
           }
         ]
@@ -3267,7 +2973,7 @@ var DataManager = module.exports = {
    */
   listFilters: function(restriction, options){
     return new Promise(function(resolve, reject) {
-      models.db.Filter.findAll({where: restriction}).then(function(filtersResult) {
+      models.Filter.findAll({where: restriction}).then(function(filtersResult) {
         var output = [];
         filtersResult.forEach(function(element) {
           output.push(element.get());
@@ -3290,7 +2996,7 @@ var DataManager = module.exports = {
    */
   addIntersection: function(intersectionArray, options) {
     return new Promise(function(resolve, reject) {
-      models.db.Intersection.bulkCreate(intersectionArray, Utils.extend({returning: true}, options))
+      models.Intersection.bulkCreate(intersectionArray, Utils.extend({returning: true}, options))
         .then(function(intesectionList) {
           var output = [];
           intesectionList.forEach(function(element) {
@@ -3313,7 +3019,7 @@ var DataManager = module.exports = {
   */
   updateIntersection: function(intersectionId, intersectionObject, options) {
     return new Promise(function(resolve, reject) {
-      models.db.Intersection.update(intersectionObject, Utils.extend({
+      models.Intersection.update(intersectionObject, Utils.extend({
         fields: ['attribute'],
         where: {
           id: intersectionId
@@ -3344,7 +3050,7 @@ var DataManager = module.exports = {
 
   listIntersections: function(restriction) {
     return new Promise(function(resolve, reject) {
-      models.db.Intersection.findAll(restriction).then(function(intersectionResult) {
+      models.Intersection.findAll(restriction).then(function(intersectionResult) {
         var output = [];
         intersectionResult.forEach(function(element) {
           output.push(element.get());
@@ -3364,7 +3070,7 @@ var DataManager = module.exports = {
    */
   removeIntersection: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.Intersection.destroy(Utils.extend({where: restriction}, options)).then(function() {
+      models.Intersection.destroy(Utils.extend({where: restriction}, options)).then(function() {
         return resolve();
       }).catch(function(err) {
         return reject(new Error("Could not remove intersection " + err.toString()));
@@ -3389,7 +3095,7 @@ var DataManager = module.exports = {
       Object.assign(filterValues, _processFilter(filterObject));
 
       // checking filter
-      models.db.Filter.create(filterValues, options).then(function(filterResult) {
+      models.Filter.create(filterValues, options).then(function(filterResult) {
         if (filterResult.region) {
           return self.getFilter({id: filterResult.id}, options).then(function(filterEwkt) {
             return resolve(filterEwkt);
@@ -3416,7 +3122,7 @@ var DataManager = module.exports = {
   getFilter: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db.Filter.findOne(Utils.extend({
+      models.Filter.findOne(Utils.extend({
         attributes: {include: [[orm.fn('ST_AsEwkt', orm.col('region')), 'region_wkt']]},
         where: restriction
       }, options)).then(function(filter) {
@@ -3445,7 +3151,7 @@ var DataManager = module.exports = {
   updateFilter: function(filterId, filterObject, options) {
     return new Promise(function(resolve, reject) {
       var filterValues = _processFilter(filterObject);
-      return models.db.Filter.update(filterValues, Utils.extend({
+      return models.Filter.update(filterValues, Utils.extend({
         fields: ['frequency', 'frequency_unit', 'discard_before', 'discard_after', 'region', 'by_value', 'crop_raster', 'data_series_id'],
         where: {
           id: filterId
@@ -3470,8 +3176,8 @@ var DataManager = module.exports = {
    */
   addAnalysisDataSeries: function(analysisDataSeriesObject, options) {
     return new Promise(function(resolve, reject) {
-      models.db.AnalysisDataSeries.create(analysisDataSeriesObject, Utils.extend({
-        include: [models.db.AnalysisDataSeriesMetadata]
+      models.AnalysisDataSeries.create(analysisDataSeriesObject, Utils.extend({
+        include: [models.AnalysisDataSeriesMetadata]
       }, options))
         .then(function(result) {
           var output = new DataModel.AnalysisDataSeries(result);
@@ -3493,7 +3199,7 @@ var DataManager = module.exports = {
   addAnalysisOutputGrid: function(analysisOutputGridObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      return models.db.AnalysisOutputGrid.create(analysisOutputGridObject, options)
+      return models.AnalysisOutputGrid.create(analysisOutputGridObject, options)
         .then(function(analysisOutGridResult) {
           return self.getAnalysisOutputGrid({id: analysisOutGridResult.id}, options)
             .then(function(outputGrid) {
@@ -3516,7 +3222,7 @@ var DataManager = module.exports = {
    */
   getAnalysisOutputGrid: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.AnalysisOutputGrid.findOne(Utils.extend({
+      models.AnalysisOutputGrid.findOne(Utils.extend({
         attributes: {include: [[orm.fn('ST_AsEwkt', orm.col('area_of_interest_box')), 'interest_box']]},
         where: restriction
       }, options)).then(function(outputGrid) {
@@ -3548,7 +3254,7 @@ var DataManager = module.exports = {
       // setting analysis_id in historical Data
       historicalObject.schedule_id = scheduleId;
 
-      models.db.ReprocessingHistoricalData.create(historicalObject, options)
+      models.ReprocessingHistoricalData.create(historicalObject, options)
         .then(function(historicalResult) {
           return resolve(new DataModel.ReprocessingHistoricalData(historicalResult.get()));
         })
@@ -3573,7 +3279,7 @@ var DataManager = module.exports = {
         where: restriction,
         fields: ['startDate', 'endDate']
       }, options);
-      models.db.ReprocessingHistoricalData.update(historicalObject, opts)
+      models.ReprocessingHistoricalData.update(historicalObject, opts)
         .then(function() {
           return resolve();
         })
@@ -3593,7 +3299,7 @@ var DataManager = module.exports = {
    */
   removeHistoricalData: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      models.db.ReprocessingHistoricalData.destroy(Utils.extend({where: restriction}, options))
+      models.ReprocessingHistoricalData.destroy(Utils.extend({where: restriction}, options))
         .then(function() {
           return resolve();
         })
@@ -3613,7 +3319,7 @@ var DataManager = module.exports = {
    */
   addAnalysisMetadata: function(analysisMetadataObject, options) {
     return new Promise(function(resolve, reject) {
-      return models.db.AnalysisMetadata.bulkCreate(analysisMetadataObject, options)
+      return models.AnalysisMetadata.bulkCreate(analysisMetadataObject, options)
         .then(function(bulkAnalysisMetadata) {
           return resolve(Utils.formatMetadataFromDB(bulkAnalysisMetadata));
         })
@@ -3640,7 +3346,7 @@ var DataManager = module.exports = {
       var scheduleResult;
       var historicalData;
       var scriptLanguageResult;
-      models.db.Analysis.create(analysisObject, options)
+      models.Analysis.create(analysisObject, options)
         // successfully creating analysis
         .then(function(analysis) {
           analysisResult = analysis;
@@ -3862,7 +3568,7 @@ var DataManager = module.exports = {
         }
       })
       .then(function (){
-        return models.db.Analysis.update(analysisObject, Utils.extend({
+        return models.Analysis.update(analysisObject, Utils.extend({
           fields: ['name', 'description', 'instance_id', 'script', 'active', 'schedule_type', 'schedule_id', 'automatic_schedule_id'],
           where: {
             id: analysisId
@@ -3884,7 +3590,7 @@ var DataManager = module.exports = {
         analysisObject.analysisDataSeries.some(function(element) {
           if (element.id && element.id > 0) {
             // update
-            promises.push(models.db.AnalysisDataSeries.update(element, Utils.extend({
+            promises.push(models.AnalysisDataSeries.update(element, Utils.extend({
               fields: ['alias'],
               where: {id: element.id}
             }, options)));
@@ -3894,7 +3600,7 @@ var DataManager = module.exports = {
               var dsMetaArr = Utils.generateArrayFromObject(element.metadata, function(key, value, analysisDsId) {
                 return {"key": key, "value": value, "analysis_data_series_id": analysisDsId};
               }, element.id);
-              promises.push(models.db.AnalysisDataSeriesMetadata.update(dsMetaArr[0], Utils.extend({
+              promises.push(models.AnalysisDataSeriesMetadata.update(dsMetaArr[0], Utils.extend({
                 fields: ['key', 'value'],
                 where: {analysis_data_series_id: element.id}
               }, options)));
@@ -3909,7 +3615,7 @@ var DataManager = module.exports = {
 
         // delete
         toRemove.forEach(function(element) {
-          promises.push(models.db.AnalysisDataSeries.destroy(Utils.extend({where: {
+          promises.push(models.AnalysisDataSeries.destroy(Utils.extend({where: {
             id: element.id
           }}, options)));
         });
@@ -3980,7 +3686,7 @@ var DataManager = module.exports = {
               gridObject.area_of_interest_box = null;
             }
 
-            return models.db.AnalysisOutputGrid.update(gridObject, Utils.extend({
+            return models.AnalysisOutputGrid.update(gridObject, Utils.extend({
               fields: ['area_of_interest_box', 'srid', 'resolution_x',
                         'resolution_y', 'interpolation_dummy',
                         'area_of_interest_type', 'resolution_type',
@@ -4009,7 +3715,7 @@ var DataManager = module.exports = {
               promise = Promise.resolve();
             } else {
               // remove
-              promise = models.db.AnalysisMetadata.destroy(Utils.extend(
+              promise = models.AnalysisMetadata.destroy(Utils.extend(
                 {
                   where: {
                     analysis_id: analysisInstance.id
@@ -4067,11 +3773,11 @@ var DataManager = module.exports = {
 
         analysisResult.active = dataSeries.active = !analysisResult.active;
 
-        return models.db.Analysis.update(analysisResult, Utils.extend({
+        return models.Analysis.update(analysisResult, Utils.extend({
           fields: ["active"],
           where: restriction
         }, options)).then(function() {
-          return models.db.DataSeries.update(dataSeries, Utils.extend({
+          return models.DataSeries.update(dataSeries, Utils.extend({
             fields: ["active"],
             where: restriction
           }, options));
@@ -4097,7 +3803,7 @@ var DataManager = module.exports = {
   listAnalysisDataSeries: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      return models.db.AnalysisDataSeries.findAll(Utils.extend({
+      return models.AnalysisDataSeries.findAll(Utils.extend({
         where: restriction || {}
       }, options)).then(function(analysisDataSeriesResult){
         return resolve(analysisDataSeriesResult.map(function(analysisDataSeries){
@@ -4123,19 +3829,19 @@ var DataManager = module.exports = {
         reject(err);
       };
 
-      return models.db.Analysis.findAll(Utils.extend({
+      return models.Analysis.findAll(Utils.extend({
         include: [
           {
-            model: models.db.AnalysisDataSeries,
+            model: models.AnalysisDataSeries,
             include: [
               {
-                model: models.db.AnalysisDataSeriesMetadata,
+                model: models.AnalysisDataSeriesMetadata,
                 required: false
               }
             ]
           },
           {
-            model: models.db.AnalysisOutputGrid,
+            model: models.AnalysisOutputGrid,
             attributes: [
               'interpolation_dummy',
               'resolution_x',
@@ -4153,18 +3859,18 @@ var DataManager = module.exports = {
             required: false
           },
           {
-            model: models.db.Schedule,
+            model: models.Schedule,
             include: [
               {
-                model: models.db.ReprocessingHistoricalData,
+                model: models.ReprocessingHistoricalData,
                 required: false
               }
             ]
           },
-          models.db.AnalysisMetadata,
-          models.db.ScriptLanguage,
-          models.db.AnalysisType,
-          models.db.AutomaticSchedule
+          models.AnalysisMetadata,
+          models.ScriptLanguage,
+          models.AnalysisType,
+          models.AutomaticSchedule
         ],
         where: restriction || {}
       }, options)).then(function(analysisResult) {
@@ -4231,44 +3937,44 @@ var DataManager = module.exports = {
         where: restrict,
         include: [
           {
-            model: models.db.AnalysisDataSeries,
+            model: models.AnalysisDataSeries,
             include: [
               {
-                model: models.db.AnalysisDataSeriesMetadata,
+                model: models.AnalysisDataSeriesMetadata,
                 required: false
               }
             ]
           },
           {
-            model: models.db.AnalysisOutputGrid,
+            model: models.AnalysisOutputGrid,
             attributes: {include: [[orm.fn('ST_AsEwkt', orm.col('area_of_interest_box')), 'interest_box']]},
             required: false
           },
-          models.db.AnalysisMetadata,
-          models.db.ScriptLanguage,
-          models.db.AnalysisType,
+          models.AnalysisMetadata,
+          models.ScriptLanguage,
+          models.AnalysisType,
           {
-            model: models.db.Schedule,
+            model: models.Schedule,
             required: false,
             include: [
               {
-                model: models.db.ReprocessingHistoricalData,
+                model: models.ReprocessingHistoricalData,
                 required: false
               }
             ]
           },
           {
-            model: models.db.AutomaticSchedule,
+            model: models.AutomaticSchedule,
             required: false
           },
           {
-            model: models.db.DataSet,
+            model: models.DataSet,
             where: dataSetRestriction
           }
         ]
       }, options);
 
-      return models.db.Analysis.findOne(opts).then(function(analysisResult) {
+      return models.Analysis.findOne(opts).then(function(analysisResult) {
         var analysisInstance = new DataModel.Analysis(analysisResult.get());
 
         return self.getDataSet({id: analysisResult.dataset_output}).then(function(analysisOutputDataSet) {
@@ -4317,44 +4023,44 @@ var DataManager = module.exports = {
         where: restrict,
         include: [
           {
-            model: models.db.AnalysisDataSeries,
+            model: models.AnalysisDataSeries,
             include: [
               {
-                model: models.db.AnalysisDataSeriesMetadata,
+                model: models.AnalysisDataSeriesMetadata,
                 required: false
               }
             ]
           },
           {
-            model: models.db.AnalysisOutputGrid,
+            model: models.AnalysisOutputGrid,
             attributes: {include: [[orm.fn('ST_AsEwkt', orm.col('area_of_interest_box')), 'interest_box']]},
             required: false
           },
-          models.db.AnalysisMetadata,
-          models.db.ScriptLanguage,
-          models.db.AnalysisType,
+          models.AnalysisMetadata,
+          models.ScriptLanguage,
+          models.AnalysisType,
           {
-            model: models.db.Schedule,
+            model: models.Schedule,
             required: false,
             include: [
               {
-                model: models.db.ReprocessingHistoricalData,
+                model: models.ReprocessingHistoricalData,
                 required: false
               }
             ]
           },
           {
-            model: models.db.AutomaticSchedule,
+            model: models.AutomaticSchedule,
             required: false
           },
           {
-            model: models.db.DataSet,
+            model: models.DataSet,
             where: dataSetRestriction
           }
         ]
       }, options);
 
-      return models.db.Analysis.findOne(opts).then(function(analysisResult) {
+      return models.Analysis.findOne(opts).then(function(analysisResult) {
         if(analysisResult) {
           var analysisInstance = new DataModel.Analysis(analysisResult.get());
 
@@ -4397,7 +4103,7 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       return self.getAnalysis({id: analysisParam.id}, options).then(function(analysisResult) {
-        return models.db.Analysis.destroy(Utils.extend({where: {id: analysisParam.id}}, options)).then(function() {
+        return models.Analysis.destroy(Utils.extend({where: {id: analysisParam.id}}, options)).then(function() {
           return self.removeDataSerie({id: analysisResult.dataSeries.id}, options).then(function() {
             var removeSchedulePromise;
             if (analysisResult.scheduleType == Enums.ScheduleType.SCHEDULE || analysisResult.scheduleType == Enums.ScheduleType.REPROCESSING_HISTORICAL){
@@ -4445,7 +4151,7 @@ var DataManager = module.exports = {
       var additionalDataResult;
       var legendResult;
       var notificationResult;
-      return models.db.Alert.create(alertObject, options)
+      return models.Alert.create(alertObject, options)
         .then(function(alert){
           alertResult = alert;
           if (alertResult.schedule_id) {
@@ -4522,7 +4228,7 @@ var DataManager = module.exports = {
   addAlertAttachedView: function(attachedViewObject, options){
     var self = this;
     return new Promise(function(resolve, reject) {
-      return models.db.AlertAttachedView.create(attachedViewObject, options).then(function(attachedView) {
+      return models.AlertAttachedView.create(attachedViewObject, options).then(function(attachedView) {
         return resolve(new DataModel.AlertAttachedView(Object.assign(attachedView.get(), {})));
       }).catch(function(err){
         return reject(new Error(Utils.format("Could not save attached view due %s", err.toString())));
@@ -4541,7 +4247,7 @@ var DataManager = module.exports = {
   addAlertAttachment: function(alertAttachmentObject, options){
     var self = this;
     return new Promise(function(resolve, reject) {
-      return models.db.AlertAttachment.create(alertAttachmentObject, options).then(function(alertAttachment) {
+      return models.AlertAttachment.create(alertAttachmentObject, options).then(function(alertAttachment) {
         return resolve(new DataModel.AlertAttachment(Object.assign(alertAttachment.get(), {})));
       }).catch(function(err){
         return reject(new Error(Utils.format("Could not save alert attachment due %s", err.toString())));
@@ -4561,7 +4267,7 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject){
       var alertId = restriction.id;
-      models.db.AlertAttachedView.update(
+      models.AlertAttachedView.update(
         alertAttachedViewObject,
         Utils.extend({
           fields: ["layer_order", "view_id"],
@@ -4590,7 +4296,7 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject){
       var alertId = restriction.id;
-      models.db.AlertAttachment.update(
+      models.AlertAttachment.update(
         alertAttachmentObject,
         Utils.extend({
           fields: ["y_max", "y_min", "x_max", "x_min", "srid"],
@@ -4631,7 +4337,7 @@ var DataManager = module.exports = {
   removeAlertAttachedView: function(restriction, options){
     var self = this;
     return new Promise(function(resolve, reject) {
-      return models.db.AlertAttachedView.destroy(Utils.extend({where: restriction}, options))
+      return models.AlertAttachedView.destroy(Utils.extend({where: restriction}, options))
         .then(function(){
           return resolve();
         })
@@ -4653,7 +4359,7 @@ var DataManager = module.exports = {
   removeAlertAttachment: function(restriction, options){
     var self = this;
     return new Promise(function(resolve, reject) {
-      return models.db.AlertAttachment.destroy(Utils.extend({where: restriction}, options))
+      return models.AlertAttachment.destroy(Utils.extend({where: restriction}, options))
         .then(function(){
           return resolve();
         })
@@ -4674,7 +4380,7 @@ var DataManager = module.exports = {
    */
   addReportMetadata: function(reportMetadaObject, options){
     return new Promise(function(resolve, reject){
-      return models.db.ReportMetadata.create(reportMetadaObject, options)
+      return models.ReportMetadata.create(reportMetadaObject, options)
         .then(function(reportMetadaResult){
           return resolve(reportMetadaResult.get());
         })
@@ -4694,7 +4400,7 @@ var DataManager = module.exports = {
    */
   addAlertAdditionalData: function(additionalDataObject, options){
     return new Promise(function(resolve, reject){
-      return models.db.AlertAdditionalData.create(additionalDataObject, options)
+      return models.AlertAdditionalData.create(additionalDataObject, options)
         .then(function(additionalDataResult){
           return resolve(additionalDataResult.get());
         })
@@ -4716,7 +4422,7 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject){
       var legendObjectResult;
-      return models.db.Legend.create(legendObject, options)
+      return models.Legend.create(legendObject, options)
         .then(function(legendResult){
           legendObjectResult = legendResult;
           var legendLevelPromises = [];
@@ -4750,7 +4456,7 @@ var DataManager = module.exports = {
   removeLegend: function(restriction, options){
     var self = this;
     return new Promise(function(resolve, reject) {
-      return models.db.Legend.destroy(Utils.extend({where: restriction}, options))
+      return models.Legend.destroy(Utils.extend({where: restriction}, options))
         .then(function(){
           return resolve();
         })
@@ -4771,7 +4477,7 @@ var DataManager = module.exports = {
    */
   addLegendLevel: function(legendLevelObject, options){
     return new Promise(function(resolve, reject){
-      return models.db.LegendLevel.create(legendLevelObject, options)
+      return models.LegendLevel.create(legendLevelObject, options)
         .then(function(legendLevelResult){
           return resolve(legendLevelResult.get());
         })
@@ -4791,7 +4497,7 @@ var DataManager = module.exports = {
    */
   addAlertNotification: function(alertNotificationObject, options){
     return new Promise(function(resolve, reject){
-      return models.db.AlertNotification.create(alertNotificationObject, options)
+      return models.AlertNotification.create(alertNotificationObject, options)
         .then(function(alertNotificationResult){
           return resolve(alertNotificationResult.get());
         })
@@ -4840,109 +4546,109 @@ var DataManager = module.exports = {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-      models.db.Alert.findAll(Utils.extend({
+      models.Alert.findAll(Utils.extend({
         where: restriction || {},
         include: [
           {
-            model: models.db.AlertAdditionalData
+            model: models.AlertAdditionalData
           },
           {
-            model: models.db.AlertNotification
+            model: models.AlertNotification
           },
           {
-            model: models.db.Schedule
+            model: models.Schedule
           },
           {
-            model: models.db.AutomaticSchedule
+            model: models.AutomaticSchedule
           },
           {
-            model: models.db.ReportMetadata
+            model: models.ReportMetadata
           },
           {
-            model: models.db.AlertAttachment,
+            model: models.AlertAttachment,
             required: false,
             include: [
               {
-                model: models.db.AlertAttachedView,
+                model: models.AlertAttachedView,
                 required: false,
                 include: [
                   {
-                    model: models.db.View
+                    model: models.View
                   }
                 ]
               }
             ]
           },
           {
-            model: models.db.Legend,
+            model: models.Legend,
             include: [
               {
-                model: models.db.LegendLevel
+                model: models.LegendLevel
               }
             ]
           },
           {
-            model: models.db.View,
+            model: models.View,
             include: [
               {
-                model: models.db.ServiceInstance,
+                model: models.ServiceInstance,
                 include: [
                   {
-                    model: models.db.ServiceMetadata,
+                    model: models.ServiceMetadata,
                     required: false
                   }
                 ]
               },
               {
-                model: models.db.Schedule,
+                model: models.Schedule,
                 required: false
               },
               {
-                model: models.db.AutomaticSchedule,
+                model: models.AutomaticSchedule,
                 required: false
               },
               {
-                model: models.db.DataSeries,
+                model: models.DataSeries,
                 include: [
                   {
-                    model: models.db.DataProvider
+                    model: models.DataProvider
                   },
                   {
-                    model: models.db.DataSeriesSemantics
+                    model: models.DataSeriesSemantics
                   }
                 ]
               },
               {
-                model: models.db.ViewStyleLegend,
+                model: models.ViewStyleLegend,
                 required: false,
                 include: [
                   {
-                    model: models.db.ViewStyleColor
+                    model: models.ViewStyleColor
                   },
                   {
-                    model: models.db.ViewStyleLegendMetadata
+                    model: models.ViewStyleLegendMetadata
                   }
                 ]
               }
             ]
           },
           {
-            model: models.db.DataSeries,
+            model: models.DataSeries,
             include: [
               {
-                model: models.db.DataProvider
+                model: models.DataProvider
               },
               {
-                model: models.db.DataSeriesSemantics
+                model: models.DataSeriesSemantics
               },
               {
-                model: models.db.DataSet
+                model: models.DataSet
               }
             ]
           }
         ],
         order: [
-          [models.db.AlertAttachment, models.db.AlertAttachedView, 'layer_order', 'ASC']
+          [models.AlertAttachment, models.AlertAttachedView, 'layer_order', 'ASC']
         ]
       }, options))
         .then(function(alerts){
@@ -5017,28 +4723,28 @@ var DataManager = module.exports = {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-      models.db.AlertAttachedView.findAll(Utils.extend({
+      models.AlertAttachedView.findAll(Utils.extend({
         where: restriction || {},
         order: [
           ['layer_order', 'ASC']
         ],
         include: [
           {
-            model: models.db.AlertAttachment,
+            model: models.AlertAttachment,
             include: [
               {
-                model: models.db.Alert
+                model: models.Alert
               }
             ]
           },
           {
-            model: models.db.View,
+            model: models.View,
             include: [
               {
-                model: models.db.ServiceInstance,
+                model: models.ServiceInstance,
                 include: [
                   {
-                    model: models.db.ServiceMetadata
+                    model: models.ServiceMetadata
                   }
                 ]
               }
@@ -5065,23 +4771,23 @@ var DataManager = module.exports = {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-      models.db.AlertAttachment.findOne(Utils.extend({
+      models.AlertAttachment.findOne(Utils.extend({
         where: restriction || {},
         include: [
           {
-            model: models.db.Alert
+            model: models.Alert
           },
           {
-            model: models.db.AlertAttachedView,
+            model: models.AlertAttachedView,
             include: [
               {
-                model: models.db.View,
+                model: models.View,
                 include: [
                   {
-                    model: models.db.ServiceInstance,
+                    model: models.ServiceInstance,
                     include: [
                       {
-                        model: models.db.ServiceMetadata
+                        model: models.ServiceMetadata
                       }
                     ]
                   }
@@ -5091,7 +4797,7 @@ var DataManager = module.exports = {
           }
         ],
         order: [
-          [models.db.AlertAttachedView, 'layer_order', 'ASC']
+          [models.AlertAttachedView, 'layer_order', 'ASC']
         ]
       }, options)).then(function(alertAttachment) {
         return resolve(alertAttachment);
@@ -5112,11 +4818,11 @@ var DataManager = module.exports = {
   getLegend: function(restriction, options){
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db.Legend.findOne(Utils.extend({
+      models.Legend.findOne(Utils.extend({
         where: restriction || {},
         include: [
           {
-            model: models.db.LegendLevel
+            model: models.LegendLevel
           }
         ]
       }, options)).then(function(legend) {
@@ -5146,11 +4852,11 @@ var DataManager = module.exports = {
   listLegends: function(restriction, options){
     var self = this;
     return new Promise(function(resolve, reject){
-      models.db.Legend.findAll(Utils.extend({
+      models.Legend.findAll(Utils.extend({
         where: restriction || {},
         include: [
           {
-            model: models.db.LegendLevel
+            model: models.LegendLevel
           }
         ]
       }, options))
@@ -5184,7 +4890,7 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject){
       var alertId = restriction.id;
-      models.db.Alert.update(
+      models.Alert.update(
         alertObject,
         Utils.extend({
           fields: ["name", "description", "data_series_id", "active", "service_instance_id", "legend_id", "legend_attribute", "schedule_type", "schedule_id", "automatic_schedule_id", "view_id"],
@@ -5217,7 +4923,7 @@ var DataManager = module.exports = {
       return self.getAlert(restriction, options).then(function(alertResult) {
         alertResult.active = !alertResult.active;
 
-        return models.db.Alert.update(alertResult, Utils.extend({
+        return models.Alert.update(alertResult, Utils.extend({
           fields: ["active"],
           where: restriction
         }, options)).then(function() {
@@ -5242,7 +4948,7 @@ var DataManager = module.exports = {
   updateReportMetadata: function(restriction, reportMetadataObject, options){
     var self = this;
     return new Promise(function(resolve, reject){
-      models.db.ReportMetadata.update(
+      models.ReportMetadata.update(
         reportMetadataObject,
         Utils.extend({
           fields: ['title', 'abstract', 'description', 'author', 'contact', 'copyright', 'timestamp_format', 'logo_path', 'document_format'],
@@ -5297,7 +5003,7 @@ var DataManager = module.exports = {
         })
 
         .then(function(){
-          models.db.Legend.update(
+          models.Legend.update(
             legendObject,
             Utils.extend({
               fields: ['name', 'description'],
@@ -5326,7 +5032,7 @@ var DataManager = module.exports = {
   updateLegendLevel: function(restriction, legendLevelObject, options){
     var self = this;
     return new Promise(function(resolve, reject){
-      models.db.LegendLevel.update(
+      models.LegendLevel.update(
         legendLevelObject,
         Utils.extend({
           fields: ['name', 'value', 'level'],
@@ -5352,7 +5058,7 @@ var DataManager = module.exports = {
   updateAlertNotification: function(restriction, alertNotificationObject, options){
     var self = this;
     return new Promise(function(resolve, reject){
-      models.db.AlertNotification.update(
+      models.AlertNotification.update(
         alertNotificationObject,
         Utils.extend({
           fields: ['include_report', 'notify_on_change', 'simplified_report', 'notify_on_legend_level', 'recipients'],
@@ -5388,7 +5094,7 @@ var DataManager = module.exports = {
         })
 
         .then(function() {
-          return models.db.Alert.destroy(Utils.extend({where: restriction}, options));
+          return models.Alert.destroy(Utils.extend({where: restriction}, options));
         })
 
         .then(function() {
@@ -5418,7 +5124,7 @@ var DataManager = module.exports = {
   removeLegendLevel: function(restriction, options){
     var self = this;
     return new Promise(function(resolve, reject) {
-      return models.db.LegendLevel.destroy(Utils.extend({where: restriction}, options))
+      return models.LegendLevel.destroy(Utils.extend({where: restriction}, options))
         .then(function() {
           return resolve();
         })
@@ -5439,7 +5145,7 @@ var DataManager = module.exports = {
   removeAlertNotification: function(restriction, options){
     var self = this;
     return new Promise(function(resolve, reject){
-      return models.db.AlertNotification.destroy(Utils.extend({where: restriction}, options))
+      return models.AlertNotification.destroy(Utils.extend({where: restriction}, options))
         .then(function(){
           return resolve();
         })
@@ -5461,41 +5167,41 @@ var DataManager = module.exports = {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-      return models.db.View.findAll(Utils.extend({
+      return models.View.findAll(Utils.extend({
         include: [
           {
-            model: models.db.Schedule,
+            model: models.Schedule,
             required: false
           },
           {
-            model: models.db.AutomaticSchedule,
+            model: models.AutomaticSchedule,
             required: false
           },
           {
-            model: models.db.DataSeries,
+            model: models.DataSeries,
             include: [
               {
-                model: models.db.DataProvider
+                model: models.DataProvider
               },
               {
-                model: models.db.DataSeriesSemantics
+                model: models.DataSeriesSemantics
               }
             ]
           },
           {
-            model: models.db.ViewStyleLegend,
+            model: models.ViewStyleLegend,
             required: false,
             include: [
               {
-                model: models.db.ViewStyleColor
+                model: models.ViewStyleColor
               },
               {
-                model: models.db.ViewStyleLegendMetadata
+                model: models.ViewStyleLegendMetadata
               }
             ]
           },
           {
-            model: models.db.ViewProperties,
+            model: models.ViewProperties,
             require: false
           }
         ],
@@ -5537,7 +5243,7 @@ var DataManager = module.exports = {
    */
   addViewStyleColor: function(colorObject, options) {
     return new Promise(function(resolve, reject) {
-      return models.db.ViewStyleColor.create(colorObject, options)
+      return models.ViewStyleColor.create(colorObject, options)
         .then(function(colorResult) {
           return resolve(colorResult.get());
         })
@@ -5561,7 +5267,7 @@ var DataManager = module.exports = {
   addViewStyleLegend: function(styleLegendObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      return models.db.ViewStyleLegend.create(styleLegendObject, options)
+      return models.ViewStyleLegend.create(styleLegendObject, options)
         .then(function(legendResult) {
           var promises = [];
 
@@ -5597,7 +5303,7 @@ var DataManager = module.exports = {
   },
   addViewStyleLegendMetadata: function(metadataArr, options) {
     return new Promise(function(resolve, reject) {
-      return models.db.ViewStyleLegendMetadata.bulkCreate(metadataArr, options)
+      return models.ViewStyleLegendMetadata.bulkCreate(metadataArr, options)
         .then(function(metadataArrResults) {
           return resolve(Utils.formatMetadataFromDB(metadataArrResults));
         })
@@ -5608,7 +5314,7 @@ var DataManager = module.exports = {
   },
   listViewStyleLegendMetadata: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      return models.db.ViewStyleLegendMetadata.findAll(Utils.extend({where: restriction}, options))
+      return models.ViewStyleLegendMetadata.findAll(Utils.extend({where: restriction}, options))
         .then(function(metadataResults) {
           return resolve(Utils.formatMetadataFromDB(metadataResults));
         })
@@ -5628,7 +5334,7 @@ var DataManager = module.exports = {
             return self.addViewStyleLegendMetadata([metadataObj], options);
           } else if (lengthResult === 1) {
             // update
-            return models.db.ViewStyleLegendMetadata.update(metadataObj, Utils.extend({
+            return models.ViewStyleLegendMetadata.update(metadataObj, Utils.extend({
                 fields: ["key", "value"],
                 where: restriction
               }, options));
@@ -5648,7 +5354,7 @@ var DataManager = module.exports = {
   removeViewStyleLegendMetadata: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      return models.db.ViewStyleLegendMetadata.destroy(Utils.extend({where: restriction}, options))
+      return models.ViewStyleLegendMetadata.destroy(Utils.extend({where: restriction}, options))
         .then(function() {
           return resolve();
         })
@@ -5672,11 +5378,11 @@ var DataManager = module.exports = {
   upsertViewStyleColor: function(restriction, styleColorObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      return models.db.ViewStyleColor.findOne(Utils.extend({where: restriction}, options))
+      return models.ViewStyleColor.findOne(Utils.extend({where: restriction}, options))
         .then(function(colorResult) {
           if (colorResult) {
             // update
-            return models.db.ViewStyleColor.update(styleColorObject, Utils.extend({
+            return models.ViewStyleColor.update(styleColorObject, Utils.extend({
               fields: ["title", "color", "value"],
               where: {
                 id: colorResult.id
@@ -5701,7 +5407,7 @@ var DataManager = module.exports = {
   removeViewStyleColor: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      return models.db.ViewStyleColor.destroy(Utils.extend({where: restriction}, options))
+      return models.ViewStyleColor.destroy(Utils.extend({where: restriction}, options))
         .then(function() {
           return resolve();
         })
@@ -5726,7 +5432,7 @@ var DataManager = module.exports = {
   updateViewStyleLegend: function(restriction, styleLegendObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      return models.db.ViewStyleLegend.update(styleLegendObject, Utils.extend({
+      return models.ViewStyleLegend.update(styleLegendObject, Utils.extend({
           fields: ["type"],
           where: restriction
         }, options))
@@ -5749,7 +5455,7 @@ var DataManager = module.exports = {
   removeViewStyleLegend: function(restriction, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      return models.db.ViewStyleLegend.destroy(Utils.extend({where: restriction}, options))
+      return models.ViewStyleLegend.destroy(Utils.extend({where: restriction}, options))
         .then(function() {
           return resolve();
         })
@@ -5771,7 +5477,7 @@ var DataManager = module.exports = {
 
     return new Promise(function(resolve, reject) {
       var view;
-      return models.db.View.create(viewObject, options)
+      return models.View.create(viewObject, options)
         .then(function(viewResult) {
           view = viewResult;
           if (!Utils.isEmpty(viewObject.legend) && !Utils.isEmpty(viewObject.legend.metadata)) {
@@ -5824,8 +5530,8 @@ var DataManager = module.exports = {
                 }
               }
             }
-            return models.db.ViewProperties.bulkCreate(propertiesList, Utils.extend({view_id: view.id}, options)).then(function () {
-              return models.db.ViewProperties.findAll(Utils.extend({where: {view_id: view.id}}, options)).then(function(viewProperties) {
+            return models.ViewProperties.bulkCreate(propertiesList, Utils.extend({view_id: view.id}, options)).then(function () {
+              return models.ViewProperties.findAll(Utils.extend({where: {view_id: view.id}}, options)).then(function(viewProperties) {
                 viewModel.setProperties(viewProperties);
                 return resolve(viewModel);
               });
@@ -5854,7 +5560,7 @@ var DataManager = module.exports = {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-      models.db.View.update(
+      models.View.update(
         viewObject,
         Utils.extend({
           fields: ["name", "description", "data_series_id", "style", "active", "service_instance_id", "schedule_id", "automatic_schedule_id", "schedule_type", "private", "source_type"],
@@ -5884,7 +5590,7 @@ var DataManager = module.exports = {
       return self.getView(restriction, options).then(function(viewResult) {
         viewResult.active = !viewResult.active;
 
-        return models.db.View.update(viewResult, Utils.extend({
+        return models.View.update(viewResult, Utils.extend({
           fields: ["active"],
           where: restriction
         }, options)).then(function() {
@@ -5951,7 +5657,7 @@ var DataManager = module.exports = {
         })
 
         .then(function() {
-          return models.db.View.destroy(Utils.extend({where: restriction}, options));
+          return models.View.destroy(Utils.extend({where: restriction}, options));
         })
 
         .then(function() {
@@ -5976,7 +5682,7 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       layerObject.registered_view_id = registeredViewId;
-      return models.db.Layer.create(layerObject, options)
+      return models.Layer.create(layerObject, options)
         .then(function(layer) {
           return resolve(layer.get());
         })
@@ -5997,7 +5703,7 @@ var DataManager = module.exports = {
   addRegisteredView: function(registeredViewObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db.RegisteredView.create(registeredViewObject, options)
+      models.RegisteredView.create(registeredViewObject, options)
         .then(function(viewResult) {
           var promises = registeredViewObject.layers_list.map(function(layer) {
             // TODO: Currently, layer is a object {layer: layerName}. It must be removed. Layer must be a string
@@ -6035,31 +5741,31 @@ var DataManager = module.exports = {
        */
       var registeredViews = [];
 
-      return models.db.RegisteredView.findAll(Utils.extend({
+      return models.RegisteredView.findAll(Utils.extend({
         where: restriction,
           // joins
           include: [
           {
-            model: models.db.Layer
+            model: models.Layer
           },
           {
-            model: models.db.View,
+            model: models.View,
             include: [
               {
-                model: models.db.DataSeries
+                model: models.DataSeries
               },
               /** It adds the parameters ViewStyleLegend, ViewStyleColor
                * and ViewStyleLegendMetadata to the list of model registered views
                */
               {
-                model: models.db.ViewStyleLegend,
+                model: models.ViewStyleLegend,
                 required: false,
                 include: [
                   {
-                    model: models.db.ViewStyleColor
+                    model: models.ViewStyleColor
                   },
                   {
-                    model: models.db.ViewStyleLegendMetadata
+                    model: models.ViewStyleLegendMetadata
                   }
                 ]
               }
@@ -6158,7 +5864,7 @@ var DataManager = module.exports = {
   updateRegisteredView: function(restriction, registeredObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      return models.db.RegisteredView.update(registeredObject, Utils.extend({
+      return models.RegisteredView.update(registeredObject, Utils.extend({
         fields: ['workspace', 'uri'],
         where: restriction
       }, options))
@@ -6185,13 +5891,13 @@ var DataManager = module.exports = {
   upsertLayer: function(restriction, layersObject, options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db.Layer.findOne(Utils.extend({
+      models.Layer.findOne(Utils.extend({
         where: restriction
       }, options))
         .then(function(layerResult) {
           // if retrieved a layer, tries update
           if (layerResult) {
-            return models.db.Layer.update(layersObject, Utils.extend({
+            return models.Layer.update(layersObject, Utils.extend({
               fields: ['name'],
               where: {
                 id: layerResult.id
@@ -6222,7 +5928,7 @@ var DataManager = module.exports = {
    */
   listScriptLanguages: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      return models.db.ScriptLanguage.findAll(Utils.extend({where: restriction}, options))
+      return models.ScriptLanguage.findAll(Utils.extend({where: restriction}, options))
         .then(function(scriptLanguages) {
           return resolve(scriptLanguages.map(function(language) {
             return language.get();
@@ -6268,7 +5974,7 @@ var DataManager = module.exports = {
    */
   listVersions: function(restriction, options) {
     return new Promise(function(resolve, reject) {
-      return models.db.Version.findAll(Utils.extend({ where: restriction }, options))
+      return models.Version.findAll(Utils.extend({ where: restriction }, options))
         .then(function(versions) {
           return resolve(versions.map(function(version) {
             return version.get();
@@ -6289,7 +5995,7 @@ var DataManager = module.exports = {
    */
   addVersion: function(version, options) {
     return new Promise(function(resolve, reject) {
-      return models.db.Version.create(version, options).then(function(newVersion) {
+      return models.Version.create(version, options).then(function(newVersion) {
         return resolve(newVersion.get());
       }).catch(function(err) {
         return reject(new Error(Utils.format("Could not save version due %s", err.toString())));
@@ -6300,7 +6006,7 @@ var DataManager = module.exports = {
   isSRIDValid: function(srid) {
     return new Promise(function(resolve, reject) {
       if(!isNaN(srid) && parseInt(Number(srid)) == srid && !isNaN(parseInt(srid, 10))) {
-        models.db.sequelize.query("select count(*) as number_of_items from public.spatial_ref_sys where srid=" + srid).then(function(sridResult) {
+        models.sequelize.query("select count(*) as number_of_items from public.spatial_ref_sys where srid=" + srid).then(function(sridResult) {
           if(sridResult[0][0].number_of_items > 0) {
             resolve();
           } else {
@@ -6317,7 +6023,7 @@ var DataManager = module.exports = {
 
   getSRIDs: function() {
     return new Promise(function(resolve, reject) {
-      models.db.sequelize.query("select srid from public.spatial_ref_sys").then(function(srids) {
+      models.sequelize.query("select srid from public.spatial_ref_sys").then(function(srids) {
         var sridsArray = [];
 
         srids[0].forEach(function(srid) {
@@ -6343,54 +6049,54 @@ var DataManager = module.exports = {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-      return models.db.Interpolator.findAll(Utils.extend({
+      return models.Interpolator.findAll(Utils.extend({
         where: restriction || {},
         include: [
           {
-            model: models.db.Schedule,
+            model: models.Schedule,
             include: [
               {
-                model: models.db.ReprocessingHistoricalData,
+                model: models.ReprocessingHistoricalData,
                 required: false
               }
             ]
           },
           {
-            model: models.db.AutomaticSchedule
+            model: models.AutomaticSchedule
           },
           {
-            model: models.db.InterpolatorMetadata
+            model: models.InterpolatorMetadata
           },
           {
-            model: models.db.DataSeries,
+            model: models.DataSeries,
             as: "dataSeriesInput",
             include: [
               {
-                model: models.db.DataProvider,
-                include: [models.db.DataProviderType]
+                model: models.DataProvider,
+                include: [models.DataProviderType]
               },
-              models.db.DataSeriesSemantics,
+              models.DataSeriesSemantics,
               {
-                model: models.db.DataSet,
+                model: models.DataSet,
                 include: [
-                  models.db.DataSetFormat
+                  models.DataSetFormat
                 ]
               }
             ]
           },
           {
-            model: models.db.DataSeries,
+            model: models.DataSeries,
             as: "dataSeriesOutput",
             include: [
               {
-                model: models.db.DataProvider,
-                include: [models.db.DataProviderType]
+                model: models.DataProvider,
+                include: [models.DataProviderType]
               },
-              models.db.DataSeriesSemantics,
+              models.DataSeriesSemantics,
               {
-                model: models.db.DataSet,
+                model: models.DataSet,
                 include: [
-                  models.db.DataSetFormat
+                  models.DataSetFormat
                 ]
               }
             ]
@@ -6450,7 +6156,7 @@ var DataManager = module.exports = {
   addInterpolator: function(interpolatorObject, options){
     var self = this;
     return new Promise(function(resolve, reject){
-      models.db.Interpolator.create(interpolatorObject, options)
+      models.Interpolator.create(interpolatorObject, options)
         .then(function(interpolatorResult){
           var interpolatorMetadata = [];
           for(var key in interpolatorObject.metadata) {
@@ -6496,7 +6202,7 @@ var DataManager = module.exports = {
   addInterpolatorMetadata: function(interpolatorMetadataObject, options){
     var self = this;
     return new Promise(function(resolve, reject) {
-      return models.db.InterpolatorMetadata.bulkCreate(interpolatorMetadataObject, options)
+      return models.InterpolatorMetadata.bulkCreate(interpolatorMetadataObject, options)
         .then(function(bulkInterpolatorMetadata) {
           return resolve(Utils.formatMetadataFromDB(bulkInterpolatorMetadata));
         })
@@ -6519,7 +6225,7 @@ var DataManager = module.exports = {
   updateInterpolator: function(restriction, interpolatorObject, options){
     var self = this;
     return new Promise(function(resolve, reject) {
-      models.db.Interpolator.update(
+      models.Interpolator.update(
         interpolatorObject,
         Utils.extend({
           fields: ["active", "bounding_rect", "interpolation_attribute", "resolution_x", "resolution_y", "service_instance_id", "schedule_id", "automatic_schedule_id", "schedule_type", "srid", "interpolator_strategy"],
@@ -6582,7 +6288,7 @@ var DataManager = module.exports = {
   removeInterpolatorMetadata: function(restriction, options){
     var self = this;
     return new Promise(function(resolve, reject){
-      return models.db.InterpolatorMetadata.destroy(Utils.extend({where: restriction}, options)).then(function(){
+      return models.InterpolatorMetadata.destroy(Utils.extend({where: restriction}, options)).then(function(){
         return resolve();
       })
     })
@@ -6600,7 +6306,7 @@ var DataManager = module.exports = {
     var self = this;
     return new Promise(function(resolve, reject) {
       return self.getInterpolator({id: interpolatorParam.id}, options).then(function(interpolatorResult) {
-        return models.db.Interpolator.destroy(Utils.extend({where: {id: interpolatorParam.id}}, options)).then(function() {
+        return models.Interpolator.destroy(Utils.extend({where: {id: interpolatorParam.id}}, options)).then(function() {
           return self.removeDataSerie({id: interpolatorResult.data_series_output}, options).then(function() {
             var removeSchedulePromise;
             if (interpolatorResult.scheduleType == Enums.ScheduleType.SCHEDULE){

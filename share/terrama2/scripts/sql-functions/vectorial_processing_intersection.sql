@@ -118,11 +118,10 @@ BEGIN
     fields_name := format('%s.monitored_id,
                            %s.intersect_id,
                            %s.monitored_geom,
-                           %s.intersection_geom,
-                           ST_Area(%s.intersection_geom) AS %s.intersection_geom_area',
+                           %s.intersection_geom',
                            intersection_table, intersection_table, intersection_table, intersection_table, intersection_table, intersection_table);
 
-    FOR i IN 1..array_length(additional_dataseries_list, 1)
+    FOR i IN 1..coalesce(array_length(additional_dataseries_list, 1), 0)
     LOOP
         additional_dataseries := additional_dataseries_list[i];
 

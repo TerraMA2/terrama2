@@ -21,7 +21,12 @@ var _data = {
    * It defines TerraMA² semantics loaded
    * @type {any[]}
    */
-  "semantics": []
+  "semantics": [],
+  /**
+   * Defines TerraMA2 version
+   * @type {any}
+   */
+  "version": null
 };
 
 /**
@@ -47,24 +52,21 @@ function Application() {
  * @throws TypeError When read content is not a valid json
  */
 Application.prototype.load = function() {
+  // reading Version
+  const version = require(path.resolve(__dirname, '../../share/terrama2/version.json'));
+  _data.version = version;
+
   // reading TerraMA² webapp metadata
-  var buffer = JSON.parse(fs.readFileSync(path.join(__dirname, "../package.json"), "utf-8"));
+  const buffer = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../package.json"), "utf-8"));
 
   _data.metadata.name = buffer.name;
   _data.metadata.version = buffer.version;
   _data.metadata.fullName = buffer.name + " " + buffer.version;
 
   // reading TerraMA² instances configuration
-  var configFiles = fs.readdirSync(path.join(__dirname, "../config/instances"));
-  var configObject = {};
-  configFiles.forEach(function(configFile){
-    if (configFile.endsWith(".json")){
-      var configFileContent = JSON.parse(fs.readFileSync(path.join(__dirname, "../config/instances/" + configFile), "utf-8"));
-      var configName = configFile.split(".")[0];
-      configObject[configName] = configFileContent;
-    }
-  });
-  _data.settings = configObject;
+  const settings = require(path.resolve(__dirname, "../config/settings.json"));
+
+  _data.settings = settings;
 
   // reading TerraMA² .json files in semantics directory
   var semanticsFiles = fs.readdirSync(path.join(__dirname, "../../share/terrama2/semantics"));
@@ -78,29 +80,15 @@ Application.prototype.load = function() {
     }
   });
   _data.semantics = semanticsArray;
-};
 
-/**
- * It sets current terrama2 context
- *
- * @throws {Error} When a contexts is not in instances/*.json
- * @param {string} context
- * @returns {void}
- */
-Application.prototype.setCurrentContext = function(context) {
-  if (!context) {
-    return;
-  }
-  // checking if there is a context in configuration file
-  if (_data.settings && !_data.settings.hasOwnProperty(context)) {
-    var msg = `"${context}" not found in configuration file. Please check "webapp/config/instances"`;
-    throw new Error(msg);
-  }
-
-  _context = context;
-
-  if (_data.settings[context].webAppId === undefined || _data.settings[context].webAppId === "")
+  if (_data.settings.webAppId === undefined || _data.settings.webAppId === "")
     setWebAppIdToContext();
+
+  const dbSettings = require(path.resolve(__dirname, '../config/db.json'));
+
+  const mode = process.NODE_ENV || 'development';
+
+  _data.settings.db = dbSettings[mode];
 };
 
 /**
@@ -109,7 +97,7 @@ Application.prototype.setCurrentContext = function(context) {
  * @returns {Object}
  */
 Application.prototype.getContextConfig = function() {
-  return _data.settings[_context];
+  return _data.settings;
 };
 
 /**
@@ -119,6 +107,19 @@ Application.prototype.getContextConfig = function() {
  */
 Application.prototype.getAllConfigs = function() {
   return _data.settings;
+}
+
+/**
+ * Retrieves TerraMA2 version string
+ * @returns {string|any}
+ */
+Application.prototype.getVersion = function(serialize = true) {
+  if (serialize) {
+    const { version } = _data;
+    return `${version.major}.${version.minor}.${version.patch}-${version.tag}`;
+  }
+
+  return _data.version;
 }
 
 /**
@@ -138,16 +139,14 @@ Application.prototype.get = function(settingName) {
  * Setting web app id in context
  */
 var setWebAppIdToContext = function(){
-  var configFileName = path.join(__dirname, "../config/instances/" + _context + ".json");
+  var configFileName = path.join(__dirname, "../config/settings.json");
   var configFile = require(configFileName);
   var salt = bcrypt.genSaltSync(10);
   var date = new Date().getTime().toString();
   var hashId = _context + "|||" + bcrypt.hashSync(date + _context, salt);
   configFile.webAppId = hashId;
-  fs.writeFile(configFileName, JSON.stringify(configFile, null, 2), function(err){
-    if (err) return console.log(err);
-  });
-  _data.settings[_context].webAppId = hashId;
+  fs.writeFileSync(configFileName, JSON.stringify(configFile, null, 2));
+  _data.settings.webAppId = hashId;
 };
 
 /**

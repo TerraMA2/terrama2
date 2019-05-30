@@ -28,7 +28,7 @@ async function loadDatabaseFunctions(uri) {
   for(let sqlFile of sqlFiles) {
     const sql = fs.readFileSync(pathResolver(scriptsDirectory, sqlFile));
 
-    await connector.execute(sql);
+    await connector.execute(sql.toString());
   }
 
   await connector.disconnect();

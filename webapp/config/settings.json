@@ -8,17 +8,6 @@
   "debug": true,
   "OGR2OGR": "ogr2ogr",
   "SHP2PGSQL": "shp2pgsql",
-  "db": {
-    "username": "postgres",
-    "password": "postgres",
-    "database": "terrama2",
-    "host": "127.0.0.1",
-    "dialect": "postgres",
-    "define": {
-      "schema": "terrama2"
-    },
-    "logging": false
-  },
   "toolsMenu": [
     {
       "textEn": "TerraMA² Homepage",

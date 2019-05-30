@@ -3,22 +3,11 @@
 'use strict';
 
 /**
- * It defines which context nodejs should initialize. The context names are available in {@link config/instances}
- * @typeof {string}
- */
-var nodeContext = process.argv[2];
-
-/**
- * It defines which port nodejs should use. When this variables is used, it overrides port number from {@link config/instances}
- */
-var nodeContextPort = process.argv[3];
-
-/**
  * It defines TerraMA² global configuration (Singleton). Make sure it initializes before everything
  *
  * @type {Application}
  */
-var Application = require("./../core/Application");
+const Application = require("./../core/Application");
 
 /**
  * It defines TerraMA² logger library
@@ -26,13 +15,9 @@ var Application = require("./../core/Application");
  */
 var logger = require("./../core/Logger");
 
-// setting currentContext
-Application.setCurrentContext(nodeContext);
-
 /**
  * Module dependencies.
  */
-var PluginLoader = require("../core/PluginLoader");
 var DataManager = require("../core/DataManager");
 var HTTPFactory = require("./../config/HTTPFactory");
 var PortScanner = require("./../core/PortScanner");
@@ -167,38 +152,47 @@ function onListening() {
 io.attach(server);
 load('sockets').into(io);
 
-// getting db configuration and initializes data manager
-return DataManager.init(null, async function (error) {
-  if (error) {
-    logger.error(error);
-    return process.exit(1);
-  }
+(async () => {
+  const Database = require('./../config/Database');
 
-  try {
-    var applicationPath = path.join(__dirname, './../..');
-    child_process.execSync("python " + applicationPath + "/share/terrama2/scripts/update_database.py " + applicationPath);
+  const orm = await Database.init();
 
-    // loading terrama2 data
-    await DataManager.load();
-    // initialize service listeners
-    await TcpService.init();
-    // Listing Service Instances in order to start automatically on startup
-    const services = await DataManager.listServiceInstances();
-
-    logger.info('Trying to start TerraMA² services...');
-    let hasError = false;
-    for(let service of services) {
+  // getting db configuration and initializes data manager
+  DataManager.init(orm)
+    .catch(error => {
+      logger.error(error);
+      return process.exit(1);
+    })
+    .then(async () => {
       try {
-        await TcpService.start({ service: service.id });
-      } catch (err) {
-        hasError = true;
-        // logger.error(`Could not start service ${service.name}: ${err.message}.`);
+        // var applicationPath = path.join(__dirname, './../..');
+        // child_process.execSync("python " + applicationPath + "/share/terrama2/scripts/update_database.py " + applicationPath);
+
+        // loading terrama2 data
+        await DataManager.load();
+        // initialize service listeners
+        await TcpService.init();
+        // Listing Service Instances in order to start automatically on startup
+        const services = await DataManager.listServiceInstances();
+
+        logger.info('Trying to start TerraMA² services...');
+        let hasError = false;
+        for(let service of services) {
+          try {
+            await TcpService.start({ service: service.id });
+          } catch (err) {
+            hasError = true;
+            // logger.error(`Could not start service ${service.name}: ${err.message}.`);
+          }
+        }
+        if (hasError) {
+          logger.warn('TerraMA² services have not started properly. Check the parameters on Administration Page.');
+        }
+      } catch (error) {
+        console.error("Failed to update database.\n"+error);
+        process.exit(1);
       }
-    }
-    if (hasError) {
-      logger.warn('TerraMA² services have not started properly. Check the parameters on Administration Page.');
-    }
-  } catch (error) {
-    throw new Error("Failed to update database.\n"+error);
-  }
-});
+    });
+})()
+
+

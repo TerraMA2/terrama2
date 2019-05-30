@@ -6,7 +6,16 @@
     "start": "grunt && NODE_ENV=PRODUCTION node ./bin/www",
     "dev": "grunt && node ./bin/www",
     "grunt": "grunt",
-    "test": "mocha -c --reporter=spec --timeout 99999 --recursive 'tests/**/*.spec.js'"
+    "test": "mocha -c --reporter=spec --timeout 99999 --recursive 'tests/**/*.spec.js'",
+    "sequelize": "sequelize",
+    "db:migrate": "sequelize db:migrate",
+    "db:migrate:create": "sequelize db:migrate:create",
+    "db:migrate:undo": "sequelize db:migrate:undo:all",
+    "db:seed": "sequelize db:seed",
+    "db:seed:all": "sequelize db:seed:all --debug",
+    "db:seed:create": "sequelize seed:create",
+    "db:seed:undo": "sequelize db:seed:undo",
+    "db:seed:undo:all": "sequelize db:seed:undo:all"
   },
   "bin": {
     "webapp-stop": "./bin/webapp-stop"
