@@ -13,8 +13,7 @@ const semanticsSupported = [
   'NETCDF-nc', 'GRID-grads', 'GRID-grib',
   'ANALYSIS_MONITORED_OBJECT-postgis',
   'Occurrence-generic', 'OCCURRENCE-wfp',
-  'OCCURRENCE-lightning', 'OCCURRENCE-postgis',
-  'GRID-static_gda'
+  'OCCURRENCE-lightning', 'OCCURRENCE-postgis'
 ]
 
 module.exports = {
