@@ -46,7 +46,7 @@ void terrama2::services::analysis::core::vp::Intersection::execute()
 
   std::string sql = "SELECT table_name, affected_rows::double precision FROM vectorial_processing_intersection("+ std::to_string(analysis_->id) +", '" +
                     monitoredTableName + "', '" + dynamicDataSeriesTableName + "', ";
-  sql += "ARRAY[" + queryTableNamesParameter + "], '" + whereCondition_ + "')";
+  sql += "ARRAY[" + queryTableNamesParameter + "]::VARCHAR[], '" + whereCondition_ + "')";
 
   resultDataSet_ = transactor->query(sql);
 }

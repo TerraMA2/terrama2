@@ -8,7 +8,7 @@ var express = require('express'),
     app = express(),
     load = require('express-load'),
     swig = require('swig'),
-    passport = require('./config/Passport'),
+    passport = require('./core/utility/Passport'),
     session = require('express-session'),
     flash = require('connect-flash'),
     // i18n = require('i18n-2'),
@@ -30,8 +30,6 @@ i18n.configure({
   objectNotation : true
 });
 
-Application.setCurrentContext(instance);
-
 // Get base url from environment and store in Express.
 app.locals.BASE_URL = Application.getContextConfig().basePath;
 
@@ -50,7 +48,7 @@ app.use(i18nRoutes.getLocale);
 i18nRoutes.configure(app, {"extension": ".json", directory : __dirname + "/locales/"});
 
 app.use(function(req, res, next) {
-  var configurations = JSON.parse(fs.readFileSync(path.join(__dirname, './config/instances/' + instance + '.json'), 'utf8'));
+  var configurations = Application.getContextConfig();
   res.locals.toolsMenu = configurations.toolsMenu;
   next();
 });

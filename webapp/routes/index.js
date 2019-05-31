@@ -1,5 +1,5 @@
 module.exports = function (app) {
-  var passport = require('./../config/Passport');
+  var passport = require('./../core/utility/Passport');
   var controller = app.controllers.index;
 
   app.get(app.locals.BASE_URL, controller);

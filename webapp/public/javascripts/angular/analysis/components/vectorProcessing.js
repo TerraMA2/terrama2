@@ -110,6 +110,14 @@ define([],()=> {
                     ng-show="forms.targetDataSeriesForm.targetDataSeries.$dirty && forms.targetDataSeriesForm.targetDataSeries.$error.required">
                 {{ i18n.__('Data Series is required') }}
               </span>
+
+              <div class="col-md-12">
+                <div class="row">
+                  <div class="col-md-12">
+                    <query-builder css="ctrl.css" model="$ctrl.model.queryBuilder"></query-builder>
+                  </div>
+                </div>
+              </div>
               `
   };
   return component;

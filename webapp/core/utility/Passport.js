@@ -1,12 +1,12 @@
 var passport = require('passport'),
     LocalStrategy = require('passport-local').Strategy,
     bcrypt = require('bcrypt'),
-    DataManager = require("./../core/DataManager"),
+    DataManager = require("./../DataManager"),
     BASE_URL = null;
 
 /**
  * Middleware to check if current user is authenticated and redirect him to correct path
- * 
+ *
  * @param {Request} req - Express request instance
  * @param {Response} res - Express response instance
  */

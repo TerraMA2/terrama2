@@ -67,6 +67,7 @@
 
 <!-- Moment Datetime JS -->
 <script type="text/javascript" src="{[ BASE_URL ]}externals/moment/moment.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment-timezone/builds/moment-timezone-with-data.js"></script>
 <!-- Angular tree control -->
 <script type="text/javascript" src="{[ BASE_URL ]}externals/angular-tree-control/angular-tree-control.js"></script>
 <!-- Ace editor -->
@@ -410,11 +411,6 @@
         </div><!--./col-md-12-->
       </div><!--./row-->
     </terrama2-box>
-
-    <query-builder css="ctrl.css"
-                   model="ctrl.analysis.metadata.queryBuilder"
-                   ng-show="ctrl.analysis.type_id == {[ Enums.AnalysisType.VP ]} && forms.generalDataForm.type.$valid">
-    </query-builder>
 
     <terrama2-box title="i18n.__('Grid configuration')"
                   css="ctrl.css"
