@@ -763,9 +763,9 @@ module.exports = function(app) {
 
       try {
         const dataProvider = await DataManager.getDataProvider({ id: provider });
-        await validateView(dataProvider.uri, tableName, attributes, whereCondition);
+        const resultSet = await validateView(dataProvider.uri, tableName, attributes, whereCondition);
 
-        response.json({});
+        response.json({result:resultSet.rowCount});
       } catch (err) {
         response.status(400);
         response.json({ error: err.message });

@@ -136,8 +136,7 @@ define([
 
     try {
       const response = await BaseService.$request(`${url}/validateView`, "POST", { data: bodyData });
-
-      return response.status === 200;
+      return response;
     } catch (errResponse) {
       throw new Error(`View Error: ${errResponse.data.error}`);
     }

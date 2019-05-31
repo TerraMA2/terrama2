@@ -2222,7 +2222,27 @@ define([], function() {
         return fieldAlias;
       }
 
-      $scope.save = function(shouldRun) {
+
+      /**
+       * Callback to display View Validation message
+       */
+      $scope.onValidateView = async function() {
+        const title = $scope.i18n.__('View Validation');
+
+        const provider = $scope.dataSeries.data_provider_id;
+        const { table_name, query_builder } = $scope.model;
+
+        try {
+          const result = await DataSeriesService.validateView(table_name, provider, query_builder);
+          MessageBoxService.success(title, $scope.i18n.__(`View is valid, the query returned ${result.data.result} ${result.data.result > 1 ? "registers" : "register"}`));
+          return true;
+        } catch (err) {
+          MessageBoxService.danger(title, $scope.i18n.__(err.message));
+          return false;
+        }
+      };
+
+      $scope.save = async function(shouldRun) {
         $scope.shouldRun = shouldRun;
         $scope.extraProperties = {};
         $scope.$broadcast('formFieldValidation');
@@ -2287,6 +2307,10 @@ define([], function() {
             return;
           }
         }
+
+        if ($scope.semanticsCode === 'STATIC_DATA-VIEW-postgis')
+          if(!await $scope.onValidateView())
+            return;
 
         if($scope.model.srid) {
           var sridValidationResult = $scope.validateSrid($scope.model.srid);
@@ -2362,25 +2386,6 @@ define([], function() {
       return;
 
     return dataSeries.semantics && dataSeries.semantics.driver === 'STATIC_DATA-VIEW-postgis';
-  };
-
-  /**
-   * Callback to display View Validation message
-   */
-  RegisterDataSeries.prototype.onValidateView = async function() {
-    const { $scope, DataSeriesService, MessageBoxService } = this;
-    const title = $scope.i18n.__('View Validation');
-
-    const provider = $scope.dataSeries.data_provider_id;
-    const { table_name, query_builder } = $scope.model;
-
-    try {
-      await DataSeriesService.validateView(table_name, provider, query_builder);
-
-      MessageBoxService.success(title, $scope.i18n.__('View is valid!'));
-    } catch (err) {
-      MessageBoxService.danger(title, $scope.i18n.__(err.message));
-    }
   };
 
   RegisterDataSeries.prototype.previewMap = async function() {
