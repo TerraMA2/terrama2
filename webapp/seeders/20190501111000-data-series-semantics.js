@@ -8,7 +8,7 @@ const semanticsSupported = [
   'DCP-postgis','DCP-single_table', 'DCP-toa5',
   'GEOMETRIC_OBJECT-ogr', 'GEOMETRIC_OBJECT-wfe',
   'STATIC_DATA-ogr', 'GEOMETRIC_OBJECT-postgis',
-  'STATIC_DATA-postgis', 'STATIC_DATA-VIEW-postgis',
+  'STATIC_DATA-postgis',
   'GRID-gdal', 'GRID-static_gdal', 'GRID-geotiff', 'GRID-ascii',
   'NETCDF-nc', 'GRID-grads', 'GRID-grib',
   'ANALYSIS_MONITORED_OBJECT-postgis',

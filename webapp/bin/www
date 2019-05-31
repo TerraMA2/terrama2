@@ -155,7 +155,12 @@ load('sockets').into(io);
 (async () => {
   const Database = require('./../core/utility/Database');
 
-  const orm = await Database.init();
+  try {
+
+    var orm = await Database.init();
+  } catch (err) {
+    console.log(err);
+  }
 
   // getting db configuration and initializes data manager
   DataManager.init(orm)
@@ -166,7 +171,7 @@ load('sockets').into(io);
     .then(async () => {
       try {
         const applicationPath = path.join(__dirname, './../..');
-        child_process.execSync("python " + applicationPath + "/share/terrama2/scripts/update_database.py " + applicationPath);
+        child_process.execSync(`python ${applicationPath}/share/terrama2/scripts/update_database.py ${applicationPath} ${Application.getMode()}`);
 
         // loading terrama2 data
         await DataManager.load();

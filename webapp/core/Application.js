@@ -86,7 +86,7 @@ Application.prototype.load = function() {
 
   const dbSettings = require(path.resolve(__dirname, '../config/db.json'));
 
-  const mode = (process.env.NODE_ENV ? `${process.env.NODE_ENV}`.toLowerCase() : '') || 'development';
+  const mode = this.getMode();
 
   if (!dbSettings[mode]) {
     throw new Error(`The mode ${mode} is not located in "config/db.json"`)
@@ -103,6 +103,15 @@ Application.prototype.load = function() {
 Application.prototype.getContextConfig = function() {
   return _data.settings;
 };
+
+/**
+ * Retrieves application mode. The value is based in environment variable NODE_ENV
+ *
+ * **Used** to retrieve specific database configuration
+ */
+Application.prototype.getMode = function() {
+  return (process.env.NODE_ENV ? `${process.env.NODE_ENV}`.toLowerCase() : '') || 'development';
+}
 
 /**
  * It retrieves all context configs

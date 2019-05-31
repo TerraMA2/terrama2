@@ -179,15 +179,15 @@ async function insertDefaultSeeds(seedersPath) {
   })
 
   if (seedersToInsert.length > 0) {
-    let queryValues = '';
-
     for(let seedFile of seedersToInsert) {
-      queryValues += `( '${seedFile}' ), `
+      try {
+        const sql = `INSERT INTO terrama2."SequelizeMeta" VALUES ( '${seedFile}' )`;
+
+        await sequelize.query(sql)
+      } catch (err) {
+        // skip duplicate
+      }
     }
-
-    const sql = `INSERT INTO terrama2."SequelizeMeta" VALUES ${queryValues.substring(0, queryValues.length - 2)}`;
-
-    await sequelize.query(sql)
 
     return;
   }

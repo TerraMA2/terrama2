@@ -1,6 +1,7 @@
 'use strict';
 
 const Application = require('./../core/Application')
+const logger = require('./../core/Logger')
 
 module.exports = {
   up: async function (queryInterface, /*Sequelize*/) {
@@ -21,7 +22,7 @@ module.exports = {
         internalSemantic => internalSemantic.code === semantic.code);
 
       if (!matchedSemantic) {
-        console.log(`The semantic ${semantic.code} does not exists in database...`);
+        logger.debug(`The semantic ${semantic.code} does not exists in database...`);
         continue;
       }
 
