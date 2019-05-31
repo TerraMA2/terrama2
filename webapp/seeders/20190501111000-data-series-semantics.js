@@ -2,7 +2,6 @@
 
 const Application = require('./../core/Application');
 const logger = require('./../core/Logger');
-const { insertOrSkip } = require('./../core/utility/seeder');
 
 const semanticsSupported = [
   'DCP-json_cemaden', 'DCP-generic', 'DCP-inpe',
