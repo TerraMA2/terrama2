@@ -3699,6 +3699,7 @@ var DataManager = module.exports = {
               }
             }, options));
           case Enums.AnalysisType.MONITORED:
+          case Enums.AnalysisType.VP:
           case Enums.AnalysisType.DCP:
             // save/update
             var newMetadata = Utils.generateArrayFromObject(analysisObject.metadata, function(key, value) {

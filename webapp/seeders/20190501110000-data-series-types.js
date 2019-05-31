@@ -10,8 +10,7 @@ module.exports = {
       { name: 'OCCURRENCE', description: 'test'},
       { name: 'GRID', description: 'test'},
       { name: 'ANALYSIS_MONITORED_OBJECT', description: 'test'},
-      { name: 'GEOMETRIC_OBJECT', description: 'test'},
-      { name: 'VECTOR_PROCESSING_OBJECT', description: 'test'},
+      { name: 'GEOMETRIC_OBJECT', description: 'test'}
     ]
 
     return queryInterface.bulkInsert({ schema: 'terrama2', tableName: 'data_series_types'}, bulkData);

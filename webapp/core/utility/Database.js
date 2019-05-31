@@ -1,10 +1,20 @@
+const fs = require('fs');
+const moment = require('moment')
 const pg = require('pg');
 const path = require('path');
+const sequelizeModule = require('sequelize');
 const Umzug = require('umzug')
 const Application = require("./../Application");
 const logger = require('./../Logger');
 const Promise = require('./../Promise');
 const Sequelize = require('./Sequelize');
+
+class DatabaseError extends Error {
+  constructor(msg) {
+    super(msg)
+    this.code = 'DatabaseError'
+  }
+}
 
 /**
  * @type {Connection}
@@ -97,7 +107,7 @@ async function prepareMigrations() {
     migrations: {
       params: [
         sequelize.getQueryInterface(),
-        require('sequelize')
+        sequelizeModule
       ],
       path: path.resolve(__dirname, '../../migrations')
     }
@@ -105,7 +115,7 @@ async function prepareMigrations() {
 
   try {
     await migrator.up();
-    logger.info(`Migrations loaded.`)
+    logger.debug(`Migrations loaded.`)
 
     await prepareInitialValues();
 
@@ -117,27 +127,72 @@ async function prepareMigrations() {
 }
 
 async function prepareInitialValues() {
+  const seedersPath = path.resolve(__dirname, '../../seeders');
+
   const migrator = new Umzug({
     storage: 'sequelize',
     storageOptions: { sequelize },
     migrations: {
       params: [
         sequelize.getQueryInterface(),
-        require('sequelize')
+        sequelizeModule
       ],
-      path: path.resolve(__dirname, '../../seeders')
+      path: seedersPath
     }
   })
 
   try {
     await migrator.up();
-    logger.info(`Done.`)
+    logger.debug(`Done.`)
 
     return sequelize;
   } catch (err) {
-    console.log(err);
-    throw err;
+    if (err instanceof sequelizeModule.UniqueConstraintError) {
+      // When uniqueError, assume BASE date migration
+      const version = Application.getVersion(false);
+
+      if (version.minor >= 1) {
+        await insertDefaultSeeds(seedersPath);
+
+        return await prepareInitialValues();
+      }
+    }
+
+    logger.error(err);
+    throw new DatabaseError(err.message);
   }
+}
+
+async function insertDefaultSeeds(seedersPath) {
+  const baseSeederDate = moment('2019-05-02', 'YYYY-MM-DD');
+
+  const files = fs.readdirSync(seedersPath);
+  const regexDate = /([0-9]{4}[0-9]{2}[0-9]{2}[0-9]{2})\w/;
+
+  const seedersToInsert = files.filter(file => {
+    const fileDateMatched = file.match(regexDate);
+
+    if (!fileDateMatched || fileDateMatched.length === 0)
+      return false;
+
+    return moment(fileDateMatched[1], 'YYYYMMDDHH') <= baseSeederDate;
+  })
+
+  if (seedersToInsert.length > 0) {
+    let queryValues = '';
+
+    for(let seedFile of seedersToInsert) {
+      queryValues += `( '${seedFile}' ), `
+    }
+
+    const sql = `INSERT INTO terrama2."SequelizeMeta" VALUES ${queryValues.substring(0, queryValues.length - 2)}`;
+
+    await sequelize.query(sql)
+
+    return;
+  }
+
+  throw new DatabaseError(`Unknown error`);
 }
 
 /**
@@ -264,7 +319,8 @@ class Database {
         return this.connect(`${uri}/${databaseName}`)
           // On success, just proceed and create schema
           .then(client => createStructures(client, schema, contextConfig))
-          .then(() => resolve(prepareMigrations()))
+          .then(() => prepareMigrations())
+          .then(orm => resolve(orm))
       };
 
       // Tries to connect real database and proceed with data structures creation
@@ -272,7 +328,7 @@ class Database {
         // On error, tries to connect to PostgreSQL to create database manually
         .catch(err => {
           // When code is related to pg_hba.conf, stop promise chain.
-          if (err.code === '28000') {
+          if (err.code === '28000' || err.code === 'DatabaseError') {
             return reject(err);
           }
 

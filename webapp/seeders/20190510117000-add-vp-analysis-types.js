@@ -3,9 +3,7 @@
 const { AnalysisType } = require('./../core/Enums')
 
 const analysisTypes = [
-  { id: AnalysisType.DCP, name: "Dcp" },
-  { id: AnalysisType.GRID, name: "Grid" },
-  { id: AnalysisType.MONITORED, name: "Monitored Object" }
+  { id: AnalysisType.VP, name: "Vector Processing" }
 ];
 
 module.exports = {
