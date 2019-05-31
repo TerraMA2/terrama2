@@ -5,16 +5,10 @@ define([
     $templateCache.put("directives/decorators/bootstrap/querybuilder/querybuilder.html",
       `<div class="form-group {{form.htmlClass}}" ng-class="{'has-error': hasError(), 'has-success': hasSuccess(), 'has-feedback': form.feedback !== false}"
             ng-controller="QueryBuilderController as ctrl">
-        <label class="control-label {{form.labelHtmlClass}}"
-               ng-show="showTitle()">
-          {{ form.title || showTitle() }}
-        </label>
         <div class="form-group">
-          <div class="row">
-            <query-builder model="$$value$$" ng-init=\"$$value$$=$$value$$||[];ctrl.init($$value$$)\" attributes="ctrl.attributes"
-                           on-change="ctrl.onChange(queryBuilder)">
-            </query-builder>
-          </div>
+          <query-builder model="$$value$$" ng-init=\"$$value$$=$$value$$||[];ctrl.init($$value$$)\" attributes="ctrl.attributes"
+                        on-change="ctrl.onChange(queryBuilder)">
+          </query-builder>
         </div>
       </div>`);
   }
