@@ -1,0 +1,42 @@
+[
+  {
+    "name": "=",
+    "code": "="
+  },
+  {
+    "name": ">=",
+    "code": ">="
+  },
+  {
+    "name": "<=",
+    "code": "<="
+  },
+  {
+    "name": "<",
+    "code": "<"
+  },
+  {
+    "name": ">",
+    "code": ">"
+  },
+  {
+    "name": "BETWEEN",
+    "code": "BETWEEN <value> AND <value>"
+  },
+  {
+    "name": "LIKE",
+    "code": "LIKE ''"
+  },
+  {
+    "name": "ALIKE",
+    "code": "ALIKE"
+  },
+  {
+    "name": "IN",
+    "code": "IN (<value1>, <value2>)"
+  },
+  {
+    "name": "NOT IN",
+    "code": "NOT IN (<value1>, <value2>)"
+  }
+]

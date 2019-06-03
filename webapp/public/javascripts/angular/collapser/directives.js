@@ -20,7 +20,7 @@ define([], function() {
     /**
      * A deep match object. It checks every key/object in target and match them from initial object.
      * It applies a auto recursive call when obj key is pointing to an another object.
-     * 
+     *
      * @param {Object} obj - An javascript object with key/values to check.
      * @param {Object} target - An javascript object to be watched
      * @return {Boolean} a boolean condition of comparator.
@@ -29,8 +29,8 @@ define([], function() {
         for(var key in obj) {
           if (obj.hasOwnProperty(key)) {
             if (isObject(target) && !target.hasOwnProperty(key)) {
-              /** 
-               * If element from array do not contain filter key, return it. 
+              /**
+               * If element from array do not contain filter key, return it.
                * It is important whenever you intend to filter object that do not contain key properly.
                */
               return target;
@@ -74,6 +74,11 @@ define([], function() {
           return input;
         }
 
+        // When filter object is empty, do not apply filter
+        if (Object.keys(objFilter).length === 0) {
+          return input;
+        }
+
         // retrieving all matched values
         return input.filter(function(elm) {
           return match(objFilter, elm);
@@ -82,9 +87,9 @@ define([], function() {
     }])
     /**
      * Defines a component for Collapse tree view on html lists
-     * 
+     *
      * @todo Improve extensibility with Angular Element (restrict: "E")
-     * 
+     *
      * @example
      * <ul terrama2-collapse>
      *   <li>
@@ -106,7 +111,7 @@ define([], function() {
 
       /**
        * It handles TerraMA² Collapse after Angular Compilation (post:link)
-       * 
+       *
        * @param {angular.IScope} scope - Angular Scope directive
        * @param {angular.IElement} element - Angular Directive Element Selector
        * @param {angular.IAttributes} attrs - Angular Directive Element Attributes
@@ -127,23 +132,23 @@ define([], function() {
     /**
      * It defines a TerraMA² List auto-recursive directive. When a data has children instances, it auto call yourself to generate
      * sub items.
-     * 
+     *
      * @usage
      * ### JS ###
      * $scope.myList = [
      *   {"name": "Item 1", "children": [{"name": "Sub Item 1.1"}, {"name": "Sub Item 1.2", "children": [{"name": "Sub Sub Item 1.2.1]}]},
      *   {"name": "Item 2", "children": [{"name": "Sub Item 2.1"}]}
      * ] // or ctrl.myList
-     * 
+     *
      * ### HTML ###
      * <terrama2-list class="CSS_CLASSES" data="myList">
      * </terrama2-list>
-     * 
+     *
      * @returns {angular.IDirective}
      */
     function terrama2ListDirective() {
       return {
-        restrict: "E", 
+        restrict: "E",
         replace: true,
         require: "^?terrama2ListItem",
         scope: {
@@ -208,7 +213,7 @@ define([], function() {
         };
         /**
          * Get current level of iteration
-         * 
+         *
          * @return {number}
          */
         this.getLevel = function() {
@@ -219,7 +224,7 @@ define([], function() {
 
     /**
      * It defines a TerraMA² List Item recursive directive. When a data has children instances, it auto call parent (terrama2-list) and make it again
-     * 
+     *
      * @returns {angular.IDirective}
      */
     function terrama2ListDirectiveItem($compile) {
@@ -234,7 +239,7 @@ define([], function() {
         controllerAs: "vm",
         template: "<li class=\"operators-item-list\">" +
                     "<a ng-if=\"!data.image\" href=\"javascript::void()\" ng-click=\"onClick(data)\" data-toggle=\"tooltip\" data-placement=\"top\" ng-attr-title=\"{{data.description}}\">{{ data.name }}</a>" +
-                    "<a ng-if=\"data.image\" href=\"javascript::void()\" ng-click=\"onClick(data)\">" + 
+                    "<a ng-if=\"data.image\" href=\"javascript::void()\" ng-click=\"onClick(data)\">" +
                       "<img ng-src=\"" + BASE_URL + "{{data.image}}\"/> {{data.name}}"+
                     "</a>" +
                   "</li>",
@@ -249,7 +254,7 @@ define([], function() {
         var items = [];
         /**
          * Add a new child in the context.
-         * 
+         *
          * @param {angular.IScope} childScope - Angular scope
          */
         this.addChild = function(childScope) {
@@ -259,13 +264,13 @@ define([], function() {
 
       /**
        * It handles directive post link. Used to identify if current scoped data has children element. If there is, auto-call parent
-       * (terrama2-list) again giving array. 
-       * 
+       * (terrama2-list) again giving array.
+       *
        * @todo Remove harded-code used in style (dropdown-menu)
-       * 
+       *
        * @param {angular.IScope}      scope - Angular Directive scope
        * @param {angular.IElement}    element - Directive Selector (jQlite)
-       * @param {angular.IAttributes} attrs - Directive Scope Attributes 
+       * @param {angular.IAttributes} attrs - Directive Scope Attributes
        */
       function linkFn(scope, element, attrs, ctrls) {
         if (!scope.data) {
@@ -279,7 +284,7 @@ define([], function() {
 
         /**
          * Adding dynamically get level based parent
-         * 
+         *
          * @returns {number} Current level
          */
         selfCtrl.getLevel = function() {
@@ -292,7 +297,7 @@ define([], function() {
 
         /**
          * Event handler that emit itemClicked to parent in order to detect scope clicked
-         * 
+         *
          * @param {any} item - Select item
          */
         scope.onClick = function(item) {

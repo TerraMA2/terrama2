@@ -4,6 +4,8 @@ define([], () => {
       this.$scope = $scope;
       this.DataSeriesService = DataSeriesService;
       this.MapService = MapService;
+
+      $scope.$watch(() => this.$scopew.evalExpr('table_name'))
     }
 
     /**
