@@ -513,7 +513,6 @@ define([], function() {
       };
 
       function getDataProvider() {
-        debugger;
         return $scope.dataSeries.data_provider_id;
       }
 

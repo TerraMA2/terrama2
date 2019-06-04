@@ -28,8 +28,8 @@
     "code": "LIKE ''"
   },
   {
-    "name": "ALIKE",
-    "code": "ALIKE"
+    "name": "ILIKE",
+    "code": "ILIKE"
   },
   {
     "name": "IN",

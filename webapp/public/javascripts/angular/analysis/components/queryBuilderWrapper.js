@@ -11,24 +11,17 @@ define([], () => {
         fileName: "query-operators.json",
         imagePath: "images/analysis/functions/utilities/utilities.png"
       }
+    }
 
-      $timeout(() => {
-        $scope.$watch('$ctrl.dataseries', value => {
-          if (value && Object.keys(value).length > 1) {
-            this.listAttributes();
-          }
-        })
-      })
+    $onInit() {
+      this.listAttributes();
     }
 
     async listAttributes() {
-      const { DataProviderService, $timeout } = this;
-
-      const {dataseries } = this;
-      const tableName = dataseries.dataSets[0].format.table_name;
+      const { DataProviderService, tableName, provider, $timeout } = this;
 
       const options = {
-        providerId: dataseries.data_provider_id,
+        providerId: provider,
         objectToGet: "column",
         tableName
       }
@@ -49,9 +42,9 @@ define([], () => {
 
     onOperatorClicked(item) {
       if (!this.model)
-        this.model = { queryBuilder: '' };
+        this.model = '';
 
-      this.model.queryBuilder += item.code;
+      this.model += ` ${item.code} `;
     }
   }
   QueryBuilderCommon.$inject = ['DataProviderService', "$timeout", '$scope'];
@@ -59,11 +52,13 @@ define([], () => {
   const queryBuiderCommonComponent = {
     bindings: {
       model: '=',
-      dataseries: '='
+      tableName: '=',
+      provider: '=',
+      onChange: '&?'
     },
     controller: QueryBuilderCommon,
     template: `
-      <query-builder css="ctrl.css" model="$ctrl.model">
+      <query-builder css="ctrl.css" model="$ctrl.model" on-change="$ctrl.onChange()">
         <terrama2-analysis-helpers ng-if="$ctrl.columns.length !== 0"
                                   operators="$ctrl.attributes"
                                   target="$ctrl.model"

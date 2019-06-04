@@ -43,6 +43,13 @@ define([],()=> {
         this.columnsList = res.data.data.map(item => item.column_name);
     }
 
+    getTableName() {
+      if (!this.targetDataSeries || angular.equals({}, this.targetDataSeries))
+        return "";
+
+      return this.targetDataSeries.dataSets[0].format.table_name;
+    }
+
     onOperatorClicked(item) {
       if (this.model.queryBuilder)
         this.model.queryBuilder += item.code;
@@ -148,18 +155,10 @@ define([],()=> {
               <div class="col-md-12">
                 <div class="row">
                   <div class="col-md-12">
-                    <!--<query-builder css="ctrl.css" model="$ctrl.model.queryBuilder">
-                      <terrama2-analysis-helpers ng-if="$ctrl.columnsList.length !== 0"
-                                                 operators="$ctrl.attributes"
-                                                 target="$ctrl.operatorValue"
-                                                 on-item-clicked="$ctrl.onOperatorClicked(item)">
-                      </terrama2-analysis-helpers>
-                    </query-builder>
-                    -->
-
-                    <query-builder-wrapper
+                    <query-builder-wrapper ng-if="$ctrl.getTableName() !== ''"
                       model="$ctrl.model.queryBuilder"
-                      dataseries="$ctrl.targetDataSeries">
+                      provider="$ctrl.targetDataSeries.data_provider_id"
+                      table-name="$ctrl.getTableName()">
                     </query-builder-wrapper>
                   </div>
                 </div>

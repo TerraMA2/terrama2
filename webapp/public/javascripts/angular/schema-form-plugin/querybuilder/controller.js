@@ -4,8 +4,18 @@ define([], () => {
       this.$scope = $scope;
       this.DataSeriesService = DataSeriesService;
       this.MapService = MapService;
+    }
 
-      $scope.$watch(() => this.$scopew.evalExpr('table_name'))
+    $onInit() {
+      if (this.getTableName() && this.getProvider()) {
+        this.onChange();
+      }
+    }
+
+    getTableName() {
+      const res = this.$scope.evalExpr('model.table_name');
+
+      return res;
     }
 
     /**

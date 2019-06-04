@@ -25,7 +25,7 @@ define([],()=> {
 
         <textarea ng-model="$ctrl.model" class="form-control" rows="5" id="query-builder" ng-change="$ctrl.onChangeQueryBuilder()"></textarea>
 
-        <div >
+        <div style="margin-top: 10px">
           <ng-transclude></ng-transclude>
         </div>
       </div>
