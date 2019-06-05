@@ -15,7 +15,6 @@ define([],()=> {
   const component = {
     bindings : {
       model: "=",
-      attributes: '<',
       css: '<',
       onChange: '&?'
     },
@@ -24,11 +23,14 @@ define([],()=> {
       <div class="form-group has-feedback terrama2-show-errors">
         <label>{{ $ctrl.title }}:</label>
 
-        <textarea ng-model="$ctrl.model" class="form-control" rows="5" id="query-builder" ng-change="$ctrl.onChangeQueryBuilder()"</textarea>
+        <textarea ng-model="$ctrl.model" class="form-control" rows="5" id="query-builder" ng-change="$ctrl.onChangeQueryBuilder()"></textarea>
 
-        <terrama2-analysis-helpers ng-if="ctrl.attributes" operators="ctrl.attributes" target="ctrl.operatorValue"></terrama2-analysis-helpers>
-      </div><!--./row-->
-    `
+        <div style="margin-top: 10px">
+          <ng-transclude></ng-transclude>
+        </div>
+      </div>
+    `,
+    transclude: true
   };
   return component;
 })

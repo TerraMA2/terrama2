@@ -6,9 +6,13 @@ define([
       `<div class="form-group {{form.htmlClass}}" ng-class="{'has-error': hasError(), 'has-success': hasSuccess(), 'has-feedback': form.feedback !== false}"
             ng-controller="QueryBuilderController as ctrl">
         <div class="form-group">
-          <query-builder model="$$value$$" ng-init=\"$$value$$=$$value$$||[];ctrl.init($$value$$)\" attributes="ctrl.attributes"
-                        on-change="ctrl.onChange(queryBuilder)">
-          </query-builder>
+          <query-builder-wrapper model="$$value$$"
+            ng-if="ctrl.getTableName()"
+            table-name="ctrl.getTableName()"
+            provider="ctrl.getProvider()"
+            ng-init=\"$$value$$=$$value$$||[];ctrl.init($$value$$)\"
+            on-change="ctrl.onChange(queryBuilder)">
+          </query-builder-wrapper>
         </div>
       </div>`);
   }

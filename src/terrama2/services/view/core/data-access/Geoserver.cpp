@@ -594,6 +594,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
                                modelDataSetType,
                                logger,
                                logId,
+                               "",
                                timestampPropertyName,
                                SQL);
         }

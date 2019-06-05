@@ -1,6 +1,6 @@
 define([],()=> {
   class VectorProcessingComponent {
-    constructor(i18n, SpatialOperations, DataSeriesService, DataProviderService) {
+    constructor(i18n, SpatialOperations, DataSeriesService, DataProviderService, $timeout) {
       this.operationsTitle = i18n.__("Operations");
       this.monitoredDataSeriesTitle = i18n.__("Monitored Data Series");
       this.attributeIdentifierTitle = i18n.__("Attribute Identifier");
@@ -8,9 +8,15 @@ define([],()=> {
       this.SpatialOperations = SpatialOperations;
       this.DataSeriesService = DataSeriesService;
       this.DataProviderService = DataProviderService;
+      this.$timeout = $timeout;
+      this.columnsList = []
+
+      if (!this.model) {
+        this.model = { queryBuilder: '' };
+      }
     }
 
-    onChangeStaticDataSeries() {
+    async onChangeStaticDataSeries() {
       const { model, targetDataSeries } = this;
 
       if (!targetDataSeries)
@@ -20,11 +26,11 @@ define([],()=> {
 
       model.data_provider_id = id;
 
-      this.listAttributes();
+      await this.listAttributes();
     }
 
     async listAttributes() {
-      const { DataProviderService, targetDataSeries } = this;
+      const { DataProviderService, targetDataSeries, $timeout } = this;
       const tableName = targetDataSeries.dataSets[0].format.table_name;
 
       const options = {
@@ -34,15 +40,29 @@ define([],()=> {
       }
 
       const res = await DataProviderService.listPostgisObjects(options);
+        this.columnsList = res.data.data.map(item => item.column_name);
+    }
 
-      this.columnsList = res.data.data.map(item => item.column_name);
+    getTableName() {
+      if (!this.targetDataSeries || angular.equals({}, this.targetDataSeries))
+        return "";
+
+      return this.targetDataSeries.dataSets[0].format.table_name;
+    }
+
+    onOperatorClicked(item) {
+      if (this.model.queryBuilder)
+        this.model.queryBuilder += item.code;
+      else
+        this.model.queryBuilder = item.code;
     }
   }
 
   VectorProcessingComponent.$inject = ["i18n",
                                        "SpatialOperations",
                                        "DataSeriesService",
-                                       "DataProviderService"];
+                                       "DataProviderService",
+                                       '$timeout'];
 
   const component = {
     bindings : {
@@ -135,7 +155,11 @@ define([],()=> {
               <div class="col-md-12">
                 <div class="row">
                   <div class="col-md-12">
-                    <query-builder css="ctrl.css" model="$ctrl.model.queryBuilder"></query-builder>
+                    <query-builder-wrapper ng-if="$ctrl.getTableName() !== ''"
+                      model="$ctrl.model.queryBuilder"
+                      provider="$ctrl.targetDataSeries.data_provider_id"
+                      table-name="$ctrl.getTableName()">
+                    </query-builder-wrapper>
                   </div>
                 </div>
               </div>

@@ -6,6 +6,18 @@ define([], () => {
       this.MapService = MapService;
     }
 
+    $onInit() {
+      if (this.getTableName() && this.getProvider()) {
+        this.onChange();
+      }
+    }
+
+    getTableName() {
+      const res = this.$scope.evalExpr('model.table_name');
+
+      return res;
+    }
+
     /**
      * Retrieves dataprovider from parent instance
      * @return {number}

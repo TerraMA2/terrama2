@@ -5,11 +5,11 @@ define([
   "use strict";
 
   var moduleName = "terrama2.analysis.directives";
-  
+
   angular.module(moduleName, [servicesApp, collapserApp])
     .run(["$templateCache", function($templateCache) {
       $templateCache.put("helper.html",
-        "<div class=\"dropup pull-left\" style=\"margin-left: 10px;\" data-toggle=\"tooltip\" data-placement=\"bottom\" ng-attr-title=\"{{i18n.__(operators.name)}}\">" + 
+        "<div class=\"dropup pull-left\" style=\"margin-left: 10px;\" data-toggle=\"tooltip\" data-placement=\"bottom\" ng-attr-title=\"{{i18n.__(operators.name)}}\">" +
           "<button aria-expanded=\"false\" type=\"button\" class=\"btn dropdown-toggle\" data-toggle=\"dropdown\">" +
             "<img style=\"height: 20px;\" ng-src=\"" + BASE_URL + "{{operators.imagePath}}\"/>" +
           "</button>" +
@@ -20,10 +20,10 @@ define([
 
   /**
    * It defines a Analysis Button with Available helpers functions
-   * 
+   *
    * @example
    * <terrama2-analysis-helpers class="MyClass"></terrama2-analysis-helpers>
-   * 
+   *
    * @returns {angular.IDirective}
    */
   function terrama2AnalysisHelpersDirective(i18n, $http) {
@@ -35,7 +35,8 @@ define([
         target: '=',
         restriction: "=",
         operators: '=',
-        addClass: '='
+        addClass: '=',
+        onItemClicked: '&?'
       },
       controller: ["$scope", "i18n", controllerFn],
       templateUrl: "helper.html",
@@ -44,7 +45,7 @@ define([
 
     /**
      * It handles crude directive behavior
-     * 
+     *
      * @param {angular.IScope} $scope - Directive Scope. Used emit and listen children events
      */
     function controllerFn($scope, i18n) {
@@ -53,7 +54,7 @@ define([
       $scope.operatorsData = [];
       /**
        * Listener for Item clicked. Whenever retrieve a item, It must have code in order to append script context
-       * 
+       *
        * @event #itemClicked
        * @param {angular.IEvent} event - Angular event
        * @param {Object}    item - TerraMA² operator item
@@ -68,13 +69,18 @@ define([
           } else {
             $scope.target += item.code;
           }
+          const { onItemClicked } = $scope;
+
+          if (onItemClicked) {
+            onItemClicked({ item })
+          }
         }
       });
     }
 
     /**
      * It defines post-link directive binding. Once triggered, populate operators data
-     * 
+     *
      * @param {angular.IScope} scope - Angular Directive Scope
      * @param {angular.IElement} element - Directive Selector (jQlite)
      * @param {angular.IAttributes} attrs - Angular directive attributes
