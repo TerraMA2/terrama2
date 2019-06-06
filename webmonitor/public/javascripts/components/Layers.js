@@ -61,6 +61,7 @@ define(
       layerObject.boundingBox = [];
       layerObject.properties = layerData.properties ? layerData.properties : null;
       layerObject.charts = layerData.charts;
+      layerObject.viewId = layerData.viewId;
 
       if(layerData.type)
         layerObject.opacity = 1;
@@ -250,7 +251,7 @@ define(
           LayerStatus.addLayerStatusIcon(htmlId);
           LayerStatus.changeLayerStatusIcon(htmlId, LayerStatusEnum.ONLINE);
           
-          if(data[i].charts && data[i].charts.length > 0){
+          if(data[i].charts && data[i].charts!=[] && data[i].charts!=""){
             LayerStatus.addChartIcon(htmlId);
           }
           Sortable.addLayerToSort(layerId, layerName, parent);

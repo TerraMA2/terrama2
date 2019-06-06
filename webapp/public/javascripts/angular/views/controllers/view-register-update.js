@@ -449,9 +449,10 @@ define([], function() {
 
       $timeout(function(){
         $scope.$apply(function() {
+          $scope.$broadcast('schemaFormValidate');
           if ($scope.forms.viewForm.$invalid ||
             $scope.forms.dataSeriesForm.$invalid ||
-            /* $scope.forms.chartForm && $scope.forms.chartForm.$invalid ||*/
+            $scope.forms.chartForm && $scope.forms.chartForm.$invalid ||
             $scope.forms.styleForm && $scope.forms.styleForm.$invalid) {
             return;
           }

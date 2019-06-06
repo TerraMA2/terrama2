@@ -16,12 +16,15 @@ var express = require('express'),
     Application = require("./core/Application"),
     i18nRoutes = require( "i18n-node-angular" );
     server = require('http').Server(app);
+    cors = require('cors');
 
 var instance = (process.argv[2] !== undefined ? process.argv[2] : "default");
 
 app.use(session({ secret: KEY, name: "TerraMA2WebApp_" + instance, resave: false, saveUninitialized: false }));
 
 app.use(flash());
+
+app.use(cors())
 
 // Setting internationalization
 i18n.configure({

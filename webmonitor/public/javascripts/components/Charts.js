@@ -4,248 +4,270 @@
 define(
   ['components/Layers', 'components/Utils', 'TerraMA2WebComponents'],
   function(Layers, Utils, TerraMA2WebComponents) {
+    var chartList = [];
+    var layer = null;
+    var windowContent = null;
     var loadEvents = function() {
-      $('.fa-line-chart').on('click', function() {
-        $(this).closest("li")
+      $(document).on('click', '.fa-line-chart', function() {
+        layer = Layers.getLayerById($(this).closest("li").data("layerid"));
         if($(".chart-panel").is(':hidden')){
           $(".chart-panel").css("left", "0");
           $(".chart-panel").toggle("slide", { direction: "left" }, 250);
-        }else{
-          $(".chart-panel").css("left", "-100%");
-          $(".chart-panel").toggle("slide", { direction: "right" }, 250);
         }
+        setCharts(layer)
       });
 
-      $(".chart-panel").on("setCharts", function(event) {
-        setCharts();
-      });
-
-      $(".closeChart").on("click", function() {
+      $(document).on("click", ".closeChart", function() {
         $(".chart-panel").css("left", "-100%");
         $(".chart-panel").toggle("slide", { direction: "left" }, 250);
       });
+      $(document).on("click", "#newWindowBtn", function(event){
+        var newWindow = window.open("", "", "toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=400,height=400");
+        newWindow.document.write(windowContent);
+      });
     };
 
-    var setCharts = function() {
+    var setCharts = function(layer) {
+      let {charts, viewId} = layer;
+      let chartsHtml="";
+      // `<a id="newWindowBtn" href="#">New window</a><br />`
+      let chartsLen=0;
+      chartsLen = charts?charts.length:0;
+      for (let i = 0; i < chartsLen; i++) {
+        const chart = charts[i];
+        chartsHtml += `
+            <div class="panel panel-default">
+              <div class="panel-heading" data-toggle="collapse" data-target="#chartPanel${i+1}">
+                <h4 class="panel-title">${chart.title}</h4>
+              </div>
+              <div id="chartPanel${i+1}" class="panel-collapse collapse ${i==0?'in':''}">
+                <div class="panel-body">
+                  <div class="form-inline">
+                    <div class="input-group date">
+                      <input type="text" id="chartFilterDate${i+1}" class="form-control chart-date-picker"/>
+                      <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                      </span>
+                    </div>
+                  </div>
+                  <br />
+                  <div id="chart${i+1}" class="chart"></div>
+                </div>
+                <div class="chart-description">
+                  ${chart.description}
+                </div>
+              </div>
+            </div>
+        `;
+      }
+      
       let html = `
-      <div class="col-sm-12">
-      <div class="pull-right closeChart"><i class="fa fa-close"></i></div>
-      <div style="margin-bottom:25px"></div>
-      <div class="panel-group" id="chartAccordion">
-        <div class="panel panel-default">
-          <div class="panel-heading" data-toggle="collapse" data-target="#filterPanel">
-            <h4 class="panel-title">
-                Filters
-            </h4>
-          </div>
-          <div id="filterPanel" class="panel-collapse collapse in">
-            <div class="panel-body">
-              <div class="input-group date">
-                <input type="text" id="chartFilterDate" class="form-control"/>
-                <span class="input-group-addon">
-                  <span class="glyphicon glyphicon-calendar"></span>
-                </span>
-              </div>
-              <br />
-              <div class="form-group">
-                <a class="btn btn-primary">Filter</a>
-              </div>
-            </div>
+        <div class="col-sm-12">
+          <div class="pull-right closeChart"><i class="fa fa-close"></i></div>
+          <div style="margin-bottom:25px"></div>
+          <div class="panel-group" id="chartAccordion">
+            ${chartsHtml}
           </div>
         </div>
-        <div class="panel panel-default">
-          <div class="panel-heading" data-toggle="collapse" data-target="#chartPanel">
-            <h4 class="panel-title">
-                Chart
-            </h4>
-          </div>
-          <div id="chartPanel" class="panel-collapse collapse in">
-            <div class="panel-body">
-              <div id="chart" class="chart"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel panel-default">
-          <div class="panel-heading" data-toggle="collapse" data-target="#chartPanel2">
-            <h4 class="panel-title">
-                Chart
-            </h4>
-          </div>
-          <div id="chartPanel2" class="panel-collapse collapse">
-            <div class="panel-body">
-              <div id="chart2" class="chart"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel panel-default">
-          <div class="panel-heading" data-toggle="collapse" data-target="#chartPanel3">
-            <h4 class="panel-title">
-                Chart
-            </h4>
-          </div>
-          <div id="chartPanel3" class="panel-collapse collapse">
-            <div class="panel-body">
-              <div id="chart3" class="chart"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel panel-default">
-          <div class="panel-heading" data-toggle="collapse" data-target="#chartPanel4">
-            <h4 class="panel-title">
-                Chart
-            </h4>
-          </div>
-          <div id="chartPanel4" class="panel-collapse collapse">
-            <div class="panel-body">
-              <div id="chart4" class="chart"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      </div>
       `;
+
+      // windowContent = html;
       $(".chart-panel").html(html);
       Utils.translate('.chart-panel');
-      var chart = c3.generate({
-        data: {
-            columns: [
-                ['data1', 30, 200, 100, 400, 150, 250],
-                ['data2', 130, 100, 140, 200, 150, 50]
-            ],
-            type: 'line'
-        },
-      });
-      chart.resize();
-      var chart = c3.generate({
-        bindto: '#chart2',
-        data: {
-            columns: [
-                ['data1', 60, 180, 80, 120, 500, 250],
-                ['data2', 250, 100, 500, 50, 120, 80]
-            ],
-            type: 'bar'
-        },
-        bar: {
-          width: {
-              ratio: 0.5
+
+      for (let [i, chartConfig] of charts.entries()) {
+        const chartType = chartConfig.type;
+        const chartSeries = chartConfig.series;
+        const chartFunctionGrouping = chartConfig.functionGrouping;
+        const chartGroupBy = chartConfig.groupBy;
+        const chartLabel = chartConfig.label;
+        
+        let url = `http://localhost:36000/api/charts?viewId=${viewId}&attributeName=${chartSeries}`;
+        if(chartFunctionGrouping){
+          url += `&functionGrouping=${chartFunctionGrouping}`;
+        }
+        if(chartGroupBy){
+          url += `&groupBy=${chartGroupBy}`;
+        }
+        if(chartLabel){
+          url += `&label=${chartLabel}`;
+        }
+        
+        const dateFrom = moment().startOf('day').format("Y-M-D HH:mm:ss")
+        const dateTo = moment().format("Y-M-D HH:mm:ss");
+        url += `&dateFrom=${dateFrom}`;
+        url += `&dateTo=${dateTo}`;
+        am4core.ready(function() {
+          am4core.useTheme(am4themes_material);
+          am4core.useTheme(am4themes_animated);
+          if(chartType==="pie") {
+            var chart = am4core.create(`chart${i+1}`, am4charts.PieChart3D);
+            chart.id = `chart${i+1}`
+            chart.dataSource.url = url;
+            chart.legend = new am4charts.Legend();
+            
+            chart.responsive.enabled = true;
+            chart.tapToActivate = true;
+            
+            var pieSeries = chart.series.push(new am4charts.PieSeries3D());
+            pieSeries.dataFields.category = chartGroupBy;
+            pieSeries.dataFields.value = "value";
+            pieSeries.slices.template.strokeWidth = 2;
+            pieSeries.slices.template.strokeOpacity = 1;
+            pieSeries.hiddenState.properties.endAngle = -90;
+            pieSeries.hiddenState.properties.opacity = 1;
+            pieSeries.hiddenState.properties.startAngle = -90;
+
+            chart.exporting.menu = new am4core.ExportMenu();
+
+            chart.exporting.menu.items = [{
+                "label": "<i class='fa fa-download'></i>",
+                "menu": [
+                  {
+                    "label": "Image",
+                    "menu": [
+                      { "type": "png", "label": "PNG" },
+                      { "type": "jpg", "label": "JPG" },
+                      { "type": "gif", "label": "GIF" },
+                      { "type": "svg", "label": "SVG" },
+                      { "type": "pdf", "label": "PDF" }
+                    ]
+                  }, {
+                    "label": "Data",
+                    "menu": [
+                      { "type": "json", "label": "JSON" },
+                      { "type": "csv", "label": "CSV" },
+                      { "type": "xlsx", "label": "XLSX" }
+                    ]
+                  }, {
+                    "label": "Print", "type": "print"
+                  }
+                ]
+              }
+            ];
+
+            pieSeries.colors.list = [
+              // am4core.color("#0000FF"),
+              // am4core.color("#FF0000"),
+            ];
+          } else if(chartType==="bar") {
+            var chart = am4core.create(`chart${i+1}`, am4charts.XYChart3D);
+            chart.id = `chart${i+1}`
+            chart.dataSource.url = url;
+
+            let categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+            categoryAxis.dataFields.category = chartGroupBy;
+            categoryAxis.renderer.labels.template.rotation = 270;
+            categoryAxis.renderer.labels.template.hideOversized = false;
+            categoryAxis.renderer.minGridDistance = 20;
+            categoryAxis.renderer.labels.template.horizontalCenter = "right";
+            categoryAxis.renderer.labels.template.verticalCenter = "middle";
+            categoryAxis.tooltip.label.rotation = 270;
+            categoryAxis.tooltip.label.horizontalCenter = "right";
+            categoryAxis.tooltip.label.verticalCenter = "middle";
+
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+            valueAxis.title.text = chartGroupBy;
+            valueAxis.title.fontWeight = "bold";
+
+            var series = chart.series.push(new am4charts.ColumnSeries3D());
+            series.dataFields.valueY = "value";
+            series.dataFields.categoryX = chartGroupBy;
+            series.name = chartGroupBy;
+            series.tooltipText = "{categoryX}: [bold]{valueY}[/]";
+            series.columns.template.fillOpacity = .8;
+
+            var columnTemplate = series.columns.template;
+            columnTemplate.strokeWidth = 2;
+            columnTemplate.strokeOpacity = 1;
+            columnTemplate.stroke = am4core.color("#FFFFFF");
+
+            columnTemplate.adapter.add("fill", (fill, target) => {
+              return chart.colors.getIndex(target.dataItem.index);
+            })
+
+            columnTemplate.adapter.add("stroke", (stroke, target) => {
+              return chart.colors.getIndex(target.dataItem.index);
+            })
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.lineX.strokeOpacity = 0;
+            chart.cursor.lineY.strokeOpacity = 0;
+
+            chart.exporting.menu = new am4core.ExportMenu();
+          } else if(chartType==="horizontal-bar") {
+            var chart = am4core.create(`chart${i+1}`, am4charts.XYChart3D);
+            chart.id = `chart${i+1}`
+            chart.dataSource.url = url;
+
+            var categoryAxis = chart.yAxes.push(new am4charts.CategoryAxis());
+            categoryAxis.dataFields.category = chartGroupBy;
+            categoryAxis.numberFormatter.numberFormat = "#";
+            categoryAxis.renderer.inversed = true;
+
+            var  valueAxis = chart.xAxes.push(new am4charts.ValueAxis()); 
+            valueAxis.title.text = chartGroupBy;
+            valueAxis.title.fontWeight = "bold";
+            
+            var series = chart.series.push(new am4charts.ColumnSeries3D());
+            series.dataFields.valueX = "value";
+            series.dataFields.categoryY = chartGroupBy;
+            series.name = chartGroupBy;
+
+            var columnTemplate = series.columns.template;
+            columnTemplate.strokeWidth = 2;
+            columnTemplate.strokeOpacity = 1;
+            columnTemplate.stroke = am4core.color("#FFFFFF");
+
+            columnTemplate.adapter.add("fill", (fill, target) => {
+              return chart.colors.getIndex(target.dataItem.index);
+            })
+
+            columnTemplate.adapter.add("stroke", (stroke, target) => {
+              return chart.colors.getIndex(target.dataItem.index);
+            })
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.lineX.strokeOpacity = 0;
+            chart.cursor.lineY.strokeOpacity = 0;
           }
-        }
-      });
-      chart.resize();
-      var chart = c3.generate({
-        bindto: '#chart3',
-        data: {
-            columns: [
-              ["data1", 0.2, 0.2, 0.2, 0.2, 0.2, 0.4, 0.3, 0.2, 0.2, 0.1, 0.2, 0.2, 0.1, 0.1, 0.2, 0.4, 0.4, 0.3, 0.3, 0.3, 0.2, 0.4, 0.2, 0.5, 0.2, 0.2, 0.4, 0.2, 0.2, 0.2, 0.2, 0.4, 0.1, 0.2, 0.2, 0.2, 0.2, 0.1, 0.2, 0.2, 0.3, 0.3, 0.2, 0.6, 0.4, 0.3, 0.2, 0.2, 0.2, 0.2],
-              ["data2", 1.4, 1.5, 1.5, 1.3, 1.5, 1.3, 1.6, 1.0, 1.3, 1.4, 1.0, 1.5, 1.0, 1.4, 1.3, 1.4, 1.5, 1.0, 1.5, 1.1, 1.8, 1.3, 1.5, 1.2, 1.3, 1.4, 1.4, 1.7, 1.5, 1.0, 1.1, 1.0, 1.2, 1.6, 1.5, 1.6, 1.5, 1.3, 1.3, 1.3, 1.2, 1.4, 1.2, 1.0, 1.3, 1.2, 1.3, 1.3, 1.1, 1.3],
-              ["data3", 2.5, 1.9, 2.1, 1.8, 2.2, 2.1, 1.7, 1.8, 1.8, 2.5, 2.0, 1.9, 2.1, 2.0, 2.4, 2.3, 1.8, 2.2, 2.3, 1.5, 2.3, 2.0, 2.0, 1.8, 2.1, 1.8, 1.8, 1.8, 2.1, 1.6, 1.9, 2.0, 2.2, 1.5, 1.4, 2.3, 2.4, 1.8, 1.8, 2.1, 2.4, 2.3, 1.9, 2.3, 2.5, 2.3, 1.9, 2.0, 2.3, 1.8],
-            ],
-            type: 'pie',
-            onclick: function (d, i) { console.log("onclick", d, i); },
-            onmouseover: function (d, i) { console.log("onmouseover", d, i); },
-            onmouseout: function (d, i) { console.log("onmouseout", d, i); }
-        },
-      });
-      chart.resize();
-      var chart = c3.generate({
-        bindto: '#chart4',
-        data: {
-            columns: [
-                ['data1', 300, 350, 300, 0, 0, 0],
-                ['data2', 130, 100, 140, 200, 150, 50]
-            ],
-            types: {
-                data1: 'area',
-                data2: 'area-spline'
-            }
-        }
-      });
-
-    // var find_query = function () {
-    //   var _map = window.location.search.substr(1).split('&').map(function (a) {
-    //       return a.split('=');
-    //   }).reduce(function (p, v) {
-    //     p[v[0]] = true;
-    //       if (v.length > 1)
-    //           p[v[0]] = decodeURIComponent(v[1].replace(/\+/g, " "));
-    //       return p;
-    //   }, {});
-    //   return function (field) {
-    //       return _map[field] || null;
-    //   };
-    // }();
-    // var resizeMode = find_query('resize') || 'widhei';
-    
-    // function apply_resizing(chart, adjustX, adjustY, onresize) {
-    //     if (resizeMode.toLowerCase() === 'viewbox') {
-    //         chart
-    //             .width(600)
-    //             .height(400)
-    //             .useViewBoxResizing(true);
-    //         d3.select(chart.anchor()).classed('fullsize', true);
-    //     } else {
-    //         adjustX = adjustX || 0;
-    //         adjustY = adjustY || adjustX || 0;
-    //         chart
-    //             .width(window.innerWidth - adjustX)
-    //             .height(window.innerHeight - adjustY);
-    //         window.onresize = function () {
-    //             if (onresize) {
-    //                 onresize(chart);
-    //             }
-    //             chart
-    //                 .width(window.innerWidth - adjustX)
-    //                 .height(window.innerHeight - adjustY);
-    
-    //             if (chart.rescale) {
-    //                 chart.rescale();
-    //             }
-    //             chart.redraw();
-    //         };
-    //     }
-    // }
-
-    //    d3.csv("https://raw.githubusercontent.com/dc-js/dc.js/master/web/examples/morley.csv").then(data=>{
-    //     let chart = dc.rowChart("#chart");
-    //     var ndx                 = crossfilter(data),
-    //     runDimension        = ndx.dimension(function(d) {return +d.Run;}),
-    //     speedSumGroup       = runDimension.group().reduceSum(function(d) {return d.Speed * d.Run / 1000;});
-    //     chart
-    //       .x(d3.scaleLinear().domain([6,20]))
-    //       .elasticX(true)
-    //       .dimension(runDimension)
-    //       .group(speedSumGroup);
-    //       apply_resizing(chart, 20);
-    //       chart.render();
-    //    });
-
-    //    d3.csv("https://raw.githubusercontent.com/dc-js/dc.js/master/web/examples/morley.csv").then(data=>{
-    //     let chart = dc.barChart("#chart2");
-    //     var ndx                 = crossfilter(data),
-    //     runDimension        = ndx.dimension(function(d) {return +d.Run;}),
-    //     speedSumGroup       = runDimension.group().reduceSum(function(d) {return d.Speed * d.Run / 1000;});
-    //     console.log(runDimension);
-    //     console.log("");
-    //     console.log(speedSumGroup);
-    //     chart
-    //       .x(d3.scaleLinear().domain([6,30]))
-    //       .elasticX(true)
-    //       .brushOn(false)
-    //       .dimension(runDimension)
-    //       .group(speedSumGroup);
-    //       apply_resizing(chart, 30);
-    //       chart.render();
-    //    });
-
-      var calendar = $('#chartFilterDate');
-      calendar.daterangepicker({
+          else if (chartType === "line"){
+            var chart = am4core.create(`chart${i+1}`, am4charts.XYChart);
+            chart.id = `chart${i+1}`
+            chart.dataSource.url = url;
+            
+            var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            dateAxis.renderer.minGridDistance = 50;
+            
+            var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+            
+            var series = chart.series.push(new am4charts.LineSeries());
+            series.dataFields.valueY = "value";
+            series.dataFields.dateX = chartGroupBy;
+            series.strokeWidth = 2;
+            series.minBulletDistance = 10;
+            series.tooltipText = "{valueY}";
+            series.tooltip.pointerOrientation = "vertical";
+            series.tooltip.background.cornerRadius = 20;
+            series.tooltip.background.fillOpacity = 0.5;
+            series.tooltip.label.padding(12,12,12,12)
+            
+            chart.scrollbarX = new am4charts.XYChartScrollbar();
+            chart.scrollbarX.series.push(series);
+            
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.xAxis = dateAxis;
+            chart.cursor.snapToSeries = series;
+          }
+          chartList.push(chart)
+        });
+      }
+      
+      $('.chart-date-picker').daterangepicker({
         "timePicker": true,
         // "minDate": moment(),
-        // "startDate": moment(),
-        // "endDate": moment(),
+        "startDate": moment().startOf('day'),
+        "endDate": moment(),
         // "maxDate": moment(),
         "timePicker24Hour": true,
         "opens": "center",
@@ -284,10 +306,29 @@ define(
           "firstDay": 1
         }
       });
+      
+      $('.chart-date-picker').on('apply.daterangepicker', function(ev, picker) {
+        const dateFrom = picker.startDate.format('YYYY-MM-DD')
+        const dateTo = picker.endDate.format('YYYY-MM-DD')
+        const chartContainer = $(ev.currentTarget).closest('.panel-body').find('.chart:first')[0]
+        
+        const chart = getChart(chartContainer.id)
+        let oldUrl = chart.dataSource.url
+        var index = oldUrl.indexOf("&dateFrom");
+        if(index!=-1){
+          oldUrl = oldUrl.substring(0, index);
+        }
+        const newUrl = oldUrl+`&dateFrom=${dateFrom}&dateTo=${dateTo}`
+        chart.dataSource.url = newUrl
+        chart.dataSource.load()
+        chart.dataSource.url = oldUrl
+      });
+    }
+    function getChart(id) {
+      return chartList.find(chart => chart.id==id)
     }
 
     var init = function() {
-      setCharts();
       loadEvents();
     };
 

@@ -1,7 +1,11 @@
 :root {
-	--main-color: #2084b3;
+	/* --main-color: #2084b3;
 	--hover-color: #005e8a;
-	--active-color: #005b85;
+	--active-color: #005b85; */
+
+	--main-color: #222d32;
+	--hover-color: #212527;
+	--active-color: #212a2e;
 
 	--text-main-color: #fff;
 	--text-active-color: #fff;
@@ -129,7 +133,7 @@ img[src=""] {
 
 .sidebar-menu {
 	overflow: auto !important;
-	max-height: 500px !important;
+	max-height: 768px !important;
 }
 
 .sidebar-menu>div {
@@ -1250,8 +1254,14 @@ img[src=""] {
 .chart {
 	background-color: rgba(255, 255, 255, .85);
 	border: 1px solid rgba(0, 0, 0, .1);
-	-webkit-box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, .1);
-	box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, .1);
+	box-shadow: 0 0.15rem 0.5rem rgba(0, 0, 0, .1);
+	-webkit-box-shadow: 0 0.15rem 0.5rem rgba(0, 0, 0, .1);
+	width: 100%;
+	height: 500px;
+}
+.chart-description {
+	background-color: rgba(255, 255, 255, .85);
+	padding: 15px;
 }
 
 .chart>svg {
@@ -1368,7 +1378,7 @@ img[src=""] {
 	justify-content: space-between;
 	align-items: center;
 	text-decoration: none;
-	padding: 15px 15px 15px 20px;
+	padding: 1px 15px 1px 25px;
 	border: 1px solid var(--main-color);
 	font-size: 90%;
 }
@@ -1455,4 +1465,18 @@ img[src=""] {
 	flex-direction: column;
 	min-width: 16px;
 	margin: 0;
+}
+
+.amcharts-amexport-item {
+	border: 2px solid rgb(216, 216, 216);
+}
+
+.amcharts-amexport-item:hover,
+.amcharts-amexport-item > a:hover {
+	cursor: pointer;
+}
+
+.amcharts-amexport-item > a {
+	margin-top: 5px !important;
+	color: black;
 }

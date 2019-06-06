@@ -6,18 +6,18 @@ define([
   "TerraMA2WebApp/views/controllers/index",
   "TerraMA2WebApp/views/components/chart",
   "TerraMA2WebApp/common/loader",
-], function(commonViewModule, serviceModule, providerApp, componentsApp, controllersModule, /*chart, */ loader) {
+], function(commonViewModule, serviceModule, providerApp, componentsApp, controllersModule, chart, loader) {
   'use strict';
 
   var moduleName = "terrama2.views";
 
   var deps = [commonViewModule, serviceModule, providerApp, componentsApp, controllersModule];
-  // loader("schemaForm", deps);
+  loader("schemaForm", deps);
   angular.module(
     moduleName,
     deps
   )
-  // .component("chart", chart)
+  .component("chart", chart)
   ;
 
   return moduleName;

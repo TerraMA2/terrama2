@@ -109,7 +109,7 @@ define(
         $("#content").height(memberWindowHeight + "px");
         $(".content-wrapper").css('min-height', memberWindowHeight + "px");
 
-        // $(".sidebar-menu").height((memberWindowHeight - 195) + "px");
+        $(".sidebar-menu").height((memberWindowHeight - 195) + "px");
       });
 
       $('#close-alert').on('click', function() {
@@ -683,7 +683,7 @@ define(
       $("#content").height(memberWindowHeight + "px");
       $(".content-wrapper").css('min-height', memberWindowHeight + "px");
       $("#terrama2-map").height(memberReducedHeight + "px");
-      // $(".sidebar-menu").height((memberWindowHeight - 195) + "px");
+      $(".sidebar-menu").height((memberWindowHeight - 195) + "px");
 
       var mapWidthInterval = window.setInterval(function() {
         $("#terrama2-map").width($("#content").width() + "px");

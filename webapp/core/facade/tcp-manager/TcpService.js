@@ -198,7 +198,6 @@ TcpService.prototype.start = async function(json) {
   try {
     instance = await DataManager.getServiceInstance({id: json.service})
     // emitting service starting
-    console.log("TcpService.prototype.start " + json.service);
     this.emit("serviceStarting", {service: instance.id});
 
     // spreading all promises in order to retrieve service instance and promise result in two vars
@@ -285,7 +284,6 @@ TcpService.prototype.run = async function(processObject) {
     }
   }
 
-  console.log("processRun", processObject);
   startProcess(instance, processObject);
   // Notify children listeners the process has been scheduled
   this.emit("processRun", processObject);
@@ -314,12 +312,10 @@ TcpService.prototype.$sendStatus = function(service) {
       service: service.id
     };
     // notify every one with loading
-    console.log("serviceRequestingStatus", params);
     self.emit("serviceRequestingStatus", params);
 
     return TcpManager.connect(service)
       .then(function() {
-        console.log("statusService", service);
         TcpManager.emit("statusService", service);
         return resolve();
       })
@@ -327,7 +323,6 @@ TcpService.prototype.$sendStatus = function(service) {
         params.status = 400;
         params.checking = false;
         // notify every one
-        console.log("serviceRequestingStatus", params);
         self.emit("serviceRequestingStatus", params);
         return reject(err);
       });
@@ -340,7 +335,6 @@ TcpService.prototype.stopAll = function stopAll() {
     return DataManager.listServiceInstances()
       .then(function(instances) {
         instances.forEach(function(instance) {
-          console.log("serviceStopping", instance);
           self.emit("serviceStopping", instance);
 
           TcpManager.emit("stopService", instance);
@@ -377,11 +371,6 @@ TcpService.prototype.status = function(json) {
         return resolve();
       }).catch(function(err) {
         logger.debug(err);
-        console.log("serviceError", {
-          exception: err,
-          message: err.toString(),
-          service: json.service
-        });
         self.emit("serviceError", {
           exception: err,
           message: err.toString(),
@@ -546,11 +535,10 @@ TcpService.prototype.log = function(json) {
         DataManager.listCollectors(),
         DataManager.listViews(),
         DataManager.listAlerts(),
-        DataManager.listInterpolators(),
-        DataManager.listStorages()
+        DataManager.listInterpolators()
       ])
       // spreading promiser result into services, analysisList, collectors and views variables
-      .spread(function(services, analysisList, collectors, views, alerts, interpolators, storages) {
+      .spread(function(services, analysisList, collectors, views, alerts, interpolators) {
         var obj = {
           begin: begin,
           end: end
@@ -578,15 +566,11 @@ TcpService.prototype.log = function(json) {
             case ServiceType.INTERPOLATION:
               obj.process_ids = interpolators.map(function(elm) { return elm.id; });
               break;
-            case ServiceType.STORAGE:
-              obj.process_ids = storages.map(function(elm) { return elm.id; });
-              break;
             default:
               throw new Error("Invalid service type");
           }
 
           // requesting log data
-          console.log("logData", service, obj);
           TcpManager.emit("logData", service, obj);
         }); // end foreach
       }) // end spread

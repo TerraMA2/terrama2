@@ -9,7 +9,6 @@ define([], function () {
     bindings: {
       formCtrl: "<", // controller binding in order to throw up
       type: "=",
-      // isChart: "=",
       isDynamic: "=",
       isUpdating: "=",
       columnsList: "=",

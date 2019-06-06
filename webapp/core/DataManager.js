@@ -5866,7 +5866,7 @@ var DataManager = module.exports = {
       models.db.View.update(
         viewObject,
         Utils.extend({
-          fields: ["name", "description", "data_series_id", "style", "active", "service_instance_id", "schedule_id", "automatic_schedule_id", "schedule_type", "private", "source_type"],
+          fields: ["name", "description", "data_series_id", "style", "active", "service_instance_id", "schedule_id", "automatic_schedule_id", "schedule_type", "private", "source_type", "charts"],
           where: restriction
         }, options))
 

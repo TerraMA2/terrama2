@@ -1,76 +1,13 @@
 define([],()=> {
   class ChartComponent {
-    constructor(i18n, dataProviderService, $timeout, formTranslator) {
+    constructor(i18n, dataProviderService, $timeout, formTranslator, $scope) {
       this.i18n = i18n
+      this.$scope = $scope
       this.dataProviderService=dataProviderService
       this.$timeout=$timeout
       this.getAttributes()
       this.model = []
       this.selectedChart = null;
-      // this.form = [
-      //   {
-      //     "type": "help",
-      //     "helpvalue": "<h4>Tabbed Array Example</h4><p>Tab arrays can have tabs to the left, top or right.</p>"
-      //   },
-      //   {
-      //     "key": "comments",
-      //     "type": "tabarray",
-      //     "add": "New",
-      //     "remove": "Delete",
-      //     "style": {
-      //       "remove": "btn-danger"
-      //     },
-      //     "title": "{{ value.name || 'Tab '+$index }}",
-      //     "items": [
-      //       "comments[].name",
-      //       "comments[].email",
-      //       {
-      //         "key": "comments[].comment",
-      //         "type": "textarea"
-      //       }
-      //     ]
-      //   },
-      //   {
-      //     "type": "submit",
-      //     "style": "btn-default",
-      //     "title": "OK"
-      //   }
-      // ];
-      // this.schema = {
-      //   "type": "object",
-      //   "title": "Comment",
-      //   "properties": {
-      //     "comments": {
-      //       "type": "array",
-      //       "items": {
-      //         "type": "object",
-      //         "properties": {
-      //           "name": {
-      //             "title": "Name",
-      //             "type": "string"
-      //           },
-      //           "email": {
-      //             "title": "Email",
-      //             "type": "string",
-      //             "pattern": "^\\S+@\\S+$",
-      //             "description": "Email will be used for evil."
-      //           },
-      //           "comment": {
-      //             "title": "Comment",
-      //             "type": "string",
-      //             "maxLength": 20,
-      //             "validationMessage": "Don't be greedy!"
-      //           }
-      //         },
-      //         "required": [
-      //           "name",
-      //           "email",
-      //           "comment"
-      //         ]
-      //       }
-      //     }
-      //   }
-      // };
       this.schema = {
         "type": "object",
         "title": "Chart",
@@ -84,41 +21,50 @@ define([],()=> {
                   "title": "Name",
                   "type": "string"
                 },
-                "type": {
-                  "title": "Type",
-                  "type": "string"
-                },
                 "title": {
                   "title": "Title",
-                  "type": "string"
-                },
-                "series": {
-                  "title": "Series",
                   "type": "string"
                 },
                 "description": {
                   "title": "Description",
                   "type": "string"
                 },
-                "grouping": {
-                  "title": "Grouping",
+                "type": {
+                  "title": "Type",
+                  "type": "string"
+                },
+                "series": {
+                  "title": "Grouping series",
+                  "type": "string"
+                },
+                "functionGrouping": {
+                  "title": "Function grouping",
+                  "type": "string"
+                },
+                "groupBy": {
+                  "title": "Group by",
                   "type": "string"
                 },
                 "label": {
                   "title": "Label",
                   "type": "string"
                 },
-                "model": {
-                  "title": "Model",
-                  "type": "string",
-                  "enum": [
-                    "map",
-                    "new",
-                  ]
-                },
+                // "model": {
+                //   "title": "Model",
+                //   "type": "string",
+                //   "enum": [
+                //     "map",
+                //     "new",
+                //   ]
+                // },
               },
               "required": [
-                "name"
+                "name",
+                "type",
+                "title",
+                "series",
+                "function-grouping",
+                "model",
               ]
             }
           }
@@ -134,11 +80,19 @@ define([],()=> {
             "remove": "btn-danger"
           },
           "title": "{{ value.name || 'Tab '+($index+1) }}",
-          "items": 
-          [
+          "items": [
             {
               "key": "charts[].name",
               "htmlClass": "col-xs-6"
+            },
+            {
+              "key": "charts[].title",
+              "htmlClass": "col-xs-6"
+            },
+            {
+              "key": "charts[].description",
+              "type": "textarea",
+              "htmlClass": "col-xs-12"
             },
             {
               "key": "charts[].type",
@@ -154,115 +108,69 @@ define([],()=> {
                   "name": "Bar"
                 },
                 {
+                  "value": "horizontal-bar",
+                  "name": "Horizontal bar"
+                },
+                {
                   "value": "line",
                   "name": "Line"
-                }
+                },
+                {
+                  "value": "scatter-plot",
+                  "name": "Scatter plot"
+                },
+                // {
+                //   "value": "map",
+                //   "name": "Map"
+                // }
               ]
             },
             {
-              "key": "charts[].title",
-              "htmlClass": "col-xs-6"
-            },
-            {
+              "identificator":"1",
               "key": "charts[].series",
               "type": "select",
               "htmlClass": "col-xs-6",
-              "titleMap": [
-                {
-                  "value": "pie",
-                  "name": "Pie"
-                },
-                {
-                  "value": "bar",
-                  "name": "Bar"
-                },
-                {
-                  "value": "line",
-                  "name": "Line"
-                }
-              ]
+              "titleMap": []
             },
             {
-              "key": "charts[].description",
-              "type": "textarea",
-              "htmlClass": "col-xs-6"
-            },
-            {
-              "key": "charts[].grouping",
+              "key": "charts[].functionGrouping",
               "type": "select",
               "htmlClass": "col-xs-6",
               "titleMap": [
                 {
-                  "value": "pie",
-                  "name": "Pie"
+                  "value": "sum",
+                  "name": "Sum",
                 },
                 {
-                  "value": "bar",
-                  "name": "Bar"
-                },
-                {
-                  "value": "line",
-                  "name": "Line"
+                  "value": "count",
+                  "name": "Count"
                 }
               ]
             },
             {
+              "identificator":"2",
+              "key": "charts[].groupBy",
+              "type": "select",
+              "htmlClass": "col-xs-6",
+              "titleMap": [],
+            },
+            {
+              "identificator":"3",
               "key": "charts[].label",
               "type": "select",
               "htmlClass": "col-xs-6",
-              "titleMap": [
-                {
-                  "value": "pie",
-                  "name": "Pie"
-                },
-                {
-                  "value": "bar",
-                  "name": "Bar"
-                },
-                {
-                  "value": "line",
-                  "name": "Line"
-                }
-              ]
-            },
-            {
-              "key": "charts[].model",
-              "type": "radios",
-              "htmlClass": "col-xs-12",
-            },
+              "titleMap": []
+            }
+            // {
+            //   "key": "charts[].model",
+            //   "type": "radios",
+            //   "htmlClass": "col-xs-12",
+            // },
           ]
-        },
-        {
-          "type": "submit",
-          "style": "btn-default",
-          "title": "OK"
-        },
+        }
       ]
       
       // var propertiesLocale = FormTranslator(this.schema);
-    }
-    
-    addChart(chartForm) {
-      if(this.selectedChart && chartForm.$invalid){
-        return;
-      }
-      this.selectedChart = {};
-      this.selectedChart.attributes = [];
-      this.selectedChart.legends = [];
-      this.model.push(this.selectedChart);
-    }
-
-    addAttribute() {
-      this.selectedChart.attributes.push({});
-    }
-
-    addLegend() {
-      this.selectedChart.legends.push({});
-    }
-
-    deleteChart(index) {
-      this.model.splice(index, 1);
-      this.selectedChart = this.model[0];
     }
 
     getAttributes(){
@@ -275,14 +183,21 @@ define([],()=> {
             return result.reject(response.data);
           }
           response.data.data.map(element => {
-            this.attrs.push(element.column_name);
+            this.attrs.push({'name': element.column_name, 'value': element.column_name});
           });
+          let series = this.form[0].items.find(formItem => formItem.identificator === "1");
+          series.titleMap = this.attrs
+          let groupBy = this.form[0].items.find(formItem => formItem.identificator === "2");
+          groupBy.titleMap = this.attrs
+          let label = this.form[0].items.find(formItem => formItem.identificator === "3");
+          label.titleMap = this.attrs
+          this.$scope.$broadcast('schemaFormRedraw')
         });
       })
     }
   }
 
-  ChartComponent.$inject = ["i18n", "DataProviderService", "$timeout", "FormTranslator"];
+  ChartComponent.$inject = ["i18n", "DataProviderService", "$timeout", "FormTranslator", "$scope"];
 
   const component = {
     bindings : {
@@ -293,8 +208,7 @@ define([],()=> {
     },
     controller: ChartComponent,
     template: `
-        <form name="$ctrl.chartForm" sf-form="$ctrl.form" sf-schema="$ctrl.schema" sf-model="$ctrl.model">
-        </form>
+        <form name="$ctrl.chartForm" sf-form="$ctrl.form" sf-schema="$ctrl.schema" sf-model="$ctrl.model"></form>
       `
   };
   return component;

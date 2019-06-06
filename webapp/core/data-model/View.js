@@ -89,6 +89,8 @@
      */
     this.source_type = params.source_type;
 
+    this.charts = params.charts;
+
     this.properties = params.properties || {};
   }
 
@@ -140,7 +142,8 @@
       private: this.private,
       schedule_type: this.scheduleType,
       source_type: this.source_type,
-      properties: this.properties
+      properties: this.properties,
+      charts: this.charts
     });
   };
 

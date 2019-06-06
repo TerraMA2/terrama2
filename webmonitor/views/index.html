@@ -79,40 +79,42 @@
                 </span>
               </li>
               <div id="terrama2-sortlayers"></div>
+              <div class="group-name small">
+                <span class="dropdown messages-menu" id="languages-dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                    <img src="{[ BASE_URL ]}images/pt.png" class="dropdown-btn pt-img" style="display: none;"/>
+                    &nbsp;
+                    <span data-i18n="Português"></span>
+                    <img src="{[ BASE_URL ]}images/es.png" class="dropdown-btn es-img" style="display: none;"/>
+                    &nbsp;
+                    <span data-i18n="Español"></span>
+                    <img src="{[ BASE_URL ]}images/en.png" class="dropdown-btn en-img" style="display: none;"/>
+                    &nbsp;
+                    <span data-i18n="English"></span>
+                  </a>
+                  <ul class="dropdown-menu up" id="languages-div">
+                    <li>
+                      <span id="language-pt" class="small"><img src="{[ BASE_URL ]}images/pt.png" title="Português"/>&nbsp;Português</span>
+                    </li>
+                    <li>
+                      <span id="language-es" class="small"><img src="{[ BASE_URL ]}images/es.png" title="Español"/>&nbsp;Español</span>
+                    </li>
+                    <li>
+                     <span id="language-en" class="small"><img src="{[ BASE_URL ]}images/en.png" title="English"/>&nbsp;English</span>
+                    </li>
+                  </ul>
+                </span>
+            </div>
+            <div id="about-btn" class="group-name small">
+              <a style="margin-left: 10px;" href="#">
+                <div class="fa fa-info"></div>
+                <span style="margin-left: 10px;" data-i18n="About"></span>
+              </a>
+            </div>
             </ul>
+            
           </div>
-          <div class="group-name small">
-              <span class="dropdown messages-menu" id="languages-dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                  <img src="{[ BASE_URL ]}images/pt.png" class="dropdown-btn pt-img" style="display: none;"/>
-                  &nbsp;
-                  <span data-i18n="Português"></span>
-                  <img src="{[ BASE_URL ]}images/es.png" class="dropdown-btn es-img" style="display: none;"/>
-                  &nbsp;
-                  <span data-i18n="Español"></span>
-                  <img src="{[ BASE_URL ]}images/en.png" class="dropdown-btn en-img" style="display: none;"/>
-                  &nbsp;
-                  <span data-i18n="English"></span>
-                </a>
-                <ul class="dropdown-menu up" id="languages-div">
-                  <li>
-                    <span id="language-pt" class="small"><img src="{[ BASE_URL ]}images/pt.png" title="Português"/>&nbsp;Português</span>
-                  </li>
-                  <li>
-                    <span id="language-es" class="small"><img src="{[ BASE_URL ]}images/es.png" title="Español"/>&nbsp;Español</span>
-                  </li>
-                  <li>
-                   <span id="language-en" class="small"><img src="{[ BASE_URL ]}images/en.png" title="English"/>&nbsp;English</span>
-                  </li>
-                </ul>
-              </span>
-          </div>
-          <div id="about-btn" class="group-name small">
-            <a style="margin-left: 10px;" href="#">
-              <div class="fa fa-info"></div>
-              <span style="margin-left: 10px;" data-i18n="About"></span>
-            </a>
-          </div>
+          
           <div class="sidebar-footer">
             <div class="institutions-logos">
               <a href="http://www.inpe.br/" target="_blank">
@@ -382,6 +384,12 @@
     <script type="text/javascript" src="{[ BASE_URL ]}externals/crossfilter2/crossfilter.min.js"></script>
     <script type="text/javascript" src="{[ BASE_URL ]}externals/dc/dc.min.js"></script>
     <script type="text/javascript" src="{[ BASE_URL ]}externals/c3/c3.min.js"></script>
+    <script src="https://www.amcharts.com/lib/4/core.js"></script>
+    <script src="https://www.amcharts.com/lib/4/charts.js"></script>
+    <script src="https://www.amcharts.com/lib/4/maps.js"></script>
+    <script src="https://www.amcharts.com/lib/4/geodata/worldLow.js"></script>
+    <script src="https://www.amcharts.com/lib/4/geodata/brazilLow.js"></script>
+    <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
     <script>
       var BASE_URL = "{[ BASE_URL ]}";
       var webadminHostInfo = {[webadminHostInfo|json|safe]};
