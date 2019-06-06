@@ -50,6 +50,7 @@
 	"Chart name is required": "Nombre del gráfico es obligatorio.",
 	"Chart type is required": "Tipo del gráfico es obligatorio.",
 	"Dynamic": "Dinámico",
+	"Filtered Features table (PostgreSQL/PostGIS)": "Visiones de Tablas (PostgreSQL/PostGIS)",
 	"Data Provider Registration": "Registro del Proveedor de Datos",
 	"Data Provider Name": "Nombre del Proveedor de Datos",
 	"Description": "Descripción",

@@ -267,6 +267,7 @@
   "Data Set Latitude": "Latitude do Conjunto de Dados",
   "Data Set Longitude": "Longitude do Conjunto de Dados",
   "Data Set Name": "Nome do Conjunto de Dados",
+  "Filtered Features table (PostgreSQL/PostGIS)": "Visões de Tabelas (PostgreSQL/PostGIS)",
   "Data Set Path": "Diretório do Conjunto de Dados",
   "Data Set Projection": "Conjunto de Dados de Projeção",
   "Data Sets": "Conjuntos de Dados",

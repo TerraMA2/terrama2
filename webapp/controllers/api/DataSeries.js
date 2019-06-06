@@ -11,7 +11,10 @@ module.exports = function(app) {
   var DataSeriesTemporality = require('./../../core/Enums').TemporalityType;
   var TokenCode = require('./../../core/Enums').TokenCode;
   var ScheduleType = require('./../../core/Enums').ScheduleType;
+  // data model
+  var DataModel = require('./../../core/data-model');
   // Facade
+  const DataSeriesFacade = require('./../../core/facade/DataSeries')
   var DataProviderFacade = require("./../../core/facade/DataProvider");
   const CollectorFacade = require('./../../core/facade/Collector');
   var RequestFactory = require("./../../core/RequestFactory");
@@ -760,9 +763,24 @@ module.exports = function(app) {
 
       try {
         const dataProvider = await DataManager.getDataProvider({ id: provider });
-        await validateView(dataProvider.uri, tableName, attributes, whereCondition);
+        const resultSet = await validateView(dataProvider.uri, tableName, attributes, whereCondition);
 
-        response.json({});
+        response.json({result:resultSet.rowCount});
+      } catch (err) {
+        response.status(400);
+        response.json({ error: err.message });
+      }
+    },
+
+    retrieveAsWKT: async (request, response) => {
+      const { id, tableName, where } = request.query;
+
+      try {
+        if (tableName) {
+          response.json(await DataSeriesFacade.retrieveWKT(tableName, null, where));
+        } else {
+          response.json(await DataSeriesFacade.retrieveWKTFromId(id, where));
+        }
       } catch (err) {
         response.status(400);
         response.json({ error: err.message });

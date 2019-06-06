@@ -1197,7 +1197,7 @@ define([], function() {
             case "minutes":
             case "hours":
               scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
-              scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? moment(scheduleValues.frequency_start_time).format("HH:mm:ssZ") : "";
+              scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? moment(scheduleValues.frequency_start_time).utc().format("HH:mm:ssZ") : "";
               break;
             case "weeks":
             case "monthly":

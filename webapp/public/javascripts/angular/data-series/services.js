@@ -136,10 +136,24 @@ define([
 
     try {
       const response = await BaseService.$request(`${url}/validateView`, "POST", { data: bodyData });
-
-      return response.status === 200;
+      return response;
     } catch (errResponse) {
       throw new Error(`View Error: ${errResponse.data.error}`);
+    }
+
+  };
+
+  DataSeriesService.prototype.getWKT = async function(tableName, provider, queryBuilder) {
+    const { BaseService, url } = this;
+
+    const params = { id: provider, tableName, where: queryBuilder };
+
+    try {
+      const response = await BaseService.$request(`${url}/format/wkt`, "GET", { params });
+
+      return response.data;
+    } catch (errResponse) {
+      throw new Error(`WKT Error: ${errResponse.data.error}`);
     }
 
   };

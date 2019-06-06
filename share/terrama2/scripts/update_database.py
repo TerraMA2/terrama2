@@ -8,6 +8,7 @@ import sys
 import re
 
 terrama2_basepath = sys.argv[1]
+terrama2_env = sys.argv[2]
 
 # open version file
 with open(terrama2_basepath + "/share/terrama2/version.json") as version_file:
@@ -26,8 +27,9 @@ with open(terrama2_basepath + "/share/terrama2/version.json") as version_file:
     if major is None:
         sys.exit(1)
 
-    config_path = terrama2_basepath + "/webapp/config/instances/"
-    instances = glob.glob(config_path + "*.json")
+    config_path = terrama2_basepath + "/webapp/config/db.json"
+    instances = glob.glob(config_path)
+
     for config in instances:
         print("Current config file: " + config)
         if os.path.isfile(config):
@@ -35,10 +37,10 @@ with open(terrama2_basepath + "/share/terrama2/version.json") as version_file:
             with open(config) as data_file:
                 data = json.load(data_file)
                 # get database config for this terrama2 instance
-                database_uri = data["db"]["database"]
-                username = data["db"]["username"]
-                password = data["db"]["password"]
-                host = data["db"]["host"]
+                database_uri = data[terrama2_env]["database"]
+                username = data[terrama2_env]["username"]
+                password = data[terrama2_env]["password"]
+                host = data[terrama2_env]["host"]
 
                 print("Current database: " + database_uri)
 
