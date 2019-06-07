@@ -429,8 +429,10 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
             auto dynamicDataSetType = transactor->getDataSetType(terrama2::core::getTableNameProperty(dynamicDataSeries->datasetList[0]));
 
             auto vectorProcessingDataSetType = vp::getIntersectionTable(transactor.get(), tableName);
+
             // Generate layer for Monitored Geometry only here
             SQL = terrama2::services::view::core::vp::prepareSQLIntersection(vectorProcessingDataSetType->getTitle(),
+                                                                             pk,
                                                                              monitoredObjectTableInfo.dataSetType.get(),
                                                                              dynamicDataSetType.get(),
                                                                              "monitored_geom");
@@ -455,6 +457,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
             layersArray.push_back(layer);
 
             SQL = terrama2::services::view::core::vp::prepareSQLIntersection(modelDataSetType->getTitle(),
+                                                                             pk,
                                                                              monitoredObjectTableInfo.dataSetType.get(),
                                                                              dynamicDataSetType.get(),
                                                                              "intersection_geom");
@@ -496,6 +499,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
 
               // Generate layer for Monitored Geometry only here
               SQL = terrama2::services::view::core::vp::prepareSQLIntersection(modelDataSetType->getTitle(),
+                                                                               pk,
                                                                                monitoredObjectTableInfo.dataSetType.get(),
                                                                                dynamicDataSetType.get(),
                                                                                additionalIntersectionField,
@@ -520,6 +524,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
 
               // Generate layer for Monitored Geometry only here
               SQL = terrama2::services::view::core::vp::prepareSQLIntersection(modelDataSetType->getTitle(),
+                                                                               pk,
                                                                                monitoredObjectTableInfo.dataSetType.get(),
                                                                                dynamicDataSetType.get(),
                                                                                additionalDifferenceField);

@@ -35,6 +35,7 @@ void prepareFromClause(te::da::DataSetType* dataSetType, std::string& columnClau
 }
 
 std::string terrama2::services::view::core::vp::prepareSQLIntersection(const std::string& tableName,
+                                                                       const std::string& monitoredPrimaryKey,
                                                                        te::da::DataSetType* monitoredDataSeriesType,
                                                                        te::da::DataSetType* dynamicDataSeriesType,
                                                                        const std::string& geometryName,
@@ -43,7 +44,6 @@ std::string terrama2::services::view::core::vp::prepareSQLIntersection(const std
   assert(monitoredDataSeriesType != nullptr);
   assert(dynamicDataSeriesType != nullptr);
 
-  auto monitoredPrimaryKey = monitoredDataSeriesType->getPrimaryKey()->getProperties()[0]->getName();
   auto dynamicPrimaryKey = dynamicDataSeriesType->getPrimaryKey()->getProperties()[0]->getName();
 
   auto monitoredTableName = monitoredDataSeriesType->getTitle();
