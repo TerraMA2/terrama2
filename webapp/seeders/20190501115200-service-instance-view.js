@@ -1,6 +1,7 @@
 'use strict';
 
 const { ServiceType } = require('../core/Enums');
+const Application = require('./../core/Application')
 
 const view = {
   name: "Local View",
@@ -13,6 +14,9 @@ const view = {
 
 module.exports = {
   up: async function (queryInterface, /*Sequelize*/) {
+    const { db } = Application.getContextConfig();
+    const { database, host, password, username, port } = db;
+
     await queryInterface.bulkInsert({ schema: 'terrama2', tableName: 'service_instances'}, [view]);
 
     const insertedService = await queryInterface.sequelize.query(
@@ -22,11 +26,11 @@ module.exports = {
     const id = insertedService[0][0].id;
 
     const log = {
-      host: "127.0.0.1",
-      port: 5432,
-      user: "postgres",
-      password: "postgres",
-      database: "terrama2_migration",
+      host,
+      port: port || 5432,
+      user: username,
+      password,
+      database,
       service_instance_id: id
     }
 

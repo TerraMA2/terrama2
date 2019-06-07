@@ -9,6 +9,12 @@ module.exports = {
       },);
   },
   down: function(queryInterface, /*Sequelize*/) {
-    return queryInterface.dropTable({ tableName: 'views', schema: 'terrama2' });
+    return queryInterface.changeColumn(
+      { schema: 'terrama2', tableName: 'views' },
+      'automatic_schedule_id',
+      {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      });
   }
 };
