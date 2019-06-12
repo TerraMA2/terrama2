@@ -459,7 +459,7 @@ define(
             var span = "";
 
             if(layerCapabilities[layerIndex].extent instanceof Array) {
-              if(layerCapabilities[layerIndex].extent.length > 1 && (!data.update || !$(li).has("#terrama2-slider").length)) {
+              if(layerCapabilities[layerIndex].extent.length >= 1 && (!data.update || !$(li).has("#terrama2-slider").length)) {
                 var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':', '') + "'></div></div>";
                 $(li).append(sliderDiv);
                 span += "<i id='terrama2-slider' class='fa fa-sliders'></i>";

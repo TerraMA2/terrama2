@@ -56,9 +56,10 @@ namespace terrama2
            * \param dynamicDataSeriesType
            * \param geometryName
            * \param additionalDataSeriesType
-           * \return
+           * \return SQL statements for Vectorial Processing - Intersection
            */
           std::string prepareSQLIntersection(const std::string& tableName,
+                                             const std::string& monitoredPrimaryKey,
                                              te::da::DataSetType* monitoredDataSeriesType,
                                              te::da::DataSetType* dynamicDataSeriesType,
                                              const std::string& geometryName,
