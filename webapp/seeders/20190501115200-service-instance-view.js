@@ -26,7 +26,7 @@ module.exports = {
       port: 5432,
       user: "postgres",
       password: "postgres",
-      database: "terrama2_migration",
+      database: "terrama2",
       service_instance_id: id
     }
 

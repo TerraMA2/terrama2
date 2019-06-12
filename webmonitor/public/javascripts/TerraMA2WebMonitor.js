@@ -66,6 +66,8 @@ define(
         $.post(BASE_URL + "languages", { locale: language }, function() {
           $(".dropdown-btn").css("display", "none");
           $(".dropdown-btn." + language + "-img").css("display", "");
+          $(".dropdown-btn ~ span").text("");
+          $(".dropdown-btn." + language + "-img + span").text($("#language-"+language).text());
 
           $(".close-slider").click();
 
@@ -84,15 +86,15 @@ define(
 
       // Language change events
 
-      $("#language-pt").on("click", function() {
+      $("#language-pt").parent().on("click", function() {
         changeLanguage("pt");
       });
 
-      $("#language-es").on("click", function() {
+      $("#language-es").parent().on("click", function() {
         changeLanguage("es");
       });
 
-      $("#language-en").on("click", function() {
+      $("#language-en").parent().on("click", function() {
         changeLanguage("en");
       });
 
@@ -107,11 +109,6 @@ define(
         $("#content").height(memberWindowHeight + "px");
         $(".content-wrapper").css('min-height', memberWindowHeight + "px");
 
-        window.setTimeout(function() {
-          $("#terrama2-map").width(($("body").hasClass('full_screen') ? "100%" : $("#content").width() + "px"));
-          TerraMA2WebComponents.MapDisplay.updateMapSize();
-        }, 100);
-
         $(".sidebar-menu").height((memberWindowHeight - 195) + "px");
       });
 
@@ -120,8 +117,7 @@ define(
         alertDiv.addClass('hide');
       });
 
-      $('#terrama2-layerexplorer').on('click', 'input.terrama2-layerexplorer-checkbox', function() {
-
+      $('#terrama2-layerexplorer').on('click', '.checkbox input', function() {
         var layerid = $(this).closest('li').data('layerid');
         var layerObject = Layers.getLayerById(layerid);
         var isVisible = layerObject.visible;
@@ -162,6 +158,8 @@ define(
           Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.ONLINE);
       });
 
+      
+
       //change status icon when close the group layer
       $('.parent_li').on('click', function() {
         var parent = this.getAttribute('id');
@@ -178,22 +176,6 @@ define(
         }
       });
 
-      $("#inpe-image").on('click', function() {
-        window.open('http://www.inpe.br/', '_blank');
-      });
-
-      $("#programa-queimadas-image").on('click', function() {
-        window.open('http://www.inpe.br/queimadas/', '_blank');
-      });
-
-      $("#defra-image").on('click', function() {
-        window.open('https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs', '_blank');
-      });
-
-      $("#world-bank-image").on('click', function() {
-        window.open('http://www.worldbank.org/', '_blank');
-      });
-
       $("#loginButton").on("click", function() {
         if($('#authentication-div').hasClass('hidden'))
           $('#authentication-div').removeClass('hidden');
@@ -203,6 +185,8 @@ define(
 
       $('#about-btn').on('click', function() {
         $('#about-dialog').dialog({
+          resizable: false,
+          draggable: false,
           title: "",
           closeOnEscape: true,
           closeText: "",
@@ -222,12 +206,12 @@ define(
         });
       });
 
-      $('.template input').mousedown(function() {
+      $('.template .checkbox').mousedown(function() {
         if(!$(this).is(':checked')) {
-          var checked = $(".template input:checked");
-
-          for(var i = 0, checkedLength = checked.length; i < checkedLength; i++)
+          var checked = $(".template .checkbox input:checked");
+          for(var i = 0, checkedLength = checked.length; i < checkedLength; i++){
             checked[i].click();
+          }
         }
       });
 
@@ -246,8 +230,8 @@ define(
       var isAutoUpdate = $('#auto-update-off').hasClass("hidden");
       var isVisible = $("#" + layer.htmlId + " input").is(":checked");
       if (isAutoUpdate && isVisible){
-        $("#" + layer.htmlId + " input.terrama2-layerexplorer-checkbox").trigger("click");
-        $("#" + layer.htmlId + " input.terrama2-layerexplorer-checkbox").trigger("click");
+        $("#" + layer.htmlId + " .checkbox input").trigger("click");
+        $("#" + layer.htmlId + " .checkbox input").trigger("click");
         Layers.changeLayerStatus(layer.id, LayerStatusEnum.NEW);
         Layers.changeParentLayerStatus(layer.parent, LayerStatusEnum.NEW);
       }
@@ -478,7 +462,7 @@ define(
               if(layerCapabilities[layerIndex].extent.length > 1 && (!data.update || !$(li).has("#terrama2-slider").length)) {
                 var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':', '') + "'></div></div>";
                 $(li).append(sliderDiv);
-                span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'> <i class='fa fa-sliders'></i></span>";
+                span += "<i id='terrama2-slider' class='fa fa-sliders'></i>";
               }
               dateObject.initialDateIndex = dateObject.dates.length - 1;
 
@@ -496,9 +480,9 @@ define(
               }
 
             } else if(layerCapabilities[layerIndex].extent instanceof Object) {
-              if(!data.update || !$(li).has("#terrama2-calendar").length)
-                span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'> <i class='fa fa-calendar'></i></span>";
-
+              if(!data.update || !$(li).has("#terrama2-calendar").length){
+                span += "<i id='terrama2-calendar' class='fa fa-calendar'></i>";
+              }
               if (data.update){
                 if ($('#auto-update-off').hasClass("hidden")){
                   dateObject.startFilterDate = getInitialDateToCalendar(layerCapabilities[layerIndex].extent);
@@ -514,10 +498,9 @@ define(
                 dateObject.endFilterDate = layerCapabilities[layerIndex].extent.endDate;
                 updateMapDate(data.layerId, dateObject);
               }
-
             }
-
-            $(li).append($(span));
+            $("li[data-layerid='" + data.layerId + "'] .dropdown-layer-tools ul").append(span);
+            // $(li).append($(span));
             Layers.updateDateInfo(dateObject, data.layerId);
           }
 
@@ -646,7 +629,6 @@ define(
       $.TerraMAMonitor = {};
 
       $.TerraMAMonitor.options = {
-        sidebarToggleSelector: "[full_screen='true']",
       };
 
       $(".custom-scrollbar-light").mCustomScrollbar({
@@ -656,44 +638,6 @@ define(
       $(".custom-scrollbar-dark").mCustomScrollbar({
         theme: "dark-thick"
       });
-
-      $(document).on("click","#toggleButton", ()=>{
-        if($("#main-header").hasClass('navbar')){
-          $("#main-header").removeClass("navbar navbar-static-top shadow");
-          $(".header-logo").hide();
-          $("#logo-mini").show();
-        }else{
-          $("#main-header").addClass("navbar navbar-static-top shadow");
-          $(".header-logo").css('display', 'flex');
-          $("#logo-mini").hide();
-        }
-      })
-
-      $.TerraMAMonitor.pushMenu = {
-        activate: function(toggleBtn) {
-          $(document).on('click', toggleBtn, function(e) {
-            e.preventDefault();
-
-            if($("body").hasClass('full_screen')) {
-              $("body").removeClass('full_screen');
-              $("body").addClass('sidebar-mini');
-
-              $("#terrama2-map").width(($("#terrama2-map").width()) + "px");
-
-              $('.logo').css('margin-top', '');
-            } else {
-              $("body").addClass('full_screen');
-              $("body").removeClass('sidebar-mini');
-
-              $("#terrama2-map").width("100%");
-
-              $('.logo').css('margin-top', '-2px');
-            }
-
-            TerraMA2WebComponents.MapDisplay.updateMapSize();
-          })
-        }
-      };
 
       $.TerraMAMonitor.tree = function(menu) {
         var _this = this;
@@ -705,7 +649,7 @@ define(
           //Check if the next element is a menu and is visible
           if((checkElement.is('.treeview-menu')) && (checkElement.is(':visible')) && (!$('body').hasClass('sidebar-collapse'))) {
             //Close the menu
-            checkElement.slideUp(500, function() {
+            checkElement.slideUp(50, function() {
               checkElement.removeClass('menu-open');
             });
             checkElement.parent("li").removeClass("active");
@@ -734,7 +678,6 @@ define(
 
       var o = $.TerraMAMonitor.options;
 
-      $.TerraMAMonitor.pushMenu.activate(o.sidebarToggleSelector);
       $.TerraMAMonitor.tree('.sidebar');
 
       $("#content").height(memberWindowHeight + "px");
@@ -749,55 +692,55 @@ define(
         clearInterval(mapWidthInterval);
       }, 2000);
 
-      $("#dynamic").find("div").each(function() {
+      $("#dynamic > .group-name > .sidebar-item-text").find("div").each(function() {
         $(this).addClass("fa fa-clock-o");
       });
 
-      $("#static").find("div").each(function() {
+      $("#static > .group-name > .sidebar-item-text").find("div").each(function() {
         $(this).addClass("fa fa-folder");
       });
 
-      $("#analysis").find("div").each(function() {
+      $("#analysis > .group-name > .sidebar-item-text").find("div").each(function() {
         $(this).addClass("fa fa-search");
       });
 
-      $("#alert").find("div").each(function() {
+      $("#alert > .group-name > .sidebar-item-text").find("div").each(function() {
         $(this).addClass("fa fa-warning");
       });
 
-      $("#template").find("div").each(function() {
+      $("#template > .group-name > .sidebar-item-text").find("div").each(function() {
         $(this).addClass("fa fa-map");
       });
 
-      $("#custom").find("div").each(function() {
+      $("#custom > .group-name > .sidebar-item-text").find("div").each(function() {
         $(this).addClass("fa fa-link");
       });
 
-      var leftArrow = "<span class='pull-right-container'> <i class='fa fa-angle-left pull-right'></i> </span>";
+      var downArrow = "<i class='fa fa-angle-down'></i>";
 
-      $("#dynamic").children("span").each(function() {
-        $(this).append(leftArrow);
+      $("#dynamic > .group-name > .sidebar-item-icon").each(function() {
+        $(this).append(downArrow);
       });
 
-      $("#static").children("span").each(function() {
-        $(this).append(leftArrow);
+      $("#static > .group-name > .sidebar-item-icon").each(function() {
+        $(this).append(downArrow);
       });
 
-      $("#analysis").children("span").each(function() {
-        $(this).append(leftArrow);
+      $("#analysis > .group-name > .sidebar-item-icon").each(function() {
+        $(this).append(downArrow);
       });
 
-      $("#alert").children("span").each(function() {
-        $(this).append(leftArrow);
+      $("#alert > .group-name > .sidebar-item-icon").each(function() {
+        $(this).append(downArrow);
       });
 
-      $("#template").children("span").each(function() {
-        $(this).append(leftArrow);
+      $("#template > .group-name > .sidebar-item-icon").each(function() {
+        $(this).append(downArrow);
       });
 
-      $("#custom").children("span").each(function() {
-        $(this).append(leftArrow);
-        $(this).append("<span class='pull-right-container'> <i class='fa fa-plus pull-right' style='margin-top: 1px;'></i> </span>");
+      $("#custom > .group-name > .sidebar-item-icon").each(function() {
+        $(this).append(downArrow);
+        $(this).append("<i class='fa fa-plus' style='margin-top: 1px;'></i>");
       });
     };
 
@@ -808,17 +751,17 @@ define(
         $("#terrama2Alert").removeClass('hide');
       }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("custom", "", "terrama2-layerexplorer")) {
-        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("custom", "terrama2-layerexplorer", null, "treeview unsortable", null);
-        var layerObject = Layers.createLayerObject({
-          layers: ["custom"],
-          name: "Externals",
-          description: null
-        });
-        Layers.addLayer(layerObject);
-      }
+      // if(TerraMA2WebComponents.MapDisplay.addLayerGroup("custom", "", "terrama2-layerexplorer")) {
+      //   TerraMA2WebComponents.LayerExplorer.addLayersFromMap("custom", "terrama2-layerexplorer", null, "treeview unsortable", null);
+      //   var layerObject = Layers.createLayerObject({
+      //     layers: ["custom"],
+      //     name: "Externals",
+      //     description: null
+      //   });
+      //   Layers.addLayer(layerObject);
+      // }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("template", "", "terrama2-layerexplorer")) {
+      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("template", "Templates", "terrama2-layerexplorer")) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("template", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["template"],
@@ -828,7 +771,7 @@ define(
         Layers.addLayer(layerObject);
       }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("static", "", "terrama2-layerexplorer")) {
+      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("static", "Static data", "terrama2-layerexplorer")) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("static", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["static"],
@@ -838,7 +781,7 @@ define(
         Layers.addLayer(layerObject);
       }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("dynamic", "", "terrama2-layerexplorer")) {
+      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("dynamic", "Dynamic data", "terrama2-layerexplorer")) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("dynamic", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["dynamic"],
@@ -848,7 +791,7 @@ define(
         Layers.addLayer(layerObject);
       }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("analysis", "", "terrama2-layerexplorer")) {
+      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("analysis", "Analysis", "terrama2-layerexplorer")) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("analysis", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["analysis"],
@@ -858,7 +801,7 @@ define(
         Layers.addLayer(layerObject);
       }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("alert", "", "terrama2-layerexplorer")) {
+      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("alert", "Alerts", "terrama2-layerexplorer")) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("alert", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["alert"],
@@ -870,7 +813,7 @@ define(
 
       //Adding open map street
       if(TerraMA2WebComponents.MapDisplay.addOSMLayer("osm", "OpenStreetMap", "OpenStreetMap", false, "terrama2-layerexplorer", false)) {
-        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("osm", "template", null, "treeview unsortable terrama2-truncate-text template", null);
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("osm", "template", null, "treeview unsortable terrama2-truncate-text sidebar-subitem template", null);
         var layerObject = Layers.createLayerObject({
           layers: ["osm"],
           name: "OpenStreetMap",
@@ -883,7 +826,7 @@ define(
 
       var gebcoUrl = "http://www.gebco.net/data_and_products/gebco_web_services/web_map_service/mapserv?request=getmap&service=wms";
       if(TerraMA2WebComponents.MapDisplay.addTileWMSLayer("gebco_08_grid", "GEBCO", "GEBCO", gebcoUrl, "mapserver", false, false, "terrama2-layerexplorer", { version: "1.3.0", format: "image/jpeg" })){
-        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("gebco_08_grid", "template", null, "treeview unsortable terrama2-truncate-text template", null);
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("gebco_08_grid", "template", null, "treeview unsortable terrama2-truncate-text sidebar-subitem template", null);
         var layerObject = Layers.createLayerObject({
           layers: ["gebco_08_grid"],
           name: "GEBCO",
@@ -896,7 +839,7 @@ define(
 
       var sentinelURL = "https://b.s2maps-tiles.eu/wms?";
       if(TerraMA2WebComponents.MapDisplay.addTileWMSLayer("s2cloudless", "Sentinel 2", "Sentinel 2", sentinelURL, "mapserver", false, false, "terrama2-layerexplorer", { version: "1.1.1", format: "image/jpeg" })){
-        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("s2cloudless", "template", null, "treeview unsortable terrama2-truncate-text template", null);
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("s2cloudless", "template", null, "treeview unsortable terrama2-truncate-text sidebar-subitem template", null);
         var layerObject = Layers.createLayerObject({
           layers: ["s2cloudless"],
           name: "Senrinel 2",

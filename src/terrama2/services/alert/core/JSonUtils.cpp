@@ -83,7 +83,7 @@ terrama2::services::alert::core::AlertPtr terrama2::services::alert::core::fromA
   for(auto value : addDataArray)
   {
     auto obj = value.toObject();
-    auto id = static_cast<uint32_t>(obj["dataseries_id"].toInt());
+    auto id = static_cast<uint32_t>(obj["data_series_id"].toInt());
     auto datasetid = static_cast<uint32_t>(obj["dataset_id"].toInt());
     auto referrerAttribute = obj["referrer_attribute"].toString().toStdString();
     auto referredAttribute = obj["referred_attribute"].toString().toStdString();
@@ -201,7 +201,7 @@ QJsonObject terrama2::services::alert::core::toJson(AlertPtr alert)
   for(const auto& data : alert->additionalDataVector)
   {
     QJsonObject tempObj;
-    tempObj.insert("dataseries_id", static_cast<int>(data.dataSeriesId));
+    tempObj.insert("data_series_id", static_cast<int>(data.dataSeriesId));
     obj.insert("dataset_id", static_cast<int>(data.dataSetId));
     QJsonArray attributesArray;
     for(const auto& attribute : data.attributes)

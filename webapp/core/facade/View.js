@@ -87,7 +87,7 @@
         })
       }
       saveViewPromise
-        .then(function(view) {
+        .then(async view => {
           // sending to the services
           sendView(view);
           return resolve(view);
@@ -109,8 +109,9 @@
     return new PromiseClass(function(resolve, reject) {
       if (viewId) {
         return DataManager.getView({id: viewId})
-          .then(function(view) { 
-            return resolve(view.toObject());
+          .then(async view => { 
+            const viewResult = view.toObject()
+            return resolve(viewResult);
           })
           .catch(function(err) { 
             return reject(err); 

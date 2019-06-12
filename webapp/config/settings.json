@@ -1,8 +1,10 @@
 {
   "basePath": "/",
   "port": 36000,
-  "defaultFilePathList": ["/home/<USER>/terrama2"],
-  "defaultExecutablePath": "/opt/terrama2/4.1.0/bin",
+  "defaultFilePathList": [
+    "/home/<USER>/terrama2"
+  ],
+  "defaultExecutablePath": "/home/marcelo/workspace/terrama2/build/bin",
   "defaultExecutableName": "terrama2_service",
   "disablePDF": true,
   "debug": true,
@@ -17,5 +19,6 @@
       "url": "http://www.terrama2.dpi.inpe.br/",
       "openInNewTab": true
     }
-  ]
+  ],
+  "webAppId": "default|||$2b$10$olA2TK05Y4ooWaK/kClyaOUylqDg/epXdLgtkwHwjGyFi7u7NENNW"
 }

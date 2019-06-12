@@ -28,12 +28,14 @@ define(
             $(li).append(sliderDiv);
 
             if(layer.extent instanceof Array) {
-              if(layer.extent.length > 1)
-                span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'> <i class='fa fa-sliders'></i></span>";
+              if(layer.extent.length > 1) {
+                span += "<i id='terrama2-slider' class='fa fa-sliders'></i>";
+              }
             } else if(layer.extent instanceof Object) {
-              span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'> <i class='fa fa-calendar'></i></span>";
+              span += "<i id='terrama2-calendar' class='fa fa-calendar'></i>";
             }
-            $(li).append($(span));
+            $("li[data-layerid='" + layer.id + "'] .dropdown-layer-tools ul").append(span);
+            // $(li).append($(span));
           }
         }
       }

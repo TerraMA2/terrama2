@@ -153,7 +153,6 @@ define([], function() {
 
           self.servicesInstances[response.service] = false;
         }
-        console.log(self.servicesInstances);
       }
     });
 
@@ -170,7 +169,6 @@ define([], function() {
         self.model = ViewService.list(viewRestriction);
 
         self.model.forEach(function(instance) {
-          console.log(instance);
           Socket.emit("status", { service: instance.service_instance_id });
           self.servicesInstances[instance.service_instance_id] = false;
         });

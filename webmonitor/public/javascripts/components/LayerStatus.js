@@ -5,8 +5,8 @@ define(
   function(LayerStatusEnum, TerraMA2WebComponents) {
 
     var addGroupSpanIcon = function() {
-      var groupElement = $(".parent_li").children(".group-name");
-      var span = "<span class='span-group-icon pull-left'> <img id='image-group-icon' src=''> </span>";
+      var groupElement = $(".parent_li > .group-name > .sidebar-item-text");
+      var span = "<img id='image-group-icon' src=''>";
       groupElement.prepend(span);
     };
 
@@ -21,9 +21,11 @@ define(
     };
 
     var addLayerStatusIcon = function(htmlLayerId) {
-      var layerElement = $('#terrama2-layerexplorer').find("#" + htmlLayerId);
-      var span = "<span class='span-layer-icon'> <img id='image-icon' src=''> </span>";
-      layerElement.prepend(span);
+      $('#terrama2-layerexplorer #'+htmlLayerId + " .sidebar-subitem-text").prepend(`<img id='image-icon' src=''>`);
+    };
+
+    var addChartIcon = function(htmlLayerId) {
+      $('#terrama2-layerexplorer #'+htmlLayerId + " .dropdown-layer-tools ul").append(`<i class="fa fa-line-chart"></i>`);
     };
 
     var changeLayerStatusIcon = function(htmlLayerId, status) {
@@ -53,6 +55,7 @@ define(
     return {
       changeLayerStatusIcon: changeLayerStatusIcon,
       addLayerStatusIcon: addLayerStatusIcon,
+      addChartIcon,
       changeGroupStatusIcon: changeGroupStatusIcon,
       addGroupSpanIcon: addGroupSpanIcon
     };
