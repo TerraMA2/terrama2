@@ -250,9 +250,12 @@ define(
           LayerStatus.changeGroupStatusIcon(parent, LayerStatusEnum.ONLINE);
           LayerStatus.addLayerStatusIcon(htmlId);
           LayerStatus.changeLayerStatusIcon(htmlId, LayerStatusEnum.ONLINE);
-          
-          if(data[i].charts && data[i].charts!=[] && data[i].charts!=""){
-            LayerStatus.addChartIcon(htmlId);
+          if(!data[i].isParent) {
+            if(data[i].charts != [] && data[i].charts != "" && data[i].charts[0].hasOwnProperty('name')) {
+              LayerStatus.addChartIcon(htmlId);
+            } else if(parent == "static") {
+              $("#"+htmlId+" .sidebar-subitem-icon").hide();
+            }
           }
           Sortable.addLayerToSort(layerId, layerName, parent);
 

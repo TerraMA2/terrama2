@@ -231,7 +231,6 @@ define(
       var isVisible = $("#" + layer.htmlId + " input").is(":checked");
       if (isAutoUpdate && isVisible){
         $("#" + layer.htmlId + " .checkbox input").trigger("click");
-        $("#" + layer.htmlId + " .checkbox input").trigger("click");
         Layers.changeLayerStatus(layer.id, LayerStatusEnum.NEW);
         Layers.changeParentLayerStatus(layer.parent, LayerStatusEnum.NEW);
       }

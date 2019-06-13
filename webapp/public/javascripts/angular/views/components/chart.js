@@ -47,17 +47,16 @@ define([],()=> {
                 },
                 "fromMap": {
                   "title": "From map?",
-                  "type": "boolean",
-                  "default": true
+                  "type": "boolean"
                 }
               },
               "required": [
-                "name",
-                "type",
-                "title",
-                "series",
-                "functionGrouping",
-                "model",
+                // "name",
+                // "groupBy",
+                // "type",
+                // "title",
+                // "series",
+                // "functionGrouping"
               ]
             }
           }
@@ -97,6 +96,10 @@ define([],()=> {
                   "name": "Pie"
                 },
                 {
+                  "value": "donut",
+                  "name": "Donut"
+                },
+                {
                   "value": "bar",
                   "name": "Bar"
                 },
@@ -109,9 +112,17 @@ define([],()=> {
                   "name": "Line"
                 },
                 {
-                  "value": "scatter-plot",
-                  "name": "Scatter plot"
-                }
+                  "value": "area",
+                  "name": "Area"
+                },
+                // {
+                //   "value": "scatter-plot",
+                //   "name": "Scatter plot"
+                // },
+                // {
+                //   "value": "map",
+                //   "name": "Map"
+                // }
               ]
             },
             {
@@ -135,7 +146,7 @@ define([],()=> {
               "type": "select",
               "htmlClass": "col-xs-6",
               "titleMap": [],
-              "condition": "model.charts[arrayIndex].functionGrouping != 'count'"
+              "condition": "model.charts[arrayIndex].functionGrouping != 'count' && model.charts[arrayIndex].type != 'line' && model.charts[arrayIndex].type != 'area'"
             },
             {
               "identificator":"2",
@@ -143,10 +154,12 @@ define([],()=> {
               "type": "select",
               "htmlClass": "col-xs-6",
               "titleMap": [],
+              "condition": "model.charts[arrayIndex].type != 'line' && model.charts[arrayIndex].type != 'area'"
             },
             {
               "key": "charts[].fromMap",
               "htmlClass": "col-xs-12",
+              "condition": "model.charts[arrayIndex].type != 'line' && model.charts[arrayIndex].type != 'area'"
             },
           ]
         }

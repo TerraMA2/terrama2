@@ -584,6 +584,10 @@ img[src=""] {
 	font-size: 13px
 }
 
+.ui-dialog-content{
+	height: 100% !important;
+}
+
 .cursor-crosshair {
 	cursor: crosshair!important
 }
@@ -891,8 +895,8 @@ img[src=""] {
 	width: 50% !important;
 	height: calc(100% - 80px) !important;
 	bottom: 50px;
-	overflow: auto;
-	top: 0 !important;
+	overflow: hidden;
+	top: 20px !important;
 	margin: 0 auto;
 	z-index: 99999 !important;
 }
@@ -1245,10 +1249,11 @@ img[src=""] {
 	cursor: pointer;
 	position: absolute;
 	right: 0;
+	color: red;
 }
 
 .closeChart:hover {
-	color: #666
+	color: lightcoral
 }
 
 .chart {

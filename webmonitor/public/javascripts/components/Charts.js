@@ -28,13 +28,13 @@ define(
     };
 
     var setCharts = function(layer) {
+      var picker = null;
       let {charts, viewId, parent, style} = layer;
       let isDynamic = false;
       if(parent === 'dynamic'){
         isDynamic = true;
       }
       let chartsHtml="";
-      // `<a id="newWindowBtn" href="#">New window</a><br />`
       let chartsLen=0;
       chartsLen = charts?charts.length:0;
       for (let i = 0; i < chartsLen; i++) {
@@ -54,8 +54,18 @@ define(
                       <span class="input-group-addon">
                         <span class="glyphicon glyphicon-calendar"></span>
                       </span>
-                    </div>
-                  </div>`;
+                    </div>`;
+                    if(chart.type === "line" || chart.type === "area"){
+                    chartsHtml+=`
+                    <label>Interval:</label>
+                    <select id="interval${i+1}" class="form-control interval">
+                      <option value='day'>Day</option>
+                      <option value='week'>Week</option>
+                      <option value='month'>Month</option>
+                      <option value='year'>Year</option>
+                    </select>`;
+                    }
+                  chartsHtml+=`</div>`;
                 }
                 chartsHtml += `
                   <br />
@@ -94,38 +104,93 @@ define(
           fromMap = false;
         }
 
-        let url = `http://localhost:36000/api/charts?viewId=${viewId}&attributeName=${chartSeries}&legendFromMap=${fromMap}`;
+        let url = `http://localhost:36000/api/charts?viewId=${viewId}&attributeName=${chartSeries}&legendFromMap=${fromMap}&chartType=${chartType}`;
         if(chartFunctionGrouping){
           url += `&functionGrouping=${chartFunctionGrouping}`;
         }
         if(chartGroupBy){
           url += `&groupBy=${chartGroupBy}`;
         }
-        if(chartLabel){
-          url += `&label=${chartLabel}`;
-        }
         
         const dateFrom = moment().startOf('day').format("Y-M-D HH:mm:ss")
         const dateTo = moment().format("Y-M-D HH:mm:ss");
         url += `&dateFrom=${dateFrom}`;
         url += `&dateTo=${dateTo}`;
+        if(chartType === "line" || chartType === "area"){
+          const interval = $("#interval").val();
+          url += `&interval=${interval}`;
+        }
         am4core.ready(function() {
           am4core.useTheme(am4themes_material);
           am4core.useTheme(am4themes_animated);
           if(chartType==="pie") {
-            var chart = am4core.create(`chart${i+1}`, am4charts.PieChart3D);
+            var chart = am4core.create(`chart${i+1}`, am4charts.PieChart);
             chart.id = `chart${i+1}`
             chart.dataSource.url = url;
+            chart.dataSource.reloadFrequency = null;
             chart.legend = new am4charts.Legend();
             
             chart.responsive.enabled = true;
             chart.tapToActivate = true;
             
-            var pieSeries = chart.series.push(new am4charts.PieSeries3D());
+            var pieSeries = chart.series.push(new am4charts.PieSeries());
             pieSeries.dataFields.value = "value";
             pieSeries.dataFields.category = chartGroupBy;
-            pieSeries.slices.template.propertyFields.fill = "color";
-            pieSeries.slices.template.propertyFields.stroke = "color";
+            pieSeries.fillOpacity = .8;
+            if(fromMap){
+              pieSeries.slices.template.propertyFields.fill = "color";
+              pieSeries.slices.template.propertyFields.stroke = "color";
+              pieSeries.slices.template.propertyFields.fillOpacity = .8;
+            }
+
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.exporting.menu.items = [{
+                "label": "<i class='fa fa-download'></i>",
+                "menu": [
+                  {
+                    "label": "Image",
+                    "menu": [
+                      { "type": "png", "label": "PNG" },
+                      { "type": "jpg", "label": "JPG" },
+                      { "type": "gif", "label": "GIF" },
+                      { "type": "svg", "label": "SVG" },
+                      { "type": "pdf", "label": "PDF" }
+                    ]
+                  }, {
+                    "label": "Data",
+                    "menu": [
+                      { "type": "json", "label": "JSON" },
+                      { "type": "csv", "label": "CSV" },
+                      { "type": "xlsx", "label": "XLSX" }
+                    ]
+                  }, {
+                    "label": "Print", "type": "print"
+                  }
+                ]
+              }
+            ];
+          }else if(chartType==="donut") {
+            var chart = am4core.create(`chart${i+1}`, am4charts.PieChart);
+            chart.id = `chart${i+1}`
+            chart.dataSource.url = url;
+            chart.dataSource.reloadFrequency = null;
+
+            chart.legend = new am4charts.Legend();
+
+            chart.innerRadius = 100;
+            
+            chart.responsive.enabled = true;
+            chart.tapToActivate = true;
+            
+            var pieSeries = chart.series.push(new am4charts.PieSeries());
+            pieSeries.dataFields.value = "value";
+            pieSeries.dataFields.category = chartGroupBy;
+            pieSeries.fillOpacity = .8;
+            if(fromMap){
+              pieSeries.slices.template.propertyFields.fill = "color";
+              pieSeries.slices.template.propertyFields.stroke = "color";
+              pieSeries.slices.template.propertyFields.fillOpacity = .8;
+            }
 
             chart.exporting.menu = new am4core.ExportMenu();
             chart.exporting.menu.items = [{
@@ -157,6 +222,7 @@ define(
             var chart = am4core.create(`chart${i+1}`, am4charts.XYChart);
             chart.id = `chart${i+1}`
             chart.dataSource.url = url;
+            chart.dataSource.reloadFrequency = null;
 
             let categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
             categoryAxis.dataFields.category = chartGroupBy;
@@ -178,23 +244,32 @@ define(
             barSeries.dataFields.categoryX = chartGroupBy;
             barSeries.name = chartGroupBy;
             barSeries.tooltipText = "{categoryX}: [bold]{valueY}[/]";
-            // barSeries.columns.template.fillOpacity = .8;
-            // barSeries.columns.template.propertyFields.fill = "color";
+            barSeries.columns.template.fillOpacity = .8;
+
+            barSeries.columns.template.column.cornerRadiusTopLeft = 10;
+            barSeries.columns.template.column.cornerRadiusTopRight = 10;
+
+            var hoverState = barSeries.columns.template.column.states.create("hover");
+            hoverState.properties.cornerRadiusTopLeft = 0;
+            hoverState.properties.cornerRadiusTopRight = 0;
+            hoverState.properties.fillOpacity = 1;
 
             var columnTemplate = barSeries.columns.template;
-            columnTemplate.strokeWidth = 2;
+            columnTemplate.strokeWidth = 1;
             columnTemplate.strokeOpacity = 1;
-            columnTemplate.propertyFields.fill = "color";
-            columnTemplate.propertyFields.stroke = am4core.color("#FFFFFF");
-
-            // columnTemplate.adapter.add("fill", (fill, target) => {
-            //   return chart.colors.getIndex(target.dataItem.index);
-            // })
-
-            // columnTemplate.adapter.add("stroke", (stroke, target) => {
-            //   return chart.colors.getIndex(target.dataItem.index);
-            // })
-
+            columnTemplate.stroke = am4core.color("#FFFFFF");
+            if(fromMap){
+              columnTemplate.propertyFields.fill = "color";
+              columnTemplate.propertyFields.stroke = "color";
+            }else{
+              columnTemplate.adapter.add("fill", (fill, target) => {
+                return chart.colors.getIndex(target.dataItem.index);
+              })
+              
+              columnTemplate.adapter.add("stroke", (stroke, target) => {
+                return chart.colors.getIndex(target.dataItem.index);
+              })
+            }
             chart.cursor = new am4charts.XYCursor();
             chart.cursor.lineX.strokeOpacity = 0;
             chart.cursor.lineY.strokeOpacity = 0;
@@ -227,41 +302,55 @@ define(
               }
             ];
           } else if(chartType==="horizontal-bar") {
-            var chart = am4core.create(`chart${i+1}`, am4charts.XYChart3D);
+            var chart = am4core.create(`chart${i+1}`, am4charts.XYChart);
             chart.id = `chart${i+1}`
             chart.dataSource.url = url;
+            chart.dataSource.reloadFrequency = null;
 
             var categoryAxis = chart.yAxes.push(new am4charts.CategoryAxis());
             categoryAxis.dataFields.category = chartGroupBy;
-            categoryAxis.numberFormatter.numberFormat = "#";
             categoryAxis.renderer.inversed = true;
 
             var  valueAxis = chart.xAxes.push(new am4charts.ValueAxis()); 
             valueAxis.title.text = chartGroupBy;
             valueAxis.title.fontWeight = "bold";
             
-            var series = chart.series.push(new am4charts.ColumnSeries3D());
+            var series = chart.series.push(new am4charts.ColumnSeries());
             series.dataFields.valueX = "value";
             series.dataFields.categoryY = chartGroupBy;
             series.name = chartGroupBy;
             series.tooltipText = "{categoryY}: [bold]{valueX}[/]";
+            series.columns.template.fillOpacity = .8;
+
+            series.columns.template.column.cornerRadiusBottomRight = 10;
+            series.columns.template.column.cornerRadiusTopRight = 10;
+
+            var hoverState = series.columns.template.column.states.create("hover");
+            hoverState.properties.cornerRadiusBottomRight = 0;
+            hoverState.properties.cornerRadiusTopRight = 0;
+            hoverState.properties.fillOpacity = 1;
 
             var columnTemplate = series.columns.template;
-            columnTemplate.strokeWidth = 2;
+            columnTemplate.strokeWidth = 1;
             columnTemplate.strokeOpacity = 1;
             columnTemplate.stroke = am4core.color("#FFFFFF");
-
-            columnTemplate.adapter.add("fill", (fill, target) => {
-              return chart.colors.getIndex(target.dataItem.index);
-            })
-
-            columnTemplate.adapter.add("stroke", (stroke, target) => {
-              return chart.colors.getIndex(target.dataItem.index);
-            })
+            if(fromMap){
+              columnTemplate.propertyFields.fill = "color";
+              columnTemplate.propertyFields.stroke = "color";
+            }else{
+              columnTemplate.adapter.add("fill", (fill, target) => {
+                return chart.colors.getIndex(target.dataItem.index);
+              })
+              
+              columnTemplate.adapter.add("stroke", (stroke, target) => {
+                return chart.colors.getIndex(target.dataItem.index);
+              })
+            }
 
             chart.cursor = new am4charts.XYCursor();
             chart.cursor.lineX.strokeOpacity = 0;
             chart.cursor.lineY.strokeOpacity = 0;
+            
             chart.exporting.menu = new am4core.ExportMenu();
 
             chart.exporting.menu.items = [{
@@ -294,6 +383,7 @@ define(
             var chart = am4core.create(`chart${i+1}`, am4charts.XYChart);
             chart.id = `chart${i+1}`
             chart.dataSource.url = url;
+            chart.dataSource.reloadFrequency = null;
             
             var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
             dateAxis.renderer.minGridDistance = 50;
@@ -302,7 +392,7 @@ define(
             
             var series = chart.series.push(new am4charts.LineSeries());
             series.dataFields.valueY = "value";
-            series.dataFields.dateX = chartGroupBy;
+            series.dataFields.dateX = "date";
             series.strokeWidth = 2;
             series.minBulletDistance = 10;
             series.tooltipText = "{valueY}";
@@ -344,12 +434,69 @@ define(
                 ]
               }
             ];
+          } else if (chartType === "area"){
+            var chart = am4core.create(`chart${i+1}`, am4charts.XYChart);
+            chart.id = `chart${i+1}`
+            chart.dataSource.url = url;
+            chart.dataSource.reloadFrequency = null;
+            
+            var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            dateAxis.renderer.minGridDistance = 50;
+            
+            var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+            
+            var series = chart.series.push(new am4charts.LineSeries());
+            series.dataFields.valueY = "value";
+            series.dataFields.dateX = "date";
+            series.strokeWidth = 2;
+            series.minBulletDistance = 10;
+            series.tooltipText = "{valueY}";
+            series.tooltip.pointerOrientation = "vertical";
+            series.tooltip.background.cornerRadius = 20;
+            series.tooltip.background.fillOpacity = 0.5;
+            series.tooltip.label.padding(12,12,12,12)
+
+            series.fillOpacity = 0.5;
+            
+            chart.scrollbarX = new am4charts.XYChartScrollbar();
+            chart.scrollbarX.series.push(series);
+            
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.xAxis = dateAxis;
+            chart.cursor.snapToSeries = series;
+            chart.exporting.menu = new am4core.ExportMenu();
+
+            chart.exporting.menu.items = [{
+                "label": "<i class='fa fa-download'></i>",
+                "menu": [
+                  {
+                    "label": "Image",
+                    "menu": [
+                      { "type": "png", "label": "PNG" },
+                      { "type": "jpg", "label": "JPG" },
+                      { "type": "gif", "label": "GIF" },
+                      { "type": "svg", "label": "SVG" },
+                      { "type": "pdf", "label": "PDF" }
+                    ]
+                  }, {
+                    "label": "Data",
+                    "menu": [
+                      { "type": "json", "label": "JSON" },
+                      { "type": "csv", "label": "CSV" },
+                      { "type": "xlsx", "label": "XLSX" }
+                    ]
+                  }, {
+                    "label": "Print", "type": "print"
+                  }
+                ]
+              }
+            ];
           }
           chartList.push(chart)
         });
       }
       
-      $('.chart-date-picker').daterangepicker({
+      picker = $('.chart-date-picker').daterangepicker({
         "timePicker": true,
         // "minDate": moment(),
         "startDate": moment().startOf('day'),
@@ -394,8 +541,19 @@ define(
       });
       
       $('.chart-date-picker').on('apply.daterangepicker', function(ev, picker) {
+        getByPeriod(ev);
+      });
+      $('.chart-date-picker').on('show.daterangepicker', function(ev, p) {
+        picker = p;
+      });
+      $(document).on("change", ".interval", function(ev) {
+        getByPeriod(ev);
+      });
+      var getByPeriod = (ev) => {
+        var picker = $(ev.currentTarget).closest('.panel-body').find('.chart-date-picker').data('daterangepicker');
         const dateFrom = picker.startDate.format('YYYY-MM-DD')
         const dateTo = picker.endDate.format('YYYY-MM-DD')
+        let interval = $(ev.currentTarget).closest('.panel-body').find('.interval').val();
         const chartContainer = $(ev.currentTarget).closest('.panel-body').find('.chart:first')[0]
         
         const chart = getChart(chartContainer.id)
@@ -404,11 +562,14 @@ define(
         if(index!=-1){
           oldUrl = oldUrl.substring(0, index);
         }
-        const newUrl = oldUrl+`&dateFrom=${dateFrom}&dateTo=${dateTo}`
+        let newUrl = oldUrl+`&dateFrom=${dateFrom}&dateTo=${dateTo}`
+        if(interval){
+          newUrl+=`&interval=${interval}`;
+        }
         chart.dataSource.url = newUrl
         chart.dataSource.load()
         chart.dataSource.url = oldUrl
-      });
+      }
     }
     function getChart(id) {
       return chartList.find(chart => chart.id==id)
