@@ -64,6 +64,8 @@
 #include "DataRetrieverHTTP.hpp"
 #include "DataRetrieverHTTPS.hpp"
 #include "DataRetrieverStaticHTTP.hpp"
+#include "DataRetrieverWFS.hpp"
+#include "DataAccessorWFS.hpp"
 
 #include "../core/utility/DataAccessorFactory.hpp"
 #include "../core/utility/DataStoragerFactory.hpp"
@@ -91,6 +93,7 @@ void terrama2::core::registerFactories()
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorWildFireEvent::dataAccessorType(), terrama2::core::DataAccessorWildFireEvent::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorDcpSingleTable::dataAccessorType(), terrama2::core::DataAccessorDcpSingleTable::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorJsonCemaden::dataAccessorType(), terrama2::core::DataAccessorJsonCemaden::make);
+  terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorWFS::dataAccessorType(), terrama2::core::DataAccessorWFS::make);
 
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorNetCDF::dataAccessorType(),
                                                          terrama2::core::DataAccessorNetCDF::make);
@@ -116,6 +119,7 @@ void terrama2::core::registerFactories()
   terrama2::core::DataRetrieverFactory::getInstance().add(terrama2::core::DataRetrieverHTTP::dataRetrieverType(), terrama2::core::DataRetrieverHTTP::make);
   terrama2::core::DataRetrieverFactory::getInstance().add(terrama2::core::DataRetrieverHTTPS::dataRetrieverType(), terrama2::core::DataRetrieverHTTPS::make);
   terrama2::core::DataRetrieverFactory::getInstance().add(terrama2::core::DataRetrieverStaticHTTP::dataRetrieverType(), terrama2::core::DataRetrieverStaticHTTP::make);
+  terrama2::core::DataRetrieverFactory::getInstance().add(terrama2::core::DataRetrieverWFS::dataRetrieverType(), terrama2::core::DataRetrieverWFS::make);
 
   terrama2::core::InterpreterFactory::getInstance().add(terrama2::core::PythonInterpreter::interpreterType(), terrama2::core::PythonInterpreter::make, terrama2::core::PythonInterpreter::createInitializer);
 }

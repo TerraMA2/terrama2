@@ -33,7 +33,9 @@
 // TerraMa2
 #include "../Config.hpp"
 
+//STL
 #include <string>
+#include <map>
 
 #include <boost/optional.hpp>
 
@@ -92,6 +94,15 @@ namespace terrama2
           - any alteration of the instance is persisted.
       */
       virtual void runScript(const std::string& script) = 0;
+
+      /*!
+        \brief Execute the script in the interpreter instace.
+
+          - any former modification is still valid.
+          - any alteration of the instance is persisted.
+      */
+      virtual void runScript(const std::string& script, const std::map<std::string, std::string> &parameters) = 0;
+
       /*!
         \brief Execute the script in the interpreter instance and returns the value of a given string variable.
 
