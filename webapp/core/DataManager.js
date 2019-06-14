@@ -2939,7 +2939,7 @@ var DataManager = module.exports = {
               return reject(new exceptions.CollectorError("Could not find collector. " + err.toString()));
             });
         } else {
-          logger.error("Retrieved null while getting collector", collectorResult);
+          logger.error("Retrieved null while getting collector", restriction, collectorResult);
           return reject(new exceptions.CollectorErrorNotFound("Could not find collector. "));
         }
       }).catch(function(err) {
@@ -5566,7 +5566,7 @@ var DataManager = module.exports = {
       models.View.update(
         viewObject,
         Utils.extend({
-          fields: ["name", "description", "data_series_id", "style", "active", "service_instance_id", "schedule_id", "automatic_schedule_id", "schedule_type", "private", "source_type"],
+          fields: ["name", "description", "data_series_id", "style", "active", "service_instance_id", "schedule_id", "automatic_schedule_id", "schedule_type", "private", "source_type", "charts"],
           where: restriction
         }, options))
 

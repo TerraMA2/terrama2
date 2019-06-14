@@ -148,14 +148,20 @@ var logs = {
  */
 TcpManager.prototype.$send = function(serviceInstance, data, signal) {
   try {
+    let beginOfMessage = "(BOM)\0";
+    let endOfMessage = "(EOM)\0";
+    
     var client = _getClient(serviceInstance);
 
     var config = Application.getContextConfig();
     data.webAppId = config.webAppId;
+
     var buffer = this.makebuffer(signal, data);
+    
     //logger.debug(buffer);
     logger.debug("BufferToString: ", buffer.toString());
     logger.debug("BufferToString size: ", buffer.length);
+    logger.debug("Signal: ", signal, " serviceInstance: ", serviceInstance.name)
 
     client.send(buffer);
   } catch (e) {
@@ -220,6 +226,7 @@ TcpManager.prototype.logData = function(serviceInstance, data) {
     var config = Application.getContextConfig();
     data.webAppId = config.webAppId;
     var buffer = self.makebuffer(Signals.LOG_SIGNAL, data);
+    console.log("LOG_SIGNAL", buffer);
     // requesting for log
     client.log(buffer);
 

@@ -1,12 +1,18 @@
-(function() {
+module.exports = function(port) {
   "use strict";
 
   // Log library
   var winston = require("winston");
   var format = new Date().toLocaleTimeString();
+  var fullformat = new Date().toLocaleString();
   var path = require("path");
   var PROJECT_ROOT = path.join(__dirname, '..');
   var NodeFormat = require("util").format;
+
+  //var port = 5000
+
+  const log_filename = "Storage_" + port + "_terrama2.log";
+  const log_filename_debug = "Storage_" + port + "_terrama2_debug.log";
 
   /**
    * It defines a Winston Logger used in TerraMA²
@@ -18,8 +24,26 @@
       new (winston.transports.Console)({
         timestamp: format,
         colorize: true,
-        level: 'debug', // defining debug to log console
+        level: process.env.NODE_ENV === 'PRODUCTION' ? 'info' : 'debug', // defining debug to log console
         formatter: loggerFormat
+      }),
+      new (winston.transports.File)({
+        name: 'infofile',
+        filename:log_filename,
+        timestamp: fullformat,
+        colorize: true,
+        formatter: loggerFormatFile,
+        level:  process.env.NODE_ENV === 'PRODUCTION' ? 'info' : 'error',
+        json: false
+      }),
+      new (winston.transports.File)({
+        name: 'debugfile',
+        filename:log_filename_debug,
+        timestamp: fullformat,
+        colorize: true,
+        formatter: loggerFormatFile,
+        level: 'debug',
+        json: false
       })
     ],
     exitOnError: false
@@ -49,7 +73,15 @@
     return oldError.apply(this, formatLogArguments(arguments));
   };
 
+  var myInfo = logger.info;
+  logger.info = function () {
+
+    return myInfo.apply(this, formatLogArguments(arguments));
+  };
+  
+
   /**
+   * 
    * It performs a Logger format stream.
    *
    * @param {any} args - A Winston Logger arguments
@@ -60,6 +92,19 @@
    */
   function loggerFormat(args) {
     return NodeFormat("[%s] %s %s", format, winston.config.colorize(args.level), args.message);
+  }
+
+  /**
+   * It performs a Logger format stream.
+   *
+   * @param {any} args - A Winston Logger arguments
+   * @param {string} args.level - A logger level
+   * @param {string} args.timestamp - A logger timestamp
+   * @param {string} args.message - A logger message
+   * @returns {string} Formatted string to log
+   */
+  function loggerFormatFile(args) {
+    return NodeFormat("[%s][%s] %s", fullformat, args.level, args.message);
   }
 
   /**
@@ -132,5 +177,5 @@
     }
   }
 
-  module.exports = logger;
-} ());
+  return logger;
+};

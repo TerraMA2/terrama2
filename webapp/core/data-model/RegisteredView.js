@@ -132,9 +132,9 @@
       viewObj = view.get();
     }
     this.view = new View(viewObj);
+
     /**
      * It verifies if the view object contains the variable dataValues with the key creation_type
-     * 
      */
     if(viewObj.ViewStyleLegend && viewObj.ViewStyleLegend.ViewStyleLegendMetadata) {
       for(const dataValues of viewObj.ViewStyleLegend.ViewStyleLegendMetadata) {
@@ -242,7 +242,9 @@
       projectId: this.view.projectId,
       dataSeriesTypeName: dataSeriesTypeName,
       exportation: exportation,
-      style: this.view.style
+      style: this.view.style,
+      charts: this.view.charts,
+      viewId: this.view.id,
     });
   };
 
