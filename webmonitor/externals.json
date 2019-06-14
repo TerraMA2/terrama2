@@ -82,5 +82,13 @@
   {
     "publicUrl": "externals/c3",
     "path": "node_modules/c3"
+  },
+  {
+    "publicUrl": "externals/@amcharts/amcharts4",
+    "path": "node_modules/@amcharts/amcharts4"
+  },
+  {
+    "publicUrl": "externals/@amcharts/amcharts4-geodata",
+    "path": "node_modules/@amcharts/amcharts4-geodata"
   }
 ]

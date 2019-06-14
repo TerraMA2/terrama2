@@ -173,6 +173,10 @@
 			}
 		}
 	},
+	"Chart": "Chart",
+  	"Chart description is required": "Chart description is required",
+	"Chart name is required": "Chart name is required",
+	"Chart type is required": "Chart type is required",
 	"Choose data series": "Choose data series",
 	"Close": "Close",
 	"Code": "Code",

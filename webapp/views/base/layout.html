@@ -1,7 +1,7 @@
 {% set MENU_URLS = {} %}
 
 {# set MENU_URLS = {"projects": {name: 'Projects', url: "configuration/projects", icon: "fa-sitemap"}} #}
-{% set MENU_URLS["data-provider"] = {name: 'Data Servers', url: "configuration/providers", icon: "fa-database"} %}
+{% set MENU_URLS["data-provider"] = {name: 'Data Servers', url: "configuration/providers", icon: "fa-server"} %}
 {% set MENU_URLS["dynamic-data"] = {name: 'Dynamic Data', url: "configuration/dynamic/dataseries", icon: "fa-clock-o"} %}
 {% set MENU_URLS["static-data"] = {name: 'Static Data', url: "configuration/static/dataseries", icon: "fa-folder"} %}
 {% set MENU_URLS["analysis"] = {name: 'Analysis', url: "configuration/analysis", icon: "fa-search"} %}
@@ -271,7 +271,7 @@
         event.preventDefault();
       });
 
-      var collapsed = { [collapsed]};
+      var collapsed = {[collapsed]};
 
       $("#collapseButton").click(function (event) {
         var self = this;

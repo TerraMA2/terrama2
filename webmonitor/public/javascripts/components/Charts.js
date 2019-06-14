@@ -4,8 +4,12 @@
 define(
   ['components/Layers', 'components/Utils', 'TerraMA2WebComponents'],
   function(Layers, Utils, TerraMA2WebComponents) {
+    var chartList = [];
+    var layer = null;
+    var windowContent = null;
     var loadEvents = function() {
-      $('#chartsButton > button').on('click', function() {
+      $(document).on('click', '.fa-line-chart', function() {
+        layer = Layers.getLayerById($(this).closest("li").data("layerid"));
         if($(".chart-panel").is(':hidden')){
           $(".chart-panel").css("left", "0");
           $(".chart-panel").toggle("slide", { direction: "left" }, 250);
@@ -13,187 +17,493 @@ define(
           $(".chart-panel").css("left", "-100%");
           $(".chart-panel").toggle("slide", { direction: "right" }, 250);
         }
+        setCharts(layer)
       });
 
-      $(".chart-panel").on("setCharts", function(event) {
-        setCharts();
-      });
-
-      $(".closeChart").on("click", function() {
+      $(document).on("click", ".closeChart", function() {
         $(".chart-panel").css("left", "-100%");
         $(".chart-panel").toggle("slide", { direction: "left" }, 250);
       });
+      $(document).on("click", "#newWindowBtn", function(event){
+        var newWindow = window.open("", "", "toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=400,height=400");
+        newWindow.document.write(windowContent);
+      });
     };
 
-    var setCharts = function() {
+    var setCharts = function(layer) {
+      var picker = null;
+      let {charts, viewId, parent, style} = layer;
+      let isDynamic = false;
+      if(parent === 'dynamic'){
+        isDynamic = true;
+      }
+      let chartsHtml="";
+      let chartsLen=0;
+      chartsLen = charts?charts.length:0;
+      for (let i = 0; i < chartsLen; i++) {
+        const chart = charts[i];
+        chartsHtml += `
+            <div class="panel panel-default">
+              <div class="panel-heading" data-toggle="collapse" data-target="#chartPanel${i+1}">
+                <h4 class="panel-title">${chart.title}</h4>
+              </div>
+              <div id="chartPanel${i+1}" class="panel-collapse collapse ${i==0?'in':''}">
+                <div class="panel-body">`;
+                if(isDynamic) {
+                  chartsHtml += 
+                  `<div class="form-inline">
+                    <div class="input-group date">
+                      <input type="text" id="chartFilterDate${i+1}" class="form-control chart-date-picker"/>
+                      <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                      </span>
+                    </div>`;
+                    if(chart.type === "line" || chart.type === "area"){
+                    chartsHtml+=`
+                    <label>Interval:</label>
+                    <select id="interval${i+1}" class="form-control interval">
+                      <option value='day'>Day</option>
+                      <option value='week'>Week</option>
+                      <option value='month'>Month</option>
+                      <option value='year'>Year</option>
+                    </select>`;
+                    }
+                  chartsHtml+=`</div>`;
+                }
+                chartsHtml += `
+                  <br />
+                  <div id="chart${i+1}" class="chart"></div>
+                </div>
+                <div class="chart-description">
+                  ${chart.description}
+                </div>
+              </div>
+            </div>
+        `;
+      }
+      
       let html = `
-      <div class="col-sm-12">
-      <div class="pull-right closeChart"><i class="fa fa-close"></i></div>
-      <div style="margin-bottom:25px"></div>
-      <div class="panel-group" id="chartAccordion">
-        <div class="panel panel-default">
-          <div class="panel-heading" data-toggle="collapse" data-target="#filterPanel">
-            <h4 class="panel-title">
-                Filters
-            </h4>
-          </div>
-          <div id="filterPanel" class="panel-collapse collapse in">
-            <div class="panel-body">
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label for="continents-graphics">Continentes</label>
-                    <select id="continents-graphics" name="continents-graphics" class="form-control">
-                      <option value>Selecione o continente</option>
-                      <option value="0">Todos os Continentes</option>
-                      <option value="8">América do Sul</option>
-                      <option value="4">Américas</option>
-                      <option value="6">África</option>
-                      <option value="11">Europa</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label for="countries-graphics">Países</label>
-                    <select multiple id="countries-graphics" name="countries-graphics" class="form-control"><option value selected>Todos os países</option><option value="12">Argentina</option><option value="28">Bolivia</option><option value="33">Brasil</option><option value="48">Chile</option><option value="53">Colombia</option><option value="68">Ecuador</option><option value="75">I.Malvinas/Falkland</option><option value="80">French Guiana</option><option value="98">Guyana</option><option value="177">Paraguay</option><option value="178">Peru</option><option value="219">Suriname</option><option value="245">Uruguay</option><option value="249">Venezuela</option></select>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label for="states-graphics">Estados</label>
-                    <select multiple id="states-graphics" name="states-graphics" class="form-control" disabled="disabled"></select>
-                  </div>
-                </div>
-              </div>
-              <label for="countries-graphics">Data</label>
-              <div class="input-group date">
-                <input type="text" id="chartFilterDate" class="form-control"/>
-                <span class="input-group-addon">
-                  <span class="glyphicon glyphicon-calendar"></span>
-                </span>
-              </div>
-              <br />
-              <div class="form-group">
-                <a class="btn btn-primary">Filter</a>
-              </div>
-            </div>
+        <div class="col-sm-12">
+          <div class="pull-right closeChart"><i class="fa fa-close"></i></div>
+          <div style="margin-bottom:25px"></div>
+          <div class="panel-group" id="chartAccordion">
+            ${chartsHtml}
           </div>
         </div>
-        <div class="panel panel-default">
-          <div class="panel-heading" data-toggle="collapse" data-target="#chartPanel">
-            <h4 class="panel-title">
-                Chart
-            </h4>
-          </div>
-          <div id="chartPanel" class="panel-collapse collapse in">
-            <div class="panel-body">
-              <div id="chart" class="chart"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel panel-default">
-          <div class="panel-heading" data-toggle="collapse" data-target="#chartPanel2">
-            <h4 class="panel-title">
-                Chart
-            </h4>
-          </div>
-          <div id="chartPanel2" class="panel-collapse collapse">
-            <div class="panel-body">
-              <div id="chart2" class="chart"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel panel-default">
-          <div class="panel-heading" data-toggle="collapse" data-target="#chartPanel3">
-            <h4 class="panel-title">
-                Chart
-            </h4>
-          </div>
-          <div id="chartPanel3" class="panel-collapse collapse">
-            <div class="panel-body">
-              <div id="chart3" class="chart"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel panel-default">
-          <div class="panel-heading" data-toggle="collapse" data-target="#chartPanel4">
-            <h4 class="panel-title">
-                Chart
-            </h4>
-          </div>
-          <div id="chartPanel4" class="panel-collapse collapse">
-            <div class="panel-body">
-              <div id="chart4" class="chart"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      </div>
       `;
+
+      // windowContent = html;
       $(".chart-panel").html(html);
       Utils.translate('.chart-panel');
-      var chart = c3.generate({
-        data: {
-            columns: [
-                ['data1', 30, 200, 100, 400, 150, 250],
-                ['data2', 130, 100, 140, 200, 150, 50]
-            ],
-            type: 'line'
-        },
-      });
-      var chart = c3.generate({
-        bindto: '#chart2',
-        data: {
-            columns: [
-                ['data1', 60, 180, 80, 120, 500, 250],
-                ['data2', 250, 100, 500, 50, 120, 80]
-            ],
-            type: 'bar'
-        },
-        bar: {
-          width: {
-              ratio: 0.5
-          }
+
+      for (let [i, chartConfig] of charts.entries()) {
+        const chartType = chartConfig.type;
+        const chartSeries = chartConfig.series;
+        const chartFunctionGrouping = chartConfig.functionGrouping;
+        const chartGroupBy = chartConfig.groupBy;
+        const chartLabel = chartConfig.label;
+        let fromMap = chartConfig.fromMap;
+        if(style!='editor'){
+          fromMap = false;
         }
-      });
-    
-      var chart = c3.generate({
-        bindto: '#chart3',
-        data: {
-            columns: [
-              ["data1", 0.2, 0.2, 0.2, 0.2, 0.2, 0.4, 0.3, 0.2, 0.2, 0.1, 0.2, 0.2, 0.1, 0.1, 0.2, 0.4, 0.4, 0.3, 0.3, 0.3, 0.2, 0.4, 0.2, 0.5, 0.2, 0.2, 0.4, 0.2, 0.2, 0.2, 0.2, 0.4, 0.1, 0.2, 0.2, 0.2, 0.2, 0.1, 0.2, 0.2, 0.3, 0.3, 0.2, 0.6, 0.4, 0.3, 0.2, 0.2, 0.2, 0.2],
-              ["data2", 1.4, 1.5, 1.5, 1.3, 1.5, 1.3, 1.6, 1.0, 1.3, 1.4, 1.0, 1.5, 1.0, 1.4, 1.3, 1.4, 1.5, 1.0, 1.5, 1.1, 1.8, 1.3, 1.5, 1.2, 1.3, 1.4, 1.4, 1.7, 1.5, 1.0, 1.1, 1.0, 1.2, 1.6, 1.5, 1.6, 1.5, 1.3, 1.3, 1.3, 1.2, 1.4, 1.2, 1.0, 1.3, 1.2, 1.3, 1.3, 1.1, 1.3],
-              ["data3", 2.5, 1.9, 2.1, 1.8, 2.2, 2.1, 1.7, 1.8, 1.8, 2.5, 2.0, 1.9, 2.1, 2.0, 2.4, 2.3, 1.8, 2.2, 2.3, 1.5, 2.3, 2.0, 2.0, 1.8, 2.1, 1.8, 1.8, 1.8, 2.1, 1.6, 1.9, 2.0, 2.2, 1.5, 1.4, 2.3, 2.4, 1.8, 1.8, 2.1, 2.4, 2.3, 1.9, 2.3, 2.5, 2.3, 1.9, 2.0, 2.3, 1.8],
-            ],
-            type: 'pie',
-            onclick: function (d, i) { console.log("onclick", d, i); },
-            onmouseover: function (d, i) { console.log("onmouseover", d, i); },
-            onmouseout: function (d, i) { console.log("onmouseout", d, i); }
-        },
-      });
-      var chart = c3.generate({
-        bindto: '#chart4',
-        data: {
-            columns: [
-                ['data1', 300, 350, 300, 0, 0, 0],
-                ['data2', 130, 100, 140, 200, 150, 50]
-            ],
-            types: {
-                data1: 'area',
-                data2: 'area-spline'
+
+        let url = `http://localhost:36000/api/charts?viewId=${viewId}&attributeName=${chartSeries}&legendFromMap=${fromMap}&chartType=${chartType}`;
+        if(chartFunctionGrouping){
+          url += `&functionGrouping=${chartFunctionGrouping}`;
+        }
+        if(chartGroupBy){
+          url += `&groupBy=${chartGroupBy}`;
+        }
+        
+        const dateFrom = moment().startOf('day').format("Y-M-D HH:mm:ss")
+        const dateTo = moment().format("Y-M-D HH:mm:ss");
+        url += `&dateFrom=${dateFrom}`;
+        url += `&dateTo=${dateTo}`;
+        if(chartType === "line" || chartType === "area"){
+          const interval = $("#interval").val();
+          url += `&interval=${interval}`;
+        }
+        am4core.ready(function() {
+          am4core.useTheme(am4themes_material);
+          am4core.useTheme(am4themes_animated);
+          if(chartType==="pie") {
+            var chart = am4core.create(`chart${i+1}`, am4charts.PieChart);
+            chart.id = `chart${i+1}`
+            chart.dataSource.url = url;
+            chart.dataSource.reloadFrequency = null;
+            chart.legend = new am4charts.Legend();
+            
+            chart.responsive.enabled = true;
+            chart.tapToActivate = true;
+            
+            var pieSeries = chart.series.push(new am4charts.PieSeries());
+            pieSeries.dataFields.value = "value";
+            pieSeries.dataFields.category = chartGroupBy;
+            pieSeries.fillOpacity = .8;
+            if(fromMap){
+              pieSeries.slices.template.propertyFields.fill = "color";
+              pieSeries.slices.template.propertyFields.stroke = "color";
+              pieSeries.slices.template.propertyFields.fillOpacity = .8;
             }
-        }
-      });
-      var calendar = $('#chartFilterDate');
-      calendar.daterangepicker({
+
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.exporting.menu.items = [{
+                "label": "<i class='fa fa-download'></i>",
+                "menu": [
+                  {
+                    "label": "Image",
+                    "menu": [
+                      { "type": "png", "label": "PNG" },
+                      { "type": "jpg", "label": "JPG" },
+                      { "type": "gif", "label": "GIF" },
+                      { "type": "svg", "label": "SVG" },
+                      { "type": "pdf", "label": "PDF" }
+                    ]
+                  }, {
+                    "label": "Data",
+                    "menu": [
+                      { "type": "json", "label": "JSON" },
+                      { "type": "csv", "label": "CSV" },
+                      { "type": "xlsx", "label": "XLSX" }
+                    ]
+                  }, {
+                    "label": "Print", "type": "print"
+                  }
+                ]
+              }
+            ];
+          }else if(chartType==="donut") {
+            var chart = am4core.create(`chart${i+1}`, am4charts.PieChart);
+            chart.id = `chart${i+1}`
+            chart.dataSource.url = url;
+            chart.dataSource.reloadFrequency = null;
+
+            chart.legend = new am4charts.Legend();
+
+            chart.innerRadius = 100;
+            
+            chart.responsive.enabled = true;
+            chart.tapToActivate = true;
+            
+            var pieSeries = chart.series.push(new am4charts.PieSeries());
+            pieSeries.dataFields.value = "value";
+            pieSeries.dataFields.category = chartGroupBy;
+            pieSeries.fillOpacity = .8;
+            if(fromMap){
+              pieSeries.slices.template.propertyFields.fill = "color";
+              pieSeries.slices.template.propertyFields.stroke = "color";
+              pieSeries.slices.template.propertyFields.fillOpacity = .8;
+            }
+
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.exporting.menu.items = [{
+                "label": "<i class='fa fa-download'></i>",
+                "menu": [
+                  {
+                    "label": "Image",
+                    "menu": [
+                      { "type": "png", "label": "PNG" },
+                      { "type": "jpg", "label": "JPG" },
+                      { "type": "gif", "label": "GIF" },
+                      { "type": "svg", "label": "SVG" },
+                      { "type": "pdf", "label": "PDF" }
+                    ]
+                  }, {
+                    "label": "Data",
+                    "menu": [
+                      { "type": "json", "label": "JSON" },
+                      { "type": "csv", "label": "CSV" },
+                      { "type": "xlsx", "label": "XLSX" }
+                    ]
+                  }, {
+                    "label": "Print", "type": "print"
+                  }
+                ]
+              }
+            ];
+          } else if(chartType==="bar") {
+            var chart = am4core.create(`chart${i+1}`, am4charts.XYChart);
+            chart.id = `chart${i+1}`
+            chart.dataSource.url = url;
+            chart.dataSource.reloadFrequency = null;
+
+            let categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+            categoryAxis.dataFields.category = chartGroupBy;
+            categoryAxis.renderer.labels.template.rotation = 270;
+            categoryAxis.renderer.labels.template.hideOversized = false;
+            categoryAxis.renderer.minGridDistance = 20;
+            categoryAxis.renderer.labels.template.horizontalCenter = "right";
+            categoryAxis.renderer.labels.template.verticalCenter = "middle";
+            categoryAxis.tooltip.label.rotation = 270;
+            categoryAxis.tooltip.label.horizontalCenter = "right";
+            categoryAxis.tooltip.label.verticalCenter = "middle";
+
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+            valueAxis.title.text = chartGroupBy;
+            valueAxis.title.fontWeight = "bold";
+
+            var barSeries = chart.series.push(new am4charts.ColumnSeries());
+            barSeries.dataFields.valueY = "value";
+            barSeries.dataFields.categoryX = chartGroupBy;
+            barSeries.name = chartGroupBy;
+            barSeries.tooltipText = "{categoryX}: [bold]{valueY}[/]";
+            barSeries.columns.template.fillOpacity = .8;
+
+            barSeries.columns.template.column.cornerRadiusTopLeft = 10;
+            barSeries.columns.template.column.cornerRadiusTopRight = 10;
+
+            var hoverState = barSeries.columns.template.column.states.create("hover");
+            hoverState.properties.cornerRadiusTopLeft = 0;
+            hoverState.properties.cornerRadiusTopRight = 0;
+            hoverState.properties.fillOpacity = 1;
+
+            var columnTemplate = barSeries.columns.template;
+            columnTemplate.strokeWidth = 1;
+            columnTemplate.strokeOpacity = 1;
+            columnTemplate.stroke = am4core.color("#FFFFFF");
+            if(fromMap){
+              columnTemplate.propertyFields.fill = "color";
+              columnTemplate.propertyFields.stroke = "color";
+            }else{
+              columnTemplate.adapter.add("fill", (fill, target) => {
+                return chart.colors.getIndex(target.dataItem.index);
+              })
+              
+              columnTemplate.adapter.add("stroke", (stroke, target) => {
+                return chart.colors.getIndex(target.dataItem.index);
+              })
+            }
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.lineX.strokeOpacity = 0;
+            chart.cursor.lineY.strokeOpacity = 0;
+
+            chart.exporting.menu = new am4core.ExportMenu();
+
+            chart.exporting.menu.items = [{
+                "label": "<i class='fa fa-download'></i>",
+                "menu": [
+                  {
+                    "label": "Image",
+                    "menu": [
+                      { "type": "png", "label": "PNG" },
+                      { "type": "jpg", "label": "JPG" },
+                      { "type": "gif", "label": "GIF" },
+                      { "type": "svg", "label": "SVG" },
+                      { "type": "pdf", "label": "PDF" }
+                    ]
+                  }, {
+                    "label": "Data",
+                    "menu": [
+                      { "type": "json", "label": "JSON" },
+                      { "type": "csv", "label": "CSV" },
+                      { "type": "xlsx", "label": "XLSX" }
+                    ]
+                  }, {
+                    "label": "Print", "type": "print"
+                  }
+                ]
+              }
+            ];
+          } else if(chartType==="horizontal-bar") {
+            var chart = am4core.create(`chart${i+1}`, am4charts.XYChart);
+            chart.id = `chart${i+1}`
+            chart.dataSource.url = url;
+            chart.dataSource.reloadFrequency = null;
+
+            var categoryAxis = chart.yAxes.push(new am4charts.CategoryAxis());
+            categoryAxis.dataFields.category = chartGroupBy;
+            categoryAxis.renderer.inversed = true;
+
+            var  valueAxis = chart.xAxes.push(new am4charts.ValueAxis()); 
+            valueAxis.title.text = chartGroupBy;
+            valueAxis.title.fontWeight = "bold";
+            
+            var series = chart.series.push(new am4charts.ColumnSeries());
+            series.dataFields.valueX = "value";
+            series.dataFields.categoryY = chartGroupBy;
+            series.name = chartGroupBy;
+            series.tooltipText = "{categoryY}: [bold]{valueX}[/]";
+            series.columns.template.fillOpacity = .8;
+
+            series.columns.template.column.cornerRadiusBottomRight = 10;
+            series.columns.template.column.cornerRadiusTopRight = 10;
+
+            var hoverState = series.columns.template.column.states.create("hover");
+            hoverState.properties.cornerRadiusBottomRight = 0;
+            hoverState.properties.cornerRadiusTopRight = 0;
+            hoverState.properties.fillOpacity = 1;
+
+            var columnTemplate = series.columns.template;
+            columnTemplate.strokeWidth = 1;
+            columnTemplate.strokeOpacity = 1;
+            columnTemplate.stroke = am4core.color("#FFFFFF");
+            if(fromMap){
+              columnTemplate.propertyFields.fill = "color";
+              columnTemplate.propertyFields.stroke = "color";
+            }else{
+              columnTemplate.adapter.add("fill", (fill, target) => {
+                return chart.colors.getIndex(target.dataItem.index);
+              })
+              
+              columnTemplate.adapter.add("stroke", (stroke, target) => {
+                return chart.colors.getIndex(target.dataItem.index);
+              })
+            }
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.lineX.strokeOpacity = 0;
+            chart.cursor.lineY.strokeOpacity = 0;
+            
+            chart.exporting.menu = new am4core.ExportMenu();
+
+            chart.exporting.menu.items = [{
+                "label": "<i class='fa fa-download'></i>",
+                "menu": [
+                  {
+                    "label": "Image",
+                    "menu": [
+                      { "type": "png", "label": "PNG" },
+                      { "type": "jpg", "label": "JPG" },
+                      { "type": "gif", "label": "GIF" },
+                      { "type": "svg", "label": "SVG" },
+                      { "type": "pdf", "label": "PDF" }
+                    ]
+                  }, {
+                    "label": "Data",
+                    "menu": [
+                      { "type": "json", "label": "JSON" },
+                      { "type": "csv", "label": "CSV" },
+                      { "type": "xlsx", "label": "XLSX" }
+                    ]
+                  }, {
+                    "label": "Print", "type": "print"
+                  }
+                ]
+              }
+            ];
+          }
+          else if (chartType === "line"){
+            var chart = am4core.create(`chart${i+1}`, am4charts.XYChart);
+            chart.id = `chart${i+1}`
+            chart.dataSource.url = url;
+            chart.dataSource.reloadFrequency = null;
+            
+            var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            dateAxis.renderer.minGridDistance = 50;
+            
+            var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+            
+            var series = chart.series.push(new am4charts.LineSeries());
+            series.dataFields.valueY = "value";
+            series.dataFields.dateX = "date";
+            series.strokeWidth = 2;
+            series.minBulletDistance = 10;
+            series.tooltipText = "{valueY}";
+            series.tooltip.pointerOrientation = "vertical";
+            series.tooltip.background.cornerRadius = 20;
+            series.tooltip.background.fillOpacity = 0.5;
+            series.tooltip.label.padding(12,12,12,12)
+            
+            chart.scrollbarX = new am4charts.XYChartScrollbar();
+            chart.scrollbarX.series.push(series);
+            
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.xAxis = dateAxis;
+            chart.cursor.snapToSeries = series;
+            chart.exporting.menu = new am4core.ExportMenu();
+
+            chart.exporting.menu.items = [{
+                "label": "<i class='fa fa-download'></i>",
+                "menu": [
+                  {
+                    "label": "Image",
+                    "menu": [
+                      { "type": "png", "label": "PNG" },
+                      { "type": "jpg", "label": "JPG" },
+                      { "type": "gif", "label": "GIF" },
+                      { "type": "svg", "label": "SVG" },
+                      { "type": "pdf", "label": "PDF" }
+                    ]
+                  }, {
+                    "label": "Data",
+                    "menu": [
+                      { "type": "json", "label": "JSON" },
+                      { "type": "csv", "label": "CSV" },
+                      { "type": "xlsx", "label": "XLSX" }
+                    ]
+                  }, {
+                    "label": "Print", "type": "print"
+                  }
+                ]
+              }
+            ];
+          } else if (chartType === "area"){
+            var chart = am4core.create(`chart${i+1}`, am4charts.XYChart);
+            chart.id = `chart${i+1}`
+            chart.dataSource.url = url;
+            chart.dataSource.reloadFrequency = null;
+            
+            var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            dateAxis.renderer.minGridDistance = 50;
+            
+            var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+            
+            var series = chart.series.push(new am4charts.LineSeries());
+            series.dataFields.valueY = "value";
+            series.dataFields.dateX = "date";
+            series.strokeWidth = 2;
+            series.minBulletDistance = 10;
+            series.tooltipText = "{valueY}";
+            series.tooltip.pointerOrientation = "vertical";
+            series.tooltip.background.cornerRadius = 20;
+            series.tooltip.background.fillOpacity = 0.5;
+            series.tooltip.label.padding(12,12,12,12)
+
+            series.fillOpacity = 0.5;
+            
+            chart.scrollbarX = new am4charts.XYChartScrollbar();
+            chart.scrollbarX.series.push(series);
+            
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.xAxis = dateAxis;
+            chart.cursor.snapToSeries = series;
+            chart.exporting.menu = new am4core.ExportMenu();
+
+            chart.exporting.menu.items = [{
+                "label": "<i class='fa fa-download'></i>",
+                "menu": [
+                  {
+                    "label": "Image",
+                    "menu": [
+                      { "type": "png", "label": "PNG" },
+                      { "type": "jpg", "label": "JPG" },
+                      { "type": "gif", "label": "GIF" },
+                      { "type": "svg", "label": "SVG" },
+                      { "type": "pdf", "label": "PDF" }
+                    ]
+                  }, {
+                    "label": "Data",
+                    "menu": [
+                      { "type": "json", "label": "JSON" },
+                      { "type": "csv", "label": "CSV" },
+                      { "type": "xlsx", "label": "XLSX" }
+                    ]
+                  }, {
+                    "label": "Print", "type": "print"
+                  }
+                ]
+              }
+            ];
+          }
+          chartList.push(chart)
+        });
+      }
+      
+      picker = $('.chart-date-picker').daterangepicker({
         "timePicker": true,
         // "minDate": moment(),
-        // "startDate": moment(),
-        // "endDate": moment(),
+        "startDate": moment().startOf('day'),
+        "endDate": moment(),
         // "maxDate": moment(),
         "timePicker24Hour": true,
         "opens": "center",
@@ -232,10 +542,43 @@ define(
           "firstDay": 1
         }
       });
+      
+      $('.chart-date-picker').on('apply.daterangepicker', function(ev, picker) {
+        getByPeriod(ev);
+      });
+      $('.chart-date-picker').on('show.daterangepicker', function(ev, p) {
+        picker = p;
+      });
+      $(document).on("change", ".interval", function(ev) {
+        getByPeriod(ev);
+      });
+      var getByPeriod = (ev) => {
+        var picker = $(ev.currentTarget).closest('.panel-body').find('.chart-date-picker').data('daterangepicker');
+        const dateFrom = picker.startDate.format('YYYY-MM-DD')
+        const dateTo = picker.endDate.format('YYYY-MM-DD')
+        let interval = $(ev.currentTarget).closest('.panel-body').find('.interval').val();
+        const chartContainer = $(ev.currentTarget).closest('.panel-body').find('.chart:first')[0]
+        
+        const chart = getChart(chartContainer.id)
+        let oldUrl = chart.dataSource.url
+        var index = oldUrl.indexOf("&dateFrom");
+        if(index!=-1){
+          oldUrl = oldUrl.substring(0, index);
+        }
+        let newUrl = oldUrl+`&dateFrom=${dateFrom}&dateTo=${dateTo}`
+        if(interval){
+          newUrl+=`&interval=${interval}`;
+        }
+        chart.dataSource.url = newUrl
+        chart.dataSource.load()
+        chart.dataSource.url = oldUrl
+      }
+    }
+    function getChart(id) {
+      return chartList.find(chart => chart.id==id)
     }
 
     var init = function() {
-      setCharts();
       loadEvents();
     };
 

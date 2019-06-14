@@ -15,7 +15,7 @@
   "development": {
     "username": "postgres",
     "password": "postgres",
-    "database": "terrama2_migration",
+    "database": "terrama2",
     "host": "127.0.0.1",
     "dialect": "postgres",
     "define": {
