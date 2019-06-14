@@ -214,6 +214,10 @@ module.exports = {
     STATIC_HTTP: {
       name: "STATIC-HTTP",
       value: 5
+    },
+    WFS: {
+      name: "WFS",
+      value: 6
     }
   },
 

@@ -10,8 +10,8 @@ var StaticHttpRequest = require("./StaticHttpRequest");
 var FileRequest = require("./FileRequest");
 var PostgisRequest = require("./PostgisRequest");
 var WcsRequest = require("./WcsRequest");
+var WfsRequest = require("./WfsRequest");
 var ConnectionError = require("./Exceptions").ConnectionError;
-var PluginLoader = require('./PluginLoader');
 
 /**
  * Request Helper: It prepares entire supported protocols e applies a switch to build the respective Request
@@ -39,20 +39,9 @@ function requestHelper(protocol, requestParameters) {
       return new PostgisRequest(requestParameters);
     case "wcs":
       return new WcsRequest(requestParameters);
+    case "wfs":
+      return new WfsRequest(requestParameters);
     default:
-      // Check in all loaded plugins
-      for(var key in PluginLoader.plugin.plugins) {
-        if (PluginLoader.plugin.plugins.hasOwnProperty(key)) {
-          var klass = PluginLoader.plugin.plugins[key].object;
-
-          if (klass && klass.prototype instanceof AbstractRequest) {
-            if (klass.fields().name && klass.fields().name.toLowerCase() === protocol) {
-              return new klass(requestParameters);
-            }
-          }
-        }
-      }
-
       throw new ConnectionError("Invalid request type");
   }
 }
@@ -64,7 +53,7 @@ function requestHelper(protocol, requestParameters) {
 var RequestFactory = {
   /**
    * It builds a Request module from given URI object parameters
-   * 
+   *
    * @throws {ConnectionError} When request type is not found or is not a string.
    * @param {Object} requestParameters - A javascript object within URI format
    * @return {AbstractRequest} A request module
@@ -82,7 +71,7 @@ var RequestFactory = {
    *
    * @throws {ConnectionError} When request type is not found or is not a string.
    * @param {Object} requestParameters - A javascript object within URI format
-   * @return {AbstractRequest} A request module 
+   * @return {AbstractRequest} A request module
    */
   buildFromUri: function(uri) {
     if (typeof uri === "string") {
@@ -95,7 +84,7 @@ var RequestFactory = {
 
   /**
    * It retrieves entire supported request protocols fields
-   * 
+   *
    * @todo add plugin support. Currently it is commented
    * @return {Array<Object>} An array of fields of each one request
    */
@@ -122,16 +111,8 @@ var RequestFactory = {
     // postgisFields
     array.push(PostgisRequest.fields());
 
-    // for(var key in PluginLoader.plugin.plugins) {
-    //   if (PluginLoader.plugin.plugins.hasOwnProperty(key)) {
-    //     var klass = PluginLoader.plugin.plugins[key].object;
-
-    //     if (klass && klass.prototype instanceof AbstractRequest) {
-    //       if (klass.fields().name && klass.fields().name.toLowerCase() === scheme)
-    //         array.push(klass.fields);
-    //     }
-    //   }
-    // }
+    //wfsFields
+    array.push(WfsRequest.fields());
 
     return array;
   }

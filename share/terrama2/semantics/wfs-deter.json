@@ -1,0 +1,53 @@
+[
+  {
+    "name": "WFS – Deter",
+    "code": "WFS-DETER",
+    "driver": "WFS-DETER",
+    "type": "OCCURRENCE",
+    "temporality": "DYNAMIC",
+    "format": "POSTGIS",
+    "providers_type_list": ["WFS"],
+    "metadata": {
+      "timestamp_property" : "time",
+      "geometry_property" : "ORG_GEOMETRY"
+    },
+    "allow_storage": true,
+    "gui": {
+      "schema": {
+        "properties": {
+          "mask": {
+            "type": "string",
+            "title": "Features List"
+          },
+          "projection": {
+            "type": "string",
+            "title": "Projection SRID"
+          },
+          "timezone": {
+            "type": "string",
+            "title": "Projection SRID", "default": "0",
+            "defaultValue": "0",
+            "value": "0"
+          }
+        },
+        "required": ["mask", "projection"]
+      },
+      "form": [
+        {
+          "key": "mask",
+          "htmlClass": "col-md-12 terrama2-schema-form",
+          "validationMessage": {
+            "202": "Invalid table name"
+          }
+        },
+        {
+          "key": "projection",
+          "htmlClass": "col-md-12 terrama2-schema-form table-column",
+          "validationMessage": {
+            "202": "Invalid column name"
+          }
+        }
+      ]
+    }
+  }
+]
