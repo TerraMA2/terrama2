@@ -65,8 +65,6 @@
      */
     this.$uriObject = {};
 
-    // this.styleColors = null;
-
     // setting layers
     this.setLayers(params.Layers || params.layers);
     // setting parent view
@@ -244,10 +242,7 @@
       projectId: this.view.projectId,
       dataSeriesTypeName: dataSeriesTypeName,
       exportation: exportation,
-      style: this.view.style,
-      charts: this.view.charts,
-      viewId: this.view.id,
-      // styleColors: this.view.styleColors
+      style: this.view.style
     });
   };
 

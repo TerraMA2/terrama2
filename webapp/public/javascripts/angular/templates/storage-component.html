@@ -1,0 +1,216 @@
+<terrama2-box title="i18n.__('Storage Registration')" handler="serviceX" helper="'{[ BASE_URL ]}helper/add_storage.html'">
+    <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
+    <terrama2-box title="i18n.__('General Data')" css="css">
+      <div class="col-md-12 terrama2-nopadding-box ng-scope">
+        <form name="forms.storageForm">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group has-feedback" terrama2-show-errors>
+                    <label>{{ i18n.__("Name") }}:</label>
+                    <input class="form-control"
+                            name="name"
+                            ng-model="$ctrl.storage.name"
+                            placeholder="{{ i18n.__('Name') }}"
+                            type="text" terrama2-server-errors="serverErrors" required>
+        
+                    <span class="form-control-feedback glyphicon" ng-show="forms.storageForm.name.$dirty" ng-class="{'glyphicon-ok': forms.storageForm.name.$valid, 'glyphicon-remove': forms.storageForm.name.$invalid }"></span>
+        
+                    <span class="help-block" ng-show="forms.storageForm.name.$dirty && forms.storageForm.name.$error.required">{{ i18n.__('Name is required') }}</span>
+                    <span class="help-block" ng-show="forms.storageForm.name.$error.terrama2Error">
+                        {{ i18n.__("Storage") + " " + serverErrors.name.message }}
+                    </span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group has-feedback" terrama2-show-errors>
+                    <label>{{ i18n.__("Description") }}:</label>
+                    <textarea name="description" class="form-control" ></textarea>
+                    <span class="form-control-feedback glyphicon" ng-show="forms.storageForm.description.$dirty" ng-class="{'glyphicon-ok': forms.storageForm.description.$valid, 'glyphicon-remove': forms.storageForm.description.$invalid }"></span>
+                    <span class="help-block" ng-show="forms.storageForm.description.$dirty && forms.storageForm.description.$error.required">{{ i18n.__('Description is required') }}</span>
+                    <span class="help-block" ng-show="forms.storageForm.description.$error.terrama2Error">
+                        {{ i18n.__("Storage") + " " + serverErrors.description.message }}
+                    </span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group has-feedback" terrama2-show-errors>
+                    <label>{{ i18n.__("Dynamic/Analysis data") }}:</label>
+                    <select class="form-control" name="dynamicAnalysisData" ng-model="$ctrl.storage.dynamicAnalysisData" required>
+                        <option ng-repeat="item in data" value="{{ item.name }}" title="{{ item.description }}">{{ i18n.__(item.name) }}</option>
+                    </select>
+                    <span class="help-block" ng-show="forms.storageForm.dynamicAnalysisData.$dirty && forms.storageForm.dynamicAnalysisData.$invalid" ng-class="{'has-error': forms.storageForm.dynamicAnalysisData.$invalid}">{{ i18n.__('Dynamic/analysis data is required') }}</span>
+                    </div>
+                    <!-- /.form-group -->
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <div class="radio">
+                            <label style="font-weight: 700;">
+                                <input type="radio" name="erase_all" value="1" checked> {{ i18n.__("Erase everything") }}
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label style="font-weight: 700;">
+                                <input type="radio" name="erase_all" value="2"> {{ i18n.__("Partial erase") }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group has-feedback" terrama2-show-errors>
+                    <label>{{ i18n.__("Time interval") }}:</label>
+                    <input class="form-control"
+                            name="timeInterval"
+                            ng-model="$ctrl.storage.timeInterval"
+                            placeholder="{{ i18n.__('Time interval') }}"
+                            type="text" terrama2-server-errors="serverErrors" required>
+        
+                    <span class="form-control-feedback glyphicon" ng-show="forms.storageForm.timeInterval.$dirty" ng-class="{'glyphicon-ok': forms.storageForm.timeInterval.$valid, 'glyphicon-remove': forms.storageForm.timeInterval.$invalid }"></span>
+        
+                    <span class="help-block" ng-show="forms.storageForm.timeInterval.$dirty && forms.storageForm.timeInterval.$error.required">{{ i18n.__('Time interval is required') }}</span>
+                    <span class="help-block" ng-show="forms.storageForm.timeInterval.$error.terrama2Error">
+                        {{ i18n.__("Storage") + " " + serverErrors.name.message }}
+                    </span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group has-feedback" terrama2-show-errors>
+                    <label>{{ i18n.__("Time unit") }}:</label>
+                    <input class="form-control"
+                            name="keep_data_unit"
+                            ng-model="$ctrl.storage.keep_data_unit"
+                            placeholder="{{ i18n.__('Time unit') }}"
+                            type="text" terrama2-server-errors="serverErrors" required>
+        
+                    <span class="form-control-feedback glyphicon" ng-show="forms.storageForm.timeUnit.$dirty" ng-class="{'glyphicon-ok': forms.storageForm.keep_data_unit.$valid, 'glyphicon-remove': forms.storageForm.keep_data_unit.$invalid }"></span>
+        
+                    <span class="help-block" ng-show="forms.storageForm.keep_data_unit.$dirty && forms.storageForm.timeUnit.$error.required">{{ i18n.__('Time unit is required') }}</span>
+                    <span class="help-block" ng-show="forms.storageForm.keep_data_unit.$error.terrama2Error">
+                        {{ i18n.__("Storage") + " " + serverErrors.name.message }}
+                    </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label style="font-weight: 700;">
+                                <input type="checkbox" name="redefine"> {{ i18n.__("Redefine start (Filter date will be considered)") }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label style="font-weight: 700;">
+                            <input type="checkbox" name="storeHistory"> {{ i18n.__("Store removed data history") }}
+                            </label>
+                        </div> 
+                    </div>
+                </div>
+            </div>
+        </form>
+      </div>
+    </terrama2-box>
+
+    <terrama2-box title="i18n.__('General Data')" css="css">
+      <div class="col-md-12 terrama2-nopadding-box ng-scope">
+        <form name="forms.storageForm">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group has-feedback" terrama2-show-errors>
+                    <label>{{ i18n.__("Store data") }}:</label>
+                    <select class="form-control" name="storeData" ng-model="$ctrl.storage.storeData" required>
+                        <option ng-repeat="item in storeData" value="{{ item.name }}" title="{{ item.description }}">{{ i18n.__(item.name) }}</option>
+                    </select>
+        
+                    <span class="help-block" ng-show="forms.storageForm.storeData.$dirty && forms.storageForm.storeData.$invalid" ng-class="{'has-error': forms.storageForm.storeData.$invalid}">{{ i18n.__('Store data data is required') }}</span>
+                    </div>
+                    <!-- /.form-group -->
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group has-feedback" terrama2-show-errors>
+                    <label>{{ i18n.__("Service") }}:</label>
+                    <select class="form-control" name="service" ng-model="$ctrl.storage.service" required>
+                        <option ng-repeat="item in service" value="{{ item.name }}" title="{{ item.description }}">{{ i18n.__(item.name) }}</option>
+                    </select>
+        
+                    <span class="help-block" ng-show="forms.storageForm.service.$dirty && forms.storageForm.service.$invalid" ng-class="{'has-error': forms.storageForm.service.$invalid}">{{ i18n.__('Service data is required') }}</span>
+                    </div>
+                    <!-- /.form-group -->
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group has-feedback" terrama2-show-errors>
+                    <label>{{ i18n.__("Table name") }}:</label>
+                    <input class="form-control"
+                            name="tableName"
+                            ng-model="$ctrl.storage.tableName"
+                            placeholder="{{ i18n.__('Table Name') }}"
+                            type="text" terrama2-server-errors="serverErrors" required>
+        
+                    <span class="form-control-feedback glyphicon" ng-show="forms.storageForm.tableName.$dirty" ng-class="{'glyphicon-ok': forms.storageForm.tableName.$valid, 'glyphicon-remove': forms.storageForm.tableName.$invalid }"></span>
+        
+                    <span class="help-block" ng-show="forms.storageForm.tableName.$dirty && forms.storageForm.tableName.$error.required">{{ i18n.__('Table name is required') }}</span>
+                    <span class="help-block" ng-show="forms.storageForm.tableName.$error.terrama2Error">
+                        {{ i18n.__("Storage") + " " + serverErrors.name.message }}
+                    </span>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-group has-feedback" terrama2-show-errors>
+                    <label>{{ i18n.__("Path") }}:</label>
+                    <input class="form-control"
+                            name="path"
+                            ng-model="$ctrl.storage.path"
+                            placeholder="{{ i18n.__('Path') }}"
+                            type="text" terrama2-server-errors="serverErrors" required>
+        
+                    <span class="form-control-feedback glyphicon" ng-show="forms.storageForm.path.$dirty" ng-class="{'glyphicon-ok': forms.storageForm.path.$valid, 'glyphicon-remove': forms.storageForm.path.$invalid }"></span>
+        
+                    <span class="help-block" ng-show="forms.storageForm.path.$dirty && forms.storageForm.path.$error.required">{{ i18n.__('Path is required') }}</span>
+                    <span class="help-block" ng-show="forms.storageForm.path.$error.terrama2Error">
+                        {{ i18n.__("Storage") + " " + serverErrors.name.message }}
+                    </span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                    <div class="checkbox">
+                        <label style="font-weight: 700;">
+                        <input type="checkbox" name="compact"> {{ i18n.__("Compact") }}
+                        </label>
+                    </div>              
+                    </div>
+                </div>
+            </div>
+        </form>
+      </div>
+    </terrama2-box>
+
+    <terrama2-box title="i18n.__('Schedule')" css="css">
+        <div class="col-md-12 terrama2-nopadding-box ng-scope">
+            <terrama2-schedule model="storage.schedule" options="scheduleOptions"></terrama2-schedule>
+        </div>
+    </terrama2-box>
+
+    <div class="box-footer">
+      <button type="submit" class="btn btn-primary pull-right" ng-click="$ctrl.save();" style="margin-left: 10px;">{{ i18n.__("Save") }}</button>
+      <a ng-href="{{ redirectUrl }}" class="btn btn-primary pull-left">{{ i18n.__("Cancel") }}</a>
+    </div>

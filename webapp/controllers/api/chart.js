@@ -1,5 +1,3 @@
-(function() {
-  'use strict';
 
   // Dependencies
   var handleRequestError = require("../../core/Utils").handleRequestError;
@@ -74,5 +72,4 @@
         response.json(rows)
       },
     }
-  };
-} ());
+} ();

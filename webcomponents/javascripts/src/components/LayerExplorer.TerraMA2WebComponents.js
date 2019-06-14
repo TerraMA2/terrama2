@@ -175,7 +175,6 @@ define(
      */
     var buildLayersFromMap = function(layer, parent) {
       var elem = "";
-
       if(layer.getLayers) {
         var sublayersElem = '',
             layers = layer.getLayers().getArray(),

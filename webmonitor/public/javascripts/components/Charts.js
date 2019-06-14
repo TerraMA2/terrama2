@@ -13,6 +13,9 @@ define(
         if($(".chart-panel").is(':hidden')){
           $(".chart-panel").css("left", "0");
           $(".chart-panel").toggle("slide", { direction: "left" }, 250);
+        }else{
+          $(".chart-panel").css("left", "-100%");
+          $(".chart-panel").toggle("slide", { direction: "right" }, 250);
         }
         setCharts(layer)
       });

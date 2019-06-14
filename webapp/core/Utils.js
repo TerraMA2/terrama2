@@ -296,6 +296,7 @@ var Utils = module.exports = {
                     interpolators.forEach(function(interpolator){
                       interpolatorsArr.push(interpolator.toService());
                     });
+
                     return resolve({
                       "Projects": projects,
                       "Analysis": analysisArr,

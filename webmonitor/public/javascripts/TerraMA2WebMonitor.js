@@ -158,8 +158,6 @@ define(
           Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.ONLINE);
       });
 
-      
-
       //change status icon when close the group layer
       $('.parent_li').on('click', function() {
         var parent = this.getAttribute('id');
@@ -497,6 +495,7 @@ define(
                 dateObject.endFilterDate = layerCapabilities[layerIndex].extent.endDate;
                 updateMapDate(data.layerId, dateObject);
               }
+
             }
             $("li[data-layerid='" + data.layerId + "'] .dropdown-layer-tools ul").append(span);
             // $(li).append($(span));

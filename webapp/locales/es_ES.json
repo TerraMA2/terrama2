@@ -292,6 +292,7 @@
 	"Service Port": "Puerto de servicio",
 	"Service port is required": "Se requiere puerto de servicio",
 	"Service port is invalid": "Puerto de servicio no es válido",
+	"Storage": "Almacenamiento",
 	"Storager": "Almacenamiento",
 	"Output Format": "Formato de salida",
 	"Provider Output": "Proveedor de salida",
