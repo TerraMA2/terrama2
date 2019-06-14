@@ -33,7 +33,6 @@ define(function() {
       "Legends": [],
       "Alerts": [],
       "Interpolators": [].toString,
-      "Storages": []
     };
     $scope.services = {
       COLLECT: [],
@@ -41,7 +40,6 @@ define(function() {
       VIEW: [],
       ALERT: [],
       INTERPOLATOR: [],
-      STORAGE: []
     };
     $scope.selectedServices = {};
     $scope.hasCollect = false;
@@ -319,7 +317,6 @@ define(function() {
             delete $scope.exportData.Legends;
             delete $scope.exportData.Alerts;
             delete $scope.exportData.Interpolators;
-            delete $scope.exportData.Storages;
           } else {
             if($scope.projectsCheckboxes[element.id].DataProviders != undefined) {
               for(var j = 0, dataProvidersLength = $scope.dataProviders[element.id].length; j < dataProvidersLength; j++) {
@@ -393,13 +390,6 @@ define(function() {
               }
             }
 
-            if($scope.projectsCheckboxes[element.id].Storages != undefined) {
-              for(var j = 0, StoragesLength = $scope.Storages[element.id].length; j < StoragesLength; j++) {
-                if($scope.projectsCheckboxes[element.id].Storages[$scope.Storages[element.id][j].id])
-                  $scope.exportData.Storages.push($scope.iStorages[element.id][j]);
-              }
-            }
-
             if($scope.exportData.Projects.length == 0) delete $scope.exportData.Projects;
             if($scope.exportData.DataProviders.length == 0) delete $scope.exportData.DataProviders;
             if($scope.exportData.DataSeries.length == 0) delete $scope.exportData.DataSeries;
@@ -409,7 +399,6 @@ define(function() {
             if($scope.exportData.Legends.length == 0) delete $scope.exportData.Legends;
             if($scope.exportData.Alerts.length == 0) delete $scope.exportData.Alerts;
             if($scope.exportData.Interpolators.length == 0) delete $scope.exportData.Interpolators;
-            if($scope.exportData.Storages.length == 0) delete $scope.exportData.Storages;
           }
         }
 
@@ -429,7 +418,6 @@ define(function() {
           "Legends": [],
           "Alerts": [],
           "Interpolators": [],
-          "Storage": []
         };
 
         $('#exportModal').modal('hide');
@@ -463,8 +451,7 @@ define(function() {
                   !json.hasOwnProperty("Views") &&
                   !json.hasOwnProperty("Legends") &&
                   !json.hasOwnProperty("Alerts") &&
-                  !json.hasOwnProperty("Interpolators")&&
-                  !json.hasOwnProperty("Storages")) {
+                  !json.hasOwnProperty("Interpolators")) {
                 MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("Invalid configuration file")));
                 return;
               }
@@ -480,7 +467,6 @@ define(function() {
               $scope.hasLegend = false;
               $scope.hasAlert = false;
               $scope.hasInterpolator = false;
-              $scope.hasStorage = false;
 
               if(json.Projects !== undefined && json.Projects.length > 0) $scope.hasProject = true;
               if(json.Collectors !== undefined && json.Collectors.length > 0) $scope.hasCollect = true;
@@ -489,7 +475,6 @@ define(function() {
               if(json.Legends !== undefined && json.Legends.length > 0) $scope.hasLegend = true;
               if(json.Alerts !== undefined && json.Alerts.length > 0) $scope.hasAlert = true;
               if(json.Interpolators !== undefined && json.Interpolators.length > 0) $scope.hasInterpolator = true;
-              if(json.Storages !== undefined && json.Storages.length > 0) $scope.hasStorage = true;
 
               if(($scope.model === undefined || $scope.model.length === 0) && !$scope.hasProject) {
                 MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one project")));
@@ -503,8 +488,6 @@ define(function() {
                 MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one alert service")));
               } else if(json.Interpolators !== undefined && json.Interpolators.length > 0 && $scope.services.INTERPOLATOR.length === 0) {
                 MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one interpolator service")));
-              } else if(json.Storages !== undefined && json.Storages.length > 0 && $scope.services.STORAGE.length === 0) {
-                MessageBoxService.danger(i18n.__(importTitle), new Error(i18n.__("To import this file you need to have at least one storage service")));
               } else {
                 $('#importModal').modal('show');
               }
@@ -537,9 +520,6 @@ define(function() {
           if($scope.hasInterpolator)
           $scope.extra.importJson['servicesInterpolator'] = $scope.selectedServices.Interpolator;
           
-          if($scope.hasStorage)
-          $scope.extra.importJson['servicesStorage'] = $scope.selectedServices.Storage;
-
           socket.emit("import", $scope.extra.importJson);
           $('#importModal').modal('hide');
 
@@ -570,9 +550,6 @@ define(function() {
           case 5:
             $scope.services.INTERPOLATOR.push(services.data[j]);
             break;
-          case 6:
-            $scope.services.STORAGE.push(services.data[j]);
-            break;
           default:
             break;
         }
@@ -594,7 +571,6 @@ define(function() {
       $scope.legends = {};
       $scope.collectors = {};
       $scope.interpolators = {};
-      $scope.storages = {};
 
       response.data.map(function(project, index) {
         // TODO: Review how to handle swipe

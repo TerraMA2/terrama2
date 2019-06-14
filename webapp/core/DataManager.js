@@ -100,7 +100,6 @@ var DataManager = module.exports = {
    */
   init: async function(dbORM) {
     logger.info("Initializing database...");
-    logger.info(dbConfigPath);
 
     this.orm = orm = dbORM;
     logger.info("Database loaded.");

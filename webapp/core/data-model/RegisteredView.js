@@ -242,7 +242,9 @@
       projectId: this.view.projectId,
       dataSeriesTypeName: dataSeriesTypeName,
       exportation: exportation,
-      style: this.view.style
+      style: this.view.style,
+      charts: this.view.charts,
+      viewId: this.view.id,
     });
   };
 
