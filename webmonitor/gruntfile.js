@@ -13,7 +13,7 @@ module.exports = function(grunt) {
             var UglifyJS = require('uglify-es');
             uglified = UglifyJS.minify(text, { sourceMap: { content: sourceMapText, url: "/dist/TerraMA2WebMonitor.min.js" } });
 
-            grunt.file.write("public/dist/TerraMA2WebMonitor.min.js", uglified.code);
+            grunt.file.write("public/dist/TerraMA2WebMonitor.min.js", text /*uglified.code*/);
             grunt.file.write("public/dist/TerraMA2WebMonitor.min.js.map", uglified.map);
           },
           generateSourceMaps: true,

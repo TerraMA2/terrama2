@@ -139,7 +139,6 @@ define(
             AnimatedLayer.windStop(layerId);
           }
         }
-
       }
     };
 

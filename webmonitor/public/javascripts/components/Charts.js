@@ -6,16 +6,13 @@ define(
   function(Layers, Utils, TerraMA2WebComponents) {
     var chartList = [];
     var layer = null;
-    var windowContent = null;
     var loadEvents = function() {
       $(document).on('click', '.fa-line-chart', function() {
         layer = Layers.getLayerById($(this).closest("li").data("layerid"));
         if($(".chart-panel").is(':hidden')){
+          $(".chart-panel").html("");
           $(".chart-panel").css("left", "0");
           $(".chart-panel").toggle("slide", { direction: "left" }, 250);
-        }else{
-          $(".chart-panel").css("left", "-100%");
-          $(".chart-panel").toggle("slide", { direction: "right" }, 250);
         }
         setCharts(layer)
       });
@@ -23,15 +20,19 @@ define(
       $(document).on("click", ".closeChart", function() {
         $(".chart-panel").css("left", "-100%");
         $(".chart-panel").toggle("slide", { direction: "left" }, 250);
+        $(".chart-panel").html("");
       });
-      $(document).on("click", "#newWindowBtn", function(event){
-        var newWindow = window.open("", "", "toolbar=yes,scrollbars=yes,resizable=yes,top=500,left=500,width=400,height=400");
-        newWindow.document.write(windowContent);
+
+      $(document).keyup(function(e) {
+        if (e.keyCode === 27) {
+          $(".chart-panel").css("left", "-100%");
+          $(".chart-panel").toggle("slide", { direction: "left" }, 250);
+          $(".chart-panel").html("");
+        }
       });
     };
 
     var setCharts = function(layer) {
-      var picker = null;
       let {charts, viewId, parent, style} = layer;
       let isDynamic = false;
       if(parent === 'dynamic'){
@@ -59,14 +60,14 @@ define(
                       </span>
                     </div>`;
                     if(chart.type === "line" || chart.type === "area"){
-                    chartsHtml+=`
-                    <label>Interval:</label>
-                    <select id="interval${i+1}" class="form-control interval">
-                      <option value='day'>Day</option>
-                      <option value='week'>Week</option>
-                      <option value='month'>Month</option>
-                      <option value='year'>Year</option>
-                    </select>`;
+                      chartsHtml+=`
+                        <label>Interval:</label>
+                        <select id="interval${i+1}" class="form-control interval">
+                          <option value='day'>Day</option>
+                          <option value='week'>Week</option>
+                          <option value='month'>Month</option>
+                          <option value='year'>Year</option>
+                        </select>`;
                     }
                   chartsHtml+=`</div>`;
                 }
@@ -81,7 +82,6 @@ define(
             </div>
         `;
       }
-      
       let html = `
         <div class="col-sm-12">
           <div class="pull-right closeChart"><i class="fa fa-close"></i></div>
@@ -92,7 +92,6 @@ define(
         </div>
       `;
 
-      // windowContent = html;
       $(".chart-panel").html(html);
       Utils.translate('.chart-panel');
 
@@ -101,7 +100,6 @@ define(
         const chartSeries = chartConfig.series;
         const chartFunctionGrouping = chartConfig.functionGrouping;
         const chartGroupBy = chartConfig.groupBy;
-        const chartLabel = chartConfig.label;
         let fromMap = chartConfig.fromMap;
         if(style!='editor'){
           fromMap = false;
@@ -116,7 +114,7 @@ define(
         }
         
         const dateFrom = moment().startOf('day').format("Y-M-D HH:mm:ss")
-        const dateTo = moment().format("Y-M-D HH:mm:ss");
+        const dateTo = moment().subtract(2, 'days').endOf('day').format("Y-M-D HH:mm:ss");
         url += `&dateFrom=${dateFrom}`;
         url += `&dateTo=${dateTo}`;
         if(chartType === "line" || chartType === "area"){
@@ -499,12 +497,37 @@ define(
         });
       }
       
-      picker = $('.chart-date-picker').daterangepicker({
+      $('.chart-date-picker').on('apply.daterangepicker', function(ev, picker) {
+        getByPeriod(ev);
+      });
+      $(document).on("change", ".interval", function(ev) {
+        getByPeriod(ev);
+      });
+      var getByPeriod = ev => {
+        var picker = $(ev.currentTarget).closest('.panel-body').find('.chart-date-picker').data('daterangepicker');
+        const dateFrom = picker.startDate.format('YYYY-MM-DD')
+        const dateTo = picker.endDate.format('YYYY-MM-DD')
+        let interval = $(ev.currentTarget).closest('.panel-body').find('.interval').val();
+        const chartContainer = $(ev.currentTarget).closest('.panel-body').find('.chart:first')[0]
+        
+        const chart = getChart(chartContainer.id)
+        let oldUrl = chart.dataSource.url
+        var index = oldUrl.indexOf("&dateFrom");
+        if(index!=-1){
+          oldUrl = oldUrl.substring(0, index);
+        }
+        let newUrl = oldUrl+`&dateFrom=${dateFrom}&dateTo=${dateTo}`
+        if(interval){
+          newUrl+=`&interval=${interval}`;
+        }
+        chart.dataSource.url = newUrl
+        chart.dataSource.load()
+        chart.dataSource.url = oldUrl
+      }
+      $('.chart-date-picker').daterangepicker({
         "timePicker": true,
-        // "minDate": moment(),
         "startDate": moment().startOf('day'),
         "endDate": moment(),
-        // "maxDate": moment(),
         "timePicker24Hour": true,
         "opens": "center",
         "locale": {
@@ -542,37 +565,6 @@ define(
           "firstDay": 1
         }
       });
-      
-      $('.chart-date-picker').on('apply.daterangepicker', function(ev, picker) {
-        getByPeriod(ev);
-      });
-      $('.chart-date-picker').on('show.daterangepicker', function(ev, p) {
-        picker = p;
-      });
-      $(document).on("change", ".interval", function(ev) {
-        getByPeriod(ev);
-      });
-      var getByPeriod = (ev) => {
-        var picker = $(ev.currentTarget).closest('.panel-body').find('.chart-date-picker').data('daterangepicker');
-        const dateFrom = picker.startDate.format('YYYY-MM-DD')
-        const dateTo = picker.endDate.format('YYYY-MM-DD')
-        let interval = $(ev.currentTarget).closest('.panel-body').find('.interval').val();
-        const chartContainer = $(ev.currentTarget).closest('.panel-body').find('.chart:first')[0]
-        
-        const chart = getChart(chartContainer.id)
-        let oldUrl = chart.dataSource.url
-        var index = oldUrl.indexOf("&dateFrom");
-        if(index!=-1){
-          oldUrl = oldUrl.substring(0, index);
-        }
-        let newUrl = oldUrl+`&dateFrom=${dateFrom}&dateTo=${dateTo}`
-        if(interval){
-          newUrl+=`&interval=${interval}`;
-        }
-        chart.dataSource.url = newUrl
-        chart.dataSource.load()
-        chart.dataSource.url = oldUrl
-      }
     }
     function getChart(id) {
       return chartList.find(chart => chart.id==id)

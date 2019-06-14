@@ -132,7 +132,7 @@ define([],()=> {
               "titleMap": [
                 {
                   "value": "sum",
-                  "name": "Sum",
+                  "name": "Sum"
                 },
                 {
                   "value": "count",
