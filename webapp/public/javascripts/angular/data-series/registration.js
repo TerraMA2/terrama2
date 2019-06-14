@@ -360,25 +360,24 @@ define([], function() {
         if (typeof dataSeries != 'object'){
           return '';
         }
+        console.log(dataSeries.data_provider_type.name);
+
         switch (dataSeries.data_provider_type.name){
           case "FILE":
             return BASE_URL + "images/data-server/file/file.png";
-            break;
           case "FTP":
             return BASE_URL + "images/data-server/ftp/ftp.png";
-            break;
           case "SFTP":
             return BASE_URL + "images/data-server/sftp/sftp.png";
-            break;
+          case "WFS":
+            return BASE_URL + "images/data-server/wfs/datasource-wfs.svg";
           case "HTTP":
           case "HTTPS":
           case "STATIC-HTTP":
             return BASE_URL + "images/data-server/http/http.png";
-            break;
           case "POSTGIS":
           default:
             return BASE_URL + "images/data-server/postGIS/postGIS.png";
-            break;
         }
       }
 

@@ -240,6 +240,8 @@ define([], function() {
             case "FTP":
               return BASE_URL + "images/data-server/ftp/ftp.png";
               break;
+            case "WFS":
+              return BASE_URL + "images/data-server/wfs/datasource-wfs.svg";
             case "SFTP":
               return BASE_URL + "images/data-server/sftp/sftp.png";
               break;

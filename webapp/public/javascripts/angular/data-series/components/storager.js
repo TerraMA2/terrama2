@@ -75,6 +75,8 @@ define([], function(){
           case 'SFTP':
             return BASE_URL + "images/data-server/sftp/sftp.png";
             break;
+          case "WFS":
+            return BASE_URL + "images/data-server/wfs/datasource-wfs.svg";
           case 'FILE':
           default:
             return BASE_URL + "images/data-server/file/file.png";
