@@ -123,7 +123,7 @@ var Service = module.exports = function(serviceInstance) {
     self.answered = true;
     var formatMessage = "Socket %s received %s";
     logger.debug(Utils.format(formatMessage, self.service.name, byteArray));
-    console.log("REceived byteArray.size ", byteArray.length)
+    console.log("Received byteArray.size ", byteArray.length)
 
     // append and check if the complete message has arrived
     tempBuffer = _createBufferFrom(tempBuffer, byteArray);

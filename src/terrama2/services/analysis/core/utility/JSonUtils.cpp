@@ -63,7 +63,7 @@ terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::co
        && json.contains("name")
        && json.contains("description")
        && json.contains("active")
-       && json.contains("output_data_series_id")
+       && json.contains("output_dataseries_id")
        && json.contains("metadata")
        && json.contains("analysis_dataseries_list")
        && json.contains("service_instance_id")
@@ -86,7 +86,7 @@ terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::co
   analysis->name = json["name"].toString().toStdString();
   analysis->description = json["description"].toString().toStdString();
   analysis->active = json["active"].toBool();
-  analysis->outputDataSeriesId = json["output_data_series_id"].toInt();
+  analysis->outputDataSeriesId = json["output_dataseries_id"].toInt();
   analysis->outputDataSetId = json["output_dataset_id"].toInt();
   analysis->serviceInstanceId = json["service_instance_id"].toInt();
 
@@ -162,7 +162,7 @@ QJsonObject terrama2::services::analysis::core::toJson(AnalysisPtr analysis)
   obj.insert("type", static_cast<qint32>(analysis->type));
   obj.insert("name", QString(analysis->name.c_str()));
   obj.insert("description", QString(analysis->description.c_str()));
-  obj.insert("output_data_series_id", static_cast<qint32>(analysis->outputDataSeriesId));
+  obj.insert("output_dataseries_id", static_cast<qint32>(analysis->outputDataSeriesId));
   obj.insert("output_dataset_id", static_cast<qint32>(analysis->outputDataSetId));
   obj.insert("service_instance_id", static_cast<qint32>(analysis->serviceInstanceId));
 

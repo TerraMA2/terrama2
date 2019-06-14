@@ -6338,5 +6338,5 @@ var DataManager = module.exports = {
         return reject(err);
       });
     });
-  },
+  }
 };

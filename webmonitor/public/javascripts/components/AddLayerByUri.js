@@ -35,7 +35,6 @@ define(
               span += "<i id='terrama2-calendar' class='fa fa-calendar'></i>";
             }
             $("li[data-layerid='" + layer.id + "'] .dropdown-layer-tools ul").append(span);
-            // $(li).append($(span));
           }
         }
       }

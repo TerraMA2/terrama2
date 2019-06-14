@@ -109,9 +109,8 @@
     return new PromiseClass(function(resolve, reject) {
       if (viewId) {
         return DataManager.getView({id: viewId})
-          .then(async view => { 
-            const viewResult = view.toObject()
-            return resolve(viewResult);
+          .then(async view => {
+            return resolve(view.toObject());
           })
           .catch(function(err) { 
             return reject(err); 

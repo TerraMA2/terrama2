@@ -32,14 +32,14 @@ define(function() {
       "Views": [],
       "Legends": [],
       "Alerts": [],
-      "Interpolators": [].toString,
+      "Interpolators": []
     };
     $scope.services = {
       COLLECT: [],
       ANALYSIS: [],
       VIEW: [],
       ALERT: [],
-      INTERPOLATOR: [],
+      INTERPOLATOR: []
     };
     $scope.selectedServices = {};
     $scope.hasCollect = false;
@@ -417,7 +417,7 @@ define(function() {
           "Views": [],
           "Legends": [],
           "Alerts": [],
-          "Interpolators": [],
+          "Interpolators": []
         };
 
         $('#exportModal').modal('hide');
@@ -518,8 +518,8 @@ define(function() {
             $scope.extra.importJson['servicesAlert'] = $scope.selectedServices.Alert;
 
           if($scope.hasInterpolator)
-          $scope.extra.importJson['servicesInterpolator'] = $scope.selectedServices.Interpolator;
-          
+            $scope.extra.importJson['servicesInterpolator'] = $scope.selectedServices.Interpolator;
+
           socket.emit("import", $scope.extra.importJson);
           $('#importModal').modal('hide');
 

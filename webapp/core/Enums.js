@@ -134,7 +134,7 @@ module.exports = {
      * Defines Interpolation Service
      * @type {number}
      */
-    INTERPOLATION: 5,
+    INTERPOLATION: 5
   },
 
   DataSeriesType: {
