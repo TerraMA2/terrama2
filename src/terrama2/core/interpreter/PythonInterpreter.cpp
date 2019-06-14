@@ -249,9 +249,9 @@ void terrama2::core::PythonInterpreter::runScript(const std::string& script, con
 
       if(pModule == NULL)
       {
-        auto p = extractException();
+//        auto p = extractException();
 
-        std::cout << p << std::endl;
+//        std::cout << p << std::endl;
 
 //        std::string errMsg = QObject::tr("Could not register the getwfslayer function.").toStdString();
         throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription("pModule is NULL");
@@ -266,7 +266,7 @@ void terrama2::core::PythonInterpreter::runScript(const std::string& script, con
 
       auto resultado = boost::python::extract<std::string>(boost::python::str(result))();
 
-      std::cout << resultado << std::endl;
+//      std::cout << resultado << std::endl;
     }
     catch(const error_already_set&)
     {
