@@ -2,7 +2,7 @@
   "name": "TerraMA²",
   "short_name": "TerraMA²",
   "scope": ".",
-  "start_url": "/",
+  "start_url": "/mpmt/monitor/",
   "display": "standalone",
   "splash_pages": null,
   "background_color": "#222d32",

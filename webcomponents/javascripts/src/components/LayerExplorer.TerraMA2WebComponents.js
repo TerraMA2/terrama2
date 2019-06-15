@@ -55,7 +55,7 @@ define(
           <span class='group-name'>
             <div class="sidebar-item-text">
               <div class='group-icon'></div>
-              <span>${name}</span>
+              <span data-i18n="${name}">${name}</span>
             </div>
             <div class="sidebar-item-icon"></div>
           </span>
@@ -137,13 +137,12 @@ define(
           if(appendAtTheEnd) $('#' + parent + ' > ul.children').append(elem);
           else $('#' + parent + ' > ul.children').prepend(elem);
         }
-
         // Handle opacity slider control
         if(typeof $('input.opacity').slider === "function")
-          $('input.opacity').slider();
-
+        $('input.opacity').slider();
+        
         $('.parent_li').find(' > ul > li').hide();
-
+        
         setSortable();
       }
     };

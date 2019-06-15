@@ -7,7 +7,6 @@ define([],()=> {
       this.$timeout=$timeout
       this.getAttributes()
       this.model = []
-      this.selectedChart = null;
       this.schema = {
         "type": "object",
         "title": "Chart",

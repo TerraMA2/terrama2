@@ -10,7 +10,7 @@
   var ViewFacade = require("../../core/facade/View");
 
   /**
-   * Injecting NodeJS App configuration as dependency. It retrieves a Views controllers API
+   * Injecting NodeJS App configuration AS dependency. It retrieves a Views controllers API
    * 
    * @param {Object}
    * @returns {Object}
@@ -43,7 +43,7 @@
             interval = "day";
           }
           sql = `
-            SELECT date_trunc('${interval}', data_hora_gmt) as date, count(*) as value
+            SELECT date_trunc('${interval}', data_hora_gmt) AS date, count(*) AS value
             FROM ${tableName}
             ${dateSQL}
             GROUP BY date
@@ -54,9 +54,9 @@
           let groupBySql = groupBy;
           let join = "";
           if(legendFromMap === "true"){
-            select += `,SUBSTRING(color, 1, 7) as color`;
-            join+=`JOIN terrama2.view_style_colors as vsc ON ${groupBy} = vsc.value `;
-            groupBySql+=`, color`;
+            select += `, MAX(SUBSTRING(color, 1, 7)) AS color`;
+            join+=`JOIN terrama2.view_style_colors AS vsc ON ${groupBy} = vsc.value `;
+            // groupBySql+=`, color`;
           }
 
           if(functionGrouping === "count"){

@@ -1,6 +1,6 @@
 <html> 
   <head> 
-   <title>Situação atual</title> 
+    <title>Situação atual</title> 
     <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="externals/bootstrap/css/bootstrap.min.css">
   </head> 
@@ -9,120 +9,358 @@
     <!-- Bootstrap -->
     <script src="externals/jquery/jquery-3.2.1.min.js"></script>
     <script src="externals/bootstrap/js/bootstrap.min.js"></script>
-    <script src="externals/chart/Chart.min.js"></script>
+    <!-- <script src="externals/chart/Chart.min.js"></script> -->
+    <script type="text/javascript" src="https://www.amcharts.com/lib/4/core.js"></script>
+    <script type="text/javascript" src="https://www.amcharts.com/lib/4/charts.js"></script>
+    <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
     <script src="index.js"></script>
 
-    <div class="container">
-
-      <div id="header" class="row">
-        <div class="col-12" id="top-logo">
-          <img src="imagens/logo.png">
-          <hr id="logo">
+      <nav class="navbar navbar-expand-lg navbar-light">
+        <a class="navbar-brand" href="#">
+            <img src="imagens/logo-mpmt-v5.png" height="50" class="d-inline-block align-top" alt="">
+        </a>
+        <button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#navbar">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbar">
+          <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+          </ul>
+          <a class="navbar-item" href="#">Voltar ao site</a>
         </div>
-      </div>
-      <div id="page" class="row justify-content-center">
-        <div class="col-10" style="margin-top:70px">
-          <br>
-          <h1>Monitoramento da situação atual</h1>
-          <p>
-            Esta homepage é um exemplo/modelo que fornece as Instituições que utilizam o TerraMA2Q uma ferramenta de acompanhamento da dinâmica das queimadas
-            localmente, porém da mesma maneira que pode ser encontrada no portal do <a href="http://www.inpe.br/queimadas">Programa Queimadas do INPE</a>.<br/>
-            O objetivo é demonstrar como personalizar os principais resultados das Análises desenvolvidas utilizando a Plataforma TerraMA2, onde todos 
-            os dados apresentados são atualizados dinâmicamente depois dos processos de Coleta, Análise e Publicação e assim conhecer uma possibilidade de 
-           rápido desenvolvimento e customização.
-          </p>
+      </nav>
+      <div class="container">
+          <h1 class="text-center">Alerta Mato Grosso</h1>
           <hr>
-
-          <h2>Mapa de Visão Geral dos Focos.</h2>
-          <div class="row content-center" style="margin-top:30px">
-            <img id="mainImage" src="">
-          </div>
-          <br>
-          <p><b>Figura 1: </b>
-          Distribuição espacial dos focos identificados por diferêntes satélites, representados por cores distintas.
-          </p>
-          <hr>
-
-          <!-- Template to create a table 
-            <table> id="tableId" class="table table-sm table-striped">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Column1</th>
-                  <th>Column2</th>
-                </tr>
-              </thead>
-              <tbody>
-              </tbody>
-            </table>
-          -->
-          <!-- Template to create a chart
-            <canvas id="chartId" width="400" height="300"></canvas>
-          -->
           <div class="row">
-            <div class="col-12">
-              <h3>Contagem por estados</h3>
-              <p>Número de focos acumulados por Estados</p>
+            <div class="col-6">
+                <label class="font-weight-bold">ID do alerta:&nbsp;</label>1934
+                <br>
+                <label class="font-weight-bold">Fonte(s) de Alerta(s):&nbsp;</label>SAD
+                <br>
+                <label class="font-weight-bold">Estado:&nbsp;</label>RONDÔNIA
+                |
+                <label class="font-weight-bold">Municipio:&nbsp;</label>JI-PARANÁ
+                |
+                <label class="font-weight-bold">Bioma:&nbsp;</label>AMAZONIA
+                <br>
+                <label class="font-weight-bold">Área total do alerta:&nbsp;</label>23.756 ha
+                <br>
             </div>
-            <div class="offset-2 col-8 table-situacao">
-              <h5>Contagem de focos acumulados em 48h</h5>
-              <table id="tableEstados1d" class="table table-sm table-striped">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Estado</th>
-                    <th>Focos</th>
-                  </tr>
-                </thead>
-                <tbody>
-                </tbody>
-              </table>
-            </div>
-            <div class="offset-2 col-8 chart-situacao">
-              <canvas id="chartEstados1d" width="400" height="300"></canvas>
-            </div>
-
-            <div class="offset-2 col-8 table-situacao">
-              <hr>
-              <h5>Contagem de focos acumulados em um mês</h5>
-              <table id="tableEstados2d" class="table table-sm  table-striped">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Estado</th>
-                    <th>Focos</th>
-                  </tr>
-                </thead>
-                <tbody>
-                </tbody>
-              </table>
-            </div>
-            <div class="offset-2 col-8 chart-situacao">
-              <canvas id="chartEstados2d" width="400" height="300"></canvas>
-            </div>
-
-            <div class="offset-2 col-8 table-situacao">
-              <hr>
-              <h5>Contagem de focos acumulados em um ano</h5>
-              <table id="tableEstados3d" class="table table-sm table-striped">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Estado</th>
-                    <th>Focos</th>
-                  </tr>
-                </thead>
-                <tbody>
-                </tbody>
-              </table>
-            </div>
-            <div class="offset-2 col-8 chart-situacao">
-              <canvas id="chartEstados3d" width="400" height="300"></canvas>
+            <div class="col-6">
+                <label class="font-weight-bold">Área do alerta no CAR:&nbsp;</label>0.067877 ha
+                <br>
+                <label class="font-weight-bold">CAR:&nbsp;</label>RO-1100122-EB598C017D274BCFAC36FEE1E0B75301
             </div>
           </div>
+          
+          <div class="row">
+            <div class="col-6">
+              <div class="card mt-2">
+                <h5 class="card-title text-center p-1 m-1"><strong>IMAGEM ANTES</strong> 27/10/2018</h5>
+                <img src="imagens/raster1.png" height="450px" class="card-img-top">
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="card mt-2">
+                <h5 class="card-title text-center p-1 m-1">Título</h5>
+                <img src="imagens/raster2.png" height="450px" class="card-img-top">
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="card mt-2">
+                <h5 class="card-title text-center p-1 m-1">Título</h5>
+                <img src="imagens/geo1.png" height="450px" class="card-img-top">
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="card mt-2">
+                <h5 class="card-title text-center p-1 m-1">Título</h5>
+                <img src="imagens/geo2.png" height="450px" class="card-img-top">
+              </div>
+            </div>
+          </div>
+          <br>
+          <label class="font-weight-bold">Legenda</label>
+          <div class="row border rounded p-3 bg-light">
+            <div class="col-3"><img src="imagens/icon1.image" height="20" width="20">&nbsp;&nbsp;APPs</div>
+            <div class="col-3"><img src="imagens/icon2.image" height="20" width="20">&nbsp;&nbsp;Reservas Legais</div>
+            <div class="col-3"><img src="imagens/icon3.jpg" height="20" width="20">&nbsp;&nbsp;Nascentes</div>
+            <div class="col-3"><img src="imagens/icon4.image" height="20" width="20">&nbsp;&nbsp;Embargos</div>
+            <div class="col-3"><img src="imagens/icon5.image" height="20" width="20">&nbsp;&nbsp;Plano de Manejo Florestal</div>
+            <div class="col-3"><img src="imagens/icon6.image" height="20" width="20">&nbsp;&nbsp;Estados</div>
+            <div class="col-3"><img src="imagens/icon7.image" height="20" width="20">&nbsp;&nbsp;Limite da Propriedade</div>
+            <div class="col-3"><img src="imagens/icon8.image" height="20" width="20">&nbsp;&nbsp;Alerta</div>
+            <div class="col-3"><img src="imagens/icon9.image" height="20" width="20">&nbsp;&nbsp;Supressão Vegetal - ASV</div>
+          </div>
+          <br>
+          <h2 class="text-center p-5">Interseção CAR</h2>
+          <div class="row">
+            <div class="col-4">
+              <div class="card card-disabled">
+                <h5 class="card-title text-center p-1 m-1">Assentamento</h5>
+                <img src="imagens/raster2.png" height="300px" class="card-img-top">
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="card card-disabled">
+                <h5 class="card-title text-center p-1 m-1">Terra Indígena</h5>
+                <img src="imagens/raster2.png" height="300px" class="card-img-top img-disabled">
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="card">
+                <h5 class="card-title text-center p-1 m-1">Unidade de Conservação</h5>
+                <img src="imagens/raster2.png" height="300px" class="card-img-top">
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="card card-disabled mt-2">
+                <h5 class="card-title text-center p-1 m-1">Reserva Legal</h5>
+                <img src="imagens/raster2.png" height="300px" class="card-img-top">
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="card card-disabled mt-2">
+                <h5 class="card-title text-center p-1 m-1">APP</h5>
+                <img src="imagens/raster2.png" height="300px" class="card-img-top">
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="card card-disabled mt-2">
+                <h5 class="card-title text-center p-1 m-1">Nascente</h5>
+                <img src="imagens/raster2.png" height="300px" class="card-img-top">
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="card">
+                <h5 class="card-title text-center p-1 m-1">Plano de Manejo Florestal</h5>
+                <img src="imagens/raster2.png" height="300px" class="card-img-top">
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="card card-disabled mt-2">
+                <h5 class="card-title text-center p-1 m-1">Imóvel com Área Embargada</h5>
+                <img src="imagens/raster2.png" height="300px" class="card-img-top">
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="card card-disabled mt-2">
+                <h5 class="card-title text-center p-1 m-1">Autorização de Supressão Vegetal</h5>
+                <img src="imagens/raster2.png" height="300px" class="card-img-top">
+              </div>
+            </div>
+          </div>
+          <br>
+          <h2 class="text-center">Visualização do alerta sobre o Mapa base mapbiomas</h2>
+          <div class="row">
+            <div class="col-2">
+              <div class="card mt-2">
+                <h5 class="card-title text-center p-1 m-1">2012</h5>
+                <img src="imagens/map1.png" height="150px" class="card-img-top">
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="card mt-2">
+                <h5 class="card-title text-center p-1 m-1">2013</h5>
+                <img src="imagens/map2.png" height="150px" class="card-img-top">
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="card mt-2">
+                <h5 class="card-title text-center p-1 m-1">2014</h5>
+                <img src="imagens/map3.png" height="150px" class="card-img-top">
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="card mt-2">
+                <h5 class="card-title text-center p-1 m-1">2015</h5>
+                <img src="imagens/map4.png" height="150px" class="card-img-top">
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="card mt-2">
+                <h5 class="card-title text-center p-1 m-1">2016</h5>
+                <img src="imagens/map5.png" height="150px" class="card-img-top">
+              </div>
+            </div>
+            <div class="col-2">
+              <div class="card mt-2">
+                <h5 class="card-title text-center p-1 m-1">2017</h5>
+                <img src="imagens/map6.png" height="150px" class="card-img-top">
+              </div>
+            </div>
+          </div>
+          <br>
+          <label class="font-weight-bold">Legenda</label>
+          <div class="row border rounded p-3 bg-light">
+            <div class="col-3"><img src="imagens/icon1.image" height="20" width="20">&nbsp;&nbsp;APPs</div>
+            <div class="col-3"><img src="imagens/icon2.image" height="20" width="20">&nbsp;&nbsp;Reservas Legais</div>
+            <div class="col-3"><img src="imagens/icon3.jpg" height="20" width="20">&nbsp;&nbsp;Nascentes</div>
+            <div class="col-3"><img src="imagens/icon4.image" height="20" width="20">&nbsp;&nbsp;Embargos</div>
+            <div class="col-3"><img src="imagens/icon5.image" height="20" width="20">&nbsp;&nbsp;Plano de Manejo Florestal</div>
+            <div class="col-3"><img src="imagens/icon6.image" height="20" width="20">&nbsp;&nbsp;Estados</div>
+            <div class="col-3"><img src="imagens/icon7.image" height="20" width="20">&nbsp;&nbsp;Limite da Propriedade</div>
+            <div class="col-3"><img src="imagens/icon8.image" height="20" width="20">&nbsp;&nbsp;Alerta</div>
+            <div class="col-3"><img src="imagens/icon9.image" height="20" width="20">&nbsp;&nbsp;Supressão Vegetal - ASV</div>
+          </div>
+          <br>
+          <div id="chartdiv" class="chart"></div>
+          <br>
+          <h2 class="text-center p-5">Memorial description</h2>
+          <div class="row">
+            <div class="col-6">
+              <div class="card">
+                <img src="imagens/raster2.png" height="500px" class="card-img-top">
+              </div>
+            </div>
+            <div class="col-6">
+              <table class="table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th>PT</th>
+                    <th>X</th>
+                    <th>Y</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td>10°30'38.605"S</td>
+                    <td>61°52'11.728"W</td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td>10°30'38.605"S</td>
+                    <td>61°52'9.734"W</td>
+                  </tr>
+                  <tr>
+                    <td>3</td>
+                    <td>10°30'39.205"S</td>
+                    <td>61°52'9.249"W</td>
+                  </tr>
+                  <tr>
+                    <td>4</td>
+                    <td>10°30'38.605"S</td>
+                    <td>61°52'11.728"W</td>
+                  </tr>
+                  <tr>
+                    <td>5</td>
+                    <td>10°30'39.262"S</td>
+                    <td>61°52'9.015"W</td>
+                  </tr>
+                  <tr>
+                    <td>6</td>
+                    <td>10°30'39.413"S</td>
+                    <td>61°52'7.795"W</td>
+                  </tr>
+                  <tr>
+                    <td>7</td>
+                    <td>10°30'39.693"S</td>
+                    <td>61°52'7.234"W</td>
+                  </tr>
+                  <tr>
+                    <td>8</td>
+                    <td>10°30'39.262"S</td>
+                    <td>61°52'9.015"W</td>
+                  </tr>
+                  <tr>
+                    <td colspan="3">Total de pontos: 8</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+            <!-- <h2>Mapa de Visão Geral dos Focos.</h2>
+            <div class="row content-center" style="margin-top:30px">
+              <img id="mainImage" src="">
+            </div> -->
+            <!-- <br>
+            <p><b>Figura 1: </b>
+            Distribuição espacial dos focos identificados por diferêntes satélites, representados por cores distintas.
+            </p>
+            <hr> -->
 
-        </div>
-      </div>
+            <!-- Template to create a table 
+              <table> id="tableId" class="table table-sm table-striped">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Column1</th>
+                    <th>Column2</th>
+                  </tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+            -->
+            <!-- Template to create a chart
+              <canvas id="chartId" width="400" height="300"></canvas>
+            -->
+            <!-- <div class="row">
+              <div class="col-12">
+                <h3>Contagem por estados</h3>
+                <p>Número de focos acumulados por Estados</p>
+              </div>
+              <div class="offset-2 col-8 table-situacao">
+                <h5>Contagem de focos acumulados em 48h</h5>
+                <table id="tableEstados1d" class="table table-sm table-striped">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Estado</th>
+                      <th>Focos</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  </tbody>
+                </table>
+              </div>
+              <div class="offset-2 col-8 chart-situacao">
+                <canvas id="chartEstados1d" width="400" height="300"></canvas>
+              </div>
+
+              <div class="offset-2 col-8 table-situacao">
+                <hr>
+                <h5>Contagem de focos acumulados em um mês</h5>
+                <table id="tableEstados2d" class="table table-sm  table-striped">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Estado</th>
+                      <th>Focos</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  </tbody>
+                </table>
+              </div>
+              <div class="offset-2 col-8 chart-situacao">
+                <canvas id="chartEstados2d" width="400" height="300"></canvas>
+              </div>
+
+              <div class="offset-2 col-8 table-situacao">
+                <hr>
+                <h5>Contagem de focos acumulados em um ano</h5>
+                <table id="tableEstados3d" class="table table-sm table-striped">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Estado</th>
+                      <th>Focos</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  </tbody>
+                </table>
+              </div>
+              <div class="offset-2 col-8 chart-situacao">
+                <canvas id="chartEstados3d" width="400" height="300"></canvas>
+              </div>
+            </div>
+
+          </div> -->
+        <!-- </div> -->
+      <!-- </div> -->
     </div>
 
   </body> 

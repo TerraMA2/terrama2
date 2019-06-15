@@ -105,7 +105,7 @@ define(
           fromMap = false;
         }
 
-        let url = `http://localhost:36000/api/charts?viewId=${viewId}&attributeName=${chartSeries}&legendFromMap=${fromMap}&chartType=${chartType}`;
+        let url = `${ADMIN_URL}api/charts?viewId=${viewId}&attributeName=${chartSeries}&legendFromMap=${fromMap}&chartType=${chartType}`;
         if(chartFunctionGrouping){
           url += `&functionGrouping=${chartFunctionGrouping}`;
         }
@@ -113,8 +113,8 @@ define(
           url += `&groupBy=${chartGroupBy}`;
         }
         
-        const dateFrom = moment().startOf('day').format("Y-M-D HH:mm:ss")
-        const dateTo = moment().subtract(2, 'days').endOf('day').format("Y-M-D HH:mm:ss");
+        const dateFrom = moment().subtract(1, 'days').endOf('day').format("Y-M-D HH:mm:ss")
+        const dateTo = moment().format("Y-M-D HH:mm:ss");
         url += `&dateFrom=${dateFrom}`;
         url += `&dateTo=${dateTo}`;
         if(chartType === "line" || chartType === "area"){
@@ -247,14 +247,6 @@ define(
             barSeries.tooltipText = "{categoryX}: [bold]{valueY}[/]";
             barSeries.columns.template.fillOpacity = .8;
 
-            barSeries.columns.template.column.cornerRadiusTopLeft = 10;
-            barSeries.columns.template.column.cornerRadiusTopRight = 10;
-
-            var hoverState = barSeries.columns.template.column.states.create("hover");
-            hoverState.properties.cornerRadiusTopLeft = 0;
-            hoverState.properties.cornerRadiusTopRight = 0;
-            hoverState.properties.fillOpacity = 1;
-
             var columnTemplate = barSeries.columns.template;
             columnTemplate.strokeWidth = 1;
             columnTemplate.strokeOpacity = 1;
@@ -323,14 +315,6 @@ define(
             series.tooltipText = "{categoryY}: [bold]{valueX}[/]";
             series.columns.template.fillOpacity = .8;
 
-            series.columns.template.column.cornerRadiusBottomRight = 10;
-            series.columns.template.column.cornerRadiusTopRight = 10;
-
-            var hoverState = series.columns.template.column.states.create("hover");
-            hoverState.properties.cornerRadiusBottomRight = 0;
-            hoverState.properties.cornerRadiusTopRight = 0;
-            hoverState.properties.fillOpacity = 1;
-
             var columnTemplate = series.columns.template;
             columnTemplate.strokeWidth = 1;
             columnTemplate.strokeOpacity = 1;
@@ -381,6 +365,7 @@ define(
             ];
           }
           else if (chartType === "line"){
+            am4core.unuseTheme(am4themes_material);
             var chart = am4core.create(`chart${i+1}`, am4charts.XYChart);
             chart.id = `chart${i+1}`
             chart.dataSource.url = url;
@@ -436,6 +421,7 @@ define(
               }
             ];
           } else if (chartType === "area"){
+            am4core.unuseTheme(am4themes_material);
             var chart = am4core.create(`chart${i+1}`, am4charts.XYChart);
             chart.id = `chart${i+1}`
             chart.dataSource.url = url;
