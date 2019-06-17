@@ -7,7 +7,6 @@ define([],()=> {
       this.$timeout=$timeout
       this.getAttributes()
       this.model = []
-      this.selectedChart = null;
       this.schema = {
         "type": "object",
         "title": "Chart",
@@ -132,7 +131,7 @@ define([],()=> {
               "titleMap": [
                 {
                   "value": "sum",
-                  "name": "Sum",
+                  "name": "Sum"
                 },
                 {
                   "value": "count",
