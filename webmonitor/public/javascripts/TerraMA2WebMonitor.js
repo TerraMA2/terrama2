@@ -850,7 +850,7 @@ define(
 
       addTreeviewMenuClass();
       LayerStatus.addGroupSpanIcon();
-      Layers.addLayersToSort();
+      // Layers.addLayersToSort();
       Sortable.setSortable();
 
       // Setting the names of the layers groups
