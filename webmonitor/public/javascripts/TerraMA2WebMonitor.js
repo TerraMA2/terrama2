@@ -390,7 +390,7 @@ define(
         if(viewsData.initialRequest)
           Layers.fillLayersData();
 
-        Layers.addLayersToSort();
+        // Layers.addLayersToSort();
       });
 
       // Checking map server connection response
