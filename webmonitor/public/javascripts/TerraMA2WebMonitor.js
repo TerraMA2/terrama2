@@ -390,7 +390,7 @@ define(
         if(viewsData.initialRequest)
           Layers.fillLayersData();
 
-        Layers.addLayersToSort();
+        // Layers.addLayersToSort();
       });
 
       // Checking map server connection response
@@ -684,7 +684,7 @@ define(
       $(".sidebar-menu").height((memberWindowHeight - 195) + "px");
 
       var mapWidthInterval = window.setInterval(function() {
-        $("#terrama2-map").width($("#content").width() + "px");
+        $("#terrama2-map").width("100vw");
       }, 100);
       window.setTimeout(function() {
         clearInterval(mapWidthInterval);

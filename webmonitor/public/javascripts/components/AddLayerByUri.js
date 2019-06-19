@@ -75,7 +75,7 @@ define(
         if(!$("#custom").hasClass('open')) {
           $("#custom").addClass('open');
         }
-        var groupSpanName = $('#custom').find(' span.group-name');
+        var groupSpanName = $('#custom').find('span.group-name');
         groupSpanName.click();
       }
 
