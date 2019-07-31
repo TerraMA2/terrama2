@@ -36,7 +36,7 @@ project(terrama2)
 # variables that control the system versioning
 set(TERRAMA2_VERSION_MAJOR 4)
 set(TERRAMA2_VERSION_MINOR 0)
-set(TERRAMA2_VERSION_PATCH 11)
+set(TERRAMA2_VERSION_PATCH 12)
 set(TERRAMA2_VERSION_DATABASE 2)
 set(TERRAMA2_VERSION_STATUS "release")
 set(TERRAMA2_VERSION_STATUS_FULL "-release")
