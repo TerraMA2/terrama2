@@ -69,6 +69,7 @@
 #include <QObject>
 
 // STL
+#include <iostream>
 #include <limits>
 
 #include <boost/range/algorithm.hpp>
@@ -867,14 +868,26 @@ te::core::URI terrama2::services::alert::core::AlertExecutor::generateImage(Aler
 
   // create temporary folder
   auto tempDir = getTemporaryFolder(remover);
-  auto imagePath = tempDir+"/"+imageName;
-  remover->addTemporaryFile(imagePath);
+
+
+
+  QString imagePath(QString::fromStdString(tempDir+"/"+imageName));
+
+  QString uriHandler = QUrl(imagePath).toString(QUrl::RemoveScheme | QUrl::NormalizePathSegments);
+
+  remover->addTemporaryFile(uriHandler.toStdString());
+
+  std::cout << uriHandler.toStdString() << std::endl;
+
+
+
+
 
   // download image
   try
   {
     terrama2::core::CurlWrapperHttp curl;
-    curl.downloadFile(geoserverUri, imagePath);
+    curl.downloadFile(geoserverUri, uriHandler.toStdString());
 
     if(curl.responseCode() != 200)
       {
@@ -886,7 +899,7 @@ te::core::URI terrama2::services::alert::core::AlertExecutor::generateImage(Aler
     return te::core::URI();
   }
 
-  return te::core::URI("file://"+imagePath);
+  return te::core::URI("file://"+uriHandler.toStdString());
 }
 
 te::core::URI terrama2::services::alert::core::AlertExecutor::makeDocument(ReportPtr reportPtr, const Notification& notification, const terrama2::core::ExecutionPackage& executionPackage, std::shared_ptr< AlertLogger > logger) const
