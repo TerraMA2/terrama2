@@ -29,7 +29,7 @@
 #  $ ./deb-helper.sh
 #
 
-export TMVERSION=4.0.11
+export TMVERSION=4.0.12
 export DEBNAME=terrama2-doc-${TMVERSION}
 export DEBARC=amd64
 export HELPER_FOLDER=`pwd`/../../helper
