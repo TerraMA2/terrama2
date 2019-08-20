@@ -1,6 +1,3 @@
---SELECT vectorial_processing(MONITORED_DATASERIES, LIST<ADDIONAL_DS>, OPERATION_TYPE, [WHERE_CONDITION]);
-
-
 CREATE OR REPLACE FUNCTION get_geometry_column(table_name VARCHAR)
     RETURNS VARCHAR AS
 $$
@@ -38,166 +35,155 @@ END;
 $$
 LANGUAGE 'plpgsql';
 
+CREATE OR REPLACE FUNCTION get_automatic_schedule_id_list()
+    RETURNS text[] AS
+$$
+  SELECT ARRAY(SELECT id::text FROM terrama2.analysis WHERE automatic_schedule_id is not null)
+$$
+LANGUAGE SQL IMMUTABLE;
+
+CREATE OR REPLACE FUNCTION get_id_from_first_analysis(list_id text[])
+    RETURNS BOOLEAN AS
+$$
+DECLARE
+    indice INTEGER;
+    id_analysis INTEGER;
+    automatic_schedule_id_selected INTEGER;
+BEGIN
+
+IF array_length(list_id, 1) > 0 THEN
+
+    FOR indice IN 1 .. array_upper(list_id, 1)
+    LOOP
+        EXECUTE format('SELECT value FROM terrama2.analysis_metadata
+                    WHERE key = ''dynamicDataSeries'' AND analysis_id = %s', CAST(list_id[indice] AS INTEGER) ) INTO id_analysis;
+
+        EXECUTE format('SELECT automatic_schedule_id FROM terrama2.analysis
+                    WHERE automatic_schedule_id is not null AND id = %s', CAST(list_id[indice] AS INTEGER) ) INTO automatic_schedule_id_selected;
+
+        UPDATE terrama2.automatic_schedules
+            SET data_ids = ARRAY[id_analysis]
+            WHERE id = automatic_schedule_id_selected AND array_length(data_ids, 1) = 0;
+
+    END LOOP;
+
+ELSE
+
+    RETURN FALSE;
+
+END IF;
+
+RETURN TRUE;
+
+END;
+$$
+LANGUAGE 'plpgsql';
+
 CREATE OR REPLACE FUNCTION vectorial_processing_intersection(analysis_id INTEGER,
-                                                             monitored_dataseries VARCHAR,
-                                                             intersect_dataseries VARCHAR,
-                                                             additional_dataseries_list VARCHAR[],
-                                                             condition VARCHAR)
+                                                             output_table_name VARCHAR,
+                                                             static_table_name VARCHAR,
+                                                             dynamic_table_name VARCHAR,
+                                                             output_attributes VARCHAR,
+                                                             date_filter VARCHAR)
     RETURNS TABLE(table_name VARCHAR, affected_rows BIGINT) AS
 $$
 DECLARE
-    additional_dataseries VARCHAR;
-    additional_dataseries_geometry_column VARCHAR;
+    static_table_name_column VARCHAR;
+    dynamic_table_name_column VARCHAR;
+    dynamic_table_name_handler VARCHAR;
+
     affected_rows BIGINT;
+    static_table_srid INTEGER;
+    number_of_rows INTEGER;
 
-    fields_name TEXT;
-    join_query TEXT;
-
-    intersect_geometry_column VARCHAR;
-    monitored_geometry_column VARCHAR;
-    monitored_srid INTEGER;
-
-    pk_monitored TEXT;
-    pk_intersect TEXT;
-    pk_additional TEXT;
+    pk_static_table TEXT;
+    pk_dynamic_table TEXT;
 
     query TEXT;
     result RECORD;
     final_table VARCHAR;
-    intersection_table VARCHAR;
 BEGIN
     -- Retrieves Geometry Column Name from Monitored Data Series
-    EXECUTE 'SELECT get_geometry_column($1)' INTO monitored_geometry_column USING monitored_dataseries;
+    EXECUTE 'SELECT get_geometry_column($1)' INTO static_table_name_column USING static_table_name;
+
+    -- Check if the attribute from first iteration exists
+    EXECUTE format('SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = ''%s'' AND column_name = ''table_name''',dynamic_table_name) INTO number_of_rows;
+
+    IF number_of_rows > 0 THEN
+        EXECUTE format('SELECT table_name FROM %s', dynamic_table_name) INTO dynamic_table_name_handler;
+    ELSE
+        dynamic_table_name_handler := dynamic_table_name;
+    END IF;
 
     -- Retrieves Geometry Column Name from Intersect Data Series
-    EXECUTE 'SELECT get_geometry_column($1)' INTO intersect_geometry_column USING intersect_dataseries;
+    EXECUTE 'SELECT get_geometry_column($1)' INTO dynamic_table_name_column USING dynamic_table_name_handler;
 
-    EXECUTE format('SELECT ST_SRID(%s) FROM %s LIMIT 1', monitored_geometry_column, monitored_dataseries) INTO monitored_srid;
+    EXECUTE format('SELECT ST_SRID(%s) FROM %s LIMIT 1', static_table_name_column, static_table_name) INTO static_table_srid;
 
-    IF monitored_srid <= 0 THEN
-        RAISE NOTICE 'The table "%" has no SRID "%". Using "4326" as default.', monitored_dataseries, monitored_srid;
+    IF static_table_srid <= 0 THEN
+        RAISE NOTICE 'The table "%" has no SRID "%". Using "4326" as default.', static_table_name, static_table_srid;
 
-        monitored_srid := 4326;
+        static_table_srid := 4326;
     END IF;
 
-    -- Check condition. When empty, set 1 = 1 as default
-    IF (coalesce(condition, '') = '') THEN
-        condition := '1 = 1';
+    -- Check date_filter. When empty, set 1 = 1 as default
+    IF (coalesce(date_filter, '') = '') THEN
+        date_filter := '1 = 1';
     END IF;
 
-    final_table := format('%s_%s_%s', monitored_dataseries, intersect_dataseries, analysis_id);
-    intersection_table := format('%s_%s', monitored_dataseries, intersect_dataseries);
+    final_table := format('%s_%s', output_table_name, analysis_id);
 
-    EXECUTE 'SELECT get_primary_key($1)' INTO pk_monitored USING monitored_dataseries;
-    EXECUTE 'SELECT get_primary_key($1)' INTO pk_intersect USING intersect_dataseries;
+    EXECUTE 'SELECT get_primary_key($1)' INTO pk_static_table USING static_table_name;
+    EXECUTE 'SELECT get_primary_key($1)' INTO pk_dynamic_table USING dynamic_table_name_handler;
 
     query := format('
         DROP TABLE IF EXISTS %s;
         CREATE TABLE %s AS
-            WITH %s AS (
                 SELECT  %s.%s::VARCHAR AS monitored_id,
                         %s.%s::VARCHAR AS intersect_id,
-                        %s.%s AS monitored_geom,
-                        ST_Intersection(%s.%s, ST_Transform(%s.%s, %s)) AS intersection_geom
-                  FROM %s, %s
-                 WHERE ST_Intersects(%s.%s, ST_Transform(%s.%s, %s)) AND
+                        ST_Intersection(%s.%s, ST_Transform(%s.%s, %s)) AS intersection_geom,
+                        ST_AREA(ST_Intersection(%s.%s, ST_Transform(%s.%s, %s))) / 10000 AS calculated_area_ha,
                         %s
-            )',
-            final_table,
-            final_table,
-            intersection_table,
-            monitored_dataseries, pk_monitored,
-            intersect_dataseries, pk_intersect,
-            monitored_dataseries, monitored_geometry_column,
-            monitored_dataseries, monitored_geometry_column, intersect_dataseries, intersect_geometry_column, monitored_srid,
-            monitored_dataseries, intersect_dataseries,
-            monitored_dataseries, monitored_geometry_column, intersect_dataseries, intersect_geometry_column, monitored_srid,
-            condition);
-
-    join_query := '';
-    fields_name := format('%s.monitored_id,
-                           %s.intersect_id,
-                           %s.monitored_geom,
-                           %s.intersection_geom',
-                           intersection_table, intersection_table, intersection_table, intersection_table, intersection_table, intersection_table);
-
-    FOR i IN 1..coalesce(array_length(additional_dataseries_list, 1), 0)
-    LOOP
-        additional_dataseries := additional_dataseries_list[i];
-
-        -- Retrieves Primary Key from Additional Data Series
-        EXECUTE 'SELECT get_primary_key($1)' INTO pk_additional USING additional_dataseries;
-        -- Retrieves Geometry Column Name from Additional Data Series
-        EXECUTE 'SELECT get_geometry_column($1)' INTO additional_dataseries_geometry_column USING additional_dataseries;
-
-        fields_name := fields_name || format(', %s_%s.%s AS %s_pk,
-                %s_%s.%s_geom,
-                %s_%s.%s_intersection_geom,
-                %s_%s.%s_difference_geom
+                  FROM %s, %s
+                 WHERE ST_Intersects(%s.%s, ST_Transform(%s.%s, %s)) AND %s
             ',
-            monitored_dataseries, additional_dataseries, pk_additional, additional_dataseries,
-            monitored_dataseries, additional_dataseries, additional_dataseries,
-            monitored_dataseries, additional_dataseries, additional_dataseries,
-            monitored_dataseries, additional_dataseries, additional_dataseries);
+            final_table,
+            final_table,
+            static_table_name, pk_static_table,
+            dynamic_table_name_handler, pk_dynamic_table,
 
-        join_query := join_query || format('
-            LEFT JOIN %s_%s
-              ON %s.monitored_id = %s_%s.monitored_id
-             AND %s.intersect_id = %s_%s.intersect_id
-        ', monitored_dataseries, additional_dataseries,
-           intersection_table, monitored_dataseries, additional_dataseries,
-           intersection_table, monitored_dataseries, additional_dataseries);
+                -- SELECT  %s.%s::VARCHAR AS monitored_id,
+                --         %s.%s::VARCHAR AS intersect_id,
+                --         %s.%s AS monitored_geom,
+            -- static_table_name, static_table_name_column,
 
-        query := query || format('
-            , %s_%s AS (
-                SELECT *,
-                       ST_Difference(%s_geom, (SELECT ST_Union(intersection_geom) FROM %s))
-                       AS %s_difference_geom
-                FROM (
-                    SELECT %s.monitored_id AS monitored_id, %s.intersect_id AS intersect_id,
-                           %s.%s,
-                           ST_Multi(ST_Intersection(%s.monitored_geom, %s.%s)) AS %s_geom,
-                           ST_Multi(ST_Intersection(%s.intersection_geom, %s.%s)) AS %s_intersection_geom
-                      FROM %s
-                      LEFT JOIN %s
-                        ON ST_Intersects(%s.monitored_geom, %s.%s)
-                ) AS tbl
-            )',
-            monitored_dataseries, additional_dataseries,
-            additional_dataseries, intersection_table,
-            additional_dataseries,
-            intersection_table, intersection_table,
-            additional_dataseries, pk_additional,
-            intersection_table, additional_dataseries, additional_dataseries_geometry_column, additional_dataseries,
-            intersection_table, additional_dataseries, additional_dataseries_geometry_column, additional_dataseries,
-            intersection_table,
-            additional_dataseries,
-            intersection_table, additional_dataseries, additional_dataseries_geometry_column);
-    END LOOP;
-
-    query := query || format('
-        SELECT %s
-          FROM %s
-               %s
-    ', fields_name, intersection_table, join_query);
+            static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
+            static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
+            output_attributes,
+            dynamic_table_name_handler, static_table_name,
+            static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
+            date_filter);
 
     EXECUTE query;
 
     query := format('
         CREATE INDEX %s_geom_idx ON %s USING GIST(intersection_geom);
-        CREATE INDEX %s_monitored_id_intersect_id_idx ON %s USING BTREE(monitored_id, intersect_id);
+        CREATE INDEX %s_static_table_id_dynamic_table_id_idx ON %s USING BTREE(monitored_id, intersect_id);
     ', final_table, final_table,
        final_table, final_table);
 
     EXECUTE query;
 
+    query := format('ALTER TABLE %s ADD COLUMN %s_id SERIAL PRIMARY KEY', final_table, final_table);
+
+    EXECUTE query;
+
+    EXECUTE 'SELECT get_id_from_first_analysis(get_automatic_schedule_id_list())';
+
     query := format('SELECT $1 as table_name, count(*) as affected_rows FROM %s', final_table);
 
     RETURN QUERY EXECUTE query USING final_table;
 
-    -- RETURN QUERY EXECUTE format('SELECT * FROM %s', temporary_matched_table);
 END;
 $$
 LANGUAGE 'plpgsql';
-
--- SELECT vectorial_processing_intersection(1, 'car_area_imovel', 'alertas_mpmt', ARRAY['app', 'reserva_legal', 'area_topo_morro', 'uso_restrito'], 'view_date::date > ''2018-01-01''');
