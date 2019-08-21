@@ -37,7 +37,8 @@ namespace terrama2
                        terrama2::core::DataSeriesPtr monitoredDataSeries,
                        terrama2::core::DataSeriesPtr dynamicDataSeries,
                        std::vector<terrama2::core::DataSeriesPtr> additionalDataSeries,
-                       te::core::URI outputDataProviderURI);
+                       te::core::URI outputDataProviderURI,
+                       std::string outputTableName);
 
               virtual ~Operator();
 
@@ -60,6 +61,7 @@ namespace terrama2
               std::shared_ptr<te::da::DataSet> resultDataSet_;
               std::unique_ptr<te::da::DataSource> dataSource_;
               te::core::URI outputDataProviderURI_;
+              std::string outputTableName_;
 
               std::string whereCondition_;
           }; // end class
