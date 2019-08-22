@@ -231,19 +231,14 @@ define([], function() {
       switch(object.service_type_id){
         case 1:
           return BASE_URL + "images/services/collector/collector_service.png";
-          break;
         case 2:
           return BASE_URL + "images/services/analysis/analysis_service.png";
-          break;
         case 3:
           return BASE_URL + "images/services/view/view_service.png";
-          break;
         case 4:
           return BASE_URL + "images/services/alert/alert_service.png";
-          break;
         case 5:
           return BASE_URL + "images/services/interpolation/interpolation_service.png";
-          break;
         default:
           break;
       }

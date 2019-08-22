@@ -110,6 +110,10 @@ define([],()=> {
                   "value": "line",
                   "name": "Line"
                 },
+                // {
+                //   "value": "line-compare",
+                //   "name": "Line compare"
+                // },
                 {
                   "value": "area",
                   "name": "Area"
