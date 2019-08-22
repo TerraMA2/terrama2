@@ -271,9 +271,6 @@ define([
               case Globals.enums.ServiceType.COLLECTOR :
                 url = found.output_data_series;
                 break;
-              case Globals.enums.ServiceType.VIEW :
-                url = found
-                break;
               default:
                 url = found.id;
                 break;
