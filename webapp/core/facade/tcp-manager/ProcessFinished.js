@@ -148,7 +148,7 @@
    */
   ProcessFinished.handleFinishedAnalysis = async (analysisResultObject) =>{
     if(!analysisResultObject.result)
-      throw new Error("The collector process finished with error");
+      throw new Error("The analysis process finished with error");
 
     if (analysisResultObject.result){
 
@@ -186,31 +186,37 @@
    *
    * @returns {Promise} - Objects with process ids to run
    */
-  ProcessFinished.handleFinishedCollector = function(collectorResultObject){
-    return new PromiseClass(function(resolve, reject){
-      if (collectorResultObject.result){
-        return DataManager.orm.transaction(function(t){
-          var options = {transaction: t};
-          // Get collector object that run
-          return DataManager.getCollector({id: collectorResultObject.process_id}, options)
-            .then(function(collector){
-              var dataSeriesId = collector.data_series_output;
-              var restritions = {
-                data_ids: {
-                  $contains: [dataSeriesId]
-                }
-              };
-              // return the process are conditioned by collector
-              return listConditionedProcess(restritions, options, resolve, reject);
-            })
-            .catch(function(err){
-              return reject(new Error(err.toString()));
-            });
-        });
-      } else {
-        return reject(new Error("The collector process finished with error"));
+  ProcessFinished.handleFinishedCollector = async (collectorResultObject) =>{
+    if(!collectorResultObject.result)
+      throw new Error("The collector process finished with error");
+
+    if (collectorResultObject.result){
+
+      const transaction = await DataManager.orm.transaction()
+
+      const options = { transaction };
+
+      try {
+        const collector = await DataManager.getCollector({id: collectorResultObject.process_id}, options);
+
+        var collectorDataSeriesId = collector.data_series_output;
+
+        var restritions = {
+          data_ids: {
+            $contains: [collectorDataSeriesId]
+          }
+        };
+
+        const res = await listConditionedProcess(restritions);
+
+        transaction.commit();
+
+        return res;
+      } catch (err) {
+        transaction.rollback()
+        throw err
       }
-    });
+    }
   };
   /**
    * It handles alert process finished. Once alertResultObject.notify is true, send signal to web monitor notify the user
