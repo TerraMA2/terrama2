@@ -32,7 +32,7 @@ html {
 }
 
 #terrama2-map {
-  width: 100vw !important;
+  /* width: 100% !important; */
   height: 100vh !important;
 }
 
@@ -1084,13 +1084,14 @@ img[src=""] {
 }
 .wrapper {
   display: grid;
-    height: 100%;
-    grid-template-areas: "sidebar map";
-    grid-template-columns: auto 5fr;
+  width: 100vw;
+  grid-template-areas: "sidebar map";
+  grid-template-columns: auto 5fr;
 }
 
 .content-wrapper {
   grid-area: map;
+  height: 100vh;
 }
 
 .sidebar {

@@ -5,7 +5,7 @@
   var AbstractClass = require("./AbstractData");
 
   /**
-   * It defines a TerraMA² View representation. 
+   * It defines a TerraMA² View representation.
    * @class View
    */
   function View(params) {
@@ -36,7 +36,7 @@
      * @type {string}
      */
     this.style = params.style;
-    /** 
+    /**
      * Registered view retrieved from tcp or database
      * @type {RegisteredView}
      */
@@ -110,13 +110,13 @@
     } else {
       propertiesOutput = properties;
     }
-    
+
     this.properties = propertiesOutput;
   }
 
   /**
    * It builds a standardized TCP format
-   * 
+   *
    * @returns {Object}
    */
   View.prototype.toObject = function() {
@@ -145,6 +145,10 @@
       properties: this.properties,
       charts: this.charts
     });
+  };
+
+  View.prototype.rawObject = function() {
+    return this.toObject()
   };
 
   module.exports = View;

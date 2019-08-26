@@ -61,6 +61,7 @@ define(
                     </div>`;
                     if(chart.type === "line" || chart.type === "area"){
                       chartsHtml+=`
+                        &nbsp;&nbsp;
                         <label>Interval:</label>
                         <select id="interval${i+1}" class="form-control interval">
                           <option value='day'>Day</option>
@@ -115,6 +116,9 @@ define(
         
         const dateFrom = moment().subtract(1, 'days').endOf('day').format("Y-M-D HH:mm:ss")
         const dateTo = moment().format("Y-M-D HH:mm:ss");
+
+        // const dateFrom = moment().subtract(5, 'months').endOf('day').format("Y-M-D HH:mm:ss")
+        // const dateTo = moment().format("Y-M-D HH:mm:ss");
         url += `&dateFrom=${dateFrom}`;
         url += `&dateTo=${dateTo}`;
         if(chartType === "line" || chartType === "area"){
@@ -420,7 +424,76 @@ define(
                 ]
               }
             ];
-          } else if (chartType === "area"){
+          } 
+          // else if (chartType === "line-compare"){
+          //   am4core.unuseTheme(am4themes_material);
+          //   var chart = am4core.create(`chart${i+1}`, am4charts.XYChart);
+          //   chart.id = `chart${i+1}`
+          //   chart.dataSource.url = url;
+          //   chart.dataSource.reloadFrequency = null;
+
+          //   let lastItem = chart.data.pop();
+          //   let lineCount = null;
+          //   if(lastItem){
+          //     lineCount = lastItem.lineCount;
+          //   }
+            
+          //   var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+          //   dateAxis.renderer.minGridDistance = 50;
+            
+          //   var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+            
+          //   if(lineCount){
+          //     for (let i = 0; i < lineCount; i++) {
+          //       var series = chart.series.push(new am4charts.LineSeries());
+          //       series.dataFields.valueY = "value";
+          //       series.dataFields.dateX = "date";
+          //       series.strokeWidth = 2;
+          //       series.minBulletDistance = 10;
+          //       series.tooltipText = "{valueY}";
+          //       series.tooltip.pointerOrientation = "vertical";
+          //       series.tooltip.background.cornerRadius = 20;
+          //       series.tooltip.background.fillOpacity = 0.5;
+          //       series.tooltip.label.padding(12,12,12,12)
+
+          //       chart.scrollbarX = new am4charts.XYChartScrollbar();
+          //       chart.scrollbarX.series.push(series);
+
+          //       chart.cursor = new am4charts.XYCursor();
+          //       chart.cursor.xAxis = dateAxis;
+          //       chart.cursor.snapToSeries = series;
+          //     }
+          //   }
+            
+          //   chart.exporting.menu = new am4core.ExportMenu();
+
+          //   chart.exporting.menu.items = [{
+          //       "label": "<i class='fa fa-download'></i>",
+          //       "menu": [
+          //         {
+          //           "label": "Image",
+          //           "menu": [
+          //             { "type": "png", "label": "PNG" },
+          //             { "type": "jpg", "label": "JPG" },
+          //             { "type": "gif", "label": "GIF" },
+          //             { "type": "svg", "label": "SVG" },
+          //             { "type": "pdf", "label": "PDF" }
+          //           ]
+          //         }, {
+          //           "label": "Data",
+          //           "menu": [
+          //             { "type": "json", "label": "JSON" },
+          //             { "type": "csv", "label": "CSV" },
+          //             { "type": "xlsx", "label": "XLSX" }
+          //           ]
+          //         }, {
+          //           "label": "Print", "type": "print"
+          //         }
+          //       ]
+          //     }
+          //   ];
+          // }
+          else if (chartType === "area"){
             am4core.unuseTheme(am4themes_material);
             var chart = am4core.create(`chart${i+1}`, am4charts.XYChart);
             chart.id = `chart${i+1}`

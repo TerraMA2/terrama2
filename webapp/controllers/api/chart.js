@@ -1,8 +1,5 @@
 
   // Dependencies
-  var handleRequestError = require("../../core/Utils").handleRequestError;
-  var TokenCode = require('../../core/Enums').TokenCode;
-  var Utils = require('../../core/Utils');
   var DataManager = require('../../core/DataManager');
   var {Connection} = require('../../core/utility/connection');
 
@@ -11,7 +8,7 @@
 
   /**
    * Injecting NodeJS App configuration AS dependency. It retrieves a Views controllers API
-   * 
+   *
    * @param {Object}
    * @returns {Object}
    */
@@ -38,17 +35,27 @@
 
         let sql = "";
 
-        if(chartType === "line" || chartType === "area") {
+        if(chartType === "line" || chartType === "area" || chartType == "line-compare") {
           if(!interval || interval == "undefined"){
             interval = "day";
           }
-          sql = `
-            SELECT date_trunc('${interval}', data_hora_gmt) AS date, count(*) AS value
-            FROM ${tableName}
-            ${dateSQL}
-            GROUP BY date
-            ORDER BY date;
-            `;
+          if(chartType == "line-compare") {
+            sql = `
+              SELECT date_trunc('${interval}', data_hora_gmt) AS date, ${groupBy} as groupby, count(*) AS value
+              FROM ${tableName}
+              ${dateSQL}
+              GROUP BY date, ${groupBy}
+              ORDER BY date;
+            `
+          }else{
+            sql = `
+              SELECT date_trunc('${interval}', data_hora_gmt) AS date, count(*) AS value
+              FROM ${tableName}
+              ${dateSQL}
+              GROUP BY date
+              ORDER BY date;
+              `;
+          }
         } else {
           let select = `SELECT coalesce(${groupBy}::text, 'Undefined') ${groupBy}`;
           let groupBySql = groupBy;
@@ -68,6 +75,34 @@
 
         const result = await conn.execute(sql)
         let rows = result.rows
+        if(chartType == "line-compare") {
+          var count = 0;
+          rows = rows.map((element, index, arr) => {
+            let date = element.date;
+            count=0
+            arr.forEach((e, i, a) => {
+              if(e.date.getTime() === date.getTime()){
+                element[e.groupby] = e.value;
+                delete a[i]
+                count++;
+                // a.splice(i, 1)
+              }
+            });
+            delete element.groupby;
+            delete element.value;
+            return element;
+          });
+          let newRows = [];
+          for (let i = 0; i < rows.length; i++) {
+            const element = rows[i];
+            if(element){
+              newRows.push(element)
+            }
+          }
+          newRows.push({"lineCount":count})
+          rows = newRows
+        }
+
         await conn.disconnect()
         response.json(rows)
       },
