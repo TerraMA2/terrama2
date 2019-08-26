@@ -5,6 +5,9 @@
 #include "Operator.hpp"
 #include "../Shared.hpp"
 
+//STL
+#include <string>
+
 namespace terrama2
 {
   namespace services
@@ -22,7 +25,8 @@ namespace terrama2
                            terrama2::core::DataSeriesPtr monitoredDataSeries,
                            terrama2::core::DataSeriesPtr dynamicDataSeries,
                            std::vector<terrama2::core::DataSeriesPtr> additionalDataSeries,
-                           te::core::URI outputDataProviderURI);
+                           te::core::URI outputDataProviderURI,
+                           std::string outputTableName);
 
               ~Intersection() override;
 

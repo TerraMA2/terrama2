@@ -63,7 +63,9 @@ IF array_length(list_id, 1) > 0 THEN
 
         UPDATE terrama2.automatic_schedules
             SET data_ids = ARRAY[id_analysis]
-            WHERE id = automatic_schedule_id_selected AND array_length(data_ids, 1) = 0;
+            WHERE id = automatic_schedule_id_selected;
+
+-- WHERE id = automatic_schedule_id_selected AND array_length(data_ids, 1) = 0;
 
     END LOOP;
 
