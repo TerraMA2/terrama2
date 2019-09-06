@@ -123,7 +123,6 @@ var Service = module.exports = function(serviceInstance) {
     self.answered = true;
     var formatMessage = "Socket %s received %s";
     logger.debug(Utils.format(formatMessage, self.service.name, byteArray));
-    console.log("Received byteArray.size ", byteArray.length)
 
     // append and check if the complete message has arrived
     tempBuffer = _createBufferFrom(tempBuffer, byteArray);
@@ -152,7 +151,7 @@ var Service = module.exports = function(serviceInstance) {
         const messageSizeReceived = tempBuffer.readUInt32BE(beginOfMessage.length);
         const headerSize = beginOfMessage.length + endOfMessage.length;
         const expectedLength = messageSizeReceived + 4;
-        console.log("messageSizeReceived", messageSizeReceived, "headerSize", headerSize, "expectedLength", expectedLength);
+
         if(tempBuffer.length < expectedLength+headerSize) {
           // if we don't have the complete message
           // wait for the rest
@@ -184,8 +183,6 @@ var Service = module.exports = function(serviceInstance) {
         // get next message in the buffer for processing
         tempBuffer = extraData;
 
-        console.log("Size: " + parsed.size + " Signal: " + parsed.signal + " Message: " + JSON.stringify(parsed.message, null, 4));
- 
         switch(parsed.signal) {
           case Signals.LOG_SIGNAL:
             self.emit("log", parsed.message);
