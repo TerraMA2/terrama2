@@ -32,13 +32,18 @@ void terrama2::services::analysis::core::vp::Intersection::execute()
   std::replace(attributes.begin(), attributes.end(), '{', ' ');
   std::replace(attributes.begin(), attributes.end(), '}', ' ');
 
-  setWhereCondition(", '1 = 1'");
+  //Date filter handler
+  if((analysis_->metadata.find("startDate") != analysis_->metadata.end()) &&
+     (analysis_->metadata.find("endDate") != analysis_->metadata.end()))
+  {
+    std::string startDate = analysis_->metadata.find("startDate")->second;
+    std::string endDate = analysis_->metadata.find("endDate")->second;
 
+    setWhereCondition(startDate+ ";" +endDate);
+  }
 
   std::string sql = "SELECT table_name, affected_rows::double precision FROM vectorial_processing_intersection("+ std::to_string(analysis_->id) +", '" +
-                     outputTableName_ + "', '" + staticLayerTableName + "', '" + dynamicLayerTableName + "', '" + attributes + "'";
-
-  sql += whereCondition_ + ")";
+                     outputTableName_ + "', '" + staticLayerTableName + "', '" + dynamicLayerTableName + "', '" + attributes + "', '" + whereCondition_ + "'" + ")";
 
 
   resultDataSet_ = transactor->query(sql);
