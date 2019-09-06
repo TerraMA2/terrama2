@@ -65,8 +65,6 @@ IF array_length(list_id, 1) > 0 THEN
             SET data_ids = ARRAY[id_analysis]
             WHERE id = automatic_schedule_id_selected;
 
--- WHERE id = automatic_schedule_id_selected AND array_length(data_ids, 1) = 0;
-
     END LOOP;
 
 ELSE
@@ -77,6 +75,22 @@ END IF;
 
 RETURN TRUE;
 
+END;
+$$
+LANGUAGE 'plpgsql';
+
+CREATE OR REPLACE FUNCTION get_date_column_from_dynamic_table(table_name VARCHAR)
+    RETURNS VARCHAR AS
+$$
+DECLARE
+    query TEXT;
+    result RECORD;
+BEGIN
+    query := format('SELECT column_name FROM information_schema.columns WHERE table_name = ''%s'' AND data_Type = ''timestamp with time zone''', table_name);
+
+    EXECUTE query INTO result USING table_name;
+
+    RETURN result.column_name;
 END;
 $$
 LANGUAGE 'plpgsql';
@@ -97,13 +111,21 @@ DECLARE
     affected_rows BIGINT;
     static_table_srid INTEGER;
     number_of_rows INTEGER;
+    number_of_rows_metadata INTEGER;
+	is_table_exists BOOLEAN;
 
     pk_static_table TEXT;
     pk_dynamic_table TEXT;
+    start_date_filter TEXT;
+    end_date_filter TEXT;
 
     query TEXT;
     result RECORD;
     final_table VARCHAR;
+    date_column_from_dynamic_table VARCHAR;
+    last_analysis VARCHAR;
+    analysis_filter VARCHAR;
+    new_analysis_id INTEGER;
 BEGIN
     -- Retrieves Geometry Column Name from Monitored Data Series
     EXECUTE 'SELECT get_geometry_column($1)' INTO static_table_name_column USING static_table_name;
@@ -128,59 +150,121 @@ BEGIN
         static_table_srid := 4326;
     END IF;
 
-    -- Check date_filter. When empty, set 1 = 1 as default
-    IF (coalesce(date_filter, '') = '') THEN
-        date_filter := '1 = 1';
-    END IF;
+    -- Getting date_column_from_dynamic_table
+    EXECUTE format('SELECT get_date_column_from_dynamic_table(''%s'')', dynamic_table_name_handler) INTO date_column_from_dynamic_table;
+
+    -- Getting last time collected from analysis_metadata
+
+	EXECUTE format('SELECT COUNT(*) FROM terrama2.analysis_metadata WHERE key = ''last_analysis'' AND terrama2.analysis_metadata.analysis_id = %s', analysis_id) INTO number_of_rows_metadata;
+
+    EXECUTE format('SELECT MAX(value) FROM terrama2.analysis_metadata WHERE key = ''last_analysis'' AND terrama2.analysis_metadata.analysis_id = %s LIMIT 1', analysis_id) INTO last_analysis;
 
     final_table := format('%s_%s', output_table_name, analysis_id);
 
     EXECUTE 'SELECT get_primary_key($1)' INTO pk_static_table USING static_table_name;
     EXECUTE 'SELECT get_primary_key($1)' INTO pk_dynamic_table USING dynamic_table_name_handler;
 
-    query := format('
-        DROP TABLE IF EXISTS %s;
-        CREATE TABLE %s AS
-                SELECT  %s.%s::VARCHAR AS monitored_id,
-                        %s.%s::VARCHAR AS intersect_id,
-                        ST_Intersection(%s.%s, ST_Transform(%s.%s, %s)) AS intersection_geom,
-                        ST_AREA(ST_Intersection(%s.%s, ST_Transform(%s.%s, %s))) / 10000 AS calculated_area_ha,
-                        %s
-                  FROM %s, %s
-                 WHERE ST_Intersects(%s.%s, ST_Transform(%s.%s, %s)) AND %s
-            ',
-            final_table,
-            final_table,
-            static_table_name, pk_static_table,
-            dynamic_table_name_handler, pk_dynamic_table,
+	EXECUTE format('SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE  table_schema = ''public'' AND table_name = ''%s'')', final_table) INTO is_table_exists;
 
-                -- SELECT  %s.%s::VARCHAR AS monitored_id,
-                --         %s.%s::VARCHAR AS intersect_id,
-                --         %s.%s AS monitored_geom,
-            -- static_table_name, static_table_name_column,
+	 IF (is_table_exists) THEN
 
-            static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
-            static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
-            output_attributes,
-            dynamic_table_name_handler, static_table_name,
-            static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
-            date_filter);
+		-- Creating analysis filter
+		IF number_of_rows_metadata > 0 THEN
+			analysis_filter := format(' %s.%s  >  ''%s'' ', dynamic_table_name_handler, date_column_from_dynamic_table, last_analysis);
+		ELSE
+			analysis_filter := '1 = 1';
+		END IF;
 
-    EXECUTE query;
+		date_filter := '1 = 1';
 
-    query := format('
-        CREATE INDEX %s_geom_idx ON %s USING GIST(intersection_geom);
-        CREATE INDEX %s_static_table_id_dynamic_table_id_idx ON %s USING BTREE(monitored_id, intersect_id);
-    ', final_table, final_table,
-       final_table, final_table);
+	 	query := format('INSERT INTO %s (monitored_id, intersect_id, execution_date, intersection_geom, calculated_area_ha, %s)
+						SELECT  %s.%s::VARCHAR AS monitored_id,
+								%s.%s::VARCHAR AS intersect_id,
+								%s.%s::TIMESTAMPTZ AS execution_date,
+								ST_Intersection(%s.%s, ST_Transform(%s.%s, %s)) AS intersection_geom,
+								ST_AREA(ST_Intersection(%s.%s, ST_Transform(%s.%s, %s))) / 10000 AS calculated_area_ha,
+								%s
+						FROM %s, %s
+						WHERE ST_Intersects(%s.%s, ST_Transform(%s.%s, %s))
+						AND %s
+						AND %s
+					',
+					final_table,
+					output_attributes,
+					static_table_name, pk_static_table,
+					dynamic_table_name_handler, pk_dynamic_table,
+					dynamic_table_name_handler, date_column_from_dynamic_table,
+					static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
+					static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
+					output_attributes,
+					dynamic_table_name_handler, static_table_name,
+					static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
+					analysis_filter, date_filter);
 
-    EXECUTE query;
+		EXECUTE query;
+	 ELSE
+		-- Check date_filter. When empty, set 1 = 1 as default
+		-- IF (coalesce(date_filter, '') = '') THEN
+		-- 	date_filter := '1 = 1';
+		-- ELSE
+		-- 	EXECUTE format('SELECT split_part(''%s'','';'', 1)', date_filter) INTO start_date_filter;
+		-- 	EXECUTE format('SELECT split_part(''%s'','';'', 2)', date_filter) INTO end_date_filter;
 
-    query := format('ALTER TABLE %s ADD COLUMN %s_id SERIAL PRIMARY KEY', final_table, final_table);
+		-- 	date_filter := format('%s.%s BETWEEN ''%s'' AND ''%s'' ',dynamic_table_name_handler, date_column_from_dynamic_table, start_date_filter, end_date_filter);
+		-- END IF;
 
-    EXECUTE query;
+		 analysis_filter := '1 = 1';
+
+         date_filter := '1 = 1';
+
+		 query := format('
+				DROP TABLE IF EXISTS %s;
+				CREATE TABLE %s AS
+						SELECT  %s.%s::VARCHAR AS monitored_id,
+								%s.%s::VARCHAR AS intersect_id,
+								%s.%s::TIMESTAMPTZ AS execution_date,
+								ST_Intersection(%s.%s, ST_Transform(%s.%s, %s)) AS intersection_geom,
+								ST_AREA(ST_Intersection(%s.%s, ST_Transform(%s.%s, %s))) / 10000 AS calculated_area_ha,
+								%s
+						  FROM %s, %s
+						 WHERE ST_Intersects(%s.%s, ST_Transform(%s.%s, %s))
+						 AND %s
+						 AND %s
+					',
+					final_table,
+					final_table,
+					static_table_name, pk_static_table,
+					dynamic_table_name_handler, pk_dynamic_table,
+					dynamic_table_name_handler, date_column_from_dynamic_table,
+					static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
+					static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
+					output_attributes,
+					dynamic_table_name_handler, static_table_name,
+					static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
+					analysis_filter, date_filter);
+
+	     EXECUTE query;
+
+		 query := format('
+			  CREATE INDEX %s_geom_idx ON %s USING GIST(intersection_geom);
+			  CREATE INDEX %s_static_table_id_dynamic_table_id_idx ON %s USING BTREE(monitored_id, intersect_id);
+		  ', final_table, final_table,
+			 final_table, final_table);
+
+		  EXECUTE query;
+
+		  query := format('ALTER TABLE %s ADD COLUMN %s_id SERIAL PRIMARY KEY', final_table, final_table);
+
+		  EXECUTE query;
+
+	 END IF;
 
     EXECUTE 'SELECT get_id_from_first_analysis(get_automatic_schedule_id_list())';
+
+    -- Getting last time collected from dynamic table
+    EXECUTE format('SELECT MAX(%s.%s) FROM %s', dynamic_table_name_handler, date_column_from_dynamic_table, dynamic_table_name_handler) INTO last_analysis;
+
+    EXECUTE format('INSERT INTO terrama2.analysis_metadata(key, value, analysis_id) VALUES (''last_analysis'', ''%s'', %s)', last_analysis, analysis_id);
 
     query := format('SELECT $1 as table_name, count(*) as affected_rows FROM %s', final_table);
 
