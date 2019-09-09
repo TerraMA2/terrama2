@@ -10,6 +10,73 @@
    */
   module.exports = function(app) {
     return {
+      getReport: async (request, response) => {
+        let {
+          projectName, carRegister
+        } = request.query
+
+        const tableName = "de_car_validado_sema"
+        viewId = 29
+
+        const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
+        await conn.connect()
+
+        let carInfoJson = [];
+        let sql = `
+            SELECT
+            car.numero_do2 AS register,
+            car.nome_da_p1 AS name,
+            car.area_ha_ AS area,
+            car.municipio1 as city,
+            ST_Y(ST_Transform (ST_Centroid(car.geom), 4326)) AS "lat",
+            ST_X(ST_Transform (ST_Centroid(car.geom), 4326)) AS "long"
+            FROM public.${tableName} AS car
+        `;
+        const result = await conn.execute(sql)
+        let propertyData = result.rows
+        carInfoJson["property-data"] = propertyData
+        await conn.disconnect()
+        response.json(propertyData)
+      },
+      getPropertiesData: async (request, response) => {
+        const {
+          projectName,
+          car,
+          group,
+          date,
+          localization,
+          area
+        } = request.query
+
+        const tableName = "de_car_validado_sema"
+        viewId = 29
+
+        const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
+        await conn.connect()
+
+        let carInfoJson = [];
+        let sql = `
+            SELECT
+            CAR.numero_do2 AS REGISTRO_CAR,
+            CAR.nome_da_p1 AS NOME_PROPRIEDADE,
+            CAR.area_ha_ AS AREA,
+            CAR.municipio1 AS CIDADE,
+            ST_Y(ST_Transform (ST_Centroid(car.geom), 4326)) AS "lat",
+            ST_X(ST_Transform (ST_Centroid(car.geom), 4326)) AS "long"
+            FROM PUBLIC.${tableName} AS CAR
+        `;
+        if(car) {
+          sql += ` WHERE CAR.numero_do2 = ${car}`
+        }
+        if(area) {
+          sql += ` WHERE CAR.area_ha_ > ${area}`
+        }
+        const result = await conn.execute(sql)
+        let propertyData = result.rows
+        carInfoJson["property-data"] = propertyData
+        await conn.disconnect()
+        response.json(propertyData)
+      },
       get: async (request, response) => {
         let {
           projectName, carRegister, viewId
