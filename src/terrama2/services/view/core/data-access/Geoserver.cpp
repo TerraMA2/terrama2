@@ -430,31 +430,9 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
 
             auto vectorProcessingDataSetType = vp::getIntersectionTable(transactor.get(), tableName);
 
-            // Generate layer for Monitored Geometry only here
-            SQL = terrama2::services::view::core::vp::prepareSQLIntersection(vectorProcessingDataSetType->getTitle(),
-                                                                             pk,
-                                                                             monitoredObjectTableInfo.dataSetType.get(),
-                                                                             dynamicDataSetType.get(),
-                                                                             "monitored_geom");
-
             modelDataSetType.reset(vectorProcessingDataSetType.release());
 
-            registerPostgisTable(viewPtr,
-                                 std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
-                                 inputDataSeries->semantics.dataSeriesType,
-                                 connInfo,
-                                 tableName,
-                                 layerName,
-                                 modelDataSetType,
-                                 logger,
-                                 logId,
-                                 "monitored_geom",
-                                 timestampPropertyName,
-                                 SQL);
-
             QJsonObject layer;
-            layer.insert("layer", QString::fromStdString(layerName+"_monitored_geom"));
-            layersArray.push_back(layer);
 
             SQL = terrama2::services::view::core::vp::prepareSQLIntersection(modelDataSetType->getTitle(),
                                                                              pk,
@@ -474,79 +452,10 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
                                  "intersection_geom",
                                  timestampPropertyName,
                                  SQL);
+
             layer.insert("layer", QString::fromStdString(layerName+"_intersection_geom"));
             layersArray.push_back(layer);
-
-            auto listOfadditionalDataSeriesIt = dataset->format.find("additional_object_ids");
-            if (listOfadditionalDataSeriesIt == dataset->format.end())
-            {
-              QString errMsg = QObject::tr("Could not find the additional data series on Vector Intersection.");
-              TERRAMA2_LOG_ERROR() << errMsg;
-
-              throw ViewGeoserverException() << ErrorDescription(errMsg);
-            }
-
-            std::vector<std::string> listOfAdditionalDataSeriesId = terrama2::core::splitString(listOfadditionalDataSeriesIt->second, ',');
-
-            for(const auto& additionalDataSeriesId: listOfAdditionalDataSeriesId)
-            {
-              auto additionalDataSeries = dataManager->findDataSeries(static_cast<uint32_t>(std::stoi(additionalDataSeriesId)));
-              const auto& additionalTableName = terrama2::core::getTableNameProperty(additionalDataSeries->datasetList[0]);
-              auto additionalDataSetType = transactor->getDataSetType(additionalTableName);
-
-              const std::string additionalIntersectionField = additionalTableName + "_intersection_geom";
-              const std::string additionalDifferenceField = additionalTableName + "_difference_geom";
-
-              // Generate layer for Monitored Geometry only here
-              SQL = terrama2::services::view::core::vp::prepareSQLIntersection(modelDataSetType->getTitle(),
-                                                                               pk,
-                                                                               monitoredObjectTableInfo.dataSetType.get(),
-                                                                               dynamicDataSetType.get(),
-                                                                               additionalIntersectionField,
-                                                                               additionalDataSetType.get());
-
-              registerPostgisTable(viewPtr,
-                                   std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
-                                   inputDataSeries->semantics.dataSeriesType,
-                                   connInfo,
-                                   tableName,
-                                   layerName,
-                                   modelDataSetType,
-                                   logger,
-                                   logId,
-                                   additionalIntersectionField,
-                                   timestampPropertyName,
-                                   SQL);
-
-              layer.insert("layer", QString::fromStdString(layerName + "_" + additionalIntersectionField));
-              layersArray.push_back(layer);
-
-
-              // Generate layer for Monitored Geometry only here
-              SQL = terrama2::services::view::core::vp::prepareSQLIntersection(modelDataSetType->getTitle(),
-                                                                               pk,
-                                                                               monitoredObjectTableInfo.dataSetType.get(),
-                                                                               dynamicDataSetType.get(),
-                                                                               additionalDifferenceField);
-
-              registerPostgisTable(viewPtr,
-                                   std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
-                                   inputDataSeries->semantics.dataSeriesType,
-                                   connInfo,
-                                   tableName,
-                                   layerName,
-                                   modelDataSetType,
-                                   logger,
-                                   logId,
-                                   additionalDifferenceField,
-                                   timestampPropertyName,
-                                   SQL);
-
-              layer.insert("layer", QString::fromStdString(layerName + "_" + additionalDifferenceField));
-              layersArray.push_back(layer);
-            }
           }
-
 
           auto& propertiesVector = monitoredObjectTableInfo.dataSetType->getProperties();
 
