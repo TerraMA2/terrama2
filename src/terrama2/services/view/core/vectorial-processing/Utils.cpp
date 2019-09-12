@@ -38,8 +38,7 @@ std::string terrama2::services::view::core::vp::prepareSQLIntersection(const std
                                                                        const std::string& monitoredPrimaryKey,
                                                                        te::da::DataSetType* monitoredDataSeriesType,
                                                                        te::da::DataSetType* dynamicDataSeriesType,
-                                                                       const std::string& geometryName,
-                                                                       te::da::DataSetType* additionalDataSeriesType)
+                                                                       const std::string& geometryName)
 {
   assert(monitoredDataSeriesType != nullptr);
   assert(dynamicDataSeriesType != nullptr);
@@ -60,22 +59,6 @@ std::string terrama2::services::view::core::vp::prepareSQLIntersection(const std
                             "   AND " +
                             dynamicTableName + "." + dynamicPrimaryKey + "::VARCHAR = " +
                             tableName + ".intersect_id::VARCHAR";
-
-  if (additionalDataSeriesType != nullptr)
-  {
-    // Add the columns of Additional Data Series
-    prepareFromClause(additionalDataSeriesType, columnClause);
-
-    auto additionalPrimaryKey = additionalDataSeriesType->getPrimaryKey()->getProperties()[0];
-    auto additionalTableName = additionalDataSeriesType->getTitle();
-    auto additionalTableWithoutSchema = terrama2::core::splitString(additionalTableName, '.')[1];
-    // Add additional table name into SQL from clause
-    fromClause += ", " + additionalTableName;
-    // Set join condition of additional table name
-    whereClause += "  AND " +
-                   additionalTableName + "." + additionalPrimaryKey->getName() + "::VARCHAR = " +
-                   tableName + "." + additionalTableWithoutSchema + "_pk::VARCHAR";
-  }
 
   columnClause += ", " + tableName + "." + geometryName;
 
