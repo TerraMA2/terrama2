@@ -10,33 +10,47 @@
    */
   module.exports = function(app) {
     return {
-      getReport: async (request, response) => {
+      getData: async (request, response) => {
         let {
-          projectName, carRegister
+          projectName,
+          tableName,
+          limit,
+          offset,
+          group,
+          date,
+          localization,
+          area
         } = request.query
-
-        const tableName = "de_car_validado_sema"
-        viewId = 29
 
         const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
         await conn.connect()
 
-        let carInfoJson = [];
         let sql = `
-            SELECT
-            car.numero_do2 AS register,
-            car.nome_da_p1 AS name,
-            car.area_ha_ AS area,
-            car.municipio1 as city,
-            ST_Y(ST_Transform (ST_Centroid(car.geom), 4326)) AS "lat",
-            ST_X(ST_Transform (ST_Centroid(car.geom), 4326)) AS "long"
-            FROM public.${tableName} AS car
+            SELECT * FROM public.${tableName}
         `;
-        const result = await conn.execute(sql)
-        let propertyData = result.rows
-        carInfoJson["property-data"] = propertyData
-        await conn.disconnect()
-        response.json(propertyData)
+
+        let sqlCount = `SELECT COUNT(*) AS count FROM public.${tableName}`
+
+        if (limit) {
+          sql +=` LIMIT ${limit}`
+        }
+
+        if(offset) {
+          sql +=` OFFSET ${offset}`
+        }
+
+        let result
+        let resultCount
+        try {
+          result = await conn.execute(sql)
+          resultCount = await conn.execute(sqlCount)
+          let dataJson = result.rows
+          dataJson.push(resultCount.rows[0]['count'])
+          await conn.disconnect()
+          response.json(dataJson)
+        } catch (error) {
+          console.log(error)
+        }
       },
       getPropertiesData: async (request, response) => {
         const {
