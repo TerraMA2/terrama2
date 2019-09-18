@@ -430,7 +430,22 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
 
             auto vectorProcessingDataSetType = vp::getIntersectionTable(transactor.get(), tableName);
 
+            if(!vectorProcessingDataSetType)
+            {
+              QString errMsg = QObject::tr("Cannot get intersection table.");
+              logger->log(ViewLogger::MessageType::ERROR_MESSAGE, errMsg.toStdString(), logId);
+              TERRAMA2_LOG_ERROR() << errMsg;
+              continue;
+            }
+
             modelDataSetType.reset(vectorProcessingDataSetType.release());
+
+            auto dynamicTableTitle = dynamicDataSetType->getTitle();
+
+            auto dynamicDataSet = vp::getIntersectionTable(transactor.get(), dynamicTableTitle);
+
+            if(dynamicDataSet)
+              dynamicDataSetType.reset(dynamicDataSet.release());
 
             QJsonObject layer;
 
