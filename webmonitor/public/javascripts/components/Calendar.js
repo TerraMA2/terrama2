@@ -22,8 +22,12 @@ define(
         }
         var mMinDate = moment(minDate.replace('Z', ''));
         var mMaxDate = moment(maxDate.replace('Z', ''));
-        var mStartDate = moment(startFilterDate.replace('Z', ''));
-        var mEndDate = moment(endFilterDate.replace('Z', ''));
+        if (startFilterDate) {
+          var mStartDate = moment(startFilterDate.replace('Z', ''));
+        }
+        if (endFilterDate) {
+          var mEndDate = moment(endFilterDate.replace('Z', ''));
+        }
 
         if(calendar.length === 0) {
           calendar = $("<input type='text' id='" + layerId + "' value='' style='display:none;'>");
@@ -90,7 +94,7 @@ define(
             dateInfo.startFilterDate = pickerStartDate;
             dateInfo.endFilterDate = pickerEndDate;
             Layers.updateDateInfo(dateInfo, layerId);
-            
+
             $("#attributes-table-select").trigger("setAttributesTable");
 
             //Change seconds to 59

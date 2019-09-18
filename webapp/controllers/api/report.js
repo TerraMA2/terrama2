@@ -11,7 +11,7 @@
   module.exports = function(app) {
     return {
       getData: async (request, response) => {
-        let {
+        const {
           projectName,
           tableName,
           limit,
@@ -19,25 +19,61 @@
           group,
           date,
           localization,
-          area
+          area,
+          defaultDateInterval
         } = request.query
+        const viewId = 61
 
+        const view = await ViewFacade.retrieve(viewId)
+        const dataSeries = await DataManager.getDataSeries({id:view.data_series_id})
+        const dataProvider = await DataManager.getDataProvider({id:dataSeries.data_provider_id})
+        const uri = dataProvider.uri
+        const dataSet = dataSeries.dataSets[0]
+        const timestampProperty = dataSet.format.timestamp_property
+        const geometryProperty = dataSet.format.geometry_property
+        // const tableName = dataSet.format.table_name
+        // const conn = new Connection(uri)
         const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
         await conn.connect()
 
-        let sql = `
-            SELECT * FROM public.${tableName}
-        `;
+        let sqlSelect = `SELECT *`
+        let sqlFrom = ''
+        let sqlWhere = ''
+
+        if (geometryProperty) {
+          sqlSelect += `, ST_Y(ST_Transform (ST_Centroid(${geometryProperty}), 4326)) AS "lat",
+                        ST_X(ST_Transform (ST_Centroid(${geometryProperty}), 4326)) AS "long"
+          `
+        }
+
+        sqlFrom += ` FROM public.${tableName}`
 
         let sqlCount = `SELECT COUNT(*) AS count FROM public.${tableName}`
 
+        if (date) {
+          const { dateFrom, dateTo } = date
+          sqlWhere += `
+              WHERE ${timestampProperty}::date >= '${dateFrom}' AND ${timestampProperty}::date <= '${dateTo}'
+          `
+        } else {
+          sqlWhere += `
+              WHERE ${timestampProperty}::date > now() - interval '2 day'
+          `
+        }
+
+        if(area) {
+          sqlWhere += ` AND CAR.area_ha_ > ${area}`
+        }
+
         if (limit) {
-          sql +=` LIMIT ${limit}`
+          sqlWhere +=` LIMIT ${limit}`
         }
 
         if(offset) {
-          sql +=` OFFSET ${offset}`
+          sqlWhere +=` OFFSET ${offset}`
         }
+
+        const sql = sqlSelect + sqlFrom + sqlWhere
 
         let result
         let resultCount
