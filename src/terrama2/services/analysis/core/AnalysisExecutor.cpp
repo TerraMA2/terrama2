@@ -413,6 +413,15 @@ void terrama2::services::analysis::core::AnalysisExecutor::runVectorialProcessin
       }
     }
 
+    // Get attributes from output layer
+    auto ouputLayerAttributes = analysis->metadata.find("outputlayer");
+
+    if(ouputLayerAttributes == analysis->metadata.cend() || ouputLayerAttributes->second.empty())
+    {
+      QString errMsg = QObject::tr("The attribute 'outputlayer' is required but not found");
+      throw InvalidArgumentException() << ErrorDescription(errMsg);
+    }
+
     // Get Analysis queryBuilder
     auto typeIt = analysis->metadata.find("operationType");
 
@@ -440,6 +449,16 @@ void terrama2::services::analysis::core::AnalysisExecutor::runVectorialProcessin
     auto dynamicDataSeries = dataManager->findDataSeries(static_cast<uint32_t>(std::stoi(dynamicDataSeriesIt->second)));
 
     auto outputDataSeriesPtr = dataManager->findDataSeries(analysis->outputDataSeriesId);
+
+    // Get Output table name
+    auto outputTableName = outputDataSeriesPtr->datasetList.at(0)->format.find("table_name");
+
+    if(outputTableName == outputDataSeriesPtr->datasetList.at(0)->format.cend() || outputTableName->second.empty())
+    {
+      QString errMsg = QObject::tr("The attribute 'table_name' is required but not found");
+      throw InvalidArgumentException() << ErrorDescription(errMsg);
+    }
+
     auto dataProvider = dataManager->findDataProvider(outputDataSeriesPtr->dataProviderId);
 
     te::core::URI postgisURI(dataProvider->uri);
@@ -460,7 +479,12 @@ void terrama2::services::analysis::core::AnalysisExecutor::runVectorialProcessin
 
     switch(std::stoi(typeIt->second)) {
       case vp::Operator::INTERSECTION:
-        analysisOperator = std::unique_ptr<vp::Operator>(new vp::Intersection(analysis, monitoredDataSeries, dynamicDataSeries, listOfAdditionalDataSeries, postgisURI));
+        analysisOperator = std::unique_ptr<vp::Operator>(new vp::Intersection(analysis,
+                                                                              monitoredDataSeries,
+                                                                              dynamicDataSeries,
+                                                                              listOfAdditionalDataSeries,
+                                                                              postgisURI,
+                                                                              outputTableName->second));
 
         break;
       default:
@@ -469,10 +493,10 @@ void terrama2::services::analysis::core::AnalysisExecutor::runVectorialProcessin
     }
 
     // Get Analysis queryBuilder
-    auto queryBuilderIt = analysis->metadata.find("queryBuilder");
+//    auto queryBuilderIt = analysis->metadata.find("queryBuilder");
 
-    if(queryBuilderIt != analysis->metadata.cend() && !queryBuilderIt->second.empty())
-      analysisOperator->setWhereCondition(queryBuilderIt->second);
+//    if(queryBuilderIt != analysis->metadata.cend() && !queryBuilderIt->second.empty())
+//      analysisOperator->setWhereCondition(queryBuilderIt->second);
 
     analysisOperator->execute();
 
@@ -923,12 +947,12 @@ void terrama2::services::analysis::core::AnalysisExecutor::storeVectorProcessing
   te::dt::Property* identifierProperty = nullptr;
 
   moDsContext = context->getMonitoredObjectContextDataSeries();
-  if(moDsContext->identifier.empty())
-  {
-    QString errMsg(QObject::tr("Monitored object identifier is empty."));
-    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
-    return;
-  }
+//  if(moDsContext->identifier.empty())
+//  {
+//    QString errMsg(QObject::tr("Monitored object identifier is empty."));
+//    context->addLogMessage(BaseContext::MessageType::ERROR_MESSAGE, errMsg.toStdString());
+//    return;
+//  }
 
   if(!moDsContext->series.teDataSetType)
   {

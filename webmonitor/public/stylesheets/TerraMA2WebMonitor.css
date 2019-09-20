@@ -32,7 +32,7 @@ html {
 }
 
 #terrama2-map {
-  width: 100vw !important;
+  /* width: 100% !important; */
   height: 100vh !important;
 }
 
@@ -681,7 +681,7 @@ img[src=""] {
   position: absolute;
   width: 320px;
   height: 480px;
-  right: 65px
+  right: 300px
 }
 
 #layer-toolbox,
@@ -976,16 +976,16 @@ img[src=""] {
 #loginButton .fa-times {
   position: absolute;
   color: red;
-  left: 19px;
-  top: 17px;
+  left: 7px;
+  top: 0;
   font-size: 14px
 }
 
 #loginButton .fa-circle {
   position: absolute;
   color: #0fd00f;
-  left: 20px;
-  top: 19px;
+  left: 7px;
+  top: 0;
   font-size: 10px
 }
 
@@ -1007,6 +1007,10 @@ img[src=""] {
 
 #user-div>div>#load-state {
   margin-left: 2px
+}
+
+#loginButton .fa-user {
+  position: relative;
 }
 
 #layer-toolbox .layer-toolbox-body>.box-default {
@@ -1084,13 +1088,14 @@ img[src=""] {
 }
 .wrapper {
   display: grid;
-    height: 100%;
-    grid-template-areas: "sidebar map";
-    grid-template-columns: auto 5fr;
+  width: 100vw;
+  grid-template-areas: "sidebar map";
+  grid-template-columns: auto 5fr;
 }
 
 .content-wrapper {
   grid-area: map;
+  height: 100vh;
 }
 
 .sidebar {

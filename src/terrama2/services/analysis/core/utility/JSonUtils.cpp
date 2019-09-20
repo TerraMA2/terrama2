@@ -42,6 +42,10 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QObject>
+#include <QVariant>
+
+//STL
+#include <string>
 
 // TerraLib
 #include <terralib/geometry/Utils.h>
@@ -90,13 +94,31 @@ terrama2::services::analysis::core::AnalysisPtr terrama2::services::analysis::co
   analysis->outputDataSetId = json["output_dataset_id"].toInt();
   analysis->serviceInstanceId = json["service_instance_id"].toInt();
 
-
   QJsonObject metadataJson = json["metadata"].toObject();
+
+  QVariantMap json_map = metadataJson.toVariantMap();
+
   std::map<std::string, std::string> metadata;
-  for(auto it = metadataJson.begin(); it != metadataJson.end(); ++it)
+  for(auto it = json_map.begin(); it != json_map.end(); ++it)
   {
-    metadata[it.key().toStdString()] = it.value().toString().toStdString();
+    auto value = it.value().toString();
+    QString attributeList = "";
+
+    if(QString::compare(it.key().toUtf8().data(),"outputlayer") == 0)
+    {
+      auto attributes = it.value().toStringList();
+
+      for(auto attribute : attributes)
+        attributeList.append(attribute + ", ");
+
+      attributeList = attributeList.left(attributeList.length() - 2);
+
+      metadata["outputlayer"] = attributeList.toUtf8().data();
+    }
+    else
+      metadata[it.key().toStdString()] = value.toUtf8().data();
   }
+
   analysis->metadata = metadata;
 
   auto analysisDataSeriesArray = json["analysis_dataseries_list"].toArray();

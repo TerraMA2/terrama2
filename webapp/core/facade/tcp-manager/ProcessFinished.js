@@ -13,18 +13,18 @@
 
   /**
    * It represents a mock to handle ProcessFinished events, inserting/updating object retrieved from C++ services
-   * 
+   *
    * @class ProcessFinished
    */
   var ProcessFinished = module.exports = {};
   /**
    * It handles process finished response from C++ service.
-   * 
+   *
    * @param {Object} response - A registered object retrieved from C++ services.
    * @param {number} instance_id - A TerraMA² service instance identifier
    * @param {number} process_id - A TerraMA² process executed. The process may be: View, Analysis or Collector.
    * @param {?} response.any - A response values retrieved from C++ services
-   * @returns {Promise<?>} 
+   * @returns {Promise<?>}
    */
   ProcessFinished.handle = function(response) {
     var self = this;
@@ -65,11 +65,11 @@
   /**
    * It handles registered views process finished. Once values received, it tries to retrieve a registered view
    * by view_id. If found, applies upSert layers operation (insert or update). If not found, add a new registered view
-   * 
+   *
    * @param {Object} registeredViewObject - A registered object retrieved from C++ services.
    * @param {string} class - A class name
    * @param {number} process_id - Determines which view were processed
-   * 
+   *
    * @returns {Promise<RegisteredView>}
    */
   ProcessFinished.handleRegisteredViews = function(registeredViewObject) {
@@ -141,77 +141,88 @@
   /**
    * It handles analysis process finished. Once values received, check if the analysis data series is condition to run another process.
    * If is condition, send the view or analysis ids to run.
-   * 
+   *
    * @param {Object} analysisResultObject - A analysis result object retrieved from C++ services.
-   * 
+   *
    * @returns {Promise} - Objects with process ids to run
    */
-  ProcessFinished.handleFinishedAnalysis = function(analysisResultObject){
-    return new PromiseClass(function(resolve, reject){
-      if (analysisResultObject.result){
-        return DataManager.orm.transaction(function(t){
-          var options = {transaction: t};
-          return DataManager.getAnalysis({id: analysisResultObject.process_id}, options)
-            .then(function(analysis){
-              var analysisDataSeries = analysis.dataSeries.id;
-              var restritions = {
-                data_ids: {
-                  $contains: [analysisDataSeries]
-                }
-              };
-              //return the process are conditioned by the analysis
-              return listConditionedProcess(restritions, options, resolve, reject);
-            })
-            .catch(function(err){
-              return reject(new Error(err.toString()));
-            });
-        });
-      }
-      else {
-        return reject(new Error("The collector process finished with error"));
-      }
-    });
-  }
+  ProcessFinished.handleFinishedAnalysis = async (analysisResultObject) =>{
+    if(!analysisResultObject.result)
+      throw new Error("The analysis process finished with error");
 
+    if (analysisResultObject.result){
+
+      const transaction = await DataManager.orm.transaction()
+
+      const options = { transaction };
+
+      try {
+        const analysis = await DataManager.getAnalysis({id: analysisResultObject.process_id}, options);
+
+        const analysisDataSeries = analysis.dataSeries.id;
+
+        const restritions = {
+          data_ids: {
+            $contains: [analysisDataSeries]
+          }
+        };
+
+        const res = await listConditionedProcess(restritions);
+
+        transaction.commit()
+
+        return res;
+      } catch (err) {
+        transaction.rollback()
+        throw err
+      }
+    }
+  };
   /**
    * It handles collector process finished. Once values received, check if the collector is condition to run another process.
    * If is condition, send the view or analysis ids to run.
-   * 
+   *
    * @param {Object} collectorResultObject - A collector result object retrieved from C++ services.
-   * 
+   *
    * @returns {Promise} - Objects with process ids to run
    */
-  ProcessFinished.handleFinishedCollector = function(collectorResultObject){
-    return new PromiseClass(function(resolve, reject){
-      if (collectorResultObject.result){
-        return DataManager.orm.transaction(function(t){
-          var options = {transaction: t};
-          // Get collector object that run
-          return DataManager.getCollector({id: collectorResultObject.process_id}, options)
-            .then(function(collector){
-              var dataSeriesId = collector.data_series_output;
-              var restritions = {
-                data_ids: {
-                  $contains: [dataSeriesId]
-                }
-              };
-              // return the process are conditioned by collector
-              return listConditionedProcess(restritions, options, resolve, reject);
-            })
-            .catch(function(err){
-              return reject(new Error(err.toString()));
-            });
-        });
-      } else {
-        return reject(new Error("The collector process finished with error"));
+  ProcessFinished.handleFinishedCollector = async (collectorResultObject) =>{
+    if(!collectorResultObject.result)
+      throw new Error("The collector process finished with error");
+
+    if (collectorResultObject.result){
+
+      const transaction = await DataManager.orm.transaction()
+
+      const options = { transaction };
+
+      try {
+        const collector = await DataManager.getCollector({id: collectorResultObject.process_id}, options);
+
+        var collectorDataSeriesId = collector.data_series_output;
+
+        var restritions = {
+          data_ids: {
+            $contains: [collectorDataSeriesId]
+          }
+        };
+
+        const res = await listConditionedProcess(restritions);
+
+        transaction.commit();
+
+        return res;
+      } catch (err) {
+        transaction.rollback()
+        throw err
       }
-    });
+    }
   };
   /**
    * It handles alert process finished. Once alertResultObject.notify is true, send signal to web monitor notify the user
-   * 
+   *
    * @param {Object} alertResultObject - An alert result object retrieved from C++ services.
-   * 
+   *
    * @returns {Promise}
    */
   ProcessFinished.handleFinishedAlert = function(alertResultObject){
@@ -246,72 +257,42 @@
   /**
    * Function to list conditioned process
    */
-  var listConditionedProcess = function(restritions, options, resolve, reject){
-    // Get automatic schedule list that contais the collector
-    return DataManager.listAutomaticSchedule(restritions, options)
-      .then(function(automaticScheduleList){
-        if (automaticScheduleList.length > 0){
-          var promises = [];
-          //for each automatic schedule in list, check if belong to an analysis or a view
-          automaticScheduleList.forEach(function(automaticSchedule){
-            promises.push(DataManager.getAnalysis({automatic_schedule_id: automaticSchedule.id}, options)
-              .then(function(analysisResult){
-                return DataManager.getServiceInstance({id: analysisResult.instance_id}, options)
-                  .then(function(instanceServiceResponse){
-                    var objectToRun = {
-                      ids: [analysisResult.id],
-                      object: analysisResult,
-                      instance: instanceServiceResponse,
-                    };
-                    return objectToRun;
-                  })
-              })
-              .catch(function(err){
-                return DataManager.getView({automatic_schedule_id: automaticSchedule.id}, options)
-                  .then(function(viewResult){
-                    return DataManager.getServiceInstance({id: viewResult.serviceInstanceId}, options)
-                      .then(function(instanceServiceResponse){
-                        var objectToRun = {
-                          ids: [viewResult.id],
-                          object: viewResult,
-                          instance: instanceServiceResponse,
-                        };
-                        return objectToRun;
-                      });
-                  })
-                  .catch(function(err){
-                    return DataManager.getAlert({automatic_schedule_id: automaticSchedule.id}, options)
-                      .then(function(alertResult){
-                        return DataManager.getServiceInstance({id: alertResult.service_instance_id}, options)
-                          .then(function(instanceServiceResponse){
-                            var objectToRun = {
-                              ids: [alertResult.id],
-                              object: alertResult,
-                              instance: instanceServiceResponse
-                            };
-                            return objectToRun;
-                          });
-                      })
-                      .catch(function(){
-                        return null;
-                      });
-                  });
-              }));
-          });
-          return Promise.all(promises).then(function(processToRun){
-            var objectResponse = {
-              serviceType: ServiceType.COLLECTOR,
-              processToRun: processToRun
-            };
-            return resolve(objectResponse);
-          });
-        } else {
-          return resolve();
-        }
-      })
-      .catch(function(err){
-        return reject(new Error(err.toString()));
-      });
+
+  var listConditionedProcess = async (restritions, options) => {
+    const automaticScheduleList = await DataManager.listAutomaticSchedule(restritions, options);
+
+    if (automaticScheduleList.length === 0){
+      return;
+    }
+
+    const processToRun = [];
+
+    for(const automaticSchedule of automaticScheduleList){
+      const result = await prepareAnalysis(options, automaticSchedule);
+
+      processToRun.push(result);
+    }
+
+    var objectResponse = {
+      serviceType: ServiceType.COLLECTOR,
+      processToRun: processToRun
+    };
+
+    return objectResponse;
   };
+
+  var prepareAnalysis = async (options, automaticSchedule) =>{
+    const analysisResult = await DataManager.getAnalysis({automatic_schedule_id: automaticSchedule.id}, options);
+
+    const instanceServiceResponse = await DataManager.getServiceInstance({id: analysisResult.instance_id}, options);
+
+    const objectToRun = {
+      ids: [analysisResult.id],
+      object: analysisResult,
+      instance: instanceServiceResponse,
+    };
+
+    return objectToRun;
+  }
 
 } ());

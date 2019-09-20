@@ -672,9 +672,6 @@ define(
     };
 
     var loadLayout = function() {
-      memberWindowHeight = $(window).height();
-      memberReducedHeight = memberWindowHeight - $(".footer-monitor").outerHeight();
-
       $.TerraMAMonitor = {};
 
       $.TerraMAMonitor.options = {
@@ -729,10 +726,13 @@ define(
 
       $.TerraMAMonitor.tree('.sidebar');
 
-      $("#content").height(memberWindowHeight + "px");
-      $(".content-wrapper").css('min-height', memberWindowHeight + "px");
-      $("#terrama2-map").height(memberReducedHeight + "px");
-      $(".sidebar-menu").height((memberWindowHeight - 195) + "px");
+      $(document).on('click', "#collapseButton", function () {
+        if($(".main-sidebar").width == 0){
+          $("#terrama2-map").width("100vw");
+        }else {
+          $("#terrama2-map").width("100%");
+        }
+      })
 
       var mapWidthInterval = window.setInterval(function() {
         $("#terrama2-map").width("100vw");

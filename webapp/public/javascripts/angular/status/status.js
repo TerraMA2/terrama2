@@ -35,7 +35,7 @@ define([
       cachedIcons["start_" + Globals.enums.StatusLog.NOT_EXECUTED] = BASE_URL + "images/status/grey_anime.gif";
       cachedIcons["start_" + Globals.enums.StatusLog.WARNING] = BASE_URL + "images/status/yellow_anime.gif";
       cachedIcons[Globals.enums.StatusLog.WARNING] = BASE_URL + "images/status/yellow.gif";
-      
+
       $scope.onPageChanged = function(currentPage, previousPage) {
         // TODO: Paginate dinamically
         // var begin = $scope.statusPerPage * currentPage;
@@ -117,7 +117,7 @@ define([
         width: 24,
         height: 24
       };
-      
+
       $scope.iconFn = function(object) {
         if (object.status !== Globals.enums.StatusLog.START){
           var iconPath = cachedIcons[object.status];
@@ -139,7 +139,7 @@ define([
       var getStatusKey = function(statusObject) {
         var nameTypeKey = statusObject.name + statusObject.type;
         if ($scope.groupedModel[nameTypeKey].length > 1){
-          var lastObjectStatus = getLastValidStatus($scope.groupedModel[nameTypeKey]); 
+          var lastObjectStatus = getLastValidStatus($scope.groupedModel[nameTypeKey]);
           if (lastObjectStatus.messageType === Globals.enums.MessageType.WARNING_MESSAGE && lastObjectStatus.status !== Globals.enums.StatusLog.ERROR){
             return "start_warning";
           } else {
@@ -265,7 +265,7 @@ define([
           let url = "";
 
           const found = elements.find(elm => elm.id === logProcess.process_id);
-          
+
           if(found) {
             switch(serviceType) {
               case Globals.enums.ServiceType.COLLECTOR :
@@ -442,6 +442,6 @@ define([
         }, 1000);
       }
     }]);
-  
+
   return moduleName;
 });

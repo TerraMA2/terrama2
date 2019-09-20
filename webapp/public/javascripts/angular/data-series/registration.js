@@ -360,7 +360,6 @@ define([], function() {
         if (typeof dataSeries != 'object'){
           return '';
         }
-        console.log(dataSeries.data_provider_type.name);
 
         switch (dataSeries.data_provider_type.name){
           case "FILE":

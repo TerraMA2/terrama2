@@ -98,6 +98,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
   {
     auto dataSeriesPtr = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
     auto datasets = dataSeriesPtr->datasetList;
+
     if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
     {
       if(analysis->type == AnalysisType::MONITORED_OBJECT_TYPE ||
@@ -116,8 +117,6 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
         auto seriesMap = accessor->getSeries(filter, remover_);
         auto series = seriesMap[dataset];
 
-        std::string identifier = getIdentifierProperty(analysisDataSeries);
-
         std::shared_ptr<ContextDataSeries> dataSeriesContext(new ContextDataSeries);
 
         if(!series.syncDataSet)
@@ -135,7 +134,10 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
         std::size_t geomPropertyPosition = te::da::GetFirstPropertyPos(series.syncDataSet->dataset().get(), te::dt::GEOMETRY_TYPE);
 
         dataSeriesContext->series = series;
-        dataSeriesContext->identifier = identifier;
+
+        if(analysis->type == AnalysisType::MONITORED_OBJECT_TYPE)
+          dataSeriesContext->identifier = getIdentifierProperty(analysisDataSeries);
+
         dataSeriesContext->geometryPos = geomPropertyPosition;
 
         monitoredObjectDataSeries_ = dataSeriesContext;
