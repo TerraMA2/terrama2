@@ -13,16 +13,16 @@
       getData: async (request, response) => {
         const {
           projectName,
-          tableName,
           limit,
           offset,
           group,
           date,
           localization,
           area,
-          defaultDateInterval
+          defaultDateInterval,
+          viewId
         } = request.query
-        const viewId = 61
+        // const viewId = 61
 
         const view = await ViewFacade.retrieve(viewId)
         const dataSeries = await DataManager.getDataSeries({id:view.data_series_id})
@@ -31,7 +31,7 @@
         const dataSet = dataSeries.dataSets[0]
         const timestampProperty = dataSet.format.timestamp_property
         const geometryProperty = dataSet.format.geometry_property
-        // const tableName = dataSet.format.table_name
+        const tableName = dataSet.format.table_name
         // const conn = new Connection(uri)
         const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
         await conn.connect()
@@ -55,7 +55,7 @@
           sqlWhere += `
               WHERE ${timestampProperty}::date >= '${dateFrom}' AND ${timestampProperty}::date <= '${dateTo}'
           `
-        } else {
+        } else if(timestampProperty) {
           sqlWhere += `
               WHERE ${timestampProperty}::date > now() - interval '2 day'
           `
