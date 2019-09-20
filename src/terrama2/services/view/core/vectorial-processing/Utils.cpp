@@ -8,6 +8,7 @@
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
+#include <terralib/dataaccess/dataset/DataSet.h>
 #include <terralib/dataaccess/datasource/DataSourceFactory.h>
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 
@@ -38,8 +39,7 @@ std::string terrama2::services::view::core::vp::prepareSQLIntersection(const std
                                                                        const std::string& monitoredPrimaryKey,
                                                                        te::da::DataSetType* monitoredDataSeriesType,
                                                                        te::da::DataSetType* dynamicDataSeriesType,
-                                                                       const std::string& geometryName,
-                                                                       te::da::DataSetType* additionalDataSeriesType)
+                                                                       const std::string& geometryName)
 {
   assert(monitoredDataSeriesType != nullptr);
   assert(dynamicDataSeriesType != nullptr);
@@ -49,33 +49,21 @@ std::string terrama2::services::view::core::vp::prepareSQLIntersection(const std
   auto monitoredTableName = monitoredDataSeriesType->getTitle();
   auto dynamicTableName = dynamicDataSeriesType->getTitle();
 
-  std::string columnClause = "monitored_id, intersect_id AS dynamic_pk";
+  std::string columnClause = tableName + ".monitored_id,"
+                           + tableName + ".intersect_id "
+                             ""
+                             "AS dynamic_pk";
+
   prepareFromClause(monitoredDataSeriesType, columnClause);
   prepareFromClause(dynamicDataSeriesType, columnClause);
 
-
   std::string fromClause = tableName + ", " + monitoredTableName + ", " + dynamicTableName;
+
   std::string whereClause = monitoredTableName + "." + monitoredPrimaryKey + "::VARCHAR = " +
                             tableName + ".monitored_id::VARCHAR" +
                             "   AND " +
                             dynamicTableName + "." + dynamicPrimaryKey + "::VARCHAR = " +
                             tableName + ".intersect_id::VARCHAR";
-
-  if (additionalDataSeriesType != nullptr)
-  {
-    // Add the columns of Additional Data Series
-    prepareFromClause(additionalDataSeriesType, columnClause);
-
-    auto additionalPrimaryKey = additionalDataSeriesType->getPrimaryKey()->getProperties()[0];
-    auto additionalTableName = additionalDataSeriesType->getTitle();
-    auto additionalTableWithoutSchema = terrama2::core::splitString(additionalTableName, '.')[1];
-    // Add additional table name into SQL from clause
-    fromClause += ", " + additionalTableName;
-    // Set join condition of additional table name
-    whereClause += "  AND " +
-                   additionalTableName + "." + additionalPrimaryKey->getName() + "::VARCHAR = " +
-                   tableName + "." + additionalTableWithoutSchema + "_pk::VARCHAR";
-  }
 
   columnClause += ", " + tableName + "." + geometryName;
 
@@ -109,8 +97,23 @@ terrama2::services::view::core::vp::getIntersectionTable(te::da::DataSourceTrans
 {
   assert(transactor != nullptr);
 
-  auto resultDataSet = transactor->query("SELECT DISTINCT table_name FROM " + analysisTableNameResult);
-  resultDataSet->moveFirst();
+  std::unique_ptr<te::da::DataSet> resultDataSet;
 
-  return transactor->getDataSetType(resultDataSet->getString("table_name"));
+  std::unique_ptr<te::da::DataSetType> resultDataSetType;
+
+  try
+  {
+    resultDataSet = transactor->query("SELECT DISTINCT table_name FROM " + analysisTableNameResult);
+    resultDataSet->moveFirst();
+
+    resultDataSetType = transactor->getDataSetType(resultDataSet->getString("table_name"));
+
+    return resultDataSetType;
+  }
+  catch(...)
+  {
+    resultDataSetType.reset(0);
+  }
+
+  return resultDataSetType;
 }

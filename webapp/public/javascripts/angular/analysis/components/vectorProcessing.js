@@ -86,27 +86,13 @@ define([],()=> {
         this.staticTableAttributes[attribute] = tableName + ":" + attribute;
       });
     }
+    async onMultInputSelected() {
+      const { model } = this;
 
-//********************************************************************** */
-
-    function(angular) {
-      'use strict';
-    angular.module('staticSelect', [])
-      .controller('ExampleController', ['$scope', function($scope) {
-        $scope.data = {
-         singleSelect: null,
-         multipleSelect: [],
-         option1: 'option-1'
-        };
-
-        $scope.forceUnknownOption = function() {
-          $scope.data.singleSelect = 'nonsense';
-        };
-
-     }]);
+      model.data = {
+        inputAttributesLayer: []
+       };
     }
-
-//********************************************************************** */
 
     getTableName() {
       if (!this.targetDataSeries || angular.equals({}, this.targetDataSeries))
@@ -258,9 +244,9 @@ define([],()=> {
                   <div class="form-group has-feedback" terrama2-show-errors>
                     <label>Input Attribute Layer:</label>
                     <select class="form-control"
-                      name="multipleSelect"
-                      id="multipleSelect"
-                      ng-model="data.multipleSelect"
+                      name="inputAttributesLayer"
+                      id="inputAttributesLayer"
+                      ng-model="data.inputAttributesLayer"
                       ng-options="key as value for (key, value) in $ctrl.staticTableAttributes"
                       ng-required="true" multiple>
                     </select><br>
@@ -276,7 +262,7 @@ define([],()=> {
                     id="outputlayer"
                     ng-model="$ctrl.model.outputlayer"
                     ng-change="$ctrl.onOutputLayerAttributesSelected()"
-                    ng-options="attributes for attributes in data.multipleSelect"
+                    ng-options="attributes for attributes in data.inputAttributesLayer"
                     ng-required="true" multiple>
                 </select><br>
                 </div>
