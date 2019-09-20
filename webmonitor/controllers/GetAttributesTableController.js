@@ -44,7 +44,9 @@ var GetAttributesTableController = function(app) {
    * @inner
    */
   var getValidProperties = function(layer, geoserverUri, callback) {
+
     memberHttp.get(geoserverUri + memberDescribeFeatureTypeTemplateURL.replace('{{LAYER_NAME}}', layer), function(resp) {
+
       var body = '';
       var fields = [];
 
@@ -95,7 +97,8 @@ var GetAttributesTableController = function(app) {
       var search = (request.body['search[value]'] !== "" ? "&cql_filter=(" : "");
       var dateTimeField = null;
       var dateField = null;
-
+      var columnsFilter = request.body['columnsFilter[]'];
+      
       for(var i = 0, fieldsLength = fields.length; i < fieldsLength; i++) {
         properties += fields[i].name + ",";
 
@@ -109,6 +112,16 @@ var GetAttributesTableController = function(app) {
       var order = fields[request.body['order[0][column]']].name + (request.body['order[0][dir]'] === "desc" ? "+D" : "+A");
 
       properties = (properties !== "" ? properties.substring(0, properties.length - 1) : properties);
+      
+      if(typeof columnsFilter !== 'undefined' && columnsFilter.length > 0){
+        properties = "";
+        for(var i = 0; i < columnsFilter.length; i++) {
+          properties += columnsFilter[i];
+          if(i+1 < columnsFilter.length){
+            properties += ",";
+          }
+        }
+      }
 
       var url = request.body.geoserverUri + memberGetFeatureTemplateURL.replace('{{LAYER_NAME}}', request.body.layer);
       url = url.replace('{{PROPERTIES}}', properties);
@@ -163,7 +176,7 @@ var GetAttributesTableController = function(app) {
             memberCurrentLayer.timeEnd !== request.body.timeEnd || 
             memberCurrentLayer.analysisTime !== request.body.analysisTime
           ) {
-            memberCurrentLayer.id = request.body.layer;
+            memberCurrentLayer.id = request.body.layer;url
             memberCurrentLayer.numberOfFeatures = body.totalFeatures;
             memberCurrentLayer.search = request.body['search[value]'];
             memberCurrentLayer.timeStart = request.body.timeStart;
@@ -178,6 +191,7 @@ var GetAttributesTableController = function(app) {
             recordsFiltered: parseInt(memberCurrentLayer.numberOfFeatures),
             data: data
           });
+
         });
       }).on("error", function(e) {
         console.error(e.message);

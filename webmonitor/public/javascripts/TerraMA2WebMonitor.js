@@ -78,6 +78,7 @@ define(
     };
 
     var loadEvents = function() {
+
       $('#projects').on('change', changeProjects);
 
       $('#mini-toggle').click(function() {
@@ -118,6 +119,7 @@ define(
       });
 
       $('#terrama2-layerexplorer').on('click', '.checkbox input', function() {
+
         var layerid = $(this).closest('li').data('layerid');
         var layerObject = Layers.getLayerById(layerid);
         var isVisible = layerObject.visible;
@@ -540,65 +542,114 @@ define(
           var featureInfo = data.msg;
           var featuresLength = featureInfo.features.length;
 
-          if(featuresLength > 0) {
-            var firesAttributes = "";
+          var features = featureInfo.features[0].properties;
+          var layerId = data.params.layerId;
+          var layerData = Layers.getLayerById(layerId);
 
-            for(var i = 0; i < featuresLength; i++) {
-              var imageUrl = null;
+          const tableName = layerData.exportation.table;
+          const viewId = layerData.viewId;
 
-              firesAttributes += "<table class=\"table table-striped\"><tbody>";
+          $.get(ADMIN_URL + 'api/datasetid', {
+            tableName: tableName,
+            viewId: viewId
+          },
+            function(response) {
+              if(response[0].data_set_id){
+                var dataSetid = response[0].data_set_id;
+                $.get(ADMIN_URL + 'api/attributes', {
+                  dataSetid: dataSetid,
+                  viewId: viewId
+                },
+                  function(response) {
+                    var attributesResponseStr = null;
+                    var attributesJson = null;                    
 
-              var firesAttributesRows = "";
+                    if(typeof response !== 'undefined' && response.length > 0 && response[0].value){
+                      var attributesResponseStr = response[0].value;
+                      var attributesJson = JSON.parse(attributesResponseStr); 
+                    }                          
+                    
+                    if(featuresLength > 0) {
+                      var firesAttributes = "";
+                      for(var i = 0; i < featuresLength; i++) {
+                        var imageUrl = null;
 
-              for(var key in featureInfo.features[i].properties) {
-                if(key === "picture") {
-                  imageUrl = featureInfo.features[i].properties[key];
-                } else {
-                  firesAttributesRows += "<tr><td><strong>" + key + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
-                }
-              }
+                        firesAttributes += "<table class=\"table table-striped\"><tbody>";
+                        var firesAttributesRows = "";
 
-              if(imageUrl) {
-                firesAttributes += "<tr><td colspan=\"2\"><a target=\"_blank\" href=\"" + imageUrl + "\"><img style=\"width: 100%;\" src=\"" + imageUrl + "\"/></a></td></tr>";
-              }
+                        if(attributesJson != null){
+                          for(var key in featureInfo.features[i].properties) {
+                            if(key === "picture") {
+                              imageUrl = featureInfo.features[i].properties[key];
+                            } else {
+                              attributesJson.forEach(function(jsonElement){
+                                if(key == jsonElement.name){
+                                  if(jsonElement.alias != "" && jsonElement.visible == true){
+                                    firesAttributesRows += "<tr><td><strong>" + jsonElement.alias + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
+                                  }else if(jsonElement.alias == "" && jsonElement.visible == true){
+                                    firesAttributesRows += "<tr><td><strong>" + key + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
+                                  }
+                                }
+                              });                              
+                            }
+                          }
+                        }else{
+                          for(var key in featureInfo.features[i].properties) {
+                            if(key === "picture") {
+                              imageUrl = featureInfo.features[i].properties[key];
+                            } else {
+                              firesAttributesRows += "<tr><td><strong>" + key + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
+                            }
+                          }
+                        }                          
 
-              firesAttributes += firesAttributesRows + "</tbody></table>";
-              if(featuresLength > (i + 1)) firesAttributes += "<hr/>";
+                        if(imageUrl) {
+                          firesAttributes += "<tr><td colspan=\"2\"><a target=\"_blank\" href=\"" + imageUrl + "\"><img style=\"width: 100%;\" src=\"" + imageUrl + "\"/></a></td></tr>";
+                        }
+          
+                        firesAttributes += firesAttributesRows + "</tbody></table>";
+                        if(featuresLength > (i + 1)) firesAttributes += "<hr/>";
+                      
+                      }
+
+                      $('#feature-info-box').html(firesAttributes);
+
+                      $('#feature-info-box').dialog({
+                        dialogClass: "feature-info-box",
+                        title: "",
+                        width: 400,
+                        height: 380,
+                        maxWidth: 600,
+                        modal: false,
+                        resizable: true,
+                        draggable: true,
+                        closeOnEscape: true,
+                        closeText: "",
+                        position: {
+                          my: 'top',
+                          at: 'top+75'
+                        },
+                        open: function() {
+                          $(this).parent().find('.ui-dialog-content').css('white-space', 'normal');
+                          $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
+                          $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', 'center');
+                          $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '20px');
+                          $(this).parent().find('.ui-dialog-title').append('<span id=\'feature-info-dialog-title-prefix\'></span>' + data.params.layerName);
+
+                          Utils.setTagContent('.ui-dialog-title > #feature-info-dialog-title-prefix', 'ATTRIBUTES-OF-LAYER-COLON');
+                        },
+                        close: function() {
+                          $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', '');
+                          $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', '');
+                          $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '');
+                        }
+                      });
+                    }
+                  }
+                );  
+              }             
             }
-
-            $('#feature-info-box').html(firesAttributes);
-
-            $('#feature-info-box').dialog({
-              dialogClass: "feature-info-box",
-              title: "",
-              width: 400,
-              height: 380,
-              maxWidth: 600,
-              modal: false,
-              resizable: true,
-              draggable: true,
-              closeOnEscape: true,
-              closeText: "",
-              position: {
-                my: 'top',
-                at: 'top+75'
-              },
-              open: function() {
-                $(this).parent().find('.ui-dialog-content').css('white-space', 'normal');
-                $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
-                $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', 'center');
-                $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '20px');
-                $(this).parent().find('.ui-dialog-title').append('<span id=\'feature-info-dialog-title-prefix\'></span>' + data.params.layerName);
-
-                Utils.setTagContent('.ui-dialog-title > #feature-info-dialog-title-prefix', 'ATTRIBUTES-OF-LAYER-COLON');
-              },
-              close: function() {
-                $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', '');
-                $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', '');
-                $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '');
-              }
-            });
-          }
+          ); 
         } else if(data.requestId == "GetFeature") {
           if(data.msg.hasOwnProperty("totalFeatures") && data.msg.totalFeatures > 0) {
             Layers.addProperty({
@@ -670,7 +721,7 @@ define(
           //if this isn't a link, prevent the page from being redirected
           if(checkElement.is('.treeview-menu')) {
             e.preventDefault();
-          }
+          }sortlayers
         });
       };
 
@@ -743,6 +794,7 @@ define(
     };
 
     var init = function() {
+
       if(message != "") {
         $("#terrama2Alert > p > strong").text('');
         $("#terrama2Alert > p > span").text(message);
@@ -892,6 +944,7 @@ define(
           Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, initialRequest: true, token: flag ? Utils.getToken() : "" });
         })
         .catch(error => console.error(error));
+    
     };
 
     return {
