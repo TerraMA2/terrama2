@@ -51,7 +51,7 @@ define(
               <div id="chartPanel${i+1}" class="panel-collapse collapse ${i==0?'in':''}">
                 <div class="panel-body">`;
                 if(isDynamic) {
-                  chartsHtml += 
+                  chartsHtml +=
                   `<div class="form-inline">
                     <div class="input-group date">
                       <input type="text" id="chartFilterDate${i+1}" class="form-control chart-date-picker"/>
@@ -77,7 +77,7 @@ define(
                   <div id="chart${i+1}" class="chart"></div>
                 </div>
                 <div class="chart-description">
-                  ${chart.description}
+                  ${chart.description ? chart.description : ''}
                 </div>
               </div>
             </div>
@@ -113,7 +113,7 @@ define(
         if(chartGroupBy){
           url += `&groupBy=${chartGroupBy}`;
         }
-        
+
         const dateFrom = moment().subtract(1, 'days').endOf('day').format("Y-M-D HH:mm:ss")
         const dateTo = moment().format("Y-M-D HH:mm:ss");
 
@@ -134,10 +134,10 @@ define(
             chart.dataSource.url = url;
             chart.dataSource.reloadFrequency = null;
             chart.legend = new am4charts.Legend();
-            
+
             chart.responsive.enabled = true;
             chart.tapToActivate = true;
-            
+
             var pieSeries = chart.series.push(new am4charts.PieSeries());
             pieSeries.dataFields.value = "value";
             pieSeries.dataFields.category = chartGroupBy;
@@ -183,10 +183,10 @@ define(
             chart.legend = new am4charts.Legend();
 
             chart.innerRadius = 100;
-            
+
             chart.responsive.enabled = true;
             chart.tapToActivate = true;
-            
+
             var pieSeries = chart.series.push(new am4charts.PieSeries());
             pieSeries.dataFields.value = "value";
             pieSeries.dataFields.category = chartGroupBy;
@@ -262,7 +262,7 @@ define(
               columnTemplate.adapter.add("fill", (fill, target) => {
                 return chart.colors.getIndex(target.dataItem.index);
               })
-              
+
               columnTemplate.adapter.add("stroke", (stroke, target) => {
                 return chart.colors.getIndex(target.dataItem.index);
               })
@@ -308,10 +308,10 @@ define(
             categoryAxis.dataFields.category = chartGroupBy;
             categoryAxis.renderer.inversed = true;
 
-            var  valueAxis = chart.xAxes.push(new am4charts.ValueAxis()); 
+            var  valueAxis = chart.xAxes.push(new am4charts.ValueAxis());
             valueAxis.title.text = chartGroupBy;
             valueAxis.title.fontWeight = "bold";
-            
+
             var series = chart.series.push(new am4charts.ColumnSeries());
             series.dataFields.valueX = "value";
             series.dataFields.categoryY = chartGroupBy;
@@ -330,7 +330,7 @@ define(
               columnTemplate.adapter.add("fill", (fill, target) => {
                 return chart.colors.getIndex(target.dataItem.index);
               })
-              
+
               columnTemplate.adapter.add("stroke", (stroke, target) => {
                 return chart.colors.getIndex(target.dataItem.index);
               })
@@ -339,7 +339,7 @@ define(
             chart.cursor = new am4charts.XYCursor();
             chart.cursor.lineX.strokeOpacity = 0;
             chart.cursor.lineY.strokeOpacity = 0;
-            
+
             chart.exporting.menu = new am4core.ExportMenu();
 
             chart.exporting.menu.items = [{
@@ -374,12 +374,12 @@ define(
             chart.id = `chart${i+1}`
             chart.dataSource.url = url;
             chart.dataSource.reloadFrequency = null;
-            
+
             var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
             dateAxis.renderer.minGridDistance = 50;
-            
+
             var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-            
+
             var series = chart.series.push(new am4charts.LineSeries());
             series.dataFields.valueY = "value";
             series.dataFields.dateX = "date";
@@ -390,10 +390,10 @@ define(
             series.tooltip.background.cornerRadius = 20;
             series.tooltip.background.fillOpacity = 0.5;
             series.tooltip.label.padding(12,12,12,12)
-            
+
             chart.scrollbarX = new am4charts.XYChartScrollbar();
             chart.scrollbarX.series.push(series);
-            
+
             chart.cursor = new am4charts.XYCursor();
             chart.cursor.xAxis = dateAxis;
             chart.cursor.snapToSeries = series;
@@ -424,7 +424,7 @@ define(
                 ]
               }
             ];
-          } 
+          }
           // else if (chartType === "line-compare"){
           //   am4core.unuseTheme(am4themes_material);
           //   var chart = am4core.create(`chart${i+1}`, am4charts.XYChart);
@@ -437,12 +437,12 @@ define(
           //   if(lastItem){
           //     lineCount = lastItem.lineCount;
           //   }
-            
+
           //   var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
           //   dateAxis.renderer.minGridDistance = 50;
-            
+
           //   var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-            
+
           //   if(lineCount){
           //     for (let i = 0; i < lineCount; i++) {
           //       var series = chart.series.push(new am4charts.LineSeries());
@@ -464,7 +464,7 @@ define(
           //       chart.cursor.snapToSeries = series;
           //     }
           //   }
-            
+
           //   chart.exporting.menu = new am4core.ExportMenu();
 
           //   chart.exporting.menu.items = [{
@@ -499,12 +499,12 @@ define(
             chart.id = `chart${i+1}`
             chart.dataSource.url = url;
             chart.dataSource.reloadFrequency = null;
-            
+
             var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
             dateAxis.renderer.minGridDistance = 50;
-            
+
             var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-            
+
             var series = chart.series.push(new am4charts.LineSeries());
             series.dataFields.valueY = "value";
             series.dataFields.dateX = "date";
@@ -517,10 +517,10 @@ define(
             series.tooltip.label.padding(12,12,12,12)
 
             series.fillOpacity = 0.5;
-            
+
             chart.scrollbarX = new am4charts.XYChartScrollbar();
             chart.scrollbarX.series.push(series);
-            
+
             chart.cursor = new am4charts.XYCursor();
             chart.cursor.xAxis = dateAxis;
             chart.cursor.snapToSeries = series;
@@ -555,7 +555,7 @@ define(
           chartList.push(chart)
         });
       }
-      
+
       $('.chart-date-picker').on('apply.daterangepicker', function(ev, picker) {
         getByPeriod(ev);
       });
@@ -568,7 +568,7 @@ define(
         const dateTo = picker.endDate.format('YYYY-MM-DD')
         let interval = $(ev.currentTarget).closest('.panel-body').find('.interval').val();
         const chartContainer = $(ev.currentTarget).closest('.panel-body').find('.chart:first')[0]
-        
+
         const chart = getChart(chartContainer.id)
         let oldUrl = chart.dataSource.url
         var index = oldUrl.indexOf("&dateFrom");
