@@ -86,7 +86,6 @@ define([],()=> {
         this.staticTableAttributes[attribute] = tableName + ":" + attribute;
       });
     }
-
     async onMultInputSelected() {
       const { model } = this;
 

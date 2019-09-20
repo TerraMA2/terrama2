@@ -681,7 +681,7 @@ img[src=""] {
   position: absolute;
   width: 320px;
   height: 480px;
-  right: 65px
+  right: 300px
 }
 
 #layer-toolbox,
@@ -976,16 +976,16 @@ img[src=""] {
 #loginButton .fa-times {
   position: absolute;
   color: red;
-  left: 19px;
-  top: 17px;
+  left: 7px;
+  top: 0;
   font-size: 14px
 }
 
 #loginButton .fa-circle {
   position: absolute;
   color: #0fd00f;
-  left: 20px;
-  top: 19px;
+  left: 7px;
+  top: 0;
   font-size: 10px
 }
 
@@ -1007,6 +1007,10 @@ img[src=""] {
 
 #user-div>div>#load-state {
   margin-left: 2px
+}
+
+#loginButton .fa-user {
+  position: relative;
 }
 
 #layer-toolbox .layer-toolbox-body>.box-default {
