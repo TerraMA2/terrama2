@@ -41,10 +41,23 @@ define([],()=> {
         ds.id === parseInt(this.model.dynamicDataSeries)
       ));
 
+      const tableNameFromAnalysisTable = await DataProviderService.listPostgisObjects({providerId: dynamicDataSeries.data_provider_id,
+                                                                objectToGet: "values",
+                                                                tableName : dynamicDataSeries.dataSets[0].format.table_name,
+                                                                columnName: "table_name"});
+      let tableNameAttributes = "";
+
+      try {
+        tableNameAttributes = tableNameFromAnalysisTable.data.data[0];
+      }
+      catch(error) {
+        console.log(error);
+      }
+
       const options = {
         providerId: dynamicDataSeries.data_provider_id,
         objectToGet: "column",
-        tableName : dynamicDataSeries.dataSets[0].format.table_name
+        tableName : tableNameAttributes === "" ? dynamicDataSeries.dataSets[0].format.table_name : tableNameAttributes
       }
 
       const res = await DataProviderService.listPostgisObjects(options);
