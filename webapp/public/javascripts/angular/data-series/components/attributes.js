@@ -63,7 +63,7 @@ define([],()=> {
             });
 
             this.model.push(
-              {              
+              {   
                 name:element.column_name,
                 visible: visibleOp,
                 alias: aliasOp

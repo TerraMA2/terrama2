@@ -718,7 +718,7 @@ define(
           //if this isn't a link, prevent the page from being redirected
           if(checkElement.is('.treeview-menu')) {
             e.preventDefault();
-          }sortlayers
+          }
         });
       };
 
