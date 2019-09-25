@@ -2036,6 +2036,7 @@ var DataManager = module.exports = {
    * @return {Promise} - a 'bluebird' module with DataSeries instance or error callback
    */
   addDataSet: function(dataSeriesSemantic, dataSetObject, analysisType, options) {
+
     var self = this;
     return new Promise(function(resolve, reject) {
       models.DataSet.create({
@@ -2059,11 +2060,19 @@ var DataManager = module.exports = {
             } else if (formats instanceof Object) {
               for(var key in formats) {
                 if (formats.hasOwnProperty(key)) {
-                  formatList.push({
-                    data_set_id: dataSet.id,
-                    key: key,
-                    value: formats[key]
-                  });
+                  if(Array.isArray(dataSetObject.format[key])){
+                    formatList.push({
+                      data_set_id: dataSet.id,
+                      key: key,
+                      value: JSON.stringify(formats[key])
+                    });
+                  } else{
+                    formatList.push({
+                      data_set_id: dataSet.id,
+                      key: key,
+                      value: formats[key]
+                    });
+                  }
                 }
               }
             }
@@ -2239,7 +2248,11 @@ var DataManager = module.exports = {
                             var formatStringfied = {};
                             for (var key in dataSetObject.format) {
                               if (dataSetObject.format.hasOwnProperty(key)) {
-                                formatStringfied[key] = String(dataSetObject.format[key]);
+                                if(Array.isArray(dataSetObject.format[key])){
+                                  formatStringfied[key] = JSON.stringify(dataSetObject.format[key]);
+                                } else{
+                                  formatStringfied[key] = String(dataSetObject.format[key]);
+                                }
                               }
                             }
                             output.active = result.active;

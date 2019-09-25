@@ -15,7 +15,8 @@ define(
             requestId: 'GetFeatureInfoTool',
             format: 'json',
             params: {
-              layerName: $('#getAttributes > select option:selected').text()
+              layerName: $('#getAttributes > select option:selected').text(),
+              layerId: $('#getAttributes > select').val()
             }
           });
       });
