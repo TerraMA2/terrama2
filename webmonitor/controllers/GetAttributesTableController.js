@@ -176,7 +176,7 @@ var GetAttributesTableController = function(app) {
             memberCurrentLayer.timeEnd !== request.body.timeEnd || 
             memberCurrentLayer.analysisTime !== request.body.analysisTime
           ) {
-            memberCurrentLayer.id = request.body.layer;url
+            memberCurrentLayer.id = request.body.layer;
             memberCurrentLayer.numberOfFeatures = body.totalFeatures;
             memberCurrentLayer.search = request.body['search[value]'];
             memberCurrentLayer.timeStart = request.body.timeStart;

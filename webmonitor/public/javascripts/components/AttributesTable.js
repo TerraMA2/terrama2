@@ -18,7 +18,7 @@ define(
       }
     };
 
-    var createAttributesTable = function() {     
+    var createAttributesTable = function() {
       var showButton = false;
       var visibleLayers = Layers.getVisibleLayers();
 
@@ -222,7 +222,7 @@ define(
                 );
               }
             }
-          );         
+          );
         } else
           hideAttributesTable(true);
       } else
