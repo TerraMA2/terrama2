@@ -202,6 +202,10 @@ BEGIN
 					analysis_filter, date_filter);
 
 		EXECUTE query;
+
+		query := format('ALTER TABLE %s ALTER COLUMN intersection_geom TYPE geometry(GEOMETRY, %s)
+						  USING ST_Transform(ST_SetSRID(intersection_geom,%s), %s)',final_table, static_table_srid, static_table_srid, static_table_srid);
+		EXECUTE query;
 	 ELSE
 		-- Check date_filter. When empty, set 1 = 1 as default
 		-- IF (coalesce(date_filter, '') = '') THEN
@@ -257,6 +261,9 @@ BEGIN
 
 		  EXECUTE query;
 
+		  query := format('ALTER TABLE %s ALTER COLUMN intersection_geom TYPE geometry(GEOMETRY, %s)
+						  USING ST_Transform(ST_SetSRID(intersection_geom,%s), %s)',final_table, static_table_srid, static_table_srid, static_table_srid);
+		  EXECUTE query;
 	 END IF;
 
     EXECUTE 'SELECT get_id_from_first_analysis(get_automatic_schedule_id_list())';
