@@ -14,8 +14,7 @@ define([],()=> {
       this.DataProviderService = DataProviderService;
       this.$timeout = $timeout;
       this.columnsList = [];
-      this.staticTableAttributes = {};
-      this.dynamicTableAttributes = {};
+      this.inputTableAttributes = {};
 
       if (!this.model) {
         this.model = { queryBuilder: '' };
@@ -35,23 +34,37 @@ define([],()=> {
     }
 
     async onChangeDynamicDataSeries() {
+
       const { DataProviderService } = this;
 
       const dynamicDataSeries = this.DataSeriesService.dynamicDataSeries().find(ds => (
         ds.id === parseInt(this.model.dynamicDataSeries)
       ));
 
+      const tableNameFromAnalysisTable = await DataProviderService.listPostgisObjects({providerId: dynamicDataSeries.data_provider_id,
+                                                                objectToGet: "values",
+                                                                tableName : dynamicDataSeries.dataSets[0].format.table_name,
+                                                                columnName: "table_name"});
+      let tableNameAttributes = "";
+
+      try {
+        tableNameAttributes = tableNameFromAnalysisTable.data.data[0];
+      }
+      catch(error) {
+        console.log(error);
+      }
+
       const options = {
         providerId: dynamicDataSeries.data_provider_id,
         objectToGet: "column",
-        tableName : dynamicDataSeries.name
+        tableName : tableNameAttributes === "" ? dynamicDataSeries.dataSets[0].format.table_name : tableNameAttributes
       }
 
       const res = await DataProviderService.listPostgisObjects(options);
-      var teste = res.data.data.map(item => item.column_name);
+      let dynamicTableAttributes = res.data.data.map(item => item.column_name);
 
-      teste.forEach(attribute => {
-        this.staticTableAttributes[attribute] = options.tableName + ":" + attribute;
+      dynamicTableAttributes.forEach(attribute => {
+        this.inputTableAttributes[attribute] = dynamicDataSeries.name + ":" + attribute;
       });
     }
 
@@ -71,19 +84,18 @@ define([],()=> {
 
     async listAttributes() {
       const { DataProviderService, targetDataSeries, $timeout } = this;
-      const tableName = targetDataSeries.dataSets[0].format.table_name;
 
       const options = {
         providerId: targetDataSeries.data_provider_id,
         objectToGet: "column",
-        tableName
+        tableName : targetDataSeries.dataSets[0].format.table_name
       }
 
       const res = await DataProviderService.listPostgisObjects(options);
       this.columnsList = res.data.data.map(item => item.column_name);
 
       this.columnsList.forEach(attribute => {
-        this.staticTableAttributes[attribute] = tableName + ":" + attribute;
+        this.inputTableAttributes[attribute] = targetDataSeries.name + ":" + attribute;
       });
     }
     async onMultInputSelected() {
@@ -247,7 +259,7 @@ define([],()=> {
                       name="inputAttributesLayer"
                       id="inputAttributesLayer"
                       ng-model="data.inputAttributesLayer"
-                      ng-options="key as value for (key, value) in $ctrl.staticTableAttributes"
+                      ng-options="key as value for (key, value) in $ctrl.inputTableAttributes"
                       ng-required="true" multiple>
                     </select><br>
                   </div>
