@@ -2060,11 +2060,19 @@ var DataManager = module.exports = {
             } else if (formats instanceof Object) {
               for(var key in formats) {
                 if (formats.hasOwnProperty(key)) {
-                  formatList.push({
-                    data_set_id: dataSet.id,
-                    key: key,
-                    value: JSON.stringify(formats[key])
-                  });
+                  if(Array.isArray(dataSetObject.format[key])){
+                    formatList.push({
+                      data_set_id: dataSet.id,
+                      key: key,
+                      value: JSON.stringify(formats[key])
+                    });
+                  } else{
+                    formatList.push({
+                      data_set_id: dataSet.id,
+                      key: key,
+                      value: formats[key]
+                    });
+                  }
                 }
               }
             }

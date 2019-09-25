@@ -12,8 +12,9 @@ define([],()=> {
         this.model = [];
         
         const dataProviderid = this.dataserie.data_provider_id;
-        const dataSerieTableName = this.dataserie.name;
         var attributesJson = [];
+
+        const {tableName, provider, dataProviderService} = this
 
         $.ajax({
           url: BASE_URL + 'api/datasetidByDataSerie',
@@ -21,7 +22,7 @@ define([],()=> {
           async: false,
           data: {
             dataProviderid: dataProviderid,
-            dataSerieTableName: dataSerieTableName
+            dataSerieTableName: tableName
           }
         }).done(function(response){ 
 
@@ -37,15 +38,14 @@ define([],()=> {
                 dataSetid: dataSetid
               }
             }).done(function(response){
-              if(typeof response !== 'undefined' && response.length > 0 && typeof response[0] !== 'undefined'){
+              if(typeof response !== 'undefined' && typeof response[0] !== 'undefined'){
                 var attributesResponseStr = response[0].value;
                 attributesJson = JSON.parse(attributesResponseStr);
-              }
+              } 
             });
           }
         });
 
-        const {tableName, provider, dataProviderService} = this
         dataProviderService.listPostgisObjects({providerId: provider, objectToGet: "column", tableName})
         .then(response=>{
           if (response.data.status == 400){
