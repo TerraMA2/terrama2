@@ -49,6 +49,29 @@ define([],()=> {
 
       try {
         tableNameAttributes = tableNameFromAnalysisTable.data.data[0];
+
+        var tableNameAttributesVec = tableNameAttributes.split("_");
+        var analysisId = tableNameAttributesVec[tableNameAttributesVec.length-1];
+        var dataProviderid = dynamicDataSeries.data_provider_id;
+
+        var outputLayerArray;
+        $.ajax({
+          url: BASE_URL + 'api/Analysis/outputLayer',
+          type: "GET",
+          async: false,
+          data: {
+            dataProviderid: dataProviderid,
+            analysisId: analysisId
+          }
+        }).done(function(response){
+          if(typeof response !== 'undefined' && typeof response[0] !== 'undefined'){
+            var outputLayerJson = response[0].value;
+            outputLayerJson = outputLayerJson.replace('{','');
+            outputLayerJson = outputLayerJson.replace('}','');
+            outputLayerArray = new Array(outputLayerJson);
+          }
+        });
+        
       }
       catch(error) {
         console.log(error);
