@@ -468,7 +468,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
                                  timestampPropertyName,
                                  SQL);
 
-            layer.insert("layer", QString::fromStdString(layerName+"_intersection_geom"));
+            layer.insert("layer", QString::fromStdString(layerName));
             layersArray.push_back(layer);
           }
 
@@ -835,18 +835,9 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const terra
                                                                      const std::string& timestampPropertyName,
                                                                      const std::string& sql) const
 {
-  const std::string normalizedGeometryColumnName = QString(geometryColumnName.c_str()).replace('.', '_').toStdString();
-
   try
   {
     if (dataSeriesType == terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT)
-    {
-      // Remove internal layer
-      const std::string internalLayerName = layerName + "_" + normalizedGeometryColumnName;
-
-      deleteVectorLayer(dataStoreName, internalLayerName, true);
-    }
-    else
       deleteVectorLayer(dataStoreName, layerName, true);
   }
   catch(const NotFoundGeoserverException& /*e*/)
@@ -861,11 +852,6 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const terra
   std::string xml = "<featureType>";
   xml += "<title>" + viewLayerTitle(viewPtr) + "</title>";
   std::string viewName = viewLayerName(viewPtr);
-
-  // When vector processing, join viewname with geometry column in order to identify which geometry the
-  // layer is responsible for.
-  if (dataSeriesType == terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT)
-    viewName += "_" + normalizedGeometryColumnName;
   xml += "<name>" + viewName + "</name>";
 
   switch(dataSeriesType)
