@@ -14,8 +14,7 @@ define([],()=> {
       this.DataProviderService = DataProviderService;
       this.$timeout = $timeout;
       this.columnsList = [];
-      this.staticTableAttributes = {};
-      this.dynamicTableAttributes = {};
+      this.inputTableAttributes = {};
 
       if (!this.model) {
         this.model = { queryBuilder: '' };
@@ -35,23 +34,37 @@ define([],()=> {
     }
 
     async onChangeDynamicDataSeries() {
+
       const { DataProviderService } = this;
 
       const dynamicDataSeries = this.DataSeriesService.dynamicDataSeries().find(ds => (
         ds.id === parseInt(this.model.dynamicDataSeries)
       ));
 
+      const tableNameFromAnalysisTable = await DataProviderService.listPostgisObjects({providerId: dynamicDataSeries.data_provider_id,
+                                                                objectToGet: "values",
+                                                                tableName : dynamicDataSeries.dataSets[0].format.table_name,
+                                                                columnName: "table_name"});
+      let tableNameAttributes = "";
+
+      try {
+        tableNameAttributes = tableNameFromAnalysisTable.data.data[0];
+      }
+      catch(error) {
+        console.log(error);
+      }
+
       const options = {
         providerId: dynamicDataSeries.data_provider_id,
         objectToGet: "column",
-        tableName : dynamicDataSeries.name
+        tableName : tableNameAttributes === "" ? dynamicDataSeries.dataSets[0].format.table_name : tableNameAttributes
       }
 
       const res = await DataProviderService.listPostgisObjects(options);
-      var teste = res.data.data.map(item => item.column_name);
+      let dynamicTableAttributes = res.data.data.map(item => item.column_name);
 
-      teste.forEach(attribute => {
-        this.staticTableAttributes[attribute] = options.tableName + ":" + attribute;
+      dynamicTableAttributes.forEach(attribute => {
+        this.inputTableAttributes[attribute] = dynamicDataSeries.name + ":" + attribute;
       });
     }
 
@@ -71,42 +84,27 @@ define([],()=> {
 
     async listAttributes() {
       const { DataProviderService, targetDataSeries, $timeout } = this;
-      const tableName = targetDataSeries.dataSets[0].format.table_name;
 
       const options = {
         providerId: targetDataSeries.data_provider_id,
         objectToGet: "column",
-        tableName
+        tableName : targetDataSeries.dataSets[0].format.table_name
       }
 
       const res = await DataProviderService.listPostgisObjects(options);
       this.columnsList = res.data.data.map(item => item.column_name);
 
       this.columnsList.forEach(attribute => {
-        this.staticTableAttributes[attribute] = tableName + ":" + attribute;
+        this.inputTableAttributes[attribute] = targetDataSeries.name + ":" + attribute;
       });
     }
+    async onMultInputSelected() {
+      const { model } = this;
 
-//********************************************************************** */
-
-    function(angular) {
-      'use strict';
-    angular.module('staticSelect', [])
-      .controller('ExampleController', ['$scope', function($scope) {
-        $scope.data = {
-         singleSelect: null,
-         multipleSelect: [],
-         option1: 'option-1'
-        };
-
-        $scope.forceUnknownOption = function() {
-          $scope.data.singleSelect = 'nonsense';
-        };
-
-     }]);
+      model.data = {
+        inputAttributesLayer: []
+       };
     }
-
-//********************************************************************** */
 
     getTableName() {
       if (!this.targetDataSeries || angular.equals({}, this.targetDataSeries))
@@ -258,10 +256,10 @@ define([],()=> {
                   <div class="form-group has-feedback" terrama2-show-errors>
                     <label>Input Attribute Layer:</label>
                     <select class="form-control"
-                      name="multipleSelect"
-                      id="multipleSelect"
-                      ng-model="data.multipleSelect"
-                      ng-options="key as value for (key, value) in $ctrl.staticTableAttributes"
+                      name="inputAttributesLayer"
+                      id="inputAttributesLayer"
+                      ng-model="data.inputAttributesLayer"
+                      ng-options="key as value for (key, value) in $ctrl.inputTableAttributes"
                       ng-required="true" multiple>
                     </select><br>
                   </div>
@@ -276,7 +274,7 @@ define([],()=> {
                     id="outputlayer"
                     ng-model="$ctrl.model.outputlayer"
                     ng-change="$ctrl.onOutputLayerAttributesSelected()"
-                    ng-options="attributes for attributes in data.multipleSelect"
+                    ng-options="attributes for attributes in data.inputAttributesLayer"
                     ng-required="true" multiple>
                 </select><br>
                 </div>
