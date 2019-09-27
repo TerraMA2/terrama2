@@ -837,8 +837,7 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const terra
 {
   try
   {
-    if (dataSeriesType == terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT)
-      deleteVectorLayer(dataStoreName, layerName, true);
+    deleteVectorLayer(dataStoreName, layerName, true);
   }
   catch(const NotFoundGeoserverException& /*e*/)
   {
