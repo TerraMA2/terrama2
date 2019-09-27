@@ -90,7 +90,7 @@ define(
                 <div class="sidebar-subitem-text">
                   <div class="checkbox">
                     <label>
-                      <input type="checkbox" ${visible?"checked":""} /> 
+                      <input type="checkbox" ${visible?"checked":""} />
                       ${name}
                     </label>
                   </div>
@@ -102,7 +102,7 @@ define(
                   </div>
                 </div>
               </li>
-       `;
+      `;
     };
 
     /**
@@ -140,9 +140,9 @@ define(
         // Handle opacity slider control
         if(typeof $('input.opacity').slider === "function")
         $('input.opacity').slider();
-        
+
         $('.parent_li').find(' > ul > li').hide();
-        
+
         setSortable();
       }
     };
