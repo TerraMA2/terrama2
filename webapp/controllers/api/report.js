@@ -11,10 +11,170 @@
   module.exports = function(app) {
     return {
       getStaticData: async (request, response) => {
+        const {
+          projectName,
+          limit,
+          offset,
+          group,
+          date,
+          localization,
+          area,
+          defaultDateInterval,
+          count,
+          viewId
+        } = request.query
+        const view = await ViewFacade.retrieve(viewId)
+        const dataSeries = await DataManager.getDataSeries({id:view.data_series_id})
+        const dataProvider = await DataManager.getDataProvider({id:dataSeries.data_provider_id})
+        const uri = dataProvider.uri
+        // const conn = new Connection(uri)
+        const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
+        await conn.connect()
 
+        const dataSet = dataSeries.dataSets[0]
+        let tableName = dataSet.format.table_name
+
+        let sqlTableName = `SELECT DISTINCT table_name FROM ${tableName}`
+        resultTableName = await conn.execute(sqlTableName)
+
+        tableName = resultTableName.rows[0]['table_name']
+
+        let sqlSelect = `SELECT *`
+        let sqlFrom = ''
+        let sqlWhere = ''
+
+        sqlSelect += `, ST_Y(ST_Transform (ST_Centroid(intersection_geom), 4326)) AS "lat",
+                      ST_X(ST_Transform (ST_Centroid(intersection_geom), 4326)) AS "long"
+        `
+
+        sqlFrom += ` FROM public.${tableName}`
+
+        if (date) {
+          const { dateFrom, dateTo } = date
+          sqlWhere += `
+              WHERE execution_date::date >= '${dateFrom}' AND execution_date::date <= '${dateTo}'
+          `
+        } else if (defaultDateInterval) {
+          sqlWhere += `
+              WHERE execution_date::date > (now() - interval '${defaultDateInterval} day')
+          `
+        }
+
+        if (area) {
+          sqlWhere += ` AND calculated_area_ha > ${area}`
+        }
+
+        if (limit) {
+          sqlWhere +=` LIMIT ${limit}`
+        }
+
+        if(offset) {
+          sqlWhere +=` OFFSET ${offset}`
+        }
+
+        const sql = sqlSelect + sqlFrom + sqlWhere
+
+        let result
+        let resultCount
+        try {
+          result = await conn.execute(sql)
+          let dataJson = result.rows
+
+          let sqlCount
+          if (count) {
+            sqlCount = `SELECT COUNT(*) AS count FROM public.${tableName}`
+            resultCount = await conn.execute(sqlCount)
+            dataJson.push(resultCount.rows[0]['count'])
+          }
+
+          await conn.disconnect()
+          response.json(dataJson)
+        } catch (error) {
+          console.log(error)
+        }
       },
       getDynamicData: async (request, response) => {
+        const {
+          projectName,
+          limit,
+          offset,
+          group,
+          date,
+          localization,
+          area,
+          defaultDateInterval,
+          count,
+          viewId
+        } = request.query
+        const view = await ViewFacade.retrieve(viewId)
+        const dataSeries = await DataManager.getDataSeries({id:view.data_series_id})
+        const dataProvider = await DataManager.getDataProvider({id:dataSeries.data_provider_id})
+        const uri = dataProvider.uri
+        // const conn = new Connection(uri)
+        const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
+        await conn.connect()
 
+        const dataSet = dataSeries.dataSets[0]
+        let tableName = dataSet.format.table_name
+
+        let sqlTableName = `SELECT DISTINCT table_name FROM ${tableName}`
+        resultTableName = await conn.execute(sqlTableName)
+
+        tableName = resultTableName.rows[0]['table_name']
+
+        let sqlSelect = `SELECT *`
+        let sqlFrom = ''
+        let sqlWhere = ''
+
+        sqlSelect += `, ST_Y(ST_Transform (ST_Centroid(intersection_geom), 4326)) AS "lat",
+                      ST_X(ST_Transform (ST_Centroid(intersection_geom), 4326)) AS "long"
+        `
+
+        sqlFrom += ` FROM public.${tableName}`
+
+        if (date) {
+          const { dateFrom, dateTo } = date
+          sqlWhere += `
+              WHERE execution_date::date >= '${dateFrom}' AND execution_date::date <= '${dateTo}'
+          `
+        } else if (defaultDateInterval) {
+          sqlWhere += `
+              WHERE execution_date::date > (now() - interval '${defaultDateInterval} day')
+          `
+        }
+
+        if (area) {
+          sqlWhere += ` AND calculated_area_ha > ${area}`
+        }
+
+        if (limit) {
+          sqlWhere +=` LIMIT ${limit}`
+        }
+
+        if(offset) {
+          sqlWhere +=` OFFSET ${offset}`
+        }
+
+        const sql = sqlSelect + sqlFrom + sqlWhere
+
+        let result
+        let resultCount
+        try {
+          result = await conn.execute(sql)
+          let dataJson = result.rows
+
+          let sqlCount
+          if (count) {
+            sqlCount = `SELECT COUNT(*) AS count FROM public.${tableName}`
+            resultCount = await conn.execute(sqlCount)
+            dataJson.push(resultCount.rows[0]['count'])
+          }
+
+          await conn.disconnect()
+          response.json(dataJson)
+        } catch (error) {
+          console.log(error)
+        }
       },
       getAnalysisData: async (request, response) => {
         const {
@@ -29,7 +189,6 @@
           count,
           viewId
         } = request.query
-
         const view = await ViewFacade.retrieve(viewId)
         const dataSeries = await DataManager.getDataSeries({id:view.data_series_id})
         const dataProvider = await DataManager.getDataProvider({id:dataSeries.data_provider_id})
