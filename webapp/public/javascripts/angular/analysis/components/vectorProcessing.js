@@ -98,7 +98,6 @@ define([],()=> {
         this.inputTableAttributes[attribute] = targetDataSeries.name + ":" + attribute;
       });
     }
-
     async onMultInputSelected() {
       const { model } = this;
 

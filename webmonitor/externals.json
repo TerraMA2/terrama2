@@ -68,22 +68,6 @@
     "path": "node_modules/i18next-xhr-backend"
   },
   {
-    "publicUrl": "externals/d3/dist",
-    "path": "node_modules/d3/dist"
-  },
-  {
-    "publicUrl": "externals/crossfilter2",
-    "path": "node_modules/crossfilter2"
-  },
-  {
-    "publicUrl": "externals/dc",
-    "path": "node_modules/dc"
-  },
-  {
-    "publicUrl": "externals/c3",
-    "path": "node_modules/c3"
-  },
-  {
     "publicUrl": "externals/@amcharts/amcharts4",
     "path": "node_modules/@amcharts/amcharts4"
   },
