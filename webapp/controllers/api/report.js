@@ -10,6 +10,96 @@
    */
   module.exports = function(app) {
     return {
+      getStaticData: async (request, response) => {
+
+      },
+      getDynamicData: async (request, response) => {
+
+      },
+      getAnalysisData: async (request, response) => {
+        const {
+          projectName,
+          limit,
+          offset,
+          group,
+          date,
+          localization,
+          area,
+          defaultDateInterval,
+          count,
+          viewId
+        } = request.query
+
+        const view = await ViewFacade.retrieve(viewId)
+        const dataSeries = await DataManager.getDataSeries({id:view.data_series_id})
+        const dataProvider = await DataManager.getDataProvider({id:dataSeries.data_provider_id})
+        const uri = dataProvider.uri
+        // const conn = new Connection(uri)
+        const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
+        await conn.connect()
+
+        const dataSet = dataSeries.dataSets[0]
+        let tableName = dataSet.format.table_name
+
+        let sqlTableName = `SELECT DISTINCT table_name FROM ${tableName}`
+        resultTableName = await conn.execute(sqlTableName)
+
+        tableName = resultTableName.rows[0]['table_name']
+
+        let sqlSelect = `SELECT *`
+        let sqlFrom = ''
+        let sqlWhere = ''
+
+        sqlSelect += `, ST_Y(ST_Transform (ST_Centroid(intersection_geom), 4326)) AS "lat",
+                      ST_X(ST_Transform (ST_Centroid(intersection_geom), 4326)) AS "long"
+        `
+
+        sqlFrom += ` FROM public.${tableName}`
+
+        if (date) {
+          const { dateFrom, dateTo } = date
+          sqlWhere += `
+              WHERE execution_date::date >= '${dateFrom}' AND execution_date::date <= '${dateTo}'
+          `
+        } else if (defaultDateInterval) {
+          sqlWhere += `
+              WHERE execution_date::date > (now() - interval '${defaultDateInterval} day')
+          `
+        }
+
+        if (area) {
+          sqlWhere += ` AND calculated_area_ha > ${area}`
+        }
+
+        if (limit) {
+          sqlWhere +=` LIMIT ${limit}`
+        }
+
+        if(offset) {
+          sqlWhere +=` OFFSET ${offset}`
+        }
+
+        const sql = sqlSelect + sqlFrom + sqlWhere
+
+        let result
+        let resultCount
+        try {
+          result = await conn.execute(sql)
+          let dataJson = result.rows
+
+          let sqlCount
+          if (count) {
+            sqlCount = `SELECT COUNT(*) AS count FROM public.${tableName}`
+            resultCount = await conn.execute(sqlCount)
+            dataJson.push(resultCount.rows[0]['count'])
+          }
+
+          await conn.disconnect()
+          response.json(dataJson)
+        } catch (error) {
+          console.log(error)
+        }
+      },
       getData: async (request, response) => {
         const {
           projectName,
@@ -29,9 +119,11 @@
         const dataProvider = await DataManager.getDataProvider({id:dataSeries.data_provider_id})
         const uri = dataProvider.uri
         const dataSet = dataSeries.dataSets[0]
+        const tableName = dataSet.format.table_name
+
+
         const timestampProperty = dataSet.format.timestamp_property
         const geometryProperty = dataSet.format.geometry_property
-        const tableName = dataSet.format.table_name
         // const conn = new Connection(uri)
         const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
         await conn.connect()
@@ -57,7 +149,7 @@
           `
         } else if(timestampProperty) {
           sqlWhere += `
-              WHERE ${timestampProperty}::date > now() - interval '2 day'
+              WHERE ${timestampProperty}::date > (now() - interval '2 day')
           `
         }
 
@@ -126,6 +218,54 @@
         carInfoJson["property-data"] = propertyData
         await conn.disconnect()
         response.json(propertyData)
+      },
+      getCarData: async (request, response) => {
+        const {
+          carRegister,
+          viewId
+        } = request.query
+
+        const view = await ViewFacade.retrieve(viewId)
+        const dataSeries = await DataManager.getDataSeries({id:view.data_series_id})
+        const dataProvider = await DataManager.getDataProvider({id:dataSeries.data_provider_id})
+        // const uri = dataProvider.uri
+        const tableName = dataSeries.dataSets[0].format.table_name
+        // const conn = new Connection(uri)
+        const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
+        await conn.connect()
+
+        let sql = `
+            SELECT
+            car.numero_do2 AS register,
+            car.area_ha_ AS area,
+            car.nome_da_p1 AS name,
+            car.municipio1 AS city,
+            substring(ST_EXTENT(car.geom)::TEXT, 5, length(ST_EXTENT(car.geom)::TEXT) - 5)
+            FROM public.${tableName} AS car
+            WHERE car.numero_do2 = '${carRegister}'
+            GROUP BY car.numero_do2, car.area_ha_, car.nome_da_p1, car.municipio1
+            `;
+
+        // ST_Y(ST_Transform (ST_Centroid(car.geom), 4326)) AS "lat",
+        // ST_X(ST_Transform (ST_Centroid(car.geom), 4326)) AS "long"
+        // let sql = `
+        //     SELECT
+        //     aip.cod_imovel AS "car-register",
+        //     aip.num_area AS area,
+        //     aip.num_modulo AS "tax-modules",
+        //     aip.geocodigo as geocode,
+        //     m.nm_municip AS state
+        //     FROM public.${tableName} AS aip
+        //     INNER JOIN public.municipios AS m
+        //     ON
+        //     aip.geocodigo = cast(m.cd_geocmu AS int)
+        //     WHERE aip.cod_imovel = '${carRegister}'
+        // `;
+        const result = await conn.execute(sql)
+        let propertyData = result.rows[0]
+        await conn.disconnect()
+        response.json(propertyData)
+
       },
       get: async (request, response) => {
         let {
