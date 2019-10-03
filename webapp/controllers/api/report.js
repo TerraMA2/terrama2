@@ -255,9 +255,39 @@
             WHERE car.numero_do2 = '${carRegister}'
             GROUP BY car.numero_do2, car.area_ha_, car.nome_da_p1, car.municipio1, car.geom
         `;
-
         const result = await conn.execute(sql)
         let propertyData = result.rows[0]
+
+        const sqlBurningSpotlights = `
+                    SELECT
+                    count(*) as focuscount,
+                    extract('YEAR' FROM focus.execution_date) as year
+                    FROM public.apv_car_focos_21 focus
+                    INNER JOIN public.${tableName} AS car on
+                    focus.numero_do1 = car.numero_do1 AND
+                    car.numero_do2 = '${carRegister}'
+                    group by year
+                  `
+
+        const resultBurningSpotlights = await conn.execute(sqlBurningSpotlights)
+        const burningSpotlights = resultBurningSpotlights.rows
+
+        const sqlBurnedAreas = `
+                    SELECT
+                    count(*) as focuscount,
+                    extract('YEAR' FROM focus.execution_date) as year
+                    FROM public.apv_car_focos_21 focus
+                    INNER JOIN public.${tableName} AS car on
+                    focus.numero_do1 = car.numero_do1 AND
+                    car.numero_do2 = '${carRegister}'
+                    group by year
+                  `
+
+        const resultBurnedAreas = await conn.execute(sqlBurnedAreas)
+        const burnedAreas = resultBurnedAreas.rows
+
+        propertyData.burningSpotlights = burningSpotlights
+        propertyData.burnedAreas = burnedAreas
         await conn.disconnect()
         response.json(propertyData)
       },
