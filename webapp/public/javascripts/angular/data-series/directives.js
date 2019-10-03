@@ -663,7 +663,7 @@ define([], function() {
       return {
         restrict: 'EA',
         templateUrl: 'importShapefile.html',
-        controller: ['$scope', 'MessageBoxService', 'Upload', '$timeout', 'i18n', '$http', function($scope, MessageBoxService, Upload, $timeout, i18n, $http) {
+        controller: ['$scope', 'MessageBoxService', 'DataProviderService','Upload', '$timeout', 'i18n', '$http', function($scope, MessageBoxService, DataProviderService,Upload, $timeout, i18n, $http) {
           $scope.shpImport = {
             srid: null,
             encoding: "latin1",
@@ -684,7 +684,33 @@ define([], function() {
            */
           modal.on('hidden.bs.modal', () => {
             if ($scope.uploaded) {
-              $scope.save();
+
+              var tableName = $scope.model['table_name'];
+              var provider = $scope.dataSeries.data_provider_id;
+
+              DataProviderService.listPostgisObjects({providerId: provider, objectToGet: "column", tableName})
+              .then(response=>{
+                if (response.data.status == 400){
+                  return result.reject(response.data);
+                }
+                response.data.data.map(element => {
+
+                  var visibleOp = true;
+                  var aliasOp = element.column_name;
+
+                  $scope.model.attributes.push(
+                    {
+                      name:element.column_name,
+                      visible: visibleOp,
+                      alias: aliasOp
+                    }
+                  );
+
+                });
+
+                $scope.save();
+              });
+              
             }
           });
 

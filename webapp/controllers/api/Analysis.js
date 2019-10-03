@@ -114,28 +114,6 @@ module.exports = function(app) {
           return Utils.handleRequestError(response, err, 400);
         });
     },
-
-    outputLayer: async (request, response) => {
-      let {
-        analysisId,dataProviderid
-      } = request.query
-      
-      const dataProvider = await DataManager.getDataProvider({id:dataProviderid})
-      
-      const conn = new Connection(dataProvider.uri);
-      await conn.connect();
-      let sql = "";
-      sql = `
-        SELECT value
-        FROM terrama2.analysis_metadata
-        WHERE analysis_id = ${analysisId} AND key = 'outputlayer';
-      `;
-
-      const result = await conn.execute(sql)
-      let rows = result.rows
-      await conn.disconnect();
-      response.json(rows)
-    },
-
+    
   };
 };
