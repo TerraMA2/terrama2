@@ -52,8 +52,8 @@ define([],()=> {
             return result.reject(response.data);
           }
           response.data.data.map(element => {
-            var visibleOp = false;
-            var aliasOp = "";
+            var visibleOp = true;
+            var aliasOp = element.column_name;
 
             attributesJson.forEach(function(jsonElement){
               if(element.column_name == jsonElement.name){

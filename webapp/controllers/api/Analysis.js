@@ -5,6 +5,8 @@ var Utils = require('./../../core/Utils');
 var TokenCode = require('./../../core/Enums').TokenCode;
 var AnalysisError = require("./../../core/Exceptions").AnalysisError;
 var AnalysisFacade = require("./../../core/facade/Analysis");
+var DataManager = require('../../core/DataManager');
+var {Connection} = require('../../core/utility/connection');
 
 module.exports = function(app) {
   return {
@@ -111,6 +113,7 @@ module.exports = function(app) {
         .catch(function(err) {
           return Utils.handleRequestError(response, err, 400);
         });
-    }
+    },
+    
   };
 };
