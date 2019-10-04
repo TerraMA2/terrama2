@@ -9,16 +9,21 @@ define([],()=> {
       this.SpatialOperations = SpatialOperations;
       this.DataSeriesService = DataSeriesService;
       this.DataProviderService = DataProviderService;
+
       this.$timeout = $timeout;
+
       this.columnsList = [];
       this.inputTableAttributes = {};
 
       this.dynamicDataSerieSelected = "";
       this.staticDataSerieSelected = "";
-      this.listDynamicDataSerie = [];
-      this.listStaticDataSerie = [];
+
+      this.listDynamicDataSerie = {};
+      this.listStaticDataSerie = {};
+
       this.listInputLayersSelected = [];
       this.listOutputLayersSelected = [];
+
       this.outputLayerArray = [];
 
       this.$scope = $scope;
@@ -38,7 +43,7 @@ define([],()=> {
 
         const {model} = this
 
-        var outputLayerJson = model.outputlayer;
+        let outputLayerJson = model.outputlayer;
         $("#outputlayer").attr('disabled',true);
 
         if(typeof outputLayerJson !== 'undefined' && outputLayerJson != ""){
@@ -83,15 +88,8 @@ define([],()=> {
       this.columnsList = res.data.data.map(item => item.column_name);
 
       if(this.staticDataSerieSelected !== ""){
-        Object.entries(this.listStaticDataSerie).forEach((key)=>{
-          var lineWillBeRemoved = key[1];
-
-          var lineWillBeRemovedVec = lineWillBeRemoved.split(":");
-          var lineInputTable = this.inputTableAttributes[lineWillBeRemovedVec[1]];
-
-          if(lineInputTable == lineWillBeRemoved){
-            delete this.inputTableAttributes[lineWillBeRemovedVec[1]];
-          }
+        Object.keys(this.listStaticDataSerie).forEach(key => {
+          delete this.inputTableAttributes[key];
         });
       }
 
@@ -99,8 +97,8 @@ define([],()=> {
         let key = options.tableName + "." + attribute + " AS " + options.tableName + "_" + attribute;
         let value = targetDataSeries.name + ":" + attribute;
 
-        this.inputTableAttributes[key] = targetDataSeries.name + ":" + attribute;
-        this.listStaticDataSerie.push(value);
+        this.inputTableAttributes[key] = value;
+        this.listStaticDataSerie[key] = value;
       });
 
       this.staticDataSerieSelected = targetDataSeries.name;
@@ -121,7 +119,7 @@ define([],()=> {
                                                                 tableName : dynamicDataSeries.dataSets[0].format.table_name,
                                                                 columnName: "table_name"})
 
-      var tableNameAttributes = "";
+      let tableNameAttributes = "";
 
       try {
         tableNameAttributes = tableNameFromAnalysisTable.data.data[0];
@@ -140,16 +138,8 @@ define([],()=> {
       let dynamicTableAttributes = res.data.data.map(item => item.column_name);
 
       if(this.dynamicDataSerieSelected !== ""){
-        Object.entries(this.listDynamicDataSerie).forEach((key)=>{
-          var lineWillBeRemoved = key[1];
-
-          var lineWillBeRemovedVec = lineWillBeRemoved.split(":");
-          var lineInputTable = this.inputTableAttributes[lineWillBeRemovedVec[1]];
-
-          if(lineInputTable == lineWillBeRemoved){
-            delete this.inputTableAttributes[lineWillBeRemovedVec[1]];
-          }
-
+        Object.keys(this.listDynamicDataSerie).forEach(key => {
+            delete this.inputTableAttributes[key];
         });
       }
 
@@ -158,7 +148,7 @@ define([],()=> {
         let value = dynamicDataSeries.name + ":" + attribute;
 
         this.inputTableAttributes[key] = value;
-        this.listDynamicDataSerie.push(value);
+        this.listDynamicDataSerie[key] = value;
       });
 
       this.dynamicDataSerieSelected = dynamicDataSeries.name;
