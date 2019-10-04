@@ -59,21 +59,16 @@ var GetAttributesTableController = function(app) {
           body = JSON.parse(body);
 
           for(var i = 0, propertiesLength = body.featureTypes[0].properties.length; i < propertiesLength; i++) {
-            var type = body.featureTypes[0].properties[i].type.split(':');
-
-            if(type[0] !== "gml") {
-              fields.push({
-                name: body.featureTypes[0].properties[i].name,
-                string: (body.featureTypes[0].properties[i].localType === "string" ? true : false),
-                dateTime: (body.featureTypes[0].properties[i].localType === "date-time" ? true : false),
-                date: (body.featureTypes[0].properties[i].localType === "date" ? true : false)
-              });
-            }
+            fields.push({
+              name: body.featureTypes[0].properties[i].name,
+              string: (body.featureTypes[0].properties[i].localType === "string" ? true : false),
+              dateTime: (body.featureTypes[0].properties[i].localType === "date-time" ? true : false),
+              date: (body.featureTypes[0].properties[i].localType === "date" ? true : false)
+            });            
           }
         } catch(ex) {
           body = {};
         }
-
         callback(fields);
       });
     }).on("error", function(e) {
@@ -162,8 +157,12 @@ var GetAttributesTableController = function(app) {
             body.features.forEach(function(val) {
               var temp = [];
               for(var key in val.properties) temp.push(val.properties[key]);
+              if(val.geometry != null){
+                temp.push(val.geometry.type);
+              }
               data.push(temp);
             });
+
           } catch(ex) {
             body = {};
           }
