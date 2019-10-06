@@ -101,17 +101,19 @@
       </div>
     </wz-step>
 
-    <!-- <wz-step wz-title="{{ i18n.__('Attributes') }}" canexit="isSecondStepValid" wz-data="wizard.parameters" wz-disabled="{{isDynamic}}">
-      <attributes model="model.attributes" metadata="ctrl.metadata" provider="dataSeries.data_provider_id" table-name="model.table_name" ng-if="model.table_name!==undefined && dataSeries.data_provider_id!==undefined"></attributes>
-      <div class="col-md-12">
-          <a href="" class="btn btn-primary pull-left cancel-dynamic" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
-          <a href="" class="btn btn-primary pull-left cancel-static" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
-          <div class="pull-right">
-            <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
-            <button type="button" class="btn btn-primary" ng-show="!isDynamic" data-ng-click="save(false);">{{ i18n.__('Save') }}</button>
+    <wz-step wz-title="{{ i18n.__('Attributes') }}" canexit="isSecondStepValid" wz-data="wizard.attributes" wz-disabled="{{isDynamic || model.table_name==undefined}}" canenter="!wizard.attributes.disabled">
+        <form name="forms.attributesForm"></form>
+          <attributes model="model.attributes" dataserie="dataSeries" provider="dataSeries.data_provider_id" table-name="model.table_name" ng-if="model.table_name!==undefined && dataSeries.data_provider_id!==undefined"></attributes>
+          <div class="col-md-12">
+              <a href="" class="btn btn-primary pull-left cancel-dynamic" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
+              <a href="" class="btn btn-primary pull-left cancel-static" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
+              <div class="pull-right">
+                <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
+                <button type="button" class="btn btn-primary" ng-show="!isDynamic" data-ng-click="save(false);">{{ i18n.__('Save') }}</button>
+              </div>
           </div>
-      </div>
-    </wz-step> -->
+        </form>
+    </wz-step>
 
     <wz-step wz-title="{{ i18n.__('CSV Format') }}" canexit="validateSteps" wz-disabled="{{!custom_format}}" wz-data="wizard.csvFormat">
       <div class="col-md-12">

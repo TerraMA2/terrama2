@@ -12,8 +12,11 @@ var session = require('express-session');
 var load = require('express-load');
 var io = require('socket.io')();
 var Application = require('./core/Application');
+var cors = require('cors')
 
 var app = express();
+
+app.use(cors())
 
 var webMonitorSession = session({ secret: KEY, name: "TerraMA2WebMonitor_" + (process.argv[2] !== undefined ? process.argv[2] : "default"), resave: false, saveUninitialized: false });
 
