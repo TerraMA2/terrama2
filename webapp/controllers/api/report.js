@@ -243,20 +243,21 @@
         // const conn = new Connection(uri)
         const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
         await conn.connect()
-
-        let sql = `
-            SELECT
+        let sql = `SELECT
             car.numero_do2 AS register,
             car.area_ha_ AS area,
             car.nome_da_p1 AS name,
             car.municipio1 AS city,
+            substring(ST_EXTENT(munic.geom)::TEXT, 5, length(ST_EXTENT(munic.geom)::TEXT) - 5) as citybbox,
             substring(ST_EXTENT(car.geom)::TEXT, 5, length(ST_EXTENT(car.geom)::TEXT) - 5) as bbox,
             ST_Y(ST_Transform (ST_Centroid(car.geom), 4326)) AS "lat",
             ST_X(ST_Transform (ST_Centroid(car.geom), 4326)) AS "long"
             FROM public.${tableName} AS car
-            WHERE car.numero_do2 = '${carRegister}'
-            GROUP BY car.numero_do2, car.area_ha_, car.nome_da_p1, car.municipio1, car.geom
-        `;
+            INNER JOIN de_municipios_sema munic ON
+            car.numero_do2 = '${carRegister}'
+            AND munic.municipio = car.municipio1
+            GROUP BY car.numero_do2, car.area_ha_, car.nome_da_p1, car.municipio1, car.geom`;
+
         const result = await conn.execute(sql)
         let propertyData = result.rows[0]
 
@@ -288,8 +289,11 @@
         const resultBurnedAreas = await conn.execute(sqlBurnedAreas)
         const burnedAreas = resultBurnedAreas.rows
 
-        propertyData.burningSpotlights = burningSpotlights
-        propertyData.burnedAreas = burnedAreas
+        if (propertyData) {
+          propertyData.burningSpotlights = burningSpotlights
+          propertyData.burnedAreas = burnedAreas
+        }
+
         await conn.disconnect()
         response.json(propertyData)
       },
