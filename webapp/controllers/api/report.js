@@ -105,7 +105,9 @@
         sqlFrom += ` FROM public.${tableName}`
 
         if (date) {
-          const { dateFrom, dateTo } = date
+          const dateFrom = date[0];
+          const dateTo = date[1];
+
           sqlWhere += `
               WHERE ${timeStampColumn}::date >= '${dateFrom}' AND ${timeStampColumn}::date <= '${dateTo}'
           `
