@@ -167,7 +167,7 @@
           }
         };
 
-        const res = await listConditionedProcess(restritions);
+        const res = await listConditionedProcess(restritions, options);
 
         transaction.commit()
 
@@ -207,7 +207,7 @@
           }
         };
 
-        const res = await listConditionedProcess(restritions);
+        const res = await listConditionedProcess(restritions, options);
 
         transaction.commit();
 
@@ -257,42 +257,71 @@
   /**
    * Function to list conditioned process
    */
-
-  var listConditionedProcess = async (restritions, options) => {
-    const automaticScheduleList = await DataManager.listAutomaticSchedule(restritions, options);
-
-    if (automaticScheduleList.length === 0){
-      return;
-    }
-
-    const processToRun = [];
-
-    for(const automaticSchedule of automaticScheduleList){
-      const result = await prepareAnalysis(options, automaticSchedule);
-
-      processToRun.push(result);
-    }
-
-    var objectResponse = {
-      serviceType: ServiceType.COLLECTOR,
-      processToRun: processToRun
+  var listConditionedProcess = function(restritions, options, resolve, reject){
+    // Get automatic schedule list that contais the collector
+    return DataManager.listAutomaticSchedule(restritions, options)
+      .then(function(automaticScheduleList){
+        if (automaticScheduleList.length > 0){
+          var promises = [];
+          //for each automatic schedule in list, check if belong to an analysis or a view
+          automaticScheduleList.forEach(function(automaticSchedule){
+            promises.push(DataManager.getAnalysis({automatic_schedule_id: automaticSchedule.id}, options)
+              .then(function(analysisResult){
+                return DataManager.getServiceInstance({id: analysisResult.instance_id}, options)
+                  .then(function(instanceServiceResponse){
+                    var objectToRun = {
+                      ids: [analysisResult.id],
+                      object: analysisResult,
+                      instance: instanceServiceResponse,
+                    };
+                    return objectToRun;
+                  })
+              })
+              .catch(function(err){
+                return DataManager.getView({automatic_schedule_id: automaticSchedule.id}, options)
+                  .then(function(viewResult){
+                    return DataManager.getServiceInstance({id: viewResult.serviceInstanceId}, options)
+                      .then(function(instanceServiceResponse){
+                        var objectToRun = {
+                          ids: [viewResult.id],
+                          object: viewResult,
+                          instance: instanceServiceResponse,
+                        };
+                        return objectToRun;
+                      });
+                  })
+                  .catch(function(err){
+                    return DataManager.getAlert({automatic_schedule_id: automaticSchedule.id}, options)
+                      .then(function(alertResult){
+                        return DataManager.getServiceInstance({id: alertResult.service_instance_id}, options)
+                          .then(function(instanceServiceResponse){
+                            var objectToRun = {
+                              ids: [alertResult.id],
+                              object: alertResult,
+                              instance: instanceServiceResponse
+                            };
+                            return objectToRun;
+                          });
+                      })
+                      .catch(function(){
+                        return null;
+                      });
+                  });
+              }));
+          });
+          return Promise.all(promises).then(function(processToRun){
+            var objectResponse = {
+              serviceType: ServiceType.COLLECTOR,
+              processToRun: processToRun
+            };
+            return objectResponse;
+          });
+        } else {
+          return resolve();
+        }
+      })
+      .catch(function(err){
+        return reject(new Error(err.toString()));
+      });
     };
-
-    return objectResponse;
-  };
-
-  var prepareAnalysis = async (options, automaticSchedule) =>{
-    const analysisResult = await DataManager.getAnalysis({automatic_schedule_id: automaticSchedule.id}, options);
-
-    const instanceServiceResponse = await DataManager.getServiceInstance({id: analysisResult.instance_id}, options);
-
-    const objectToRun = {
-      ids: [analysisResult.id],
-      object: analysisResult,
-      instance: instanceServiceResponse,
-    };
-
-    return objectToRun;
-  }
-
 } ());

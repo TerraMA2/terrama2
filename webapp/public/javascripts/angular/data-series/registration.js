@@ -110,6 +110,10 @@ define([], function() {
       $scope.filter.area.crop_raster = false;
     };
 
+    var clearAttributesForm = function(){      
+      $scope.wizard.attributes.message = i18n.__("Add attributes configuration");
+    };
+
     var clearFilterForm = function(){
       $scope.filter.date = {};
       $scope.filter.filterArea = "1";
@@ -224,6 +228,11 @@ define([], function() {
       }
     };
 
+    var enableAttributesForm = function(){
+      $scope.wizard.attributes.disabled = false;
+      $scope.wizard.attributes.message = i18n.__("Remove attributes configuration");
+    }
+
     // Function to enable optional forms on wizard mode
     var enableStoreForm = function(){
       $scope.wizard.store.disabled = false;
@@ -256,6 +265,15 @@ define([], function() {
         required: true,
         formName: 'parametersForm',
         disabled: true
+      },
+      attributes: {
+        required: false,
+        formName: 'attributesForm',
+        optional: true,
+        disabled: true,
+        enableForm: enableAttributesForm,
+        clearForm: clearAttributesForm,
+        message: i18n.__("Add attributes configuration")
       },
       store: {
         required: false,
@@ -2070,6 +2088,7 @@ define([], function() {
 
       // it prepares dataseries object, schedule and filter object
       var _save = function() {
+
         var dataToSend = Object.assign({}, $scope.dataSeries);
         dataToSend.data_series_semantics_id = $scope.dataSeries.semantics.id;
 
