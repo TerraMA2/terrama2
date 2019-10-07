@@ -57,7 +57,9 @@
         sqlFrom += ` FROM public.${tableName}`
 
         if (date) {
-          const { dateFrom, dateTo } = date
+          const dateFrom = date[0];
+          const dateTo = date[1];
+
           sqlWhere += `
               WHERE execution_date::date >= '${dateFrom}' AND execution_date::date <= '${dateTo}'
           `
