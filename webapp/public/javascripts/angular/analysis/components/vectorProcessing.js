@@ -6,58 +6,60 @@ define([],()=> {
       this.attributeIdentifierTitle = i18n.__("Attribute Identifier");
       this.dynamicDataSeriesTitle = i18n.__("Dynamic Data Series");
 
-      // this.startDate = i18n.__("Start Date");
-      // this.endDate = i18n.__("End Date");
-
       this.SpatialOperations = SpatialOperations;
       this.DataSeriesService = DataSeriesService;
       this.DataProviderService = DataProviderService;
+
       this.$timeout = $timeout;
+
       this.columnsList = [];
       this.inputTableAttributes = {};
 
       this.dynamicDataSerieSelected = "";
       this.staticDataSerieSelected = "";
-      this.listDynamicDataSerie = [];
-      this.listStaticDataSerie = [];
+
+      this.listDynamicDataSerie = {};
+      this.listStaticDataSerie = {};
+
       this.listInputLayersSelected = [];
       this.listOutputLayersSelected = [];
-      this.outputLayerArray;
+
+      this.outputLayerArray = [];
 
       this.$scope = $scope;
 
       if (!this.model) {
         this.model = { queryBuilder: '' };
-      }      
+      }
 
       this.verifyData();
-
     }
 
     verifyData(){
       this.$timeout(()=>{
-        
+
         this.onChangeStaticDataSeries();
         this.onChangeDynamicDataSeries();
 
         const {model} = this
 
-        var outputLayerJson = model.outputlayer;
+        let outputLayerJson = model.outputlayer;
+        $("#outputlayer").attr('disabled',true);
+
         if(typeof outputLayerJson !== 'undefined' && outputLayerJson != ""){
           outputLayerJson = outputLayerJson.replace('{','');
           outputLayerJson = outputLayerJson.replace('}','');
-          this.outputLayerArray = new Array(outputLayerJson);
-  
+          this.outputLayerArray = outputLayerJson.split(",");
+
           this.outputLayerArray.forEach(layer => {
+            layer = layer.replace('"','');
+            layer = layer.replace('"','');
             this.listOutputLayersSelected.push(layer);
           });
 
-          $("#outputlayer").attr('disabled',true);
           $("#selectStaticDataSeries").attr('disabled',true);
           $("#selectDynamicDataSeries").attr('disabled',true);
-
-        }        
-
+        }
       })
     }
 
@@ -73,6 +75,37 @@ define([],()=> {
       await this.listAttributes();
     }
 
+    async listAttributes() {
+      const { DataProviderService, targetDataSeries, $timeout } = this;
+
+      const options = {
+        providerId: targetDataSeries.data_provider_id,
+        objectToGet: "column",
+        tableName : targetDataSeries.dataSets[0].format.table_name
+      }
+
+      const res = await DataProviderService.listPostgisObjects(options);
+      this.columnsList = res.data.data.map(item => item.column_name);
+
+      if(this.staticDataSerieSelected !== ""){
+        Object.keys(this.listStaticDataSerie).forEach(key => {
+          delete this.inputTableAttributes[key];
+        });
+      }
+
+      this.columnsList.forEach(attribute => {
+        let key = options.tableName + "." + attribute + " AS " + options.tableName + "_" + attribute;
+        let value = targetDataSeries.name + ":" + attribute;
+
+        this.inputTableAttributes[key] = value;
+        this.listStaticDataSerie[key] = value;
+      });
+
+      this.staticDataSerieSelected = targetDataSeries.name;
+
+      this.$scope.$digest();
+    }
+
     async onChangeDynamicDataSeries() {
 
       const { DataProviderService } = this;
@@ -86,7 +119,7 @@ define([],()=> {
                                                                 tableName : dynamicDataSeries.dataSets[0].format.table_name,
                                                                 columnName: "table_name"})
 
-      var tableNameAttributes = "";
+      let tableNameAttributes = "";
 
       try {
         tableNameAttributes = tableNameFromAnalysisTable.data.data[0];
@@ -105,78 +138,22 @@ define([],()=> {
       let dynamicTableAttributes = res.data.data.map(item => item.column_name);
 
       if(this.dynamicDataSerieSelected !== ""){
-        Object.entries(this.listDynamicDataSerie).forEach((key)=>{
-          var lineWillBeRemoved = key[1];
-
-          var lineWillBeRemovedVec = lineWillBeRemoved.split(":");
-          var lineInputTable = this.inputTableAttributes[lineWillBeRemovedVec[1]];
-
-          if(lineInputTable == lineWillBeRemoved){
-            delete this.inputTableAttributes[lineWillBeRemovedVec[1]];
-          }
-
+        Object.keys(this.listDynamicDataSerie).forEach(key => {
+            delete this.inputTableAttributes[key];
         });
       }
 
       dynamicTableAttributes.forEach(attribute => {
-        this.inputTableAttributes[attribute] = dynamicDataSeries.name + ":" + attribute;
-        this.listDynamicDataSerie.push(dynamicDataSeries.name + ":" + attribute);
+        let key = options.tableName + "." + attribute + " AS " + options.tableName + "_" + attribute;
+        let value = dynamicDataSeries.name + ":" + attribute;
+
+        this.inputTableAttributes[key] = value;
+        this.listDynamicDataSerie[key] = value;
       });
 
       this.dynamicDataSerieSelected = dynamicDataSeries.name;
 
       this.$scope.$digest();
-
-    }
-
-    // async onChangeStartDate() {
-    //   this.model.startDate = moment(this.model.startDate).format("YYYY-MM-DD");
-
-    //   if(!this.model.startDate)
-    //     this.model.startDate = '';
-    // }
-
-    // async onChangeEndDate() {
-    //   this.model.endDate = moment(this.model.endDate).format("YYYY-MM-DD");
-
-    //   if(!this.model.endDate)
-    //     this.model.endDate = '';
-    // }
-
-    async listAttributes() {
-      const { DataProviderService, targetDataSeries, $timeout } = this;
-
-      const options = {
-        providerId: targetDataSeries.data_provider_id,
-        objectToGet: "column",
-        tableName : targetDataSeries.dataSets[0].format.table_name
-      }
-
-      const res = await DataProviderService.listPostgisObjects(options);
-      this.columnsList = res.data.data.map(item => item.column_name);
-
-      if(this.staticDataSerieSelected !== ""){
-        Object.entries(this.listStaticDataSerie).forEach((key)=>{
-          var lineWillBeRemoved = key[1];
-
-          var lineWillBeRemovedVec = lineWillBeRemoved.split(":");
-          var lineInputTable = this.inputTableAttributes[lineWillBeRemovedVec[1]];
-
-          if(lineInputTable == lineWillBeRemoved){
-            delete this.inputTableAttributes[lineWillBeRemovedVec[1]];
-          }
-        });
-      }
-
-      this.columnsList.forEach(attribute => {
-        this.inputTableAttributes[attribute] = targetDataSeries.name + ":" + attribute;
-        this.listStaticDataSerie.push(targetDataSeries.name + ":" + attribute);
-      });
-
-      this.staticDataSerieSelected = targetDataSeries.name;
-
-      this.$scope.$digest();
- 
     }
 
     async onMultInputSelected() {
@@ -189,16 +166,13 @@ define([],()=> {
 
       if(typeof this.model.outputlayer !== 'undefined' && this.model.outputlayer != ""){
         this.outputLayerArray.forEach(layer => {
+          layer = layer.replace('"','');
+          layer = layer.replace('"','');
           this.listOutputLayersSelected.push(layer);
         });
       }
-    }
 
-    async onOutputLayerAttributesSelected(){
-      const{model, targetDataSeries} = this;
-
-      console.log(this);
-      console.log(this.model.outputlayer);
+      this.model.outputlayer = [ ...new Set(this.listOutputLayersSelected) ];
     }
 
     getTableName() {
@@ -261,7 +235,7 @@ define([],()=> {
                 <div class="col-align-self-start">
                   <div class="form-group has-feedback" terrama2-show-errors>
                     <label>Static Data Series:</label>
-                    <select id="selectStaticDataSeries" 
+                    <select id="selectStaticDataSeries"
                             class="form-control"
                             name="targetMonitoredDataSeries"
                             ng-model="$ctrl.targetDataSeries"
@@ -306,40 +280,6 @@ define([],()=> {
                       </div>
                     </div>
                   </div>
-                  <!--
-                  <div class='col-md-3'>
-                    <div class="form-group">
-                      <label>{{$ctrl.startDate}}:</label>
-                      <div class="row">
-                        <div class='col-md-12 col-sm-12'>
-                          <div class="form-group">
-                            <input type="date" class="form-control"
-                                               name="startDateFilter"
-                                               ng-model="$ctrl.model.startDate"
-                                               ng-change="$ctrl.onChangeStartDate()"/>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class='col-md-3'>
-                    <div class="form-group">
-                      <label>{{$ctrl.endDate}}:</label>
-                      <div class="row">
-                        <div class='col-md-12 col-sm-12'>
-                          <div class="form-group">
-                            <input type="date" class="form-control"
-                                               name="endDateFilter"
-                                               ng-model="$ctrl.model.endDate"
-                                               ng-change="$ctrl.onChangeEndDate()"/>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  -->
-
                 </div>
               </div>
 
@@ -372,7 +312,6 @@ define([],()=> {
                     name="outputlayer"
                     id="outputlayer"
                     ng-model="$ctrl.model.outputlayer"
-                    ng-change="$ctrl.onOutputLayerAttributesSelected()"
                     ng-options="attributes for attributes in $ctrl.listOutputLayersSelected"
                     ng-required="true" multiple>
                 </select><br>
