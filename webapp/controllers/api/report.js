@@ -185,7 +185,6 @@
 
         sqlFrom += ` FROM public.${tableName}`
 
-        console.log('Erro aqui ', date);
         if (date) {
           const dateFrom = date[0];
           const dateTo = date[1];
