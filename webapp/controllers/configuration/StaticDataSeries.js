@@ -12,7 +12,14 @@ var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
 module.exports = function(app) {
   return {
     get: function(request, response) {
-      var parameters = makeTokenParameters(request.query.token, app);
+      var code = typeof app.locals.tokenIntent !== 'undefined'? app.locals.tokenIntent.code : "";
+
+      var parameters = null;
+      if(code !== "" && code == 2){
+        parameters = makeTokenParameters(request.query.token, app, " refresh relacioned views");
+      }else{
+        parameters = makeTokenParameters(request.query.token, app);
+      }
       var hasProjectPermission = request.session.activeProject.hasProjectPermission;
       parameters.hasProjectPermission = hasProjectPermission;
       response.render('configuration/staticData', Object.assign({}, parameters, {"Enums": Enums}));
