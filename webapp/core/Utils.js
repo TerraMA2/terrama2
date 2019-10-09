@@ -148,14 +148,14 @@ var Utils = module.exports = {
 
   getTokenCodeMessage: getTokenCodeMessage,
 
-  makeTokenParameters: function(token, app) {
+  makeTokenParameters: function(token, app, alternativeMsg = "") {
     var parameters = {};
 
     if (app.locals.tokenIntent && app.locals.tokenIntent.token === token) {
       var code = app.locals.tokenIntent.code;
       var intent = app.locals.tokenIntent.intent;
 
-      parameters.message = intent + " " + getTokenCodeMessage(code);
+      parameters.message = intent + " " + getTokenCodeMessage(code) + alternativeMsg;
       if (app.locals.tokenIntent.extra){
         parameters.extra = app.locals.tokenIntent.extra;
       }
