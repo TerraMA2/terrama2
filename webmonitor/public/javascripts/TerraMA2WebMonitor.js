@@ -566,7 +566,7 @@ define(
 
                     if(typeof response !== 'undefined' && response.length > 0 && response[0].value){
                       var attributesResponseStr = response[0].value;
-                      var attributesJson = JSON.parse(attributesResponseStr); 
+                      var attributesJson = JSON.parse(attributesResponseStr);
                     }                          
                     
                     if(featuresLength > 0) {
@@ -590,9 +590,21 @@ define(
                                     firesAttributesRows += "<tr><td><strong>" + key + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
                                   }
                                 }
-                              });                              
+                              });  
                             }
                           }
+
+                          //verify if collumn geom is visible
+                          attributesJson.forEach(function(jsonElement){
+                            if (jsonElement.name == "geom"){
+                              if(jsonElement.alias != "" && jsonElement.visible == true){
+                                firesAttributesRows += "<tr><td><strong>" + jsonElement.alias + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
+                              }else if(jsonElement.alias == "" && jsonElement.visible == true){
+                                firesAttributesRows += "<tr><td><strong>" + key + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
+                              }
+                            }
+                          }); 
+
                         }else{
                           for(var key in featureInfo.features[i].properties) {
                             if(key === "picture") {
