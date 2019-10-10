@@ -42,9 +42,37 @@ void terrama2::services::analysis::core::vp::Intersection::execute()
     setWhereCondition(startDate+ ";" +endDate);
   }
 
-  std::string sql = "SELECT table_name, affected_rows::double precision FROM vectorial_processing_intersection("+ std::to_string(analysis_->id) +", '" +
-                     outputTableName_ + "', '" + staticLayerTableName + "', '" + dynamicLayerTableName + "', '" + attributes + "', '" + whereCondition_ + "'" + ")";
+  //Class attributes handler
+  std::string finalWhereCondition = "";
 
+  if((analysis_->metadata.find("classColumnSelected") != analysis_->metadata.end()) &&
+     (analysis_->metadata.find("classNameSelected") != analysis_->metadata.end()))
+  {
+    std::string classColumnSelected = analysis_->metadata.find("classColumnSelected")->second;
+    QString splitClassColumnSelected = QString::fromStdString(classColumnSelected);
+    splitClassColumnSelected = splitClassColumnSelected.split(":")[1];
+
+    std::string classNameSelected = analysis_->metadata.find("classNameSelected")->second;
+    std::replace(classNameSelected.begin(), classNameSelected.end(), '{', ' ');
+    std::replace(classNameSelected.begin(), classNameSelected.end(), '}', ' ');
+
+    QString stringCast = QString::fromStdString(classNameSelected);
+    QStringList classAttributes = stringCast.split(",");
+
+    for(auto attribute : classAttributes)
+    {
+      std::string condition = dynamicLayerTableName + "." + splitClassColumnSelected.toUtf8().data() + " = " + "''" + attribute.toUtf8().data() + "''" + " OR ";
+      finalWhereCondition += condition;
+    }
+
+    finalWhereCondition = finalWhereCondition.substr(0, finalWhereCondition.length() - 3);
+  }
+  else
+    finalWhereCondition = "1 = 1";
+
+  std::string sql = "SELECT table_name, affected_rows::double precision FROM vectorial_processing_intersection("+ std::to_string(analysis_->id) +", '" +
+                     outputTableName_ + "', '" + staticLayerTableName + "', '" + dynamicLayerTableName + "', '" + attributes + "', '" + whereCondition_ +
+                     "', '" + finalWhereCondition + "'" + ")";
 
   resultDataSet_ = transactor->query(sql);
 }

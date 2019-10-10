@@ -100,7 +100,8 @@ CREATE OR REPLACE FUNCTION vectorial_processing_intersection(analysis_id INTEGER
                                                              static_table_name VARCHAR,
                                                              dynamic_table_name VARCHAR,
                                                              output_attributes VARCHAR,
-                                                             date_filter VARCHAR)
+                                                             date_filter VARCHAR,
+                                                             class_name_filter VARCHAR)
     RETURNS TABLE(table_name VARCHAR, affected_rows BIGINT) AS
 $$
 DECLARE
@@ -196,6 +197,7 @@ BEGIN
                         WHERE ST_Intersects(%s.%s, ST_Transform(%s.%s, %s))
                         AND %s
                         AND %s
+                        AND (%s)
                     ',
                     final_table,
                     output_attributes,
@@ -207,7 +209,7 @@ BEGIN
                     output_attributes,
                     dynamic_table_name_handler, static_table_name,
                     static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
-                    analysis_filter, date_filter);
+                    analysis_filter, date_filter, class_name_filter);
 
         EXECUTE query;
 
@@ -242,6 +244,7 @@ BEGIN
                         WHERE ST_Intersects(%s.%s, ST_Transform(%s.%s, %s))
                         AND %s
                         AND %s
+                        AND (%s)
                 ',
                 final_table,
                 final_table,
@@ -253,7 +256,7 @@ BEGIN
                 output_attributes,
                 dynamic_table_name_handler, static_table_name,
                 static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
-                analysis_filter, date_filter);
+                analysis_filter, date_filter, class_name_filter);
 
         EXECUTE query;
 
