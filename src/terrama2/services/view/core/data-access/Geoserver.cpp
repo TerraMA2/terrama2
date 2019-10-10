@@ -871,8 +871,7 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const terra
 
   std::string presentation;
 
-  if(dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT ||
-     dataSeriesType == terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT)
+  if(dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
     presentation = "LIST";
   else
     presentation = "CONTINUOUS_INTERVAL";
