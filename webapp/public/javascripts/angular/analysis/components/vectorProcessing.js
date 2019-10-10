@@ -15,16 +15,19 @@ define([],()=> {
       this.columnsList = [];
       this.inputTableAttributes = {};
 
-      this.dynamicDataSerieSelected = "";
       this.staticDataSerieSelected = "";
+      this.dynamicDataSerieSelected = "";
 
-      this.listDynamicDataSerie = {};
       this.listStaticDataSerie = {};
+      this.listDynamicDataSerie = {};
 
       this.listInputLayersSelected = [];
-      this.listOutputLayersSelected = [];
 
+      this.listOutputLayersSelected = [];
       this.outputLayerArray = [];
+
+      this.ouputClassAttributeArray = [];
+      this.listClassNameColumnValue = [];
 
       this.$scope = $scope;
 
@@ -44,6 +47,8 @@ define([],()=> {
         const {model} = this
 
         let outputLayerJson = model.outputlayer;
+        let outputClassNameSelected = model.classNameSelected;
+
         $("#outputlayer").attr('disabled',true);
 
         if(typeof outputLayerJson !== 'undefined' && outputLayerJson != ""){
@@ -60,6 +65,20 @@ define([],()=> {
           $("#selectStaticDataSeries").attr('disabled',true);
           $("#selectDynamicDataSeries").attr('disabled',true);
         }
+
+        if(typeof outputClassNameSelected !== 'undefined' && outputClassNameSelected != ""){
+          outputClassNameSelected = outputClassNameSelected.replace('{','');
+          outputClassNameSelected = outputClassNameSelected.replace('}','');
+          this.ouputClassAttributeArray = outputClassNameSelected.split(",");
+
+          this.ouputClassAttributeArray.forEach(attributeClass => {
+            this.listClassNameColumnValue.push(attributeClass);
+          });
+
+          $("#classColumnName").attr('disabled',true);
+          $("#classNameSelected").attr('disabled',true);
+        }
+
       })
     }
 
@@ -137,6 +156,7 @@ define([],()=> {
       const res = await DataProviderService.listPostgisObjects(options);
       let dynamicTableAttributes = res.data.data.map(item => item.column_name);
 
+      // Removing attributes from layer selected
       if(this.dynamicDataSerieSelected !== ""){
         Object.keys(this.listDynamicDataSerie).forEach(key => {
             delete this.inputTableAttributes[key];
@@ -173,6 +193,33 @@ define([],()=> {
       }
 
       this.model.outputlayer = [ ...new Set(this.listOutputLayersSelected) ];
+    }
+
+    async selectClassColumn() {
+      await this.selectClassName();
+    }
+
+    async selectClassName() {
+      const { DataProviderService } = this;
+
+      let columnNameHandler = this.model.classColumnSelected.split(":");
+
+      columnNameHandler = columnNameHandler[1];
+
+      const dynamicDataSeries = this.DataSeriesService.dynamicDataSeries().find(ds => (
+        ds.id === parseInt(this.model.dynamicDataSeries)
+      ));
+
+      const listColumnNameValue = await DataProviderService.listPostgisObjects({providerId: dynamicDataSeries.data_provider_id,
+                                                                objectToGet: "values",
+                                                                tableName : dynamicDataSeries.dataSets[0].format.table_name,
+                                                                columnName: columnNameHandler});
+
+      this.listClassNameColumnValue = listColumnNameValue.data.data;
+
+      this.model.classNameSelected = this.model.classNameSelected.toString();
+
+      this.$scope.$digest();
     }
 
     getTableName() {
@@ -253,15 +300,6 @@ define([],()=> {
               {{ i18n.__('Monitored Data Series is required') }}
               </span>
 
-              <!-- <div class="col-md-6">
-                <div class="form-group" terrama2-show-errors>
-                  <label>{{$ctrl.attributeIdentifierTitle}}:</label>
-
-                  <terrama2-text-select selected-item="$ctrl.metadata[$ctrl.targetDataSeries.name].identifier"
-                                        items="$ctrl.columnsList"></terrama2-text-select>
-                </div>
-              </div> -->
-
               <div class="col-md-12">
                 <div class="row">
 
@@ -318,17 +356,43 @@ define([],()=> {
                 </div>
               </div>
 
-            <!--  <div class="col-md-12">
-                <div class="row">
-                  <div class="col-md-12">
-                    <query-builder-wrapper ng-if="$ctrl.getTableName() !== ''"
-                      model="$ctrl.model.queryBuilder"
-                      provider="$ctrl.targetDataSeries.data_provider_id"
-                      table-name="$ctrl.getTableName()">
-                    </query-builder-wrapper>
+              <div class="col-md-12">
+                  <div class="checkbox">
+                    <label class="form-check-label" for="customClassFilter">
+                        <input type="checkbox" ng-model="checked" ng-init="checked=false" id="customClassFilter"> Custom Class Filter
+                    </label>
                   </div>
+              </div>
+
+              <div class="col-md-12">
+                <div class="col-md-6" ng-hide="!checked">
+                  <div class="col-align-self-start">
+                    <div class="form-group has-feedback" terrama2-show-errors>
+                    <label>Class Column:</label>
+                      <select class="form-control"
+                              name="classColumnName"
+                              id="classColumnName"
+                              ng-model="$ctrl.model.classColumnSelected"
+                              ng-change="$ctrl.selectClassColumn()"
+                              ng-options="key for key in $ctrl.listDynamicDataSerie">
+                      </select>
+                    </div>
                 </div>
-              </div> -->
+              </div>
+
+              <div class="col-md-6" ng-hide="!checked">
+                <div class="form-group" terrama2-show-errors>
+                  <label>Class Name:</label>
+                  <select class="form-control"
+                          name="classNameSelected"
+                          id="classNameSelected"
+                          ng-model="$ctrl.model.classNameSelected"
+                          ng-options="attributes for attributes in $ctrl.listClassNameColumnValue"
+                          ng-change="$ctrl.selectClassName()"
+                          multiple>
+                  </select><br>
+                </div>
+              </div>
               `
   };
   return component;
