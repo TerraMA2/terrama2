@@ -449,11 +449,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
 
             QJsonObject layer;
 
-            SQL = terrama2::services::view::core::vp::prepareSQLIntersection(modelDataSetType->getTitle(),
-                                                                             pk,
-                                                                             monitoredObjectTableInfo.dataSetType.get(),
-                                                                             dynamicDataSetType.get(),
-                                                                             "intersection_geom");
+            SQL = terrama2::services::view::core::vp::prepareSQLIntersection(modelDataSetType.get());
 
             registerPostgisTable(viewPtr,
                                  std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
