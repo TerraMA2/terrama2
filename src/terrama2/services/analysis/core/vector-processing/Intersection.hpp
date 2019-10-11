@@ -8,6 +8,10 @@
 //STL
 #include <string>
 
+//QT
+#include <QStringList>
+#include <QString>
+
 namespace terrama2
 {
   namespace services

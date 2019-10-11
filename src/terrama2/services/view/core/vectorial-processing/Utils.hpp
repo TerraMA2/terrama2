@@ -57,11 +57,7 @@ namespace terrama2
            * \param geometryName
            * \return SQL statements for Vectorial Processing - Intersection
            */
-          std::string prepareSQLIntersection(const std::string& tableName,
-                                             const std::string& monitoredPrimaryKey,
-                                             te::da::DataSetType* monitoredDataSeriesType,
-                                             te::da::DataSetType* dynamicDataSeriesType,
-                                             const std::string& geometryName);
+          std::string prepareSQLIntersection(te::da::DataSetType* outputDataSeriesType);
 
           std::unique_ptr<te::se::Style> generateVectorProcessingStyle(const std::string& layerName,
                                                                        const std::string& geometryColumnName);
