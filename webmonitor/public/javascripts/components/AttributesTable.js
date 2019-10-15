@@ -43,7 +43,7 @@ define(
         $('#tableButton').removeClass('hidden');
     };
 
-    var setAttributesTable = function() {
+    var setAttributesTable = function() {  
       if($('#attributes-table-select > select').val() !== null) {
         var layerId = $('#attributes-table-select > select').val();
 
@@ -159,6 +159,7 @@ define(
                               data.timeEnd = endDate;
                               data.analysisTime = analysisTime;
                               data.columnsFilter = columnsFilter;
+                              data.layerData = layerData;
                             };
             
                             tableOptions.columns = columnsArray;
@@ -208,6 +209,7 @@ define(
                               data.timeStart = startDate;
                               data.timeEnd = endDate;
                               data.analysisTime = analysisTime;
+                              data.layerData = layerData;
                             };
 
                             tableOptions.columns = columnsArray;

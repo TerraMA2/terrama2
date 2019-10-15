@@ -64,8 +64,9 @@ var GetAttributesTableController = function(app) {
               string: (body.featureTypes[0].properties[i].localType === "string" ? true : false),
               dateTime: (body.featureTypes[0].properties[i].localType === "date-time" ? true : false),
               date: (body.featureTypes[0].properties[i].localType === "date" ? true : false)
-            });            
+            });
           }
+
         } catch(ex) {
           body = {};
         }
@@ -93,6 +94,7 @@ var GetAttributesTableController = function(app) {
       var dateTimeField = null;
       var dateField = null;
       var columnsFilter = request.body['columnsFilter[]'];
+      var layerType = request.body['layerData[parent]'];
       
       for(var i = 0, fieldsLength = fields.length; i < fieldsLength; i++) {
         properties += fields[i].name + ",";
@@ -153,17 +155,54 @@ var GetAttributesTableController = function(app) {
           try {
             body = JSON.parse(body);
 
+            let columnsFiltered = properties.split(",");
+
             // Conversion of the result object to array
             body.features.forEach(function(val) {
               var temp = [];
-              for(var key in val.properties) temp.push(val.properties[key]);
-              if(val.geometry != null){
-                temp.push(val.geometry.type);
+
+              if(columnsFiltered.length !== Object.keys(val.properties).length){
+                columnsFiltered.forEach(function(columnFilter){
+                  if(Object.keys(val.properties).includes(columnFilter)){
+                    if(val.properties[columnFilter] != null && typeof val.properties[columnFilter] == 'object'){
+                      if(typeof val.properties[columnFilter].type !== 'undefined'){
+                        temp.push(val.properties[columnFilter].type);
+                      }else{
+                        let propertiesObj = val.properties[columnFilter];
+                        for(let key in propertiesObj){
+                          temp.push(propertiesObj[key]);
+                        }
+                      }                      
+                    } else{
+                      temp.push(val.properties[columnFilter]);
+                    }
+                  } else{
+                    if(layerType == "static" && val.geometry !== null){
+                      temp.push(val.geometry.type);
+                    }else{
+                      if(typeof val.geometry_name !== 'undefined' && val.geometry_name !== null){
+                        temp.push(val.geometry.type);
+                      } else{
+                        temp.push("");
+                      } 
+                    }                        
+                  }
+                });
+              } else{
+                for(var key in val.properties){
+                  temp.push(val.properties[key]);
+                } 
+  
+                if(layerType == "static" && val.geometry != null){
+                  temp.push(val.geometry.type);
+                }
               }
+
               data.push(temp);
             });
 
           } catch(ex) {
+            console.log(ex);
             body = {};
           }
 
