@@ -75,7 +75,6 @@
           date,
           localization,
           area,
-          defaultDateInterval,
           count,
           viewId
         } = request.query
@@ -109,10 +108,6 @@
 
           sqlWhere += `
               WHERE ${timeStampColumn}::date >= '${dateFrom}' AND ${timeStampColumn}::date <= '${dateTo}'
-          `
-        } else if (defaultDateInterval) {
-          sqlWhere += `
-              WHERE ${timeStampColumn}::date > (now() - interval '${defaultDateInterval} day')
           `
         }
 
@@ -154,7 +149,6 @@
           date,
           localization,
           area,
-          defaultDateInterval,
           count,
           viewId
         } = request.query
@@ -191,10 +185,6 @@
 
           sqlWhere += `
               WHERE execution_date::date >= '${dateFrom}' AND execution_date::date <= '${dateTo}'
-          `
-        } else if (defaultDateInterval) {
-          sqlWhere += `
-              WHERE execution_date::date > (now() - interval '${defaultDateInterval} day')
           `
         }
         sqlCount += sqlWhere
@@ -266,9 +256,9 @@
                     SELECT
                     count(*) as focuscount,
                     extract('YEAR' FROM focus.execution_date) as year
-                    FROM public.apv_car_focos_21 focus
+                    FROM public.apv_car_focos_48 focus
                     INNER JOIN public.${tableName} AS car on
-                    focus.numero_do1 = car.numero_do1 AND
+                    focus.de_car_validado_sema_numero_do2 = car.numero_do2 AND
                     car.numero_do2 = '${carRegister}'
                     group by year
                   `
@@ -280,9 +270,9 @@
                     SELECT
                     count(*) as focuscount,
                     extract('YEAR' FROM focus.execution_date) as year
-                    FROM public.apv_car_focos_21 focus
+                    FROM public.apv_car_focos_48 focus
                     INNER JOIN public.${tableName} AS car on
-                    focus.numero_do1 = car.numero_do1 AND
+                    focus.de_car_validado_sema_numero_do2 = car.numero_do2 AND
                     car.numero_do2 = '${carRegister}'
                     group by year
                   `
