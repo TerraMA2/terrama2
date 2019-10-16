@@ -417,17 +417,6 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
 
             auto transactor = dataSource->getTransactor();
 
-            auto dynamicDataSeriesIdIt = dataset->format.find("dynamic_object_id");
-            if (dynamicDataSeriesIdIt == dataset->format.end())
-            {
-              QString errMsg = QObject::tr("Could not find dynamic data series id");
-              TERRAMA2_LOG_ERROR() << errMsg;
-
-              throw ViewGeoserverException() << ErrorDescription(errMsg);
-            }
-            auto dynamicDataSeries = dataManager->findDataSeries(static_cast<uint32_t>(std::stoi(dynamicDataSeriesIdIt->second)));
-            auto dynamicDataSetType = transactor->getDataSetType(terrama2::core::getTableNameProperty(dynamicDataSeries->datasetList[0]));
-
             auto vectorProcessingDataSetType = vp::getIntersectionTable(transactor.get(), tableName);
 
             if(!vectorProcessingDataSetType)
@@ -440,20 +429,9 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
 
             modelDataSetType.reset(vectorProcessingDataSetType.release());
 
-            auto dynamicTableTitle = dynamicDataSetType->getTitle();
-
-            auto dynamicDataSet = vp::getIntersectionTable(transactor.get(), dynamicTableTitle);
-
-            if(dynamicDataSet)
-              dynamicDataSetType.reset(dynamicDataSet.release());
-
             QJsonObject layer;
 
-            SQL = terrama2::services::view::core::vp::prepareSQLIntersection(modelDataSetType->getTitle(),
-                                                                             pk,
-                                                                             monitoredObjectTableInfo.dataSetType.get(),
-                                                                             dynamicDataSetType.get(),
-                                                                             "intersection_geom");
+            SQL = terrama2::services::view::core::vp::prepareSQLIntersection(modelDataSetType.get());
 
             registerPostgisTable(viewPtr,
                                  std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
@@ -508,12 +486,12 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
           }
         }
 
-        QJsonObject layer;
-        layer.insert("layer", QString::fromStdString(layerName));
-        layersArray.push_back(layer);
-
         if (inputDataSeries->semantics.dataSeriesType != terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT)
         {
+          QJsonObject layer;
+          layer.insert("layer", QString::fromStdString(layerName));
+          layersArray.push_back(layer);
+
           registerPostgisTable(viewPtr,
                                std::to_string(viewPtr->id) + "_" + std::to_string(inputDataSeries->id) + "_datastore",
                                inputDataSeries->semantics.dataSeriesType,
@@ -871,8 +849,7 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const terra
 
   std::string presentation;
 
-  if(dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT ||
-     dataSeriesType == terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT)
+  if(dataSeriesType == terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT)
     presentation = "LIST";
   else
     presentation = "CONTINUOUS_INTERVAL";

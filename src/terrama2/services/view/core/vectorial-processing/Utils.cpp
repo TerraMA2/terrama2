@@ -24,52 +24,24 @@
 
 void prepareFromClause(te::da::DataSetType* dataSetType, std::string& columnClause)
 {
-  const auto& tableName = dataSetType->getTitle();
-  const auto tableNameWithoutSchema = terrama2::core::splitString(tableName, '.')[1];
-
   for(const auto& property: dataSetType->getProperties())
-  {
-    // Skips geometry columns
-    if(property->getType() != te::dt::GEOMETRY_TYPE)
-      columnClause += ", " + tableName + "." + property->getName() + " AS " + tableNameWithoutSchema + "_" + property->getName();
-  }
+    columnClause += ", " + property->getName();
 }
 
-std::string terrama2::services::view::core::vp::prepareSQLIntersection(const std::string& tableName,
-                                                                       const std::string& monitoredPrimaryKey,
-                                                                       te::da::DataSetType* monitoredDataSeriesType,
-                                                                       te::da::DataSetType* dynamicDataSeriesType,
-                                                                       const std::string& geometryName)
+std::string terrama2::services::view::core::vp::prepareSQLIntersection(te::da::DataSetType* outputDataSeriesType)
 {
-  assert(monitoredDataSeriesType != nullptr);
-  assert(dynamicDataSeriesType != nullptr);
+  assert(outputDataSeriesType != nullptr);
 
-  auto dynamicPrimaryKey = dynamicDataSeriesType->getPrimaryKey()->getProperties()[0]->getName();
+  std::string columnClause = "";
 
-  auto monitoredTableName = monitoredDataSeriesType->getTitle();
-  auto dynamicTableName = dynamicDataSeriesType->getTitle();
+  prepareFromClause(outputDataSeriesType, columnClause);
 
-  std::string columnClause = tableName + ".monitored_id,"
-                           + tableName + ".intersect_id "
-                             ""
-                             "AS dynamic_pk";
+  QString selectAttributes = QString::fromStdString(columnClause);
 
-  prepareFromClause(monitoredDataSeriesType, columnClause);
-  prepareFromClause(dynamicDataSeriesType, columnClause);
+  selectAttributes = selectAttributes.mid(2, selectAttributes.length() - 1);
 
-  std::string fromClause = tableName + ", " + monitoredTableName + ", " + dynamicTableName;
-
-  std::string whereClause = monitoredTableName + "." + monitoredPrimaryKey + "::VARCHAR = " +
-                            tableName + ".monitored_id::VARCHAR" +
-                            "   AND " +
-                            dynamicTableName + "." + dynamicPrimaryKey + "::VARCHAR = " +
-                            tableName + ".intersect_id::VARCHAR";
-
-  columnClause += ", " + tableName + "." + geometryName;
-
-  std::string sql = "SELECT " + columnClause +
-                    "  FROM " + fromClause +
-                    " WHERE " + whereClause;
+  std::string sql = "SELECT " + selectAttributes.toStdString() +
+                    " FROM " + outputDataSeriesType->getTitle();
 
   std::cout << sql << std::endl;
 
