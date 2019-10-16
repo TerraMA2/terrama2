@@ -171,6 +171,7 @@ var GetAttributesTableController = function(app) {
                         let propertiesObj = val.properties[columnFilter];
                         for(let key in propertiesObj){
                           temp.push(propertiesObj[key]);
+                          break;
                         }
                       }                      
                     } else{
