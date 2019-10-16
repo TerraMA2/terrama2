@@ -223,6 +223,7 @@
       getCarData: async (request, response) => {
         const {
           carRegister,
+          intersectId,
           viewId
         } = request.query
 
@@ -234,6 +235,10 @@
         // const conn = new Connection(uri)
         const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
         await conn.connect()
+
+        let sqlDeter = `
+          SELECT orbitpoint, date, sensor, satellite FROM public.dd_deter_inpe di where di.gid = ${intersectId}
+        `
         let sql = `SELECT
             car.numero_do2 AS register,
             car.area_ha_ AS area,
@@ -277,12 +282,16 @@
                     group by year
                   `
 
+        const resultDeter = await conn.execute(sqlDeter)
+        const deter = resultDeter.rows
+
         const resultBurnedAreas = await conn.execute(sqlBurnedAreas)
         const burnedAreas = resultBurnedAreas.rows
 
         if (propertyData) {
           propertyData.burningSpotlights = burningSpotlights
           propertyData.burnedAreas = burnedAreas
+          propertyData.deter = deter[0]
         }
 
         await conn.disconnect()
