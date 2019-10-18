@@ -449,6 +449,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
             layer.insert("layer", QString::fromStdString(layerName));
             layersArray.push_back(layer);
 
+            //Getting the first analysis from the first cicle
             auto dynamicDataSeriesIdIt = dataset->format.find("dynamic_object_id");
 
             if (dynamicDataSeriesIdIt == dataset->format.end())
@@ -458,13 +459,41 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
 
               throw ViewGeoserverException() << ErrorDescription(errMsg);
             }
+
+            //First Cicle
             auto dynamicDataSeries = dataManager->findDataSeries(static_cast<uint32_t>(std::stoi(dynamicDataSeriesIdIt->second)));
             auto dynamicDataSetType = transactor->getDataSetType(terrama2::core::getTableNameProperty(dynamicDataSeries->datasetList[0]));
 
-            auto dynamicGeomProperty = te::da::GetFirstGeomProperty(dynamicDataSetType.get());
+            //Validating if second cicle exists
+            try
+            {
+              //Getting the first analysis from the second cicle
+              auto secondDynamicDataSeriesIdIt = dynamicDataSeries->datasetList[0]->format.find("dynamic_object_id");
 
-            if(dynamicGeomProperty != nullptr)
-              geomType = dynamicGeomProperty->getGeometryType();
+              if (secondDynamicDataSeriesIdIt == dynamicDataSeries->datasetList[0]->format.end())
+              {
+                QString errMsg = QObject::tr("Could not find dynamic data series id");
+                TERRAMA2_LOG_ERROR() << errMsg;
+
+                throw ViewGeoserverException() << ErrorDescription(errMsg);
+              }
+
+              //Second Cicle
+              auto secondDynamicDataSeries = dataManager->findDataSeries(static_cast<uint32_t>(std::stoi(secondDynamicDataSeriesIdIt->second)));
+              auto secondDynamicDataSetType = transactor->getDataSetType(terrama2::core::getTableNameProperty(secondDynamicDataSeries->datasetList[0]));
+
+              auto secondDynamicGeomProperty = te::da::GetFirstGeomProperty(secondDynamicDataSetType.get());
+
+              if(secondDynamicGeomProperty != nullptr)
+                geomType = secondDynamicGeomProperty->getGeometryType();
+            }
+            catch(...)
+            {
+              auto dynamicGeomProperty = te::da::GetFirstGeomProperty(dynamicDataSetType.get());
+
+              if(dynamicGeomProperty != nullptr)
+                geomType = dynamicGeomProperty->getGeometryType();
+            }
           }
 
           auto& propertiesVector = monitoredObjectTableInfo.dataSetType->getProperties();
