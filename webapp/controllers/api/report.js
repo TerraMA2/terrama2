@@ -288,10 +288,19 @@
         const resultBurnedAreas = await conn.execute(sqlBurnedAreas)
         const burnedAreas = resultBurnedAreas.rows
 
+        const sqlProdesYear = `SELECT extract(year from date_trunc('year', execution_date)) AS date
+                                FROM public.apv_car_prodes_40
+                                GROUP BY date
+                                ORDER BY date;`
+
+        const resultProdesYear = await conn.execute(sqlProdesYear)
+        const prodesYear = resultProdesYear.rows
+
         if (propertyData) {
           propertyData.burningSpotlights = burningSpotlights
           propertyData.burnedAreas = burnedAreas
           propertyData.deter = deter[0]
+          propertyData.prodesYear = prodesYear
         }
 
         await conn.disconnect()
