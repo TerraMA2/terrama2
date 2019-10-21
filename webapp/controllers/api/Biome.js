@@ -9,25 +9,19 @@
   module.exports = function(app) {
     return {
       getAll: async (request, response) => {
-        // const {
-        // } = request.query
-        // const view = await ViewFacade.retrieve(viewId)
-        // const dataSeries = await DataManager.getDataSeries({id:view.data_series_id})
-        // const dataProvider = await DataManager.getDataProvider({id:dataSeries.data_provider_id})
-        // const uri = dataProvider.uri
-        // const conn = new Connection(uri)
+
         const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
         await conn.connect()
 
-        const sql = `SELECT id, id_munic, municipio as name  FROM de_municipios_sema`
+        const sql = `SELECT id, tipo as name FROM public.de_biomas_mt`
 
         let result
         try {
           result = await conn.execute(sql)
-          let cities = result.rows
+          let biome = result.rows
 
           await conn.disconnect()
-          response.json(cities)
+          response.json(biome)
         } catch (error) {
           console.log(error)
         }
