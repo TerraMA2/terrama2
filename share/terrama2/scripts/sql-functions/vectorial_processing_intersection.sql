@@ -191,7 +191,7 @@ BEGIN
                                 %s.%s::VARCHAR AS intersect_id,
                                 %s.%s::TIMESTAMPTZ AS execution_date,
                                 ST_Intersection(%s.%s, ST_Transform(%s.%s, %s)) AS intersection_geom,
-                                ST_AREA(ST_Intersection(%s.%s, ST_Transform(%s.%s, %s))) / 10000 AS calculated_area_ha,
+                                ST_AREA(ST_Intersection(%s.%s, ST_Transform(%s.%s, %s))::GEOGRAPHY) / 10000 AS calculated_area_ha,
                                 %s
                         FROM %s, %s
                         WHERE ST_Intersects(%s.%s, ST_Transform(%s.%s, %s))
@@ -238,7 +238,7 @@ BEGIN
                             %s.%s::VARCHAR AS intersect_id,
                             %s.%s::TIMESTAMPTZ AS execution_date,
                             ST_Intersection(%s.%s, ST_Transform(%s.%s, %s)) AS intersection_geom,
-                            ST_AREA(ST_Intersection(%s.%s, ST_Transform(%s.%s, %s))) / 10000 AS calculated_area_ha,
+                            ST_AREA(ST_Intersection(%s.%s, ST_Transform(%s.%s, %s))::GEOGRAPHY) / 10000 AS calculated_area_ha,
                             %s
                         FROM %s, %s
                         WHERE ST_Intersects(%s.%s, ST_Transform(%s.%s, %s))
