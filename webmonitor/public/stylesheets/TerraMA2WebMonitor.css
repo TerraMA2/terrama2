@@ -1118,8 +1118,12 @@ img[src=""] {
   position: fixed;
   bottom: 0;
   flex: 0;
-  width: 230px;
+  width: 300px;
   border-top: 1px solid rgba(255,255,255,.8);
+}
+
+.sidebar-collapse .sidebar-footer {
+  width: 0;
 }
 
 #about-btn {
