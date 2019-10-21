@@ -288,10 +288,13 @@
         const resultBurnedAreas = await conn.execute(sqlBurnedAreas)
         const burnedAreas = resultBurnedAreas.rows
 
-        const sqlProdesYear = `SELECT extract(year from date_trunc('year', execution_date)) AS date
-                                FROM public.apv_car_prodes_40
-                                GROUP BY date
-                                ORDER BY date;`
+        const sqlProdesYear = `SELECT
+                              extract(year from date_trunc('year', cp.execution_date)) AS date,
+                              SUM(cp.calculated_area_ha) area
+                              FROM public.apv_car_prodes_40 cp
+                              WHERE cp.de_car_validado_sema_numero_do2 = '${carRegister}'
+                              GROUP BY date
+                              ORDER BY date;`
 
         const resultProdesYear = await conn.execute(sqlProdesYear)
         const prodesYear = resultProdesYear.rows
