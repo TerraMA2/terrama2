@@ -296,6 +296,35 @@
                               GROUP BY date
                               ORDER BY date;`
 
+        const sqlIndigenousLand = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_ti_cardeter_68 where apv_car_deter_28_de_car_validado_sema_numero_do2 = '${carRegister}'`
+        const sqlConservationUnit = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_uc_carprodes_65 where apv_car_prodes_40_de_car_validado_sema_numero_do2 = '${carRegister}'`
+        const sqlLegalReserve = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_reserva_cardeter_37 where apv_car_deter_28_de_car_validado_sema_numero_do2 = '${carRegister}'`
+        const sqlAPP = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_app_cardeter_35 where apv_car_deter_28_de_car_validado_sema_numero_do2 = '${carRegister}'`
+        const sqlConsolidatedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_usocon_cardeter_39 where apv_car_deter_28_de_car_validado_sema_numero_do2 = '${carRegister}'`
+        const sqlAnthropizedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_usoant_cardeter_36 where apv_car_deter_28_de_car_validado_sema_numero_do2 = '${carRegister}'`
+        const sqlNativeVegetation = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_veg_cardeter_38 where apv_car_deter_28_de_car_validado_sema_numero_do2 = '${carRegister}'`
+
+        const resultIndigenousLand = await conn.execute(sqlIndigenousLand)
+        const indigenousLand = resultIndigenousLand.rows
+
+        const resultConservationUnit = await conn.execute(sqlConservationUnit)
+        const conservationUnit = resultConservationUnit.rows
+
+        const resultLegalReserve = await conn.execute(sqlLegalReserve)
+        const legalReserve = resultLegalReserve.rows
+
+        const resultAPP = await conn.execute(sqlAPP)
+        const app = resultAPP.rows
+
+        const resultConsolidatedUse = await conn.execute(sqlConsolidatedUse)
+        const consolidatedArea = resultConsolidatedUse.rows
+
+        const resultAnthropizedUse = await conn.execute(sqlAnthropizedUse)
+        const anthropizedUse = resultAnthropizedUse.rows
+
+        const resultNativeVegetation = await conn.execute(sqlNativeVegetation)
+        const nativeVegetation = resultNativeVegetation.rows
+
         const resultProdesYear = await conn.execute(sqlProdesYear)
         const prodesYear = resultProdesYear.rows
 
@@ -304,6 +333,13 @@
           propertyData.burnedAreas = burnedAreas
           propertyData.deter = deter[0]
           propertyData.prodesYear = prodesYear
+          propertyData.indigenousLand = indigenousLand[0]
+          propertyData.conservationUnit = conservationUnit[0]
+          propertyData.legalReserve = legalReserve[0]
+          propertyData.app = app[0]
+          propertyData.consolidatedArea = consolidatedArea[0]
+          propertyData.anthropizedUse = anthropizedUse[0]
+          propertyData.nativeVegetation = nativeVegetation[0]
         }
 
         await conn.disconnect()
