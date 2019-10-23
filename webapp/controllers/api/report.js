@@ -290,9 +290,17 @@
 
         const sqlProdesYear = `SELECT
                               extract(year from date_trunc('year', cp.execution_date)) AS date,
-                              SUM(cp.calculated_area_ha) area
+                              SUM(cp.calculated_area_ha) as area
                               FROM public.apv_car_prodes_40 cp
                               WHERE cp.de_car_validado_sema_numero_do2 = '${carRegister}'
+                              GROUP BY date
+                              ORDER BY date;`
+
+        const sqlSpotlightsYear = `SELECT
+                              extract(year from date_trunc('year', cf.execution_date)) AS date,
+                              COUNT(cf.*) as spotlights
+                              FROM public.apv_car_focos_48 cf
+                              WHERE cf.de_car_validado_sema_numero_do2 = '${carRegister}'
                               GROUP BY date
                               ORDER BY date;`
 
@@ -328,11 +336,15 @@
         const resultProdesYear = await conn.execute(sqlProdesYear)
         const prodesYear = resultProdesYear.rows
 
+        const resultSpotlightsYear = await conn.execute(sqlSpotlightsYear)
+        const spotlightsYear = resultSpotlightsYear.rows
+
         if (propertyData) {
           propertyData.burningSpotlights = burningSpotlights
           propertyData.burnedAreas = burnedAreas
           propertyData.deter = deter[0]
           propertyData.prodesYear = prodesYear
+          propertyData.spotlightsYear = spotlightsYear
           propertyData.indigenousLand = indigenousLand[0]
           propertyData.conservationUnit = conservationUnit[0]
           propertyData.legalReserve = legalReserve[0]
