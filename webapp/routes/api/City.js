@@ -3,5 +3,5 @@ module.exports = function (app) {
 
   var controller = app.controllers.api.City;
 
-  app.get(app.locals.BASE_URL + 'api/city/getCities', controller.getCities);
+  app.get(app.locals.BASE_URL + 'api/city/getAll', controller.getAll);
 };
