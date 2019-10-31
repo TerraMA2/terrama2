@@ -312,8 +312,112 @@
       },
       getAnalysisTotals: async (request, response) => {
         const params = {
+          listAlert,
+          codgroup,
+          date,
+          projectName,
+          group,
+          localization,
+          area,
+          count
+        } = request.query;
+
+        const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt");
+        await conn.connect();
+
+        const alerts = params.listAlert && params.listAlert !== 'null' ?
+            JSON.parse(params.listAlert) :
+            [];
+        let sql = '';
+
+        if (alerts.length > 0) {
+          for (let alert of alerts) {
+            sql += sql.trim() === '' ? '' : ' UNION ALL ';
+            if (alert.idview && alert.idview > 0 && alert.idview !== 'null') {
+              const view = await ViewFacade.retrieve(alert.idview);
+
+              const dataSeries = await DataManager.getDataSeries({id: view.data_series_id});
+              const dataProvider = await DataManager.getDataProvider({id: dataSeries.data_provider_id});
+              const uri = dataProvider.uri;
+
+              const dataSet = dataSeries.dataSets[0];
+              let tableName = dataSet.format.table_name;
+
+              let sqlTableName = ` SELECT DISTINCT table_name FROM ${tableName}`;
+              resultTableName = await conn.execute(sqlTableName);
+
+              tableName = resultTableName.rows[0]['table_name'];
+
+              let sqlWhere = '';
+
+              if (params.date && params.date !== "null") {
+                const dateFrom = params.date[0];
+                const dateTo = params.date[1];
+                sqlWhere += ` WHERE execution_date BETWEEN '${dateFrom}' AND '${dateTo}' `
+              }
+              if (params.area && params.area !== "null") {
+                sqlWhere += ` AND calculated_area_ha > ${params.area} `
+              }
+
+              const value1 = alert.codgroup === 'FOCOS' ?
+                  ` (  SELECT ROW_NUMBER() OVER(ORDER BY de_car_validado_sema_numero_do1 ASC) AS Row
+                         FROM public.${tableName}
+                         ${sqlWhere}
+                         GROUP BY de_car_validado_sema_numero_do1
+                         ORDER BY Row DESC
+                         LIMIT 1
+                      ) AS value1 ` :
+                  `  COALESCE(COUNT(1), 00.00) AS value1 `;
+
+              const value2 = alert.codgroup === 'FOCOS' ?
+                  ` (  SELECT coalesce(sum(1), 0.00) as num_focos
+                         FROM public.${tableName}
+                         ${sqlWhere} 
+                      ) AS value2 ` :
+                  ` COALESCE(SUM(calculated_area_ha), 0.00) AS value2 `;
+
+              const sqlFrom = alert.codgroup === 'FOCOS' ?
+                  ` ` :
+                  ` FROM public.${tableName} ${sqlWhere} `;
+
+              sql += `SELECT 
+                          '${alert.idview}' AS idview,
+                          '${alert.cod}' AS cod,
+                          '${alert.codgroup}' AS codgroup,
+                          '${alert.label}' AS label,
+                          ${value1},
+                          ${value2},
+                          ${alert.selected} AS selected,
+                          ${alert.activearea} AS activearea,
+                          false AS immobilitactive
+                          ${sqlFrom}`;
+            } else {
+              sql += ` SELECT 
+                        '${alert.idview}' AS idview,
+                        '${alert.cod}' AS cod,
+                        '${alert.codgroup}' AS codgroup,
+                        '${alert.label}' AS label,
+                        0.00 AS value1,
+                        00.00 AS value2 ,
+                        ${alert.selected} AS selected,
+                        ${alert.activearea} AS activearea,
+                        false AS immobilitactive ; `;
+            }
+          }
+        }
+        try {
+          const result = await conn.execute(sql);
+
+          await conn.disconnect();
+          response.json(result.rows);
+        } catch (error) {
+          console.log(error);
+        }
+      },
+      getViewsDetails: async (request, response) => {
+        const params = {
           viewId,
-          groupCod,
+          codgroup,
           date,
           projectName,
           group,
@@ -354,7 +458,7 @@
             sqlWhere += ` AND calculated_area_ha > ${params.area} `
           }
 
-          sql = params.groupCod === 'FOCOS' ?
+          sql = params.codgroup === 'FOCOS' ?
               `SELECT (
                         SELECT ROW_NUMBER() OVER(ORDER BY de_car_validado_sema_numero_do1 ASC) AS Row 
                         FROM public.${tableName}
@@ -371,7 +475,7 @@
               ` SELECT COALESCE(SUM(calculated_area_ha), 0.00) AS area_tot, COALESCE(COUNT(1), 00.00) AS num_car
                   FROM public.${tableName} ${sqlWhere}`;
         } else {
-          sql = params.groupCod === 'FOCOS' ? ` SELECT 0.00 AS num_focos, 00.00 AS num_car ` : ` SELECT 0.00 AS area_tot, 00.00 AS num_car `;
+          sql = params.codgroup === 'FOCOS' ? ` SELECT 0.00 AS num_focos, 00.00 AS num_car ` : ` SELECT 0.00 AS area_tot, 00.00 AS num_car `;
         }
         try {
           const result = await conn.execute(sql);
