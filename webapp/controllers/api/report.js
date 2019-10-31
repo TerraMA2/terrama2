@@ -457,7 +457,7 @@
                         00.00 AS value2 ,
                         ${alert.selected} AS selected,
                         ${alert.activearea} AS activearea,
-                        false AS immobilitactive ; `;
+                        false AS immobilitactive `;
             }
           }
         }
