@@ -223,7 +223,6 @@
       getCarData: async (request, response) => {
         const {
           carRegister,
-          intersectId,
           date,
           viewId
         } = request.query
@@ -243,9 +242,9 @@
           dateTo = date[1];
         }
 
-        let sqlDeter = `
-          SELECT orbitpoint, date, sensor, satellite FROM public.dd_deter_inpe di where di.gid = ${intersectId}
-        `
+        // let sqlDeter = `
+        //   SELECT orbitpoint, date, sensor, satellite FROM public.dd_deter_inpe di where di.gid = ${intersectId}
+        // `
         let sql = `SELECT
             car.numero_do2 AS register,
             car.area_ha_ AS area,
@@ -289,8 +288,8 @@
                     group by year
                   `
 
-        const resultDeter = await conn.execute(sqlDeter)
-        const deter = resultDeter.rows
+        // const resultDeter = await conn.execute(sqlDeter)
+        // const deter = resultDeter.rows
 
         const resultBurnedAreas = await conn.execute(sqlBurnedAreas)
         const burnedAreas = resultBurnedAreas.rows
@@ -351,7 +350,7 @@
         if (propertyData) {
           propertyData.burningSpotlights = burningSpotlights
           propertyData.burnedAreas = burnedAreas
-          propertyData.deter = deter[0]
+          // propertyData.deter = deter[0]
           propertyData.prodesYear = prodesYear
           propertyData.spotlightsYear = spotlightsYear
           propertyData.indigenousLand = indigenousLand[0]
