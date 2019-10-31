@@ -7,4 +7,5 @@ module.exports = function (app) {
   app.get(app.locals.BASE_URL + 'api/report/getAnalysisData', controller.getAnalysisData);
   app.get(app.locals.BASE_URL + 'api/report/getStaticData', controller.getStaticData);
   app.get(app.locals.BASE_URL + 'api/report/getDynamicData', controller.getDynamicData);
+  app.get(app.locals.BASE_URL + 'api/report/getAnalysisTotals', controller.getAnalysisTotals);
 };

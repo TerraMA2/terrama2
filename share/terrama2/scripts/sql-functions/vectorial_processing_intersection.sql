@@ -95,6 +95,35 @@ END;
 $$
 LANGUAGE 'plpgsql';
 
+CREATE OR REPLACE FUNCTION update_attributes_from_analysis(column_attributes VARCHAR)
+	RETURNS TEXT AS
+$$
+DECLARE
+    attributes_updated TEXT;
+	current_attribute TEXT;
+	column_attributes_array TEXT[];
+	column_attributes_array_handler TEXT[];
+BEGIN
+
+	EXECUTE format('SELECT string_to_array(''%s'', '','')', column_attributes) INTO column_attributes_array;
+
+	FOR indice IN 1 .. array_upper(column_attributes_array, 1)
+
+	LOOP
+
+	   EXECUTE format('SELECT split_part(''%s'', ''AS'', 2)', column_attributes_array[indice]) INTO current_attribute;
+
+	   column_attributes_array_handler:= array_append(column_attributes_array_handler, current_attribute);
+
+	END LOOP;
+
+	EXECUTE format('SELECT array_to_string(''%s''::TEXT[], '',''::TEXT)', column_attributes_array_handler) INTO attributes_updated;
+
+    RETURN attributes_updated;
+END;
+$$
+LANGUAGE 'plpgsql';
+
 CREATE OR REPLACE FUNCTION vectorial_processing_intersection(analysis_id INTEGER,
                                                              output_table_name VARCHAR,
                                                              static_table_name VARCHAR,
@@ -109,27 +138,31 @@ DECLARE
     dynamic_table_name_column VARCHAR;
     dynamic_table_name_handler VARCHAR;
 
-    affected_rows BIGINT;
     static_table_srid INTEGER;
     number_of_rows INTEGER;
     number_of_rows_metadata INTEGER;
+
 	is_table_exists BOOLEAN;
+	affected_rows BIGINT;
 
     pk_static_table TEXT;
     pk_dynamic_table TEXT;
     start_date_filter TEXT;
     end_date_filter TEXT;
 
-    query TEXT;
-    result RECORD;
-    final_table VARCHAR;
+	final_table VARCHAR;
     date_column_from_dynamic_table VARCHAR;
     last_analysis VARCHAR;
     analysis_filter VARCHAR;
-    new_analysis_id INTEGER;
+	output_attributes_updated VARCHAR;
 
-    number_of_columns INTEGER;
+	new_analysis_id INTEGER;
+	number_of_columns INTEGER;
     number_of_attributes INTEGER;
+	number_of_affected_rows BIGINT;
+
+    query TEXT;
+    result RECORD;
 BEGIN
     -- Retrieves Geometry Column Name from Monitored Data Series
     EXECUTE 'SELECT get_geometry_column($1)' INTO static_table_name_column USING static_table_name;
@@ -158,7 +191,6 @@ BEGIN
     EXECUTE format('SELECT get_date_column_from_dynamic_table(''%s'')', dynamic_table_name_handler) INTO date_column_from_dynamic_table;
 
     -- Getting last time collected from analysis_metadata
-
 	EXECUTE format('SELECT COUNT(*) FROM terrama2.analysis_metadata WHERE key = ''last_analysis'' AND terrama2.analysis_metadata.analysis_id = %s', analysis_id) INTO number_of_rows_metadata;
 
     EXECUTE format('SELECT MAX(value) FROM terrama2.analysis_metadata WHERE key = ''last_analysis'' AND terrama2.analysis_metadata.analysis_id = %s LIMIT 1', analysis_id) INTO last_analysis;
@@ -176,6 +208,9 @@ BEGIN
 
     EXECUTE format('SELECT array_length(string_to_array(''%s'', '',''), 1) ', output_attributes) INTO number_of_attributes;
 
+	number_of_attributes := number_of_attributes + 6;
+	-- 6 this is the default number of attributes: monitored_id, intersect_id, execution_date, intersection_geom, calculated_area_ha, final_table_id;
+
     IF (is_table_exists AND number_of_columns = number_of_attributes) THEN
         -- Creating analysis filter
         IF number_of_rows_metadata > 0 THEN
@@ -185,6 +220,8 @@ BEGIN
         END IF;
 
         date_filter := '1 = 1';
+
+		EXECUTE format('SELECT update_attributes_from_analysis(''%s'')', output_attributes) INTO output_attributes_updated;
 
         query := format('INSERT INTO %s (monitored_id, intersect_id, execution_date, intersection_geom, calculated_area_ha, %s)
                         SELECT  %s.%s::VARCHAR AS monitored_id,
@@ -200,7 +237,7 @@ BEGIN
                         AND (%s)
                     ',
                     final_table,
-                    output_attributes,
+                    output_attributes_updated,
                     static_table_name, pk_static_table,
                     dynamic_table_name_handler, pk_dynamic_table,
                     dynamic_table_name_handler, date_column_from_dynamic_table,
@@ -213,19 +250,8 @@ BEGIN
 
         EXECUTE query;
 
-        query := format('ALTER TABLE %s ALTER COLUMN intersection_geom TYPE geometry(GEOMETRY, %s)
-                        USING ST_Transform(ST_SetSRID(intersection_geom,%s), %s)',final_table, static_table_srid, static_table_srid, static_table_srid);
-        EXECUTE query;
+        GET DIAGNOSTICS number_of_affected_rows = ROW_COUNT;
     ELSE
-    -- Check date_filter. When empty, set 1 = 1 as default
-    -- IF (coalesce(date_filter, '') = '') THEN
-    -- 	date_filter := '1 = 1';
-    -- ELSE
-    -- 	EXECUTE format('SELECT split_part(''%s'','';'', 1)', date_filter) INTO start_date_filter;
-    -- 	EXECUTE format('SELECT split_part(''%s'','';'', 2)', date_filter) INTO end_date_filter;
-
-    -- 	date_filter := format('%s.%s BETWEEN ''%s'' AND ''%s'' ',dynamic_table_name_handler, date_column_from_dynamic_table, start_date_filter, end_date_filter);
-    -- END IF;
 
         analysis_filter := '1 = 1';
 
@@ -260,6 +286,9 @@ BEGIN
 
         EXECUTE query;
 
+        -- Getting affected_rows
+        GET DIAGNOSTICS number_of_affected_rows = ROW_COUNT;
+
         query := format('
             CREATE INDEX %s_geom_idx ON %s USING GIST(intersection_geom);
             CREATE INDEX %s_static_table_id_dynamic_table_id_idx ON %s USING BTREE(monitored_id, intersect_id);
@@ -271,11 +300,11 @@ BEGIN
         query := format('ALTER TABLE %s ADD COLUMN %s_id SERIAL PRIMARY KEY', final_table, final_table);
 
         EXECUTE query;
-
-        query := format('ALTER TABLE %s ALTER COLUMN intersection_geom TYPE geometry(GEOMETRY, %s)
-                        USING ST_Transform(ST_SetSRID(intersection_geom,%s), %s)',final_table, static_table_srid, static_table_srid, static_table_srid);
-        EXECUTE query;
     END IF;
+
+	query := format('ALTER TABLE %s ALTER COLUMN intersection_geom TYPE geometry(GEOMETRY, %s)
+				USING ST_Transform(ST_SetSRID(intersection_geom,%s), %s)',final_table, static_table_srid, static_table_srid, static_table_srid);
+	EXECUTE query;
 
     EXECUTE 'SELECT get_id_from_first_analysis(get_automatic_schedule_id_list())';
 
@@ -284,7 +313,7 @@ BEGIN
 
     EXECUTE format('INSERT INTO terrama2.analysis_metadata(key, value, analysis_id) VALUES (''last_analysis'', ''%s'', %s)', last_analysis, analysis_id);
 
-    query := format('SELECT $1 as table_name, count(*) as affected_rows FROM %s', final_table);
+    query := format('SELECT $1 as table_name, %s::BIGINT as affected_rows FROM %s LIMIT 1',number_of_affected_rows, final_table);
 
     RETURN QUERY EXECUTE query USING final_table;
 

@@ -1,6 +1,7 @@
-  var {Connection} = require('../../core/utility/connection');
-  var DataManager = require('../../core/DataManager');
-  var ViewFacade = require("../../core/facade/View");
+  const {Connection} = require('../../core/utility/connection');
+  const DataManager = require('../../core/DataManager');
+  const ViewFacade = require("../../core/facade/View");
+
 
   /**
    * Injecting NodeJS App configuration AS dependency. It retrieves a Views controllers API
@@ -19,8 +20,8 @@
           viewId
         } = request.query
         const view = await ViewFacade.retrieve(viewId)
-        const dataSeries = await DataManager.getDataSeries({id:view.data_series_id})
-        const dataProvider = await DataManager.getDataProvider({id:dataSeries.data_provider_id})
+        const dataSeries = await DataManager.getDataSeries({id: view.data_series_id})
+        const dataProvider = await DataManager.getDataProvider({id: dataSeries.data_provider_id})
         const uri = dataProvider.uri
         // const conn = new Connection(uri)
         const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
@@ -40,11 +41,11 @@
         sqlFrom += ` FROM public.${tableName}`
 
         if (limit) {
-          sqlWhere +=` LIMIT ${limit}`
+          sqlWhere += ` LIMIT ${limit}`
         }
 
-        if(offset) {
-          sqlWhere +=` OFFSET ${offset}`
+        if (offset) {
+          sqlWhere += ` OFFSET ${offset}`
         }
 
         const sql = sqlSelect + sqlFrom + sqlWhere
@@ -79,8 +80,8 @@
           viewId
         } = request.query
         const view = await ViewFacade.retrieve(viewId)
-        const dataSeries = await DataManager.getDataSeries({id:view.data_series_id})
-        const dataProvider = await DataManager.getDataProvider({id:dataSeries.data_provider_id})
+        const dataSeries = await DataManager.getDataSeries({id: view.data_series_id})
+        const dataProvider = await DataManager.getDataProvider({id: dataSeries.data_provider_id})
         const uri = dataProvider.uri
         // const conn = new Connection(uri)
         const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
@@ -104,7 +105,7 @@
         sqlFrom += ` FROM public.${tableName}`
 
         if (date) {
-          const { dateFrom, dateTo } = date
+          const {dateFrom, dateTo} = date
 
           sqlWhere += `
               WHERE ${timeStampColumn}::date >= '${dateFrom}' AND ${timeStampColumn}::date <= '${dateTo}'
@@ -112,11 +113,11 @@
         }
 
         if (limit) {
-          sqlWhere +=` LIMIT ${limit}`
+          sqlWhere += ` LIMIT ${limit}`
         }
 
-        if(offset) {
-          sqlWhere +=` OFFSET ${offset}`
+        if (offset) {
+          sqlWhere += ` OFFSET ${offset}`
         }
 
         const sql = sqlSelect + sqlFrom + sqlWhere
@@ -153,8 +154,8 @@
           viewId
         } = request.query
         const view = await ViewFacade.retrieve(viewId)
-        const dataSeries = await DataManager.getDataSeries({id:view.data_series_id})
-        const dataProvider = await DataManager.getDataProvider({id:dataSeries.data_provider_id})
+        const dataSeries = await DataManager.getDataSeries({id: view.data_series_id})
+        const dataProvider = await DataManager.getDataProvider({id: dataSeries.data_provider_id})
         const uri = dataProvider.uri
         // const conn = new Connection(uri)
         const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
@@ -194,11 +195,11 @@
         }
 
         if (limit) {
-          sqlWhere +=` LIMIT ${limit}`
+          sqlWhere += ` LIMIT ${limit}`
         }
 
-        if(offset) {
-          sqlWhere +=` OFFSET ${offset}`
+        if (offset) {
+          sqlWhere += ` OFFSET ${offset}`
         }
 
         const sql = sqlSelect + sqlFrom + sqlWhere
@@ -228,8 +229,8 @@
         } = request.query
 
         const view = await ViewFacade.retrieve(viewId)
-        const dataSeries = await DataManager.getDataSeries({id:view.data_series_id})
-        const dataProvider = await DataManager.getDataProvider({id:dataSeries.data_provider_id})
+        const dataSeries = await DataManager.getDataSeries({id: view.data_series_id})
+        const dataProvider = await DataManager.getDataProvider({id: dataSeries.data_provider_id})
         // const uri = dataProvider.uri
         const tableName = dataSeries.dataSets[0].format.table_name
         // const conn = new Connection(uri)
@@ -365,5 +366,79 @@
         await conn.disconnect()
         response.json(propertyData)
       },
+      getAnalysisTotals: async (request, response) => {
+        const params = {
+          viewId,
+          groupCod,
+          date,
+          projectName,
+          group,
+          localization,
+          area,
+          count
+        } = request.query;
+
+        const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt");
+        await conn.connect();
+
+        let sql = '';
+
+        if (params.viewId && params.viewId !== 'null'){
+
+          const view = await ViewFacade.retrieve(params.viewId);
+
+          const dataSeries = await DataManager.getDataSeries({id: view.data_series_id});
+          const dataProvider = await DataManager.getDataProvider({id: dataSeries.data_provider_id});
+          const uri = dataProvider.uri;
+
+          const dataSet = dataSeries.dataSets[0];
+          let tableName = dataSet.format.table_name;
+
+          let sqlTableName = ` SELECT DISTINCT table_name FROM ${tableName}`;
+          resultTableName = await conn.execute(sqlTableName);
+
+          tableName = resultTableName.rows[0]['table_name'];
+
+          let sqlWhere = '';
+
+          if (params.date && params.date !== "null") {
+            const dateFrom = params.date[0];
+            const dateTo = params.date[1];
+            sqlWhere += ` WHERE execution_date BETWEEN '${dateFrom}' AND '${dateTo}' `
+          }
+          if (params.area && params.area !== "null") {
+            sqlWhere += ` AND calculated_area_ha > ${params.area} `
+          }
+
+          sql = params.groupCod === 'FOCOS' ?
+              `SELECT (
+                        SELECT ROW_NUMBER() OVER(ORDER BY de_car_validado_sema_numero_do1 ASC) AS Row 
+                        FROM public.${tableName}
+                        ${sqlWhere}
+                        GROUP BY de_car_validado_sema_numero_do1
+                        ORDER BY Row DESC
+                        LIMIT 1
+                ) AS num_car,
+                (
+                        SELECT coalesce(sum(1), 0.00) as num_focos
+                        FROM public.${tableName}
+                        ${sqlWhere}
+                ) AS num_focos; ` :
+              ` SELECT COALESCE(SUM(calculated_area_ha), 0.00) AS area_tot, COALESCE(COUNT(1), 00.00) AS num_car
+                  FROM public.${tableName} ${sqlWhere}`;
+        } else {
+          sql = params.groupCod === 'FOCOS' ? ` SELECT 0.00 AS num_focos, 00.00 AS num_car ` : ` SELECT 0.00 AS area_tot, 00.00 AS num_car `;
+        }
+        try {
+          const result = await conn.execute(sql);
+
+          await conn.disconnect();
+          response.json(result.rows);
+        } catch (error) {
+          console.log(error);
+        }
+      }
     }
 } ();
+
+
