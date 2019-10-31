@@ -224,7 +224,7 @@
       getCarData: async (request, response) => {
         const {
           carRegister,
-          intersectId,
+          date,
           viewId
         } = request.query
 
@@ -236,10 +236,16 @@
         // const conn = new Connection(uri)
         const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
         await conn.connect()
+        let dateFrom = null;
+        let dateTo = null;
+        if (date) {
+          dateFrom = date[0];
+          dateTo = date[1];
+        }
 
-        let sqlDeter = `
-          SELECT orbitpoint, date, sensor, satellite FROM public.dd_deter_inpe di where di.gid = ${intersectId}
-        `
+        // let sqlDeter = `
+        //   SELECT orbitpoint, date, sensor, satellite FROM public.dd_deter_inpe di where di.gid = ${intersectId}
+        // `
         let sql = `SELECT
             car.numero_do2 AS register,
             car.area_ha_ AS area,
@@ -283,28 +289,78 @@
                     group by year
                   `
 
-        const resultDeter = await conn.execute(sqlDeter)
-        const deter = resultDeter.rows
+        // const resultDeter = await conn.execute(sqlDeter)
+        // const deter = resultDeter.rows
 
         const resultBurnedAreas = await conn.execute(sqlBurnedAreas)
         const burnedAreas = resultBurnedAreas.rows
 
         const sqlProdesYear = `SELECT
                               extract(year from date_trunc('year', cp.execution_date)) AS date,
-                              SUM(cp.calculated_area_ha) area
+                              SUM(cp.calculated_area_ha) as area
                               FROM public.apv_car_prodes_40 cp
                               WHERE cp.de_car_validado_sema_numero_do2 = '${carRegister}'
                               GROUP BY date
                               ORDER BY date;`
 
+        const sqlSpotlightsYear = `SELECT
+                              extract(year from date_trunc('year', cf.execution_date)) AS date,
+                              COUNT(cf.*) as spotlights
+                              FROM public.apv_car_focos_48 cf
+                              WHERE cf.de_car_validado_sema_numero_do2 = '${carRegister}'
+                              GROUP BY date
+                              ORDER BY date;`
+
+        let dateSql = ` and execution_date::date >= '${dateFrom}' AND execution_date::date <= '${dateTo}'`
+
+        const sqlIndigenousLand = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_ti_cardeter_68 where apv_car_deter_28_de_car_validado_sema_numero_do2 = '${carRegister}' ${dateSql}`
+        const sqlConservationUnit = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_uc_carprodes_65 where apv_car_prodes_40_de_car_validado_sema_numero_do2 = '${carRegister}' ${dateSql}`
+        const sqlLegalReserve = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_reserva_cardeter_37 where apv_car_deter_28_de_car_validado_sema_numero_do2 = '${carRegister}' ${dateSql}`
+        const sqlAPP = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_app_cardeter_35 where apv_car_deter_28_de_car_validado_sema_numero_do2 = '${carRegister}' ${dateSql}`
+        const sqlConsolidatedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_usocon_cardeter_39 where apv_car_deter_28_de_car_validado_sema_numero_do2 = '${carRegister}' ${dateSql}`
+        const sqlAnthropizedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_usoant_cardeter_36 where apv_car_deter_28_de_car_validado_sema_numero_do2 = '${carRegister}' ${dateSql}`
+        const sqlNativeVegetation = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_veg_cardeter_38 where apv_car_deter_28_de_car_validado_sema_numero_do2 = '${carRegister}' ${dateSql}`
+
+        const resultIndigenousLand = await conn.execute(sqlIndigenousLand)
+        const indigenousLand = resultIndigenousLand.rows
+
+        const resultConservationUnit = await conn.execute(sqlConservationUnit)
+        const conservationUnit = resultConservationUnit.rows
+
+        const resultLegalReserve = await conn.execute(sqlLegalReserve)
+        const legalReserve = resultLegalReserve.rows
+
+        const resultAPP = await conn.execute(sqlAPP)
+        const app = resultAPP.rows
+
+        const resultConsolidatedUse = await conn.execute(sqlConsolidatedUse)
+        const consolidatedArea = resultConsolidatedUse.rows
+
+        const resultAnthropizedUse = await conn.execute(sqlAnthropizedUse)
+        const anthropizedUse = resultAnthropizedUse.rows
+
+        const resultNativeVegetation = await conn.execute(sqlNativeVegetation)
+        const nativeVegetation = resultNativeVegetation.rows
+
         const resultProdesYear = await conn.execute(sqlProdesYear)
         const prodesYear = resultProdesYear.rows
+
+        const resultSpotlightsYear = await conn.execute(sqlSpotlightsYear)
+        const spotlightsYear = resultSpotlightsYear.rows
 
         if (propertyData) {
           propertyData.burningSpotlights = burningSpotlights
           propertyData.burnedAreas = burnedAreas
-          propertyData.deter = deter[0]
+          // propertyData.deter = deter[0]
           propertyData.prodesYear = prodesYear
+          propertyData.spotlightsYear = spotlightsYear
+          propertyData.indigenousLand = indigenousLand[0]
+          propertyData.conservationUnit = conservationUnit[0]
+          propertyData.legalReserve = legalReserve[0]
+          propertyData.app = app[0]
+          propertyData.consolidatedArea = consolidatedArea[0]
+          propertyData.anthropizedUse = anthropizedUse[0]
+          propertyData.nativeVegetation = nativeVegetation[0]
         }
 
         await conn.disconnect()

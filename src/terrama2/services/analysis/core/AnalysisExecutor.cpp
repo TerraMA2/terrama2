@@ -175,6 +175,8 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
     ContextManager::getInstance().addError(analysisHashCode, errMsg.toStdString());
   }
 
+  auto msgTypeLogStatus = AnalysisLogger::Status::DONE;
+
   try
   {
     auto warnings = ContextManager::getInstance().getMessages(analysisHashCode, BaseContext::MessageType::WARNING_MESSAGE);
@@ -184,6 +186,8 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
       {
         logger->log(AnalysisLogger::MessageType::WARNING_MESSAGE, warning, logId);
       }
+
+      msgTypeLogStatus = AnalysisLogger::Status::WARNING;
     }
 
     auto errors = ContextManager::getInstance().getMessages(analysisHashCode, BaseContext::MessageType::ERROR_MESSAGE);
@@ -215,7 +219,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
       logger->setStartProcessingTime(processingStartTime, executionPackage.registerId);
       logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
 
-      logger->result(AnalysisLogger::Status::DONE, startTime, logId);
+      logger->result(msgTypeLogStatus, startTime, logId);
 
       QString errMsg = QObject::tr("Analysis %1 finished successfully: %2").arg(analysis->id).arg(startTime->toString().c_str());
       TERRAMA2_LOG_INFO() << errMsg;
@@ -506,13 +510,21 @@ void terrama2::services::analysis::core::AnalysisExecutor::runVectorialProcessin
     context->addAttribute("affected_rows", te::dt::DOUBLE_TYPE);
 
     int currentLine = 0;
+
+    double affectedRows = 0.;
+
     while(result->moveNext())
     {
       context->setAnalysisResult(++currentLine, "table_name", result->getString("table_name"));
       context->setAnalysisResult(currentLine, "affected_rows", result->getDouble("affected_rows"));
+
+      affectedRows = result->getDouble("affected_rows");
     }
 
     storeVectorProcessingResult(dataManager, storagerManager, context);
+
+    if(affectedRows == 0)
+      context->addLogMessage(BaseContext::MessageType::WARNING_MESSAGE, "0 rows created.");
   }
   catch(const terrama2::Exception& e)
   {
