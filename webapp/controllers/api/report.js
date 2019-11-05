@@ -17,7 +17,9 @@
           limit,
           offset,
           count,
-          viewId
+          viewId,
+          sortColumn,
+          sortOrder
         } = request.query
         const view = await ViewFacade.retrieve(viewId)
         const dataSeries = await DataManager.getDataSeries({id: view.data_series_id})
@@ -38,7 +40,12 @@
                       ST_X(ST_Transform (ST_Centroid(geom), 4326)) AS "long"
         `
 
+
         sqlFrom += ` FROM public.${tableName}`
+
+        if (sortColumn && sortOrder) {
+          sqlWhere += ` ORDER BY ${sortColumn} ${sortOrder === 1?'ASC':'DESC'}`
+        }
 
         if (limit) {
           sqlWhere += ` LIMIT ${limit}`
@@ -77,7 +84,9 @@
           localization,
           area,
           count,
-          viewId
+          viewId,
+          sortColumn,
+          sortOrder
         } = request.query
         const view = await ViewFacade.retrieve(viewId)
         const dataSeries = await DataManager.getDataSeries({id: view.data_series_id})
@@ -110,6 +119,12 @@
           sqlWhere += `
               WHERE ${timeStampColumn}::date >= '${dateFrom}' AND ${timeStampColumn}::date <= '${dateTo}'
           `
+        }
+
+        sqlCount += sqlWhere
+
+        if (sortColumn && sortOrder) {
+          sqlWhere += ` ORDER BY ${sortColumn} ${sortOrder === 1?'ASC':'DESC'}`
         }
 
         if (limit) {
@@ -151,7 +166,9 @@
           localization,
           area,
           count,
-          viewId
+          viewId,
+          sortColumn,
+          sortOrder
         } = request.query
         const view = await ViewFacade.retrieve(viewId)
         const dataSeries = await DataManager.getDataSeries({id: view.data_series_id})
@@ -192,6 +209,10 @@
 
         if (area) {
           sqlWhere += ` AND calculated_area_ha > ${area}`
+        }
+
+        if (sortColumn && sortOrder) {
+          sqlWhere += ` ORDER BY ${sortColumn} ${sortOrder === '1'?'ASC':'DESC'}`
         }
 
         if (limit) {
@@ -247,7 +268,7 @@
         //   SELECT orbitpoint, date, sensor, satellite FROM public.dd_deter_inpe di where di.gid = ${intersectId}
         // `
         let sql = `SELECT
-            car.numero_do2 AS register,
+            car.numero_do1 AS register,
             car.area_ha_ AS area,
             car.nome_da_p1 AS name,
             car.municipio1 AS city,
@@ -257,9 +278,9 @@
             ST_X(ST_Transform (ST_Centroid(car.geom), 4326)) AS "long"
             FROM public.${tableName} AS car
             INNER JOIN de_municipios_sema munic ON
-            car.numero_do2 = '${carRegister}'
+            car.numero_do1 = '${carRegister}'
             AND munic.municipio = car.municipio1
-            GROUP BY car.numero_do2, car.area_ha_, car.nome_da_p1, car.municipio1, car.geom`;
+            GROUP BY car.numero_do1, car.area_ha_, car.nome_da_p1, car.municipio1, car.geom`;
 
         const result = await conn.execute(sql)
         let propertyData = result.rows[0]
@@ -268,10 +289,10 @@
                     SELECT
                     count(*) as focuscount,
                     extract('YEAR' FROM focus.execution_date) as year
-                    FROM public.apv_car_focos_48 focus
+                    FROM public.apv_car_focos_48 as focus
                     INNER JOIN public.${tableName} AS car on
-                    focus.de_car_validado_sema_numero_do2 = car.numero_do2 AND
-                    car.numero_do2 = '${carRegister}'
+                    focus.de_car_validado_sema_numero_do1 = car.numero_do1 AND
+                    car.numero_do1 = '${carRegister}'
                     group by year
                   `
 
@@ -282,10 +303,10 @@
                     SELECT
                     count(*) as focuscount,
                     extract('YEAR' FROM focus.execution_date) as year
-                    FROM public.apv_car_focos_48 focus
+                    FROM public.apv_car_focos_48 as focus
                     INNER JOIN public.${tableName} AS car on
-                    focus.de_car_validado_sema_numero_do2 = car.numero_do2 AND
-                    car.numero_do2 = '${carRegister}'
+                    focus.de_car_validado_sema_numero_do1 = car.numero_do1 AND
+                    car.numero_do1 = '${carRegister}'
                     group by year
                   `
 
@@ -299,7 +320,7 @@
                               extract(year from date_trunc('year', cp.execution_date)) AS date,
                               SUM(cp.calculated_area_ha) as area
                               FROM public.apv_car_prodes_40 cp
-                              WHERE cp.de_car_validado_sema_numero_do2 = '${carRegister}'
+                              WHERE cp.de_car_validado_sema_numero_do1 = '${carRegister}'
                               GROUP BY date
                               ORDER BY date;`
 
@@ -307,19 +328,19 @@
                               extract(year from date_trunc('year', cf.execution_date)) AS date,
                               COUNT(cf.*) as spotlights
                               FROM public.apv_car_focos_48 cf
-                              WHERE cf.de_car_validado_sema_numero_do2 = '${carRegister}'
+                              WHERE cf.de_car_validado_sema_numero_do1 = '${carRegister}'
                               GROUP BY date
                               ORDER BY date;`
 
         let dateSql = ` and execution_date::date >= '${dateFrom}' AND execution_date::date <= '${dateTo}'`
 
-        const sqlIndigenousLand = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_ti_cardeter_68 where apv_car_deter_28_de_car_validado_sema_numero_do2 = '${carRegister}' ${dateSql}`
-        const sqlConservationUnit = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_uc_carprodes_65 where apv_car_prodes_40_de_car_validado_sema_numero_do2 = '${carRegister}' ${dateSql}`
-        const sqlLegalReserve = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_reserva_cardeter_37 where apv_car_deter_28_de_car_validado_sema_numero_do2 = '${carRegister}' ${dateSql}`
-        const sqlAPP = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_app_cardeter_35 where apv_car_deter_28_de_car_validado_sema_numero_do2 = '${carRegister}' ${dateSql}`
-        const sqlConsolidatedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_usocon_cardeter_39 where apv_car_deter_28_de_car_validado_sema_numero_do2 = '${carRegister}' ${dateSql}`
-        const sqlAnthropizedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_usoant_cardeter_36 where apv_car_deter_28_de_car_validado_sema_numero_do2 = '${carRegister}' ${dateSql}`
-        const sqlNativeVegetation = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_veg_cardeter_38 where apv_car_deter_28_de_car_validado_sema_numero_do2 = '${carRegister}' ${dateSql}`
+        const sqlIndigenousLand = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_ti_cardeter_68 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`
+        const sqlConservationUnit = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_uc_carprodes_65 where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`
+        const sqlLegalReserve = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_reserva_cardeter_37 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`
+        const sqlAPP = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_app_cardeter_35 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`
+        const sqlConsolidatedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_usocon_cardeter_39 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`
+        const sqlAnthropizedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_usoant_cardeter_36 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`
+        const sqlNativeVegetation = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_veg_cardeter_38 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`
 
         const resultIndigenousLand = await conn.execute(sqlIndigenousLand)
         const indigenousLand = resultIndigenousLand.rows
@@ -412,7 +433,7 @@
 
           sql = params.groupCod === 'FOCOS' ?
               `SELECT (
-                        SELECT ROW_NUMBER() OVER(ORDER BY de_car_validado_sema_numero_do1 ASC) AS Row 
+                        SELECT ROW_NUMBER() OVER(ORDER BY de_car_validado_sema_numero_do1 ASC) AS Row
                         FROM public.${tableName}
                         ${sqlWhere}
                         GROUP BY de_car_validado_sema_numero_do1
@@ -440,5 +461,3 @@
       }
     }
 } ();
-
-

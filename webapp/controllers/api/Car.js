@@ -15,7 +15,10 @@ module.exports = function(app) {
                 viewId,
                 limit,
                 offset,
-                count
+                count,
+                source,
+                sortColumn,
+                sortOrder
             } = request.query
             const view = await ViewFacade.retrieve(viewId)
             const dataSeries = await DataManager.getDataSeries({id:view.data_series_id})
@@ -25,19 +28,79 @@ module.exports = function(app) {
             const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
             await conn.connect()
 
-            const dataSet = dataSeries.dataSets[0]
-            let tableName = dataSet.format.table_name
+            const tableName = dataSeries.dataSets[0].format.table_name
 
-            let sql = `SELECT
-                            numero_do1,
-                            numero_do2,
-                            nome_da_p1,
-                            municipio1,
-                            area_ha_,
-                            situacao_1,
-                            ST_Y(ST_Transform (ST_Centroid(geom), 4326)) AS "lat",
-                            ST_X(ST_Transform (ST_Centroid(geom), 4326)) AS "long"
-                        FROM public.${tableName}`
+            let sql = '';
+            if (source === 'deter') {
+                sql = `
+                    SELECT property.numero_do1,
+                            property.numero_do2,
+                            property.nome_da_p1,
+                            property.municipio1,
+                            property.area_ha_,
+                            property.situacao_1,
+                            ST_Y(ST_Transform (ST_Centroid(property.geom), 4326)) AS "lat",
+                            ST_X(ST_Transform (ST_Centroid(property.geom), 4326)) AS "long",
+                            count(car_deter.*) as deter
+                    FROM public.${tableName} property
+                    LEFT JOIN public.apv_car_deter_28 car_deter
+                    ON car_deter.${tableName}_numero_do1 = property.numero_do1
+                    group by property.numero_do1,
+                            property.numero_do2,
+                            property.nome_da_p1,
+                            property.municipio1,
+                            property.area_ha_,
+                            property.situacao_1,
+                            property.geom
+                    ORDER BY ${sortColumn?sortColumn:'deter'} ${sortOrder === 1?'ASC':'DESC'}
+            `
+            } else if (source === 'prodes') {
+                sql = `
+                    SELECT property.numero_do1,
+                            property.numero_do2,
+                            property.nome_da_p1,
+                            property.municipio1,
+                            property.area_ha_,
+                            property.situacao_1,
+                            ST_Y(ST_Transform (ST_Centroid(property.geom), 4326)) AS "lat",
+                            ST_X(ST_Transform (ST_Centroid(property.geom), 4326)) AS "long",
+                            count(car_prodes.*) as prodes
+                    FROM public.${tableName} property
+                    LEFT JOIN public.apv_car_prodes_40 car_prodes
+                    ON car_prodes.${tableName}_numero_do1 = property.numero_do1
+                    group by property.numero_do1,
+                            property.numero_do2,
+                            property.nome_da_p1,
+                            property.municipio1,
+                            property.area_ha_,
+                            property.situacao_1,
+                            property.geom
+                    ORDER BY ${sortColumn?sortColumn:'prodes'} ${sortOrder === 1?'ASC':'DESC'}
+            `
+            } else if (source === 'focus') {
+                sql = `
+                    SELECT property.numero_do1,
+                        property.numero_do2,
+                        property.nome_da_p1,
+                        property.municipio1,
+                        property.area_ha_,
+                        property.situacao_1,
+                        ST_Y(ST_Transform (ST_Centroid(property.geom), 4326)) AS "lat",
+                        ST_X(ST_Transform (ST_Centroid(property.geom), 4326)) AS "long",
+                        count(car_focus.*) as focos
+                    FROM public.${tableName} property
+                    LEFT JOIN public.apv_car_focos_48 car_focus
+                    ON car_FOCUS.${tableName}_numero_do1 = property.numero_do1
+                    group by property.numero_do1,
+                        property.numero_do2,
+                        property.nome_da_p1,
+                        property.municipio1,
+                        property.area_ha_,
+                        property.situacao_1,
+                        property.geom
+                    ORDER BY ${sortColumn?sortColumn:'focos'} ${sortOrder === 1?'ASC':'DESC'}
+            `
+            }
 
             if (limit) {
                 sql +=` LIMIT ${limit}`
