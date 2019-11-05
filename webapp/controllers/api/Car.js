@@ -20,6 +20,7 @@ module.exports = function(app) {
                 sortColumn,
                 sortOrder
             } = request.query
+
             const view = await ViewFacade.retrieve(viewId)
             const dataSeries = await DataManager.getDataSeries({id:view.data_series_id})
             const dataProvider = await DataManager.getDataProvider({id:dataSeries.data_provider_id})
