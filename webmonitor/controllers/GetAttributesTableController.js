@@ -161,7 +161,7 @@ var GetAttributesTableController = function(app) {
             body.features.forEach(function(val) {
               var temp = [];
 
-              if(columnsFiltered.length !== Object.keys(val.properties).length){
+              if((columnsFiltered.length !== Object.keys(val.properties).length) || (columnsFiltered.length == Object.keys(val.properties).length && verifyEqualsColumns(columnsFiltered, val))){
                 columnsFiltered.forEach(function(columnFilter){
                   if(Object.keys(val.properties).includes(columnFilter)){
                     if(val.properties[columnFilter] != null && typeof val.properties[columnFilter] == 'object'){
@@ -238,6 +238,17 @@ var GetAttributesTableController = function(app) {
       });
     });
   };
+
+  var verifyEqualsColumns = function(filteredByGeoserver, object){
+    Object.keys(object.properties).forEach(function(property){
+      if(filteredByGeoserver.includes(property)){
+        continue;
+      } else{
+        return false;
+      }
+    });
+    return true;
+  }
 
   /**
    * Processes the request and returns a response.
