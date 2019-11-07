@@ -241,11 +241,9 @@ var GetAttributesTableController = function(app) {
 
   var verifyEqualsColumns = function(filteredByGeoserver, object){
     Object.keys(object.properties).forEach(function(property){
-      if(filteredByGeoserver.includes(property)){
-        continue;
-      } else{
+      if(!filteredByGeoserver.includes(property)){
         return false;
-      }
+      } 
     });
     return true;
   }
