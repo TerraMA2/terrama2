@@ -108,57 +108,116 @@
     let column2 = '';
     let column3 = '';
     let column4 = '';
+    const columnArea = 'main_table.calculated_area_ha';
+
+    const filterColumns = {
+      columnDate: 'main_table.execution_date',
+      columnsTheme: {
+        biomes: {
+          car: 'apv_car_focos_48_de_car_validado_sema_numero_do1',
+          city: 'apv_car_focos_48_dd_focos_inpe_municipio',
+          biome: 'de_biomas_mt_gid'
+        },
+        city: '',
+        Mesoregion: '',
+        microregion: '',
+        county: '',
+        uc: '',
+        ti: ''
+      },
+      columnsAlertType: {
+        area: '',
+        burning: ''
+      },
+      columnsauthorization: {},
+      comumnsSpecificSearch:{
+        car: '',
+        cpfCnpj: ''
+      }
+    }
 
     if (alert.codgroup && alert.codgroup === 'FOCOS') {
       if (alert.isAnalysis && alert.isPrimary) {
-        column1 = ` de_car_validado_sema_numero_do1 `;
-        column2 = ` dd_focos_inpe_bioma `;
+        column1 = ` main_table.de_car_validado_sema_numero_do1 `;
+        column2 = ` main_table.dd_focos_inpe_bioma `;
         column3 = '1';
-        column4 = ` dd_focos_inpe_bioma `;
+        column4 = ` main_table.dd_focos_inpe_bioma `;
       } else {
-        column1 = ` ${tableOwner}_de_car_validado_sema_numero_do1 `;
-        column2 = ` ${tableOwner}_dd_focos_inpe_bioma `;
+        column1 = ` main_table.${tableOwner}_de_car_validado_sema_numero_do1 `;
+        column2 = ` main_table.${tableOwner}_dd_focos_inpe_bioma `;
         column3 = '1';
-        column4 = ` ${tableOwner}_dd_focos_inpe_bioma `;
+        column4 = ` main_table.${tableOwner}_dd_focos_inpe_bioma `;
       }
     } else if (alert.codgroup && alert.codgroup === 'DETER') {
       if (alert.isAnalysis && alert.isPrimary) {
-        column1 = ` de_car_validado_sema_numero_do1 `;
-        column2 = ` dd_deter_inpe_classname `;
+        column1 = ` main_table.de_car_validado_sema_numero_do1 `;
+        column2 = ` main_table.dd_deter_inpe_classname `;
       } else {
-        column1 = ` ${tableOwner}_de_car_validado_sema_numero_do1 `;
-        column2 = ` ${tableOwner}_dd_deter_inpe_classname `;
+        column1 = ` main_table.${tableOwner}_de_car_validado_sema_numero_do1 `;
+        column2 = ` main_table.${tableOwner}_dd_deter_inpe_classname `;
       }
-      column3 = alert.activearea ? ' calculated_area_ha ' : '1';
+
+      column3 = alert.activearea ? ' main_table.calculated_area_ha ' : '1';
     } else if (alert.codgroup && alert.codgroup === 'PRODES') {
       if (alert.isAnalysis && alert.isPrimary) {
-        column1 = ` de_car_validado_sema_numero_do1 `;
-        column2 = ` dd_prodes_inpe_mainclass `;
+        column1 = ` main_table.de_car_validado_sema_numero_do1 `;
+        column2 = ` main_table.dd_prodes_inpe_mainclass `;
       } else {
-        column1 = ` ${tableOwner}_de_car_validado_sema_numero_do1 `;
-        column2 = ` ${tableOwner}_dd_prodes_inpe_mainclass `;
+        column1 = ` main_table.${tableOwner}_de_car_validado_sema_numero_do1 `;
+        column2 = ` main_table.${tableOwner}_dd_prodes_inpe_mainclass `;
       }
-      column3 = alert.activearea ? ' calculated_area_ha ' : '1';
+
+      column3 = alert.activearea ? ' main_table.calculated_area_ha ' : '1';
     }
 
-    return { column1, column2, column3, column4 };
+    return { column1, column2, column3, column4, filterColumns, columnArea };
   };
-  function getSqlWhere(params, alert, columns){
+  function getFilter(params, alert, columns){
+    const filter = params.filter && params.filter !== 'null' ?
+        JSON.parse(params.filter) : {};
+
     let sqlWhere = '';
+    let secondaryTables = '';
 
     if (params.date && params.date !== "null") {
       const dateFrom = params.date[0];
       const dateTo = params.date[1];
-      sqlWhere += ` WHERE execution_date BETWEEN '${dateFrom}' AND '${dateTo}' `
+      sqlWhere += ` WHERE main_table.execution_date BETWEEN '${dateFrom}' AND '${dateTo}' `
     }
 
-    if (params.area && params.area !== "null") {
-      sqlWhere += ` AND ${columns.column3} > ${params.area} `
+    if (filter) {
+      if (filter.specificSearch && filter.specificSearch.isChecked) {
+        if (filter.specificSearch.CarCPF === 'CAR') {
+          sqlWhere += ` AND ${columns.column1} like '${filter.specificSearch.inputValue}' `
+        } else if (filter.specificSearch.CarCPF === 'CPF') {
+          // Missing table associating CARs with CPFCNPJ
+        }
+      } else if (filter.themeSelected && filter.themeSelected.type){
+        if (filter.themeSelected.type === 'biome') {
+          secondaryTables += ' , public.apv_biomas_carfocos_80 biome ';
+          sqlWhere += ` AND biome.${columns.filterColumns.columnsTheme.biomes.biome} = ${filter.themeSelected.value.gid} `
+          sqlWhere += ` AND biome.${columns.filterColumns.columnsTheme.biomes.car} = ${columns.column1} `
+        } else if (filter.themeSelected.type === 'region') {
+
+        } else if (filter.themeSelected.type === 'mesoregion') {
+
+        } else if (filter.themeSelected.type === 'microregion') {
+
+        } else if (filter.themeSelected.type === 'city') {
+          secondaryTables += ' , public.apv_biomas_carfocos_80 biome ';
+          sqlWhere += ` AND biome.${columns.filterColumns.columnsTheme.biomes.city} like  UPPER(TRIM('${filter.themeSelected.value.name}')) `
+          sqlWhere += ` AND biome.${columns.filterColumns.columnsTheme.biomes.car} = ${columns.column1} `
+        } else if (filter.themeSelected.type === 'uc') {
+
+        } else if (filter.themeSelected.type === 'ti') {
+
+        }
+      }
     }
 
-    return sqlWhere;
+    return { sqlWhere, secondaryTables };
   };
-  async function getSql(conn, alert, tableOwner, params){
+  async function getSqlDetailsAnalysisTotals(conn, alert, tableOwner, params){
     let sql1 = '';
     let sql2 = '';
 
@@ -184,17 +243,17 @@
           `   ${columns.column2} AS ${subtitle},
                       COALESCE(SUM(${columns.column3})) AS ${value1} `;
 
-      const sqlFrom = ` FROM public.${table} `;
+      const sqlFrom = ` FROM public.${table} AS main_table`;
 
-      const sqlWhere = getSqlWhere(params, alert, columns);
+      const filter = getFilter(params, alert, columns);
 
       const sqlGroupBy1 = ` GROUP BY ${columns.column1}  `;
       const sqlGroupBy2 = ` GROUP BY ${columns.column2}  `;
       const sqlOrderBy = ` ORDER BY ${value1} DESC `;
       const sqlLimit = ` LIMIT ${limit} `;
 
-      sql1 += ` SELECT ${columnsFor1} ${sqlFrom} ${sqlWhere} ${sqlGroupBy1} ${sqlOrderBy} ${sqlLimit} `;
-      sql2 += ` SELECT ${columnsFor2} ${sqlFrom} ${sqlWhere} ${sqlGroupBy2} ${sqlOrderBy} ${sqlLimit} `;
+      sql1 += ` SELECT ${columnsFor1} ${sqlFrom} ${filter.secondaryTables} ${filter.sqlWhere} ${sqlGroupBy1} ${sqlOrderBy} ${sqlLimit} `;
+      sql2 += ` SELECT ${columnsFor2} ${sqlFrom} ${filter.secondaryTables} ${filter.sqlWhere} ${sqlGroupBy2} ${sqlOrderBy} ${sqlLimit} `;
     } else {
       sql1 += ` SELECT 
                         ' --- ' AS ${subtitle},
@@ -203,7 +262,76 @@
                         ' --- ' AS ${subtitle},
                         0.00 AS ${value1} `;
     }
+    console.log(sql1);
+    console.log(sql2);
     return { sql1, sql2, value1, subtitle };
+  }
+  async function getSqlAnalysisTotals(conn, alerts, params){
+    let sql = '';
+    if (alerts.length > 0) {
+      for (let alert of alerts) {
+        sql += sql.trim() === '' ? '' : ' UNION ALL ';
+
+        if (alert.idview && alert.idview > 0 && alert.idview !== 'null') {
+
+          const tableName = await getTable(conn, alert.idview);
+
+          const collumns = getColumns(alert, '');
+
+          const filter = getFilter(params, alert, collumns);
+
+          const value1 = alert.codgroup === 'FOCOS' ?
+              ` (  SELECT ROW_NUMBER() OVER(ORDER BY ${collumns.column1} ASC) AS Row
+                         FROM public.${tableName} AS main_table
+                         ${filter.secondaryTables}
+                         ${filter.sqlWhere}
+                         GROUP BY ${collumns.column1}
+                         ORDER BY Row DESC
+                         LIMIT 1
+                      ) AS value1 ` :
+              `  COALESCE(COUNT(1), 00.00) AS value1 `;
+
+          const value2 = alert.codgroup === 'FOCOS' ?
+              ` (  SELECT coalesce(sum(1), 0.00) as num_focos
+                   FROM public.${tableName} AS main_table
+                   ${filter.secondaryTables}
+                   ${filter.sqlWhere}
+                      ) AS value2 ` :
+              ` COALESCE(SUM(${collumns.columnArea}), 0.00) AS value2 `;
+
+          const sqlFrom = alert.codgroup === 'FOCOS' ?
+              ` ` :
+              ` FROM public.${tableName} AS main_table ${filter.secondaryTables} ${filter.sqlWhere} `;
+
+          sql += `SELECT 
+                          '${alert.idview}' AS idview,
+                          '${alert.cod}' AS cod,
+                          '${alert.codgroup}' AS codgroup,
+                          '${alert.label}' AS label,
+                          ${value1},
+                          ${value2},
+                          ${alert.selected} AS selected,
+                          ${alert.activearea} AS activearea,
+                          false AS immobilitactive,
+                          null AS alertsgraphics 
+                    ${sqlFrom}`;
+        } else {
+          sql += ` SELECT 
+                        '${alert.idview}' AS idview,
+                        '${alert.cod}' AS cod,
+                        '${alert.codgroup}' AS codgroup,
+                        '${alert.label}' AS label,
+                        0.00 AS value1,
+                        00.00 AS value2 ,
+                        ${alert.selected} AS selected,
+                        ${alert.activearea} AS activearea,
+                        false AS immobilitactive,
+                        null AS alertsgraphics `;
+        }
+      }
+    }
+
+    return sql;
   }
 
   module.exports = function(app) {
@@ -587,101 +715,20 @@
       },
       getAnalysisTotals: async (request, response) => {
         const params = {
-          listAlert,
-          codgroup,
+          specificParameters,
           date,
-          projectName,
-          group,
-          localization,
-          area,
-          count
+          filter
         } = request.query;
 
         const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt");
         await conn.connect();
 
-        const alerts = params.listAlert && params.listAlert !== 'null' ?
-            JSON.parse(params.listAlert) :
+        const alerts = params.specificParameters && params.specificParameters !== 'null' ?
+            JSON.parse(params.specificParameters) :
             [];
-        let sql = '';
 
-        if (alerts.length > 0) {
-          for (let alert of alerts) {
-            sql += sql.trim() === '' ? '' : ' UNION ALL ';
-            if (alert.idview && alert.idview > 0 && alert.idview !== 'null') {
-              const view = await ViewFacade.retrieve(alert.idview);
+        const sql = await getSqlAnalysisTotals(conn, alerts, params);
 
-              const dataSeries = await DataManager.getDataSeries({id: view.data_series_id});
-              const dataProvider = await DataManager.getDataProvider({id: dataSeries.data_provider_id});
-              const uri = dataProvider.uri;
-
-              const dataSet = dataSeries.dataSets[0];
-              let tableName = dataSet.format.table_name;
-
-              let sqlTableName = ` SELECT DISTINCT table_name FROM ${tableName}`;
-              resultTableName = await conn.execute(sqlTableName);
-
-              tableName = resultTableName.rows[0]['table_name'];
-
-              let sqlWhere = '';
-
-              if (params.date && params.date !== "null") {
-                const dateFrom = params.date[0];
-                const dateTo = params.date[1];
-                sqlWhere += ` WHERE execution_date BETWEEN '${dateFrom}' AND '${dateTo}' `
-              }
-              if (params.area && params.area !== "null") {
-                sqlWhere += ` AND calculated_area_ha > ${params.area} `
-              }
-
-              const value1 = alert.codgroup === 'FOCOS' ?
-                  ` (  SELECT ROW_NUMBER() OVER(ORDER BY de_car_validado_sema_numero_do1 ASC) AS Row
-                         FROM public.${tableName}
-                         ${sqlWhere}
-                         GROUP BY de_car_validado_sema_numero_do1
-                         ORDER BY Row DESC
-                         LIMIT 1
-                      ) AS value1 ` :
-                  `  COALESCE(COUNT(1), 00.00) AS value1 `;
-
-              const value2 = alert.codgroup === 'FOCOS' ?
-                  ` (  SELECT coalesce(sum(1), 0.00) as num_focos
-                         FROM public.${tableName}
-                         ${sqlWhere} 
-                      ) AS value2 ` :
-                  ` COALESCE(SUM(calculated_area_ha), 0.00) AS value2 `;
-
-              const sqlFrom = alert.codgroup === 'FOCOS' ?
-                  ` ` :
-                  ` FROM public.${tableName} ${sqlWhere} `;
-
-              sql += `SELECT 
-                          '${alert.idview}' AS idview,
-                          '${alert.cod}' AS cod,
-                          '${alert.codgroup}' AS codgroup,
-                          '${alert.label}' AS label,
-                          ${value1},
-                          ${value2},
-                          ${alert.selected} AS selected,
-                          ${alert.activearea} AS activearea,
-                          false AS immobilitactive,
-                          null AS alertsgraphics 
-                    ${sqlFrom}`;
-            } else {
-              sql += ` SELECT 
-                        '${alert.idview}' AS idview,
-                        '${alert.cod}' AS cod,
-                        '${alert.codgroup}' AS codgroup,
-                        '${alert.label}' AS label,
-                        0.00 AS value1,
-                        00.00 AS value2 ,
-                        ${alert.selected} AS selected,
-                        ${alert.activearea} AS activearea,
-                        false AS immobilitactive,
-                        null AS alertsgraphics `;
-            }
-          }
-        }
         try {
           const result = await conn.execute(sql);
 
@@ -693,22 +740,16 @@
       },
       getDetailsAnalysisTotals: async (request, response) => {
         const params = {
-          listAlert,
-          codgroup,
+          specificParameters,
           date,
-          projectName,
-          group,
-          localization,
-          area,
-          count,
-          limit
+          filter
         } = request.query;
 
         const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt");
         await conn.connect();
 
-        const alerts = params.listAlert && params.listAlert !== 'null' ?
-            JSON.parse(params.listAlert) :
+        const alerts = params.specificParameters && params.specificParameters !== 'null' ?
+            JSON.parse(params.specificParameters) :
             [];
 
         const result = [];
@@ -716,7 +757,7 @@
 
         if (alerts.length > 0) {
           for (let alert of alerts) {
-            const sql = await getSql(conn, alert, tableOwner, params);
+            const sql = await getSqlDetailsAnalysisTotals(conn, alert, tableOwner, params);
 
             let resultAux = await conn.execute(sql.sql1);
             const graphic1 = await setGraphic(resultAux, sql.value1, sql.subtitle);
