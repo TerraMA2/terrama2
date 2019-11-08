@@ -16,9 +16,9 @@ module.exports = function(app) {
                 limit,
                 offset,
                 count,
-                source,
                 sortColumn,
-                sortOrder
+                sortOrder,
+                order
             } = request.query
 
             const view = await ViewFacade.retrieve(viewId)
@@ -30,10 +30,21 @@ module.exports = function(app) {
             await conn.connect()
 
             const tableName = dataSeries.dataSets[0].format.table_name
-
             let sql = '';
-            if (source === 'deter') {
-                sql = `
+            if (order === 'car') {
+                sql += `
+                    SELECT property.numero_do1 AS registro_estadual,
+                            property.numero_do2 AS registro_federal,
+                            property.nome_da_p1 AS nome_propriedade,
+                            property.municipio1 AS municipio,
+                            property.area_ha_ AS area,
+                            property.situacao_1 AS situacao,
+                            ST_Y(ST_Transform (ST_Centroid(property.geom), 4326)) AS "lat",
+                            ST_X(ST_Transform (ST_Centroid(property.geom), 4326)) AS "long",
+                            SUM(property.area_ha_)
+                    FROM public.${tableName} property`
+            } else if (order === 'deter') {
+                sql += `
                     SELECT property.numero_do1,
                             property.numero_do2,
                             property.nome_da_p1,
@@ -55,8 +66,8 @@ module.exports = function(app) {
                             property.geom
                     ORDER BY ${sortColumn?sortColumn:'deter'} ${sortOrder === 1?'ASC':'DESC'}
             `
-            } else if (source === 'prodes') {
-                sql = `
+            } else if (order === 'prodes') {
+                sql += `
                     SELECT property.numero_do1,
                             property.numero_do2,
                             property.nome_da_p1,
@@ -78,8 +89,8 @@ module.exports = function(app) {
                             property.geom
                     ORDER BY ${sortColumn?sortColumn:'prodes'} ${sortOrder === 1?'ASC':'DESC'}
             `
-            } else if (source === 'focus') {
-                sql = `
+            } else if (order === 'burnlight') {
+                sql += `
                     SELECT property.numero_do1,
                         property.numero_do2,
                         property.nome_da_p1,
@@ -102,6 +113,18 @@ module.exports = function(app) {
                     ORDER BY ${sortColumn?sortColumn:'focos'} ${sortOrder === 1?'ASC':'DESC'}
             `
             }
+
+            // if (sortColumn && sortOrder) {
+            //     sql += ` ORDER BY ${sortColumn}`
+            //     sql += `${sortOrder === 1?' ASC':' DESC'}`
+            // }
+
+            sql += `
+                    GROUP BY ${sortColumn}
+                    ORDER BY ${sortColumn}
+            `
+
+            console.log(sql)
 
             if (limit) {
                 sql +=` LIMIT ${limit}`
