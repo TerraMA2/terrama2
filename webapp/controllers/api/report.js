@@ -335,10 +335,10 @@
       sql1 += ` SELECT ${columnsFor1} ${sqlFrom} ${filter.secondaryTables} ${filter.sqlWhere} ${sqlGroupBy1} ${filter.sqlHaving} ${sqlOrderBy} ${sqlLimit} `;
       sql2 += ` SELECT ${columnsFor2} ${sqlFrom} ${filter.secondaryTables} ${filter.sqlWhere} ${sqlGroupBy2} ${filter.sqlHaving} ${sqlOrderBy} ${sqlLimit} `;
     } else {
-      sql1 += ` SELECT 
+      sql1 += ` SELECT
                         ' --- ' AS ${subtitle},
                         0.00 AS ${value1} `;
-      sql2 += ` SELECT 
+      sql2 += ` SELECT
                         ' --- ' AS ${subtitle},
                         0.00 AS ${value1} `;
     }
@@ -384,7 +384,7 @@
               ` ` :
               ` FROM public.${tableName} AS main_table ${filter.secondaryTables} ${filter.sqlWhere} `;
 
-          sql += `SELECT 
+          sql += `SELECT
                           '${alert.idview}' AS idview,
                           '${alert.cod}' AS cod,
                           '${alert.codgroup}' AS codgroup,
@@ -394,10 +394,10 @@
                           ${alert.selected} AS selected,
                           ${alert.activearea} AS activearea,
                           false AS immobilitactive,
-                          null AS alertsgraphics 
+                          null AS alertsgraphics
                     ${sqlFrom}`;
         } else {
-          sql += ` SELECT 
+          sql += ` SELECT
                         '${alert.idview}' AS idview,
                         '${alert.cod}' AS cod,
                         '${alert.codgroup}' AS codgroup,
@@ -741,6 +741,8 @@
 
         let dateSql = ` and execution_date::date >= '${dateFrom}' AND execution_date::date <= '${dateTo}'`
 
+        const sqlProdesArea = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_car_prodes_40 where de_car_validado_sema_numero_do1 = '${carRegister}'`
+
         const sqlIndigenousLand = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_ti_cardeter_68 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`
         const sqlConservationUnit = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_uc_carprodes_65 where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`
         const sqlLegalReserve = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_reserva_cardeter_37 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`
@@ -748,6 +750,9 @@
         const sqlConsolidatedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_usocon_cardeter_39 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`
         const sqlAnthropizedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_usoant_cardeter_36 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`
         const sqlNativeVegetation = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_veg_cardeter_38 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`
+
+        const resultProdesArea = await conn.execute(sqlProdesArea)
+        const prodesArea = resultProdesArea.rows
 
         const resultIndigenousLand = await conn.execute(sqlIndigenousLand)
         const indigenousLand = resultIndigenousLand.rows
@@ -776,10 +781,12 @@
         const resultSpotlightsYear = await conn.execute(sqlSpotlightsYear)
         const spotlightsYear = resultSpotlightsYear.rows
 
+        console.log(prodesArea);
         if (propertyData) {
           propertyData.burningSpotlights = burningSpotlights
           propertyData.burnedAreas = burnedAreas
           // propertyData.deter = deter[0]
+          propertyData.prodesArea = prodesArea[0]['area']
           propertyData.prodesYear = prodesYear
           propertyData.spotlightsYear = spotlightsYear
           propertyData.indigenousLand = indigenousLand[0]
