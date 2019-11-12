@@ -16,9 +16,9 @@ module.exports = function(app) {
             await conn.connect();
 
             const sql =
-                ` SELECT id, gid, nome AS name, nome_ti_a1
-              FROM ${table}
-              ORDER BY nome `;
+                ` SELECT gid, nome AS name, nome_ti_a1
+                  FROM ${table}
+                  ORDER BY nome `;
 
             let result;
             try {

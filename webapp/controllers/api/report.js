@@ -199,39 +199,35 @@
         }
       } else {
         if (filter.themeSelected && filter.themeSelected.type){
-/*          if (filter.themeSelected.type === 'biome') {
-            secondaryTables += ' , public.apv_biomas_carfocos_80 biome ';
-            sqlWhere += ` AND biome.${columns.filterColumns.columnsTheme.biomes.biome} = ${filter.themeSelected.value.gid} `;
-            sqlWhere += ` AND biome.${columns.filterColumns.columnsTheme.biomes.car} = ${columns.column1} `;
+          if (filter.themeSelected.type === 'biome') {
+            secondaryTables += ' , public.de_biomas_mt biome ';
+            sqlWhere += ` AND st_intersects(main_table.intersection_geom, st_transform(biome.geom, 4326)) `;
+            sqlWhere += ` AND biome.gid = ${filter.themeSelected.value.gid} `;
           } else if (filter.themeSelected.type === 'region') {
-            secondaryTables += ' , public.apv_comarca_carfocos_85 comarca ';
-            sqlWhere += ` AND comarca.${columns.filterColumns.columnsTheme.region} = ${filter.themeSelected.value.id} `;
-            sqlWhere += ` AND comarca.${columns.filterColumns.columnsTheme.biomes.car} = ${columns.column1} `;
+            secondaryTables += ' , public.de_municipios_sema county ';
+            sqlWhere += ` AND st_intersects(main_table.intersection_geom, county.geom) `;
+            sqlWhere += ` AND county.comarca = '${filter.themeSelected.value.name}'  `;
           } else if (filter.themeSelected.type === 'mesoregion') {
-            secondaryTables += ' , public.apv_mesorregiao_ibge_carfocos_81 biome ';
-            sqlWhere += ` AND biome.${columns.filterColumns.columnsTheme.mesoregion} = ${filter.themeSelected.value.gid} `;
-            sqlWhere += ` AND biome.${columns.filterColumns.columnsTheme.biomes.car} = ${columns.column1} `;
-
+            secondaryTables += ' , public.de_municipios_sema county ';
+            sqlWhere += ` AND st_intersects(main_table.intersection_geom, county.geom) `;
+            sqlWhere += ` AND county.nm_meso = '${filter.themeSelected.value.name}' `;
           } else if (filter.themeSelected.type === 'microregion') {
-            secondaryTables += ' , public.apv_microregiao_ibge_carfocos_82 microregion ';
-            sqlWhere += ` AND microregion.${columns.filterColumns.columnsTheme.microregion} = ${filter.themeSelected.value.gid} `;
-            sqlWhere += ` AND microregion.${columns.filterColumns.columnsTheme.biomes.car} = ${columns.column1} `;
-
+            secondaryTables += ' , public.de_municipios_sema county ';
+            sqlWhere += ` AND st_intersects(main_table.intersection_geom, county.geom) `;
+            sqlWhere += ` AND county.nm_micro = '${filter.themeSelected.value.name}'  `;
           } else if (filter.themeSelected.type === 'city') {
-            secondaryTables += ' , public.de_municipios_sema city ';
-            sqlWhere += ` AND city.${columns.filterColumns.columnsTheme.city.id} = ${filter.themeSelected.value.idcity} `;
-            sqlWhere += ` AND city.${columns.filterColumns.columnsTheme.biomes.car} = ${columns.column1} `;
+            secondaryTables += ' , public.de_municipios_sema county ';
+            sqlWhere += ` AND st_intersects(main_table.intersection_geom, county.geom) `;
+            sqlWhere += ` AND county.gid = ${filter.themeSelected.value.gid} `;
           } else if (filter.themeSelected.type === 'uc') {
-            secondaryTables += ' , public.apv_usocon_cardeter_39 uc ';
-            sqlWhere += ` AND uc.${columns.filterColumns.columnsTheme.uc} like  UPPER(TRIM('${filter.themeSelected.value.gid}')) `;
-            sqlWhere += ` AND uc.${columns.filterColumns.columnsTheme.biomes.car} = ${columns.column1} `;
-
+            secondaryTables += ' , public.de_unidade_cons_sema uc ';
+            sqlWhere += ` AND st_intersects(main_table.intersection_geom, uc.geom) `;
+            sqlWhere += ` AND uc.gid = ${filter.themeSelected.value.gid} `;
           } else if (filter.themeSelected.type === 'ti') {
-            secondaryTables += ' , public.apv_terra_indigena_ibge_carfocos_83 ti ';
-            sqlWhere += ` AND ti.${columns.filterColumns.columnsTheme.ti} like  UPPER(TRIM('${filter.themeSelected.value.gid}')) `;
-            sqlWhere += ` AND ti.${columns.filterColumns.columnsTheme.biomes.car} = ${columns.column1} `;
-
-          }*/
+            secondaryTables += ' , public.de_terra_indigena_sema ti ';
+            sqlWhere += ` AND st_intersects(main_table.intersection_geom, ti.geom) `;
+            sqlWhere += ` AND ti.gid = ${filter.themeSelected.value.gid} `;
+          }
         };
         if (filter.alertType && filter.alertType.radioValue !== 'ALL') {
           if (filter.alertType.analyzes.length > 0) {
@@ -302,7 +298,7 @@
     let sql2 = '';
 
     const value1 = 'value';
-    const subtitle = 'subtitle'
+    const subtitle = 'subtitle';
 
     if (alert.idview && alert.idview > 0 && alert.idview !== 'null') {
 
