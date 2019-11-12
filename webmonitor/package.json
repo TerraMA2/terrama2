@@ -10,7 +10,7 @@
     "admin-lte": "=2.3.0",
     "almond": "=0.3.3",
     "body-parser": "~1.15.1",
-    "bootstrap": "=3.3.7",
+    "bootstrap": "=3.4.1",
     "bootstrap-daterangepicker": "=2.1.25",
     "cookie-parser": "~1.4.3",
     "datatables": "=1.10.13",
