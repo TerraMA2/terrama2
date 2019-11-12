@@ -20,6 +20,7 @@ define([],()=> {
 
       this.listStaticDataSerie = {};
       this.listDynamicDataSerie = {};
+      this.tableNameFromClassColumn = {};
 
       this.listInputLayersSelected = [];
 
@@ -28,6 +29,7 @@ define([],()=> {
 
       this.ouputClassAttributeArray = [];
       this.listClassNameColumnValue = [];
+      this.listClassNameColumnValueSelected = [];
 
       this.$scope = $scope;
 
@@ -159,7 +161,7 @@ define([],()=> {
       // Removing attributes from layer selected
       if(this.dynamicDataSerieSelected !== ""){
         Object.keys(this.listDynamicDataSerie).forEach(key => {
-            delete this.inputTableAttributes[key];
+          delete this.inputTableAttributes[key];
         });
       }
 
@@ -173,7 +175,14 @@ define([],()=> {
 
       this.dynamicDataSerieSelected = dynamicDataSeries.name;
 
+      this.tableNameFromClassColumn['table_selected'] = this.dynamicDataSerieSelected;
+
       this.$scope.$digest();
+
+      if(typeof this.model.classNameSelected == 'undefined'){
+        this.selectClassName();
+      }
+
     }
 
     async onMultInputSelected() {
@@ -195,16 +204,19 @@ define([],()=> {
       this.model.outputlayer = [ ...new Set(this.listOutputLayersSelected) ];
     }
 
-    async selectClassColumn() {
-      await this.selectClassName();
+    async onMultSelectClassName() {
+      const{model} = this;
+      
+      this.model.classNameSelected = [];
+      this.model.classNameSelected = [...this.listClassNameColumnValueSelected];
+
     }
 
     async selectClassName() {
+
       const { DataProviderService } = this;
 
-      let columnNameHandler = this.model.classColumnSelected.split(":");
-
-      columnNameHandler = columnNameHandler[1];
+      let columnNameHandler = this.getClassNameFilter(this.dynamicDataSerieSelected);
 
       const dynamicDataSeries = this.DataSeriesService.dynamicDataSeries().find(ds => (
         ds.id === parseInt(this.model.dynamicDataSeries)
@@ -213,13 +225,46 @@ define([],()=> {
       const listColumnNameValue = await DataProviderService.listPostgisObjects({providerId: dynamicDataSeries.data_provider_id,
                                                                 objectToGet: "values",
                                                                 tableName : dynamicDataSeries.dataSets[0].format.table_name,
-                                                                columnName: columnNameHandler});
+                                                                columnName: columnNameHandler});                                                        
 
       this.listClassNameColumnValue = listColumnNameValue.data.data;
 
-      this.model.classNameSelected = this.model.classNameSelected.toString();
-
       this.$scope.$digest();
+    }
+
+     getClassNameFilter(dynamicLayerName) {
+      const dynamicLayers = {
+        PRODES : "PRODES",
+        DETER  : "DETER",
+        FOCOS  : "FOCOS INPE",
+        AREA_QUEIMADAS : "AREA_QUEIMADAS"
+      }
+
+      let classname = undefined;
+
+      switch (dynamicLayerName) {
+
+        case dynamicLayers.PRODES:
+          classname = 'mainclass';
+          break;
+
+        case dynamicLayers.DETER:
+          classname = 'classname';
+          break;
+
+        case dynamicLayers.FOCOS:
+          classname = 'bioma';
+          break;
+
+        case dynamicLayers.AREA_QUEIMADAS:
+          classname = undefined;
+          break;
+
+        default:
+          break;
+      }
+
+      return classname;
     }
 
     getTableName() {
@@ -362,33 +407,17 @@ define([],()=> {
                         <input type="checkbox" ng-model="checked" ng-init="checked=false" id="customClassFilter"> Custom Class Filter
                     </label>
                   </div>
-              </div>
+              </div>              
 
-              <div class="col-md-12">
-                <div class="col-md-6" ng-hide="!checked">
-                  <div class="col-align-self-start">
-                    <div class="form-group has-feedback" terrama2-show-errors>
-                    <label>Class Column:</label>
-                      <select class="form-control"
-                              name="classColumnName"
-                              id="classColumnName"
-                              ng-model="$ctrl.model.classColumnSelected"
-                              ng-change="$ctrl.selectClassColumn()"
-                              ng-options="key for key in $ctrl.listDynamicDataSerie">
-                      </select>
-                    </div>
-                </div>
-              </div>
-
-              <div class="col-md-6" ng-hide="!checked">
+              <div class="col-md-12" ng-hide="!checked">
                 <div class="form-group" terrama2-show-errors>
                   <label>Class Name:</label>
                   <select class="form-control"
                           name="classNameSelected"
                           id="classNameSelected"
-                          ng-model="$ctrl.model.classNameSelected"
+                          ng-model="$ctrl.listClassNameColumnValueSelected"
                           ng-options="attributes for attributes in $ctrl.listClassNameColumnValue"
-                          ng-change="$ctrl.selectClassName()"
+                          ng-change="$ctrl.onMultSelectClassName()"
                           multiple>
                   </select><br>
                 </div>
