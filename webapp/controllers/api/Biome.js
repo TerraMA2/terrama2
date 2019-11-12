@@ -13,7 +13,7 @@
         const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
         await conn.connect()
 
-        const sql = `SELECT id, tipo as name FROM public.de_biomas_mt`
+        const sql = `SELECT gid, bioma as name FROM public.de_biomas_mt`
 
         let result
         try {
