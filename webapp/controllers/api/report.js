@@ -118,10 +118,13 @@
           city: 'apv_car_focos_48_dd_focos_inpe_municipio',
           biome: 'de_biomas_mt_gid'
         },
-        city: '',
-        Mesoregion: '',
-        microregion: '',
-        county: '',
+        city: {
+          id: 'id_munic',
+          name: ''
+        },
+        mesoregion: 'de_mesoregiao_ibge_gid',
+        microregion: 'de_microregiao_ibge_gid',
+        region: 'de_comarca_ibge_gid',
         uc: '',
         ti: ''
       },
@@ -178,6 +181,7 @@
 
     let sqlWhere = '';
     let secondaryTables = '';
+    let sqlHaving = '';
 
     if (params.date && params.date !== "null") {
       const dateFrom = params.date[0];
@@ -188,34 +192,110 @@
     if (filter) {
       if (filter.specificSearch && filter.specificSearch.isChecked) {
         if (filter.specificSearch.CarCPF === 'CAR') {
-          sqlWhere += ` AND ${columns.column1} like '${filter.specificSearch.inputValue}' `
+          sqlWhere += ` AND ${columns.column1} like '${filter.specificSearch.inputValue}' `;
         } else if (filter.specificSearch.CarCPF === 'CPF') {
           // Missing table associating CARs with CPFCNPJ
+          sqlWhere += ` `;
         }
-      } else if (filter.themeSelected && filter.themeSelected.type){
-        if (filter.themeSelected.type === 'biome') {
-          secondaryTables += ' , public.apv_biomas_carfocos_80 biome ';
-          sqlWhere += ` AND biome.${columns.filterColumns.columnsTheme.biomes.biome} = ${filter.themeSelected.value.gid} `
-          sqlWhere += ` AND biome.${columns.filterColumns.columnsTheme.biomes.car} = ${columns.column1} `
-        } else if (filter.themeSelected.type === 'region') {
+      } else {
+        if (filter.themeSelected && filter.themeSelected.type){
+/*          if (filter.themeSelected.type === 'biome') {
+            secondaryTables += ' , public.apv_biomas_carfocos_80 biome ';
+            sqlWhere += ` AND biome.${columns.filterColumns.columnsTheme.biomes.biome} = ${filter.themeSelected.value.gid} `;
+            sqlWhere += ` AND biome.${columns.filterColumns.columnsTheme.biomes.car} = ${columns.column1} `;
+          } else if (filter.themeSelected.type === 'region') {
+            secondaryTables += ' , public.apv_comarca_carfocos_85 comarca ';
+            sqlWhere += ` AND comarca.${columns.filterColumns.columnsTheme.region} = ${filter.themeSelected.value.id} `;
+            sqlWhere += ` AND comarca.${columns.filterColumns.columnsTheme.biomes.car} = ${columns.column1} `;
+          } else if (filter.themeSelected.type === 'mesoregion') {
+            secondaryTables += ' , public.apv_mesorregiao_ibge_carfocos_81 biome ';
+            sqlWhere += ` AND biome.${columns.filterColumns.columnsTheme.mesoregion} = ${filter.themeSelected.value.gid} `;
+            sqlWhere += ` AND biome.${columns.filterColumns.columnsTheme.biomes.car} = ${columns.column1} `;
 
-        } else if (filter.themeSelected.type === 'mesoregion') {
+          } else if (filter.themeSelected.type === 'microregion') {
+            secondaryTables += ' , public.apv_microregiao_ibge_carfocos_82 microregion ';
+            sqlWhere += ` AND microregion.${columns.filterColumns.columnsTheme.microregion} = ${filter.themeSelected.value.gid} `;
+            sqlWhere += ` AND microregion.${columns.filterColumns.columnsTheme.biomes.car} = ${columns.column1} `;
 
-        } else if (filter.themeSelected.type === 'microregion') {
+          } else if (filter.themeSelected.type === 'city') {
+            secondaryTables += ' , public.de_municipios_sema city ';
+            sqlWhere += ` AND city.${columns.filterColumns.columnsTheme.city.id} = ${filter.themeSelected.value.idcity} `;
+            sqlWhere += ` AND city.${columns.filterColumns.columnsTheme.biomes.car} = ${columns.column1} `;
+          } else if (filter.themeSelected.type === 'uc') {
+            secondaryTables += ' , public.apv_usocon_cardeter_39 uc ';
+            sqlWhere += ` AND uc.${columns.filterColumns.columnsTheme.uc} like  UPPER(TRIM('${filter.themeSelected.value.gid}')) `;
+            sqlWhere += ` AND uc.${columns.filterColumns.columnsTheme.biomes.car} = ${columns.column1} `;
 
-        } else if (filter.themeSelected.type === 'city') {
-          secondaryTables += ' , public.apv_biomas_carfocos_80 biome ';
-          sqlWhere += ` AND biome.${columns.filterColumns.columnsTheme.biomes.city} like  UPPER(TRIM('${filter.themeSelected.value.name}')) `
-          sqlWhere += ` AND biome.${columns.filterColumns.columnsTheme.biomes.car} = ${columns.column1} `
-        } else if (filter.themeSelected.type === 'uc') {
+          } else if (filter.themeSelected.type === 'ti') {
+            secondaryTables += ' , public.apv_terra_indigena_ibge_carfocos_83 ti ';
+            sqlWhere += ` AND ti.${columns.filterColumns.columnsTheme.ti} like  UPPER(TRIM('${filter.themeSelected.value.gid}')) `;
+            sqlWhere += ` AND ti.${columns.filterColumns.columnsTheme.biomes.car} = ${columns.column1} `;
 
-        } else if (filter.themeSelected.type === 'ti') {
+          }*/
+        };
+        if (filter.alertType && filter.alertType.radioValue !== 'ALL') {
+          if (filter.alertType.analyzes.length > 0) {
+            filter.alertType.analyzes.forEach( analyze => {
+              let columnValue = '';
+              let columnValueFocos = '';
 
+              if (analyze.valueOption && analyze.valueOption.value) {
+                switch (analyze.valueOption.value) {
+                  case 1 :
+                    columnValue = ` <= 5 `;
+                    columnValueFocos = ` BETWEEN 0 AND 10 `;
+                    break;
+                  case 2:
+                    columnValue = ` BETWEEN 5 AND 25 `;
+                    columnValueFocos = ` BETWEEN 10 AND 20 `;
+                    break;
+                  case 3:
+                    columnValue = ` BETWEEN 25 AND 50 `;
+                    columnValueFocos = ` BETWEEN 20 AND 50 `;
+                    break;
+                  case 4:
+                    columnValue =  ` BETWEEN 50 AND 100 `;
+                    columnValueFocos = ` BETWEEN 50 AND 100 `;
+                    break;
+                  case 5:
+                    columnValue = ` >= 100 `;
+                    columnValueFocos = ` > 100 `;
+                    break;
+                  case 6:
+                    columnValue = ` > ${analyze.valueOptionBiggerThen} `;
+                    columnValueFocos = ` > ${analyze.valueOptionBiggerThen} `;
+                    break;
+                }
+
+                if ((analyze.type && analyze.type === 'deter') && (alert.codgroup === 'DETER')) {
+                  sqlWhere += ` AND main_table.calculated_area_ha ${columnValue} `;
+                };
+
+                if ((analyze.type && analyze.type === 'deforestation') && (alert.codgroup === 'PRODES')) {
+                  sqlWhere += ` AND main_table.calculated_area_ha ${columnValue} `;
+                };
+
+                if ((analyze.type && analyze.type === 'burned') && (alert.codgroup === 'FOCOS')) {
+                  sqlHaving += ` HAVING count(1) ${columnValueFocos} `;
+                };
+
+                if ((analyze.type && analyze.type === 'burned_area') && (alert.codgroup === 'AREA_QUEIMADA')) {
+                  sqlWhere += ` AND main_table.calculated_area_ha ${columnValue} `;
+                };
+
+                if ((analyze.type && analyze.type === 'car_area')) {
+                  secondaryTables += ' , public.de_car_validado_sema car ';
+                  sqlWhere += ` AND car.area_ha_ ${columnValue} `;
+                  sqlWhere += ` AND car.numero_do1 = ${columns.column1} `;
+                };
+              };
+            });
+          }
         }
       }
     }
 
-    return { sqlWhere, secondaryTables };
+    return { sqlWhere, secondaryTables, sqlHaving };
   };
   async function getSqlDetailsAnalysisTotals(conn, alert, tableOwner, params){
     let sql1 = '';
@@ -252,8 +332,8 @@
       const sqlOrderBy = ` ORDER BY ${value1} DESC `;
       const sqlLimit = ` LIMIT ${limit} `;
 
-      sql1 += ` SELECT ${columnsFor1} ${sqlFrom} ${filter.secondaryTables} ${filter.sqlWhere} ${sqlGroupBy1} ${sqlOrderBy} ${sqlLimit} `;
-      sql2 += ` SELECT ${columnsFor2} ${sqlFrom} ${filter.secondaryTables} ${filter.sqlWhere} ${sqlGroupBy2} ${sqlOrderBy} ${sqlLimit} `;
+      sql1 += ` SELECT ${columnsFor1} ${sqlFrom} ${filter.secondaryTables} ${filter.sqlWhere} ${sqlGroupBy1} ${filter.sqlHaving} ${sqlOrderBy} ${sqlLimit} `;
+      sql2 += ` SELECT ${columnsFor2} ${sqlFrom} ${filter.secondaryTables} ${filter.sqlWhere} ${sqlGroupBy2} ${filter.sqlHaving} ${sqlOrderBy} ${sqlLimit} `;
     } else {
       sql1 += ` SELECT 
                         ' --- ' AS ${subtitle},
@@ -281,18 +361,19 @@
           const filter = getFilter(params, alert, collumns);
 
           const value1 = alert.codgroup === 'FOCOS' ?
-              ` (  SELECT ROW_NUMBER() OVER(ORDER BY ${collumns.column1} ASC) AS Row
+              ` COALESCE( ( SELECT ROW_NUMBER() OVER(ORDER BY ${collumns.column1} ASC) AS Row
                          FROM public.${tableName} AS main_table
                          ${filter.secondaryTables}
                          ${filter.sqlWhere}
                          GROUP BY ${collumns.column1}
+                         ${filter.sqlHaving}
                          ORDER BY Row DESC
                          LIMIT 1
-                      ) AS value1 ` :
+                      ), 00.00) AS value1 ` :
               `  COALESCE(COUNT(1), 00.00) AS value1 `;
 
           const value2 = alert.codgroup === 'FOCOS' ?
-              ` (  SELECT coalesce(sum(1), 0.00) as num_focos
+              ` ( SELECT coalesce(sum(1), 0.00) as num_focos
                    FROM public.${tableName} AS main_table
                    ${filter.secondaryTables}
                    ${filter.sqlWhere}
