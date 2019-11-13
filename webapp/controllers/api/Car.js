@@ -9,6 +9,9 @@ var ViewFacade = require("../../core/facade/View");
  * @returns {Object}
  */
 module.exports = function(app) {
+    const uri = "postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt";
+    const conn = new Connection(uri)
+
     return {
         getAllSimplified: async (request, response) => {
             const {
@@ -141,6 +144,37 @@ module.exports = function(app) {
 
                 await conn.disconnect()
                 response.json(car)
+            } catch (error) {
+                console.log(error)
+            }
+        },
+
+        getByCpf: async (request, response) => {
+            const {cpf} = request.query;
+
+            await conn.connect();
+
+            const sqlWhere = cpf ? ` WHERE cpf = '${cpf}' ` : ` `;
+
+            const sql = `SELECT
+                            gid,
+                            id as id_car,
+                            '835.751.920-22' AS cpf,
+                            numero_do1 as mt_car_number,
+                            numero_do2 as federal_car_number,
+                            nome_da_p1 as property_name,
+                            municipio1 as city_name,
+                            area_ha_ as property_area,
+                            situacao_1 as status,
+                            geom
+                        FROM public.de_car_validado_sema 
+                        ${sqlWhere} `;
+
+            try {
+                const result = await conn.execute(sql)
+
+                await conn.disconnect()
+                response.json(result.rows[0])
             } catch (error) {
                 console.log(error)
             }
