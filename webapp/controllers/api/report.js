@@ -10,6 +10,7 @@
    * @returns {Object}
    */
 
+<<<<<<< HEAD
   function generate_color(){
     const hexadecimal = '0123456789ABCDEF';
     let color = '#';
@@ -415,6 +416,8 @@
     return sql;
   }
 
+=======
+>>>>>>> ed5753a2ab150d41b804fd7c7f9246a06d1a2d25
   module.exports = function(app) {
     return {
       getStaticData: async (request, response) => {
@@ -800,69 +803,6 @@
 
         await conn.disconnect()
         response.json(propertyData)
-      },
-      getAnalysisTotals: async (request, response) => {
-        const params = {
-          specificParameters,
-          date,
-          filter
-        } = request.query;
-
-        const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt");
-        await conn.connect();
-
-        const alerts = params.specificParameters && params.specificParameters !== 'null' ?
-            JSON.parse(params.specificParameters) :
-            [];
-
-        const sql = await getSqlAnalysisTotals(conn, alerts, params);
-
-        try {
-          const result = await conn.execute(sql);
-
-          await conn.disconnect();
-          response.json(result.rows);
-        } catch (error) {
-          console.log(error);
-        }
-      },
-      getDetailsAnalysisTotals: async (request, response) => {
-        const params = {
-          specificParameters,
-          date,
-          filter
-        } = request.query;
-
-        const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt");
-        await conn.connect();
-
-        const alerts = params.specificParameters && params.specificParameters !== 'null' ?
-            JSON.parse(params.specificParameters) :
-            [];
-
-        const result = [];
-        const tableOwner = await getTableOwner(conn, alerts);
-
-        if (alerts.length > 0) {
-          for (let alert of alerts) {
-            const sql = await getSqlDetailsAnalysisTotals(conn, alert, tableOwner, params);
-
-            let resultAux = await conn.execute(sql.sql1);
-            const graphic1 = await setGraphic(resultAux, sql.value1, sql.subtitle);
-
-            resultAux = await conn.execute(sql.sql2);
-            const graphic2 = await setGraphic(resultAux, sql.value1, sql.subtitle);
-
-            result.push(setAlertGraphic(alert, graphic1, graphic2));
-          }
-        }
-
-        try {
-          await conn.disconnect();
-          response.json(result);
-        } catch (error) {
-          console.log(error);
-        }
       }
     }
 } ();

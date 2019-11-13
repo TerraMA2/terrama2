@@ -8,7 +8,7 @@ var {Connection} = require('../../core/utility/connection');
  */
 module.exports = function(app) {
     const url = "postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt";
-    const table = ' public.de_area_uso_consolidado_sema ';
+    const table = 'public.de_unidade_cons_sema';
 
     return {
         getAll: async (request, response) => {
@@ -16,10 +16,10 @@ module.exports = function(app) {
             await conn.connect();
 
             const sql =
-                ` SELECT  ROW_NUMBER() OVER (ORDER BY nome_da_p1 ASC) AS id, nome_da_p1 AS name
-              FROM ${table}
-              GROUP BY nome_da_p1
-              ORDER BY nome_da_p1 `;
+                `   SELECT  gid, nome AS name
+                    FROM ${table} 
+                    WHERE nome is not null
+                    ORDER BY name `;
 
             let result;
             try {
