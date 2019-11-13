@@ -678,6 +678,7 @@
             car.area_ha_ AS area,
             car.nome_da_p1 AS name,
             car.municipio1 AS city,
+            munic.comarca AS county,
             substring(ST_EXTENT(munic.geom)::TEXT, 5, length(ST_EXTENT(munic.geom)::TEXT) - 5) as citybbox,
             substring(ST_EXTENT(car.geom)::TEXT, 5, length(ST_EXTENT(car.geom)::TEXT) - 5) as bbox,
             ST_Y(ST_Transform (ST_Centroid(car.geom), 4326)) AS "lat",
@@ -686,7 +687,7 @@
             INNER JOIN de_municipios_sema munic ON
             car.numero_do1 = '${carRegister}'
             AND munic.municipio = car.municipio1
-            GROUP BY car.numero_do1, car.area_ha_, car.nome_da_p1, car.municipio1, car.geom`;
+            GROUP BY car.numero_do1, car.area_ha_, car.nome_da_p1, car.municipio1, car.geom, munic.comarca`;
 
         const result = await conn.execute(sql)
         let propertyData = result.rows[0]
@@ -741,7 +742,7 @@
 
         let dateSql = ` and execution_date::date >= '${dateFrom}' AND execution_date::date <= '${dateTo}'`
 
-        const sqlProdesArea = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_car_prodes_40 where de_car_validado_sema_numero_do1 = '${carRegister}'`
+        const sqlProdesArea = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_car_prodes_40 where de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`
 
         const sqlIndigenousLand = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_ti_cardeter_68 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`
         const sqlConservationUnit = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_uc_carprodes_65 where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`
@@ -781,7 +782,6 @@
         const resultSpotlightsYear = await conn.execute(sqlSpotlightsYear)
         const spotlightsYear = resultSpotlightsYear.rows
 
-        console.log(prodesArea);
         if (propertyData) {
           propertyData.burningSpotlights = burningSpotlights
           propertyData.burnedAreas = burnedAreas
