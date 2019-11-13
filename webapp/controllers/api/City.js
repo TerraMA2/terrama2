@@ -16,8 +16,9 @@
         await conn.connect();
 
         const sql =
-            ` SELECT id, id_munic AS idCity, geocodigo, municipio AS name 
-              FROM ${table}
+            ` SELECT gid, id_munic, geocodigo, municipio AS name 
+              FROM ${table} 
+              WHERE municipio is not null
               ORDER BY municipio `;
 
         let result;
