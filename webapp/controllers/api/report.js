@@ -14,7 +14,6 @@
     return {
       getStaticData: async (request, response) => {
         const {
-          projectName,
           limit,
           offset,
           count,
@@ -159,7 +158,6 @@
       },
       getAnalysisData: async (request, response) => {
         const {
-          projectName,
           limit,
           offset,
           group,
