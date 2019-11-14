@@ -112,8 +112,9 @@
     }
     return values;
   };
-  function getFilter(params, alert, columns) {
+  async function getFilter(conn, table, params, alert, columns) {
     const filter = params.filter && params.filter !== 'null' ? JSON.parse(params.filter) : {};
+    const srid = await conn.execute(`SELECT ST_SRID(intersection_geom) AS srid FROM ${table} LIMIT 1`);
 
     let sqlWhere = '';
     let secondaryTables = '';
@@ -140,59 +141,97 @@
               sqlWhere += ` AND ${columns.filterColumns.columnsTheme.biomes} like '${filter.themeSelected.value.name}' `;
             } else {
               secondaryTables += ' , public.de_biomas_mt biome ';
-              sqlWhere += ` AND st_intersects(main_table.intersection_geom, st_transform(biome.geom, 4326)) `;
+
+              const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_biomas_mt LIMIT 1`);
+              const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'biome.geom' : ` st_transform(biome.geom, ${srid.rows[0].srid}) ` ;
+
+              sqlWhere += ` AND st_intersects(main_table.intersection_geom, ${fieldIntersects}) `;
               sqlWhere += ` AND biome.gid = ${filter.themeSelected.value.gid} `;
             }
           } else if (filter.themeSelected.type === 'region') {
+            secondaryTables += ' , public.de_municipios_sema county ';
+
             if (alert.codgroup === 'FOCOS') {
-              secondaryTables += ' , public.de_municipios_sema county ';
-              sqlWhere += ` AND county.comarca like ${filter.themeSelected.value.name} `;
-              sqlWhere += ` AND main_table.${columns.filterColumns.columnsTheme.geocod} = county.geocodigo `;
+              sqlWhere += ` AND county.comarca like '${filter.themeSelected.value.name}' `;
+              sqlWhere += ` AND ${columns.filterColumns.columnsTheme.geocod} = cast(county.geocodigo AS integer) `;
             } else {
-              secondaryTables += ' , public.de_municipios_sema county ';
-              sqlWhere += ` AND st_intersects(main_table.intersection_geom, county.geom) `;
+              const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_municipios_sema LIMIT 1`);
+              const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? ' county.geom ' : ` st_transform(county.geom, ${srid.rows[0].srid}) ` ;
+
+              sqlWhere += ` AND st_intersects(main_table.intersection_geom, ${fieldIntersects}) `;
               sqlWhere += ` AND county.comarca = '${filter.themeSelected.value.name}'  `;
             }
           } else if (filter.themeSelected.type === 'mesoregion') {
+            secondaryTables += ' , public.de_municipios_sema county ';
+
             if (alert.codgroup === 'FOCOS') {
-              secondaryTables += ' , public.de_municipios_sema county ';
-              sqlWhere += ` AND county.nm_meso like ${filter.themeSelected.value.name} `;
-              sqlWhere += ` AND main_table.${columns.filterColumns.columnsTheme.geocod} = county.geocodigo `;
+              sqlWhere += ` AND county.nm_meso like '${filter.themeSelected.value.name}' `;
+              sqlWhere += ` AND ${columns.filterColumns.columnsTheme.geocod} = cast(county.geocodigo AS integer) `;
             } else {
-              secondaryTables += ' , public.de_municipios_sema county ';
-              sqlWhere += ` AND st_intersects(main_table.intersection_geom, county.geom) `;
+              const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_municipios_sema LIMIT 1`);
+              const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'county.geom' : ` st_transform(county.geom, ${srid.rows[0].srid}) ` ;
+
+              sqlWhere += ` AND st_intersects(main_table.intersection_geom, ${fieldIntersects}) `;
               sqlWhere += ` AND county.nm_meso = '${filter.themeSelected.value.name}' `;
             }
           } else if (filter.themeSelected.type === 'microregion') {
+            secondaryTables += ' , public.de_municipios_sema county ';
             if (alert.codgroup === 'FOCOS') {
-              secondaryTables += ' , public.de_municipios_sema county ';
-              sqlWhere += ` AND county.nm_micro like ${filter.themeSelected.value.name} `;
-              sqlWhere += ` AND main_table.${columns.filterColumns.columnsTheme.geocod} = county.geocodigo `;
+              sqlWhere += ` AND county.nm_micro like '${filter.themeSelected.value.name}' `;
+              sqlWhere += ` AND ${columns.filterColumns.columnsTheme.geocod} = cast(county.geocodigo AS integer) `;
             } else {
-              secondaryTables += ' , public.de_municipios_sema county ';
-              sqlWhere += ` AND st_intersects(main_table.intersection_geom, county.geom) `;
+              const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_municipios_sema LIMIT 1`);
+              const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'county.geom' : ` st_transform(county.geom, ${srid.rows[0].srid}) ` ;
+
+              sqlWhere += ` AND st_intersects(main_table.intersection_geom, ${fieldIntersects}) `;
               sqlWhere += ` AND county.nm_micro = '${filter.themeSelected.value.name}'  `;
             }
           } else if (filter.themeSelected.type === 'city') {
             if (alert.codgroup === 'FOCOS') {
-              sqlWhere += ` AND main_table.${columns.filterColumns.columnsTheme.geocod} = ${filter.themeSelected.value.name} `;
+              sqlWhere += ` AND ${columns.filterColumns.columnsTheme.geocod} = ${filter.themeSelected.value.geocodigo} `;
             } else {
               secondaryTables += ' , public.de_municipios_sema county ';
-              sqlWhere += ` AND st_intersects(main_table.intersection_geom, county.geom) `;
+
+              const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_municipios_sema LIMIT 1`);
+              const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'county.geom' : ` st_transform(county.geom, ${srid.rows[0].srid}) ` ;
+
+              sqlWhere += ` AND st_intersects(main_table.intersection_geom, ${fieldIntersects}) `;
               sqlWhere += ` AND county.gid = ${filter.themeSelected.value.gid} `;
             }
           } else if (filter.themeSelected.type === 'uc') {
             secondaryTables += ' , public.de_unidade_cons_sema uc ';
-            sqlWhere += ` AND st_intersects(main_table.intersection_geom, uc.geom) `;
-            sqlWhere += ` AND uc.gid = ${filter.themeSelected.value.gid} `;
+
+            const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_unidade_cons_sema LIMIT 1`);
+            const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'uc.geom' : ` st_transform(uc.geom, ${srid.rows[0].srid}) ` ;
+
+            sqlWhere += ` AND st_intersects(main_table.intersection_geom,${fieldIntersects}) `;
+
+            if (filter.themeSelected.value.gid > 0) {
+              sqlWhere += ` AND uc.gid = ${filter.themeSelected.value.gid} `;
+            }
           } else if (filter.themeSelected.type === 'ti') {
             secondaryTables += ' , public.de_terra_indigena_sema ti ';
-            sqlWhere += ` AND st_intersects(main_table.intersection_geom, ti.geom) `;
-            sqlWhere += ` AND ti.gid = ${filter.themeSelected.value.gid} `;
+
+            const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_terra_indigena_sema LIMIT 1`);
+            const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'ti.geom' : ` st_transform(ti.geom, ${srid.rows[0].srid}) ` ;
+
+            sqlWhere += ` AND st_intersects(main_table.intersection_geom, ${fieldIntersects}) `;
+
+            if (filter.themeSelected.value.gid > 0) {
+              sqlWhere += ` AND ti.gid = ${filter.themeSelected.value.gid} `;
+            }
+
           } else if (filter.themeSelected.type === 'projus') {
             secondaryTables += ' , public.de_projus_bacias_sema projus ';
-            sqlWhere += ` AND st_intersects(main_table.intersection_geom, ti.geom) `;
-            sqlWhere += ` AND ti.gid = ${filter.themeSelected.value.gid} `;
+
+            const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_projus_bacias_sema LIMIT 1`);
+            const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'projus.geom' : ` st_transform(projus.geom, ${srid.rows[0].srid}) ` ;
+
+            sqlWhere += ` AND st_intersects(main_table.intersection_geom, ${fieldIntersects}) `;
+
+            if (filter.themeSelected.value.gid > 0) {
+              sqlWhere += ` AND projus.gid = ${filter.themeSelected.value.gid} `;
+            }
           }
         };
 
@@ -340,7 +379,7 @@
 
       const sqlFrom = ` FROM public.${table} AS main_table`;
 
-      const filter = getFilter(params, alert, columns);
+      const filter = await getFilter(conn, table, params, alert, columns);
 
       const sqlGroupBy1 = ` GROUP BY ${columns.column1}  `;
       const sqlGroupBy2 = ` GROUP BY ${columns.column2}  `;
@@ -377,7 +416,7 @@
 
           const collumns = getColumns(alert, '');
 
-          const filter = getFilter(params, alert, collumns);
+          const filter = await getFilter(conn, tableName, params, alert, collumns);
 
           const value1 = alert.codgroup === 'FOCOS' ?
               ` COALESCE( ( SELECT ROW_NUMBER() OVER(ORDER BY ${collumns.column1} ASC) AS Row
