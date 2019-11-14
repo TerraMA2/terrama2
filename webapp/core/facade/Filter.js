@@ -80,9 +80,9 @@
 
     return {column1, column2, column3, column4, filterColumns, columnArea};
   };
-  function getValues(valueOption) {
-    const values = {columnValue: '', columnValueFocos};
-    if (valueOption && valueOption.value) {
+  function getValues(analyze) {
+    const values = {columnValue: '', columnValueFocos: ''};
+    if (analyze.valueOption && analyze.valueOption.value) {
       switch (analyze.valueOption.value) {
         case 1 :
           values.columnValue = ` <= 5 `;
@@ -237,7 +237,7 @@
 
         if (filter.alertType && (filter.alertType.radioValue !== 'ALL') && (filter.alertType.analyzes.length > 0)) {
           filter.alertType.analyzes.forEach(analyze => {
-            const values = getValues(analyze.valueOption);
+            const values = getValues(analyze);
 
             if (analyze.valueOption && analyze.valueOption.value) {
               if ((analyze.type && analyze.type === 'deter') && (alert.codgroup === 'DETER')) {
