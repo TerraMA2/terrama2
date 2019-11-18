@@ -20,7 +20,8 @@ module.exports = function(app) {
                 offset,
                 count,
                 sortColumn,
-                sortOrder
+                sortOrder,
+                filter
             } = request.query
 
             const view = await ViewFacade.retrieve(viewId)
