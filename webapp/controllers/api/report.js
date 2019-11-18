@@ -21,8 +21,7 @@
           count,
           viewId,
           sortColumn,
-          sortOrder,
-          filter
+          sortOrder
         } = request.query;
 
         const view = await ViewFacade.retrieve(viewId)
@@ -90,9 +89,9 @@
           count,
           viewId,
           sortColumn,
-          sortOrder,
-          filter
-        } = request.query
+          sortOrder
+        } = request.query;
+
         const view = await ViewFacade.retrieve(viewId)
         const dataSeries = await DataManager.getDataSeries({id: view.data_series_id})
         const dataProvider = await DataManager.getDataProvider({id: dataSeries.data_provider_id})
@@ -171,32 +170,33 @@
           localization,
           area,
           count,
-          viewId,
+          view,
           sortColumn,
           sortOrder,
           filter
         } = request.query;
 
-        // falta passar os parâmetros, organizar os selects
-        response.json(ReportService.findAnaliseData(params));
+        const result = await ReportService.findAnaliseData(params);
+        response.json(result);
       },
       getCarData: async (request, response) => {
         const {
           carRegister,
           date,
           viewId
-        } = request.query
+        } = request.query;
 
-        const view = await ViewFacade.retrieve(viewId)
-        const dataSeries = await DataManager.getDataSeries({id: view.data_series_id})
-        const dataProvider = await DataManager.getDataProvider({id: dataSeries.data_provider_id})
+        const view = await ViewFacade.retrieve(viewId);
+        const dataSeries = await DataManager.getDataSeries({id: view.data_series_id});
+        const dataProvider = await DataManager.getDataProvider({id: dataSeries.data_provider_id});
         // const uri = dataProvider.uri
-        const tableName = dataSeries.dataSets[0].format.table_name
+        const tableName = dataSeries.dataSets[0].format.table_name;
         // const conn = new Connection(uri)
-        const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
-        await conn.connect()
+        const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt");
+        await conn.connect();
         let dateFrom = null;
         let dateTo = null;
+
         if (date) {
           dateFrom = date[0];
           dateTo = date[1];
@@ -220,8 +220,8 @@
             AND munic.municipio = car.municipio1
             GROUP BY car.numero_do1, car.area_ha_, car.nome_da_p1, car.municipio1, car.geom`;
 
-        const result = await conn.execute(sql)
-        let propertyData = result.rows[0]
+        const result = await conn.execute(sql);
+        let propertyData = result.rows[0];
 
         const sqlBurningSpotlights = `
                     SELECT
@@ -232,10 +232,10 @@
                     focus.de_car_validado_sema_numero_do1 = car.numero_do1 AND
                     car.numero_do1 = '${carRegister}'
                     group by year
-                  `
+                  `;
 
-        const resultBurningSpotlights = await conn.execute(sqlBurningSpotlights)
-        const burningSpotlights = resultBurningSpotlights.rows
+        const resultBurningSpotlights = await conn.execute(sqlBurningSpotlights);
+        const burningSpotlights = resultBurningSpotlights.rows;
 
         const sqlBurnedAreas = `
                     SELECT
@@ -246,13 +246,13 @@
                     focus.de_car_validado_sema_numero_do1 = car.numero_do1 AND
                     car.numero_do1 = '${carRegister}'
                     group by year
-                  `
+                  `;
 
         // const resultDeter = await conn.execute(sqlDeter)
         // const deter = resultDeter.rows
 
-        const resultBurnedAreas = await conn.execute(sqlBurnedAreas)
-        const burnedAreas = resultBurnedAreas.rows
+        const resultBurnedAreas = await conn.execute(sqlBurnedAreas);
+        const burnedAreas = resultBurnedAreas.rows;
 
         const sqlProdesYear = `SELECT
                               extract(year from date_trunc('year', cp.execution_date)) AS date,
@@ -260,7 +260,7 @@
                               FROM public.apv_car_prodes_40 cp
                               WHERE cp.de_car_validado_sema_numero_do1 = '${carRegister}'
                               GROUP BY date
-                              ORDER BY date;`
+                              ORDER BY date;`;
 
         const sqlSpotlightsYear = `SELECT
                               extract(year from date_trunc('year', cf.execution_date)) AS date,
@@ -268,10 +268,10 @@
                               FROM public.apv_car_focos_48 cf
                               WHERE cf.de_car_validado_sema_numero_do1 = '${carRegister}'
                               GROUP BY date
-                              ORDER BY date;`
+                              ORDER BY date;`;
 
 
-        let dateSql = ` and execution_date::date >= '${dateFrom}' AND execution_date::date <= '${dateTo}'`
+        let dateSql = ` and execution_date::date >= '${dateFrom}' AND execution_date::date <= '${dateTo}'`;
 
         const sqlIndigenousLand = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_ti_cardeter_68 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`
         const sqlConservationUnit = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_uc_carprodes_65 where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`
@@ -281,50 +281,50 @@
         const sqlAnthropizedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_usoant_cardeter_36 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`
         const sqlNativeVegetation = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_veg_cardeter_38 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`
 
-        const resultIndigenousLand = await conn.execute(sqlIndigenousLand)
-        const indigenousLand = resultIndigenousLand.rows
+        const resultIndigenousLand = await conn.execute(sqlIndigenousLand);
+        const indigenousLand = resultIndigenousLand.rows;
 
-        const resultConservationUnit = await conn.execute(sqlConservationUnit)
-        const conservationUnit = resultConservationUnit.rows
+        const resultConservationUnit = await conn.execute(sqlConservationUnit);
+        const conservationUnit = resultConservationUnit.rows;
 
-        const resultLegalReserve = await conn.execute(sqlLegalReserve)
-        const legalReserve = resultLegalReserve.rows
+        const resultLegalReserve = await conn.execute(sqlLegalReserve);
+        const legalReserve = resultLegalReserve.rows;
 
-        const resultAPP = await conn.execute(sqlAPP)
-        const app = resultAPP.rows
+        const resultAPP = await conn.execute(sqlAPP);
+        const app = resultAPP.rows;
 
-        const resultConsolidatedUse = await conn.execute(sqlConsolidatedUse)
-        const consolidatedArea = resultConsolidatedUse.rows
+        const resultConsolidatedUse = await conn.execute(sqlConsolidatedUse);
+        const consolidatedArea = resultConsolidatedUse.rows;
 
-        const resultAnthropizedUse = await conn.execute(sqlAnthropizedUse)
-        const anthropizedUse = resultAnthropizedUse.rows
+        const resultAnthropizedUse = await conn.execute(sqlAnthropizedUse);
+        const anthropizedUse = resultAnthropizedUse.rows;
 
-        const resultNativeVegetation = await conn.execute(sqlNativeVegetation)
-        const nativeVegetation = resultNativeVegetation.rows
+        const resultNativeVegetation = await conn.execute(sqlNativeVegetation);
+        const nativeVegetation = resultNativeVegetation.rows;
 
-        const resultProdesYear = await conn.execute(sqlProdesYear)
-        const prodesYear = resultProdesYear.rows
+        const resultProdesYear = await conn.execute(sqlProdesYear);
+        const prodesYear = resultProdesYear.rows;
 
-        const resultSpotlightsYear = await conn.execute(sqlSpotlightsYear)
-        const spotlightsYear = resultSpotlightsYear.rows
+        const resultSpotlightsYear = await conn.execute(sqlSpotlightsYear);
+        const spotlightsYear = resultSpotlightsYear.rows;
 
         if (propertyData) {
-          propertyData.burningSpotlights = burningSpotlights
-          propertyData.burnedAreas = burnedAreas
+          propertyData.burningSpotlights = burningSpotlights;
+          propertyData.burnedAreas = burnedAreas;
           // propertyData.deter = deter[0]
-          propertyData.prodesYear = prodesYear
-          propertyData.spotlightsYear = spotlightsYear
-          propertyData.indigenousLand = indigenousLand[0]
-          propertyData.conservationUnit = conservationUnit[0]
-          propertyData.legalReserve = legalReserve[0]
-          propertyData.app = app[0]
-          propertyData.consolidatedArea = consolidatedArea[0]
-          propertyData.anthropizedUse = anthropizedUse[0]
-          propertyData.nativeVegetation = nativeVegetation[0]
+          propertyData.prodesYear = prodesYear;
+          propertyData.spotlightsYear = spotlightsYear;
+          propertyData.indigenousLand = indigenousLand[0];
+          propertyData.conservationUnit = conservationUnit[0];
+          propertyData.legalReserve = legalReserve[0];
+          propertyData.app = app[0];
+          propertyData.consolidatedArea = consolidatedArea[0];
+          propertyData.anthropizedUse = anthropizedUse[0];
+          propertyData.nativeVegetation = nativeVegetation[0];
         }
 
-        await conn.disconnect()
-        response.json(propertyData)
+        await conn.disconnect();
+        response.json(propertyData);
       }
     }
 } ();

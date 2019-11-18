@@ -3,67 +3,41 @@
 
   const DataManager = require('../../core/DataManager');
   const ViewFacade = require("../../core/facade/View");
+  const Filter = require("./Filter");
   const {Connection} = require('../../core/utility/connection');
 
   const ReportService = module.exports = {};
 
   ReportService.findAnaliseData = async function(params) {
-    const view = await ViewFacade.retrieve(viewId);
-    const dataSeries = await DataManager.getDataSeries({id: view.data_series_id});
-    const dataProvider = await DataManager.getDataProvider({id: dataSeries.data_provider_id});
-    const uri = dataProvider.uri;
-    const filterParams = JSON.parse(filter);
 
-    // const conn = new Connection(uri)
     const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt");
     await conn.connect();
 
-    const dataSet = dataSeries.dataSets[0];
-    let tableName = dataSet.format.table_name;
+    const view = JSON.parse(params.view);
 
-    let sqlTableName = `SELECT DISTINCT table_name FROM ${tableName}`;
-    const resultTableName = await conn.execute(sqlTableName);
+    const tableName = await Filter.getTableName(conn, view.id);
 
-    tableName = resultTableName.rows[0]['table_name'];
+    const filter =  await Filter.setWhere(conn, params);
 
-    let sqlCount = `SELECT COUNT(*) AS count FROM public.${tableName} `;
-    let sqlSelect = `SELECT *`;
-    let sqlFrom = '';
-    let sqlWhere = '';
+    let sqlWhere = filter.sqlWhere;
 
-    sqlSelect += `, ST_Y(ST_Transform (ST_Centroid(intersection_geom), 4326)) AS "lat",
-                      ST_X(ST_Transform (ST_Centroid(intersection_geom), 4326)) AS "long"
+    const select =
+        ` SELECT  main_table.*
+                  , ST_Y(ST_Transform (ST_Centroid(main_table.intersection_geom), 4326)) AS "lat"
+                  , ST_X(ST_Transform (ST_Centroid(main_table.intersection_geom), 4326)) AS "long" 
         `;
 
-    sqlFrom += ` FROM public.${tableName}`;
+    const from = ` FROM public.${tableName} main_table `;
 
-    if (date) {
-      const dateFrom = date[0];
-      const dateTo = date[1];
-
-      sqlWhere += `
-              WHERE execution_date::date >= '${dateFrom}' AND execution_date::date <= '${dateTo}'
-          `
-    }
-    sqlCount += sqlWhere;
-
-    if (area) {
-      sqlWhere += ` AND calculated_area_ha > ${area}`;
-    }
-
-    if (sortColumn && sortOrder) {
-      sqlWhere += ` ORDER BY ${sortColumn} ${sortOrder === '1'?'ASC':'DESC'}`;
-    }
-
-    if (limit) {
-      sqlWhere += ` LIMIT ${limit}`;
-    }
-
-    if (offset) {
-      sqlWhere += ` OFFSET ${offset}`;
-    }
-
-    const sql = sqlSelect + sqlFrom + sqlWhere;
+    const sql = ` 
+                  ${select}
+                  ${from}
+                  ${filter.secondaryTables}
+                  ${filter.sqlWhere}
+                  ${filter.order}
+                  ${filter.limit}
+                  ${filter.offset}
+                `;
 
     let result;
     let resultCount;
@@ -72,6 +46,11 @@
       let dataJson = result.rows;
 
       if (count) {
+        const sqlCount =
+            ` SELECT COUNT(*) AS count FROM public.${tableName} AS main_table
+              ${filter.secondaryTables}
+              ${filter.sqlWhere} 
+            `;
         resultCount = await conn.execute(sqlCount);
         dataJson.push(resultCount.rows[0]['count']);
       }
