@@ -18,9 +18,15 @@ module.exports = function(app) {
                 viewId,
                 limit,
                 offset,
-                count,
-                sortColumn,
+                sortField,
                 sortOrder,
+                count,
+                sum,
+                isDynamic,
+                tableAlias,
+                sumField,
+                sumAlias,
+                countAlias,
                 filter
             } = request.query
 
@@ -34,10 +40,8 @@ module.exports = function(app) {
 
             let tableName = dataSeries.dataSets[0].format.table_name
 
-            if (sortColumn !== 'car') {
-                let sqlTableName = `SELECT DISTINCT table_name FROM ${tableName}`
-                resultTableName = await conn.execute(sqlTableName)
-
+            if (isDynamic == "true") {
+                resultTableName = await conn.execute(`SELECT DISTINCT table_name FROM ${tableName}`)
                 tableName = resultTableName.rows[0]['table_name']
             }
 
@@ -51,20 +55,15 @@ module.exports = function(app) {
             let sqlGroupBy = '';
             let sqlOrderBy = '';
 
-            if (sortColumn === 'car') {
-                sqlOrderBy = `area DESC`
-            } else {
-                sqlSelectCount = `,COUNT(car_${sortColumn}.*) as ${sortColumn}_count`;
-                sqlOrderBy = `${sortColumn}_area DESC`;
+            if (count == "true") {
+                sqlSelectCount = `,COUNT(${tableAlias}.*) as ${countAlias}`;
             }
 
-            if (sortColumn === 'focos') {
-                sqlOrderBy = `${sortColumn}_count DESC`
-            } else if (sortColumn !== 'car'){
-                sqlSelectSum = `,SUM(car_${sortColumn}.calculated_area_ha) as ${sortColumn}_area`
+            if (sum == "true") {
+                sqlSelectSum = `,SUM(${tableAlias}.${sumField}) as ${sumAlias}`
             }
 
-            let tableAlias = sortColumn !== 'car'?`car_${sortColumn}`:'property';
+            sqlOrderBy = `${sortField} DESC`;
 
             sqlSelect += `
                     SELECT property.numero_do1 AS registro_estadual,
@@ -79,18 +78,23 @@ module.exports = function(app) {
                             ${sqlSelectCount}
             `
 
-            sqlFrom += `
-                FROM public.${tableName} AS ${tableAlias}
-            `
+            sqlFrom += ` FROM public.${tableName} AS ${tableAlias}`
 
-            if (sortColumn !== 'car') {
+            if (isDynamic == "true") {
                 sqlJoin += `
                     LEFT JOIN public.de_car_validado_sema as property
                     ON property.numero_do1 = ${tableAlias}.de_car_validado_sema_numero_do1
                 `
             }
 
-            sqlGroupBy += ` GROUP BY registro_estadual, registro_federal, nome_propriedade, municipio, area, situacao, lat, long
+            sqlGroupBy += ` GROUP BY registro_estadual,
+                                    registro_federal,
+                                    nome_propriedade,
+                                    municipio,
+                                    area,
+                                    situacao,
+                                    lat,
+                                    long
                             order by ${sqlOrderBy}
                 `
 
@@ -108,11 +112,9 @@ module.exports = function(app) {
                 const result = await conn.execute(sql)
                 const car = result.rows
 
-                if (count) {
-                    sqlCount = `SELECT COUNT(*) AS count FROM public.${tableName}`
-                    resultCount = await conn.execute(sqlCount)
-                    car.push(resultCount.rows[0]['count'])
-                }
+                const sqlCount = `SELECT COUNT(*) AS count FROM public.${tableName}`
+                const resultCount = await conn.execute(sqlCount)
+                car.push(resultCount.rows[0]['count'])
 
                 await conn.disconnect()
                 response.json(car)
@@ -168,7 +170,7 @@ module.exports = function(app) {
                             area_ha_ as property_area,
                             situacao_1 as status,
                             geom
-                        FROM public.de_car_validado_sema 
+                        FROM public.de_car_validado_sema
                         ${sqlWhere} `;
 
             try {

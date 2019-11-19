@@ -24,12 +24,12 @@
     const select =
         ` SELECT  main_table.*
                   , ST_Y(ST_Transform (ST_Centroid(main_table.intersection_geom), 4326)) AS "lat"
-                  , ST_X(ST_Transform (ST_Centroid(main_table.intersection_geom), 4326)) AS "long" 
+                  , ST_X(ST_Transform (ST_Centroid(main_table.intersection_geom), 4326)) AS "long"
         `;
 
     const from = ` FROM public.${tableName} main_table `;
 
-    const sql = ` 
+    const sql = `
                   ${select}
                   ${from}
                   ${filter.secondaryTables}
@@ -45,11 +45,11 @@
       result = await conn.execute(sql);
       let dataJson = result.rows;
 
-      if (count) {
+      if (params.countTotal) {
         const sqlCount =
             ` SELECT COUNT(*) AS count FROM public.${tableName} AS main_table
               ${filter.secondaryTables}
-              ${filter.sqlWhere} 
+              ${filter.sqlWhere}
             `;
         resultCount = await conn.execute(sqlCount);
         dataJson.push(resultCount.rows[0]['count']);
