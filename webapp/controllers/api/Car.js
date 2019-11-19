@@ -26,7 +26,8 @@ module.exports = function(app) {
                 tableAlias,
                 sumField,
                 sumAlias,
-                countAlias
+                countAlias,
+                filter
             } = request.query
 
             const view = await ViewFacade.retrieve(viewId)

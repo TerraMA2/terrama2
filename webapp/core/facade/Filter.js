@@ -15,7 +15,7 @@
     }
     return color;
   };
-  function getColumns(alert, tableOwner) {
+  function getColumns(view, tableOwner) {
     let column1 = '';
     let column2 = '';
     let column3 = '';
@@ -25,8 +25,8 @@
     const filterColumns = {
       columnDate: 'main_table.execution_date',
       columnsTheme: {
-        biomes: (alert.isAnalysis && alert.isPrimary) ? ` main_table.dd_focos_inpe_bioma ` : ` main_table.${tableOwner}_dd_focos_inpe_bioma `,
-        geocod: (alert.isAnalysis && alert.isPrimary) ? ` main_table.dd_focos_inpe_id_2 ` : ` main_table.${tableOwner}_dd_focos_inpe_id_2 `,
+        biomes: (view.isAnalysis && view.isPrimary) ? ` main_table.dd_focos_inpe_bioma ` : ` main_table.${tableOwner}_dd_focos_inpe_bioma `,
+        geocod: (view.isAnalysis && view.isPrimary) ? ` main_table.dd_focos_inpe_id_2 ` : ` main_table.${tableOwner}_dd_focos_inpe_id_2 `,
         mesoregion: 'de_mesoregiao_ibge_gid',
         microregion: 'de_microregiao_ibge_gid',
         region: 'de_comarca_ibge_gid',
@@ -42,10 +42,10 @@
         car: '',
         cpfCnpj: ''
       }
-    }
+    };
 
-    if (alert.codgroup && alert.codgroup === 'FOCOS') {
-      if (alert.isAnalysis && alert.isPrimary) {
+    if (view.codgroup && view.codgroup === 'FOCOS') {
+      if (view.isAnalysis && view.isPrimary) {
         column1 = ` main_table.de_car_validado_sema_numero_do1 `;
         column2 = ` main_table.dd_focos_inpe_bioma `;
         column3 = '1';
@@ -56,8 +56,8 @@
         column3 = '1';
         column4 = ` main_table.${tableOwner}_dd_focos_inpe_bioma `;
       }
-    } else if (alert.codgroup && alert.codgroup === 'DETER') {
-      if (alert.isAnalysis && alert.isPrimary) {
+    } else if (view.codgroup && view.codgroup === 'DETER') {
+      if (view.isAnalysis && view.isPrimary) {
         column1 = ` main_table.de_car_validado_sema_numero_do1 `;
         column2 = ` main_table.dd_deter_inpe_classname `;
       } else {
@@ -65,9 +65,9 @@
         column2 = ` main_table.${tableOwner}_dd_deter_inpe_classname `;
       }
 
-      column3 = alert.activearea ? ' main_table.calculated_area_ha ' : '1';
-    } else if (alert.codgroup && alert.codgroup === 'PRODES') {
-      if (alert.isAnalysis && alert.isPrimary) {
+      column3 = view.activearea ? ' main_table.calculated_area_ha ' : '1';
+    } else if (view.codgroup && view.codgroup === 'PRODES') {
+      if (view.isAnalysis && view.isPrimary) {
         column1 = ` main_table.de_car_validado_sema_numero_do1 `;
         column2 = ` main_table.dd_prodes_inpe_mainclass `;
       } else {
@@ -75,7 +75,7 @@
         column2 = ` main_table.${tableOwner}_dd_prodes_inpe_mainclass `;
       }
 
-      column3 = alert.activearea ? ' main_table.calculated_area_ha ' : '1';
+      column3 = view.activearea ? ' main_table.calculated_area_ha ' : '1';
     }
 
     return {column1, column2, column3, column4, filterColumns, columnArea};
@@ -112,7 +112,7 @@
     }
     return values;
   };
-  async function getFilter(conn, table, params, alert, columns) {
+  async function getFilter(conn, table, params, view, columns) {
     const filter = params.filter && params.filter !== 'null' ? JSON.parse(params.filter) : {};
     const srid = await conn.execute(`SELECT ST_SRID(intersection_geom) AS srid FROM ${table} LIMIT 1`);
 
@@ -137,7 +137,7 @@
       } else {
         if (filter.themeSelected && filter.themeSelected.type) {
           if (filter.themeSelected.type === 'biome') {
-            if (alert.codgroup === 'FOCOS') {
+            if (view.codgroup === 'FOCOS') {
               sqlWhere += ` AND ${columns.filterColumns.columnsTheme.biomes} like '${filter.themeSelected.value.name}' `;
             } else {
               secondaryTables += ' , public.de_biomas_mt biome ';
@@ -151,7 +151,7 @@
           } else if (filter.themeSelected.type === 'region') {
             secondaryTables += ' , public.de_municipios_sema county ';
 
-            if (alert.codgroup === 'FOCOS') {
+            if (view.codgroup === 'FOCOS') {
               sqlWhere += ` AND county.comarca like '${filter.themeSelected.value.name}' `;
               sqlWhere += ` AND ${columns.filterColumns.columnsTheme.geocod} = cast(county.geocodigo AS integer) `;
             } else {
@@ -164,7 +164,7 @@
           } else if (filter.themeSelected.type === 'mesoregion') {
             secondaryTables += ' , public.de_municipios_sema county ';
 
-            if (alert.codgroup === 'FOCOS') {
+            if (view.codgroup === 'FOCOS') {
               sqlWhere += ` AND county.nm_meso like '${filter.themeSelected.value.name}' `;
               sqlWhere += ` AND ${columns.filterColumns.columnsTheme.geocod} = cast(county.geocodigo AS integer) `;
             } else {
@@ -176,7 +176,7 @@
             }
           } else if (filter.themeSelected.type === 'microregion') {
             secondaryTables += ' , public.de_municipios_sema county ';
-            if (alert.codgroup === 'FOCOS') {
+            if (view.codgroup === 'FOCOS') {
               sqlWhere += ` AND county.nm_micro like '${filter.themeSelected.value.name}' `;
               sqlWhere += ` AND ${columns.filterColumns.columnsTheme.geocod} = cast(county.geocodigo AS integer) `;
             } else {
@@ -187,7 +187,7 @@
               sqlWhere += ` AND county.nm_micro = '${filter.themeSelected.value.name}'  `;
             }
           } else if (filter.themeSelected.type === 'city') {
-            if (alert.codgroup === 'FOCOS') {
+            if (view.codgroup === 'FOCOS') {
               sqlWhere += ` AND ${columns.filterColumns.columnsTheme.geocod} = ${filter.themeSelected.value.geocodigo} `;
             } else {
               secondaryTables += ' , public.de_municipios_sema county ';
@@ -240,19 +240,19 @@
             const values = getValues(analyze);
 
             if (analyze.valueOption && analyze.valueOption.value) {
-              if ((analyze.type && analyze.type === 'deter') && (alert.codgroup === 'DETER')) {
+              if ((analyze.type && analyze.type === 'deter') && (view.codgroup === 'DETER')) {
                 sqlWhere += ` AND main_table.calculated_area_ha ${values.columnValue} `;
               };
 
-              if ((analyze.type && analyze.type === 'deforestation') && (alert.codgroup === 'PRODES')) {
+              if ((analyze.type && analyze.type === 'deforestation') && (view.codgroup === 'PRODES')) {
                 sqlWhere += ` AND main_table.calculated_area_ha ${values.columnValue} `;
               };
 
-              if ((analyze.type && analyze.type === 'burned') && (alert.codgroup === 'FOCOS')) {
+              if ((analyze.type && analyze.type === 'burned') && (view.codgroup === 'FOCOS')) {
                 sqlHaving += ` HAVING count(1) ${values.columnValueFocos} `;
               };
 
-              if ((analyze.type && analyze.type === 'burned_area') && (alert.codgroup === 'AREA_QUEIMADA')) {
+              if ((analyze.type && analyze.type === 'burned_area') && (view.codgroup === 'AREA_QUEIMADA')) {
                 sqlWhere += ` AND main_table.calculated_area_ha ${values.columnValue} `;
               };
 
@@ -267,7 +267,12 @@
       }
     }
 
-    return {sqlWhere, secondaryTables, sqlHaving};
+
+    const order = (params.sortColumn && params.sortOrder) ? ` ORDER BY ${params.sortColumn} ${params.sortOrder === '1'?'ASC':'DESC'} ` : ``;
+    const limit = (params.limit) ? ` LIMIT ${params.limit} ` : ``;
+    const offset = (params.offset) ? ` OFFSET ${params.offset} ` : ``;
+
+    return {sqlWhere, secondaryTables, sqlHaving, order, limit, offset};
   };
   async function getTableOwner(conn, alerts) {
     if (alerts.length > 0) {
@@ -493,5 +498,19 @@
       }
     }
     return result;
+  };
+  Filter.getTableName = async function (conn, idView) {
+    return await getTable(conn, idView);
+  };
+  Filter.setWhere = async function (conn, params) {
+    const view = JSON.parse(params.view);
+
+    const table = await getTable(conn, view.id);
+
+    const tableOwner = '';
+
+    const columns = getColumns(view, tableOwner)
+
+    return getFilter(conn, table, params, view, columns);
   }
 } ());
