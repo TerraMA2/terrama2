@@ -16,7 +16,7 @@
         const {
           limit,
           offset,
-          count,
+          countTotal,
           viewId,
           sortColumn,
           sortOrder
@@ -64,7 +64,7 @@
           let dataJson = result.rows
 
           let sqlCount
-          if (count) {
+          if (countTotal) {
             sqlCount = `SELECT COUNT(*) AS count FROM public.${tableName}`
             resultCount = await conn.execute(sqlCount)
             dataJson.push(resultCount.rows[0]['count'])
@@ -83,7 +83,7 @@
           date,
           localization,
           area,
-          count,
+          countTotal,
           viewId,
           sortColumn,
           sortOrder
@@ -144,7 +144,7 @@
           let dataJson = result.rows
 
           let sqlCount
-          if (count) {
+          if (countTotal) {
             sqlCount = `SELECT COUNT(*) AS count FROM public.${tableName}`
             resultCount = await conn.execute(sqlCount)
             dataJson.push(resultCount.rows[0]['count'])
@@ -164,7 +164,7 @@
           date,
           localization,
           area,
-          count,
+          countTotal,
           viewId,
           sortColumn,
           sortOrder
@@ -230,7 +230,7 @@
           result = await conn.execute(sql)
           let dataJson = result.rows
 
-          if (count) {
+          if (countTotal) {
             resultCount = await conn.execute(sqlCount)
             dataJson.push(resultCount.rows[0]['count'])
           }
