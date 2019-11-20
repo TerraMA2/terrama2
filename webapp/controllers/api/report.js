@@ -17,8 +17,8 @@
         const {
           limit,
           offset,
-          count,
           view,
+          countTotal,
           sortColumn,
           sortOrder
         } = request.query;
@@ -69,11 +69,13 @@
           result = await conn.execute(sql);
           let dataJson = result.rows;
 
+
           let sqlCount;
-          if (count) {
+          if (countTotal) {
             sqlCount = `SELECT COUNT(*) AS count FROM public.${tableName}`;
             resultCount = await conn.execute(sqlCount);
-            dataJson.push(resultCount.rows[0]['count'])
+
+            dataJson.push(resultCount.rows[0]['count']);
           }
 
           await conn.disconnect();
@@ -89,8 +91,8 @@
           date,
           localization,
           area,
-          count,
           view,
+          countTotal,
           sortColumn,
           sortOrder
         } = request.query;
@@ -152,10 +154,10 @@
           let dataJson = result.rows;
 
           let sqlCount;
-          if (count) {
+          if (countTotal) {
             sqlCount = `SELECT COUNT(*) AS count FROM public.${tableName}`;
             resultCount = await conn.execute(sqlCount);
-            dataJson.push(resultCount.rows[0]['count']);
+            dataJson.push(resultCount.rows[0]['count'])
           }
 
           await conn.disconnect();
@@ -173,8 +175,8 @@
           date,
           localization,
           area,
-          count,
-          view,
+          countTotal,
+          viewId,
           sortColumn,
           sortOrder,
           filter
