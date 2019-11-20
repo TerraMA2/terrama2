@@ -14,8 +14,8 @@ module.exports = function(app) {
 
     return {
         getAllSimplified: async (request, response) => {
-            const {
-                viewId,
+            let {
+                view,
                 limit,
                 offset,
                 sortField,
@@ -30,7 +30,9 @@ module.exports = function(app) {
                 filter
             } = request.query
 
-            const view = await ViewFacade.retrieve(viewId)
+
+            const viewId = JSON.parse(view).id
+            view = await ViewFacade.retrieve(viewId)
             const dataSeries = await DataManager.getDataSeries({id:view.data_series_id})
             const dataProvider = await DataManager.getDataProvider({id:dataSeries.data_provider_id})
             const uri = dataProvider.uri
