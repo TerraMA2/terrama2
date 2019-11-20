@@ -502,7 +502,7 @@
   Filter.getTableName = async function (conn, idView) {
     return await getTable(conn, idView);
   };
-  Filter.setWhere = async function (conn, params) {
+  Filter.setFilter = async function (conn, params) {
     const view = JSON.parse(params.view);
 
     const table = await getTable(conn, view.id);
