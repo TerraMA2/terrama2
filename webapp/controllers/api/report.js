@@ -17,33 +17,37 @@
         const {
           limit,
           offset,
+          view,
           countTotal,
-          viewId,
           sortColumn,
           sortOrder
         } = request.query;
 
-        const view = await ViewFacade.retrieve(viewId)
-        const dataSeries = await DataManager.getDataSeries({id: view.data_series_id})
-        const dataProvider = await DataManager.getDataProvider({id: dataSeries.data_provider_id})
-        const uri = dataProvider.uri
+        const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt");
+        await conn.connect();
+
+        const viewParam = JSON.parse(view);
+
+        const viewAux = await ViewFacade.retrieve(viewParam.id);
+        const dataSeries = await DataManager.getDataSeries({id: viewAux.data_series_id});
+        const dataProvider = await DataManager.getDataProvider({id: dataSeries.data_provider_id});
+
+        // const uri = dataProvider.uri;
         // const conn = new Connection(uri)
-        const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
-        await conn.connect()
 
-        const dataSet = dataSeries.dataSets[0]
-        let tableName = dataSet.format.table_name
+        const dataSet = dataSeries.dataSets[0];
+        let tableName = dataSet.format.table_name;
 
-        let sqlSelect = `SELECT *`
-        let sqlFrom = ''
-        let sqlWhere = ''
+        let sqlSelect = `SELECT *`;
+        let sqlFrom = '';
+        let sqlWhere = '';
 
         sqlSelect += `, ST_Y(ST_Transform (ST_Centroid(geom), 4326)) AS "lat",
                       ST_X(ST_Transform (ST_Centroid(geom), 4326)) AS "long"
-        `
+        `;
 
 
-        sqlFrom += ` FROM public.${tableName}`
+        sqlFrom += ` FROM public.${tableName}`;
 
         if (sortColumn && sortOrder) {
           sqlWhere += ` ORDER BY ${sortColumn} ${sortOrder === 1?'ASC':'DESC'}`
@@ -57,22 +61,24 @@
           sqlWhere += ` OFFSET ${offset}`
         }
 
-        const sql = sqlSelect + sqlFrom + sqlWhere
+        const sql = sqlSelect + sqlFrom + sqlWhere;
 
-        let result
-        let resultCount
+        let result;
+        let resultCount;
         try {
-          result = await conn.execute(sql)
-          let dataJson = result.rows
+          result = await conn.execute(sql);
+          let dataJson = result.rows;
 
-          let sqlCount
+
+          let sqlCount;
           if (countTotal) {
-            sqlCount = `SELECT COUNT(*) AS count FROM public.${tableName}`
-            resultCount = await conn.execute(sqlCount)
-            dataJson.push(resultCount.rows[0]['count'])
+            sqlCount = `SELECT COUNT(*) AS count FROM public.${tableName}`;
+            resultCount = await conn.execute(sqlCount);
+
+            dataJson.push(resultCount.rows[0]['count']);
           }
 
-          await conn.disconnect()
+          await conn.disconnect();
           response.json(dataJson)
         } catch (error) {
           console.log(error)
@@ -85,28 +91,30 @@
           date,
           localization,
           area,
+          view,
           countTotal,
-          viewId,
           sortColumn,
           sortOrder
         } = request.query;
 
-        const view = await ViewFacade.retrieve(viewId)
-        const dataSeries = await DataManager.getDataSeries({id: view.data_series_id})
-        const dataProvider = await DataManager.getDataProvider({id: dataSeries.data_provider_id})
-        const uri = dataProvider.uri
+        const viewParam = JSON.parse(view);
+
+        const viewAuxi = await ViewFacade.retrieve(viewParam.id);
+        const dataSeries = await DataManager.getDataSeries({id: viewAuxi.data_series_id});
+        const dataProvider = await DataManager.getDataProvider({id: dataSeries.data_provider_id});
+        const uri = dataProvider.uri;
         // const conn = new Connection(uri)
-        const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
-        await conn.connect()
+        const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt");
+        await conn.connect();
 
-        const dataSet = dataSeries.dataSets[0]
-        const tableName = dataSet.format.table_name
-        const geomColumn = dataSet.format.geometry_property
-        const timeStampColumn = dataSet.format.timestamp_property
+        const dataSet = dataSeries.dataSets[0];
+        const tableName = dataSet.format.table_name;
+        const geomColumn = dataSet.format.geometry_property;
+        const timeStampColumn = dataSet.format.timestamp_property;
 
-        let sqlSelect = `SELECT *`
-        let sqlFrom = ''
-        let sqlWhere = ''
+        let sqlSelect = `SELECT *`;
+        let sqlFrom = '';
+        let sqlWhere = '';
 
         if (geomColumn) {
           sqlSelect += `, ST_Y(ST_Transform (ST_Centroid(${geomColumn}), 4326)) AS "lat",
@@ -114,17 +122,16 @@
           `
         }
 
-        sqlFrom += ` FROM public.${tableName}`
+        sqlFrom += ` FROM public.${tableName}`;
 
         if (date) {
-          const {dateFrom, dateTo} = date
+          const dateFrom = date[0];
+          const dateTo = date[1];
 
           sqlWhere += `
               WHERE ${timeStampColumn}::date >= '${dateFrom}' AND ${timeStampColumn}::date <= '${dateTo}'
           `
         }
-
-        sqlCount += sqlWhere
 
         if (sortColumn && sortOrder) {
           sqlWhere += ` ORDER BY ${sortColumn} ${sortOrder === 1?'ASC':'DESC'}`
@@ -138,22 +145,22 @@
           sqlWhere += ` OFFSET ${offset}`
         }
 
-        const sql = sqlSelect + sqlFrom + sqlWhere
+        const sql = sqlSelect + sqlFrom + sqlWhere;
 
-        let result
-        let resultCount
+        let result;
+        let resultCount;
         try {
-          result = await conn.execute(sql)
-          let dataJson = result.rows
+          result = await conn.execute(sql);
+          let dataJson = result.rows;
 
-          let sqlCount
+          let sqlCount;
           if (countTotal) {
-            sqlCount = `SELECT COUNT(*) AS count FROM public.${tableName}`
-            resultCount = await conn.execute(sqlCount)
+            sqlCount = `SELECT COUNT(*) AS count FROM public.${tableName}`;
+            resultCount = await conn.execute(sqlCount);
             dataJson.push(resultCount.rows[0]['count'])
           }
 
-          await conn.disconnect()
+          await conn.disconnect();
           response.json(dataJson)
         } catch (error) {
           console.log(error)

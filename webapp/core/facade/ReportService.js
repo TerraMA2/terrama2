@@ -1,8 +1,6 @@
 (function() {
   'use strict';
 
-  const DataManager = require('../../core/DataManager');
-  const ViewFacade = require("../../core/facade/View");
   const Filter = require("./Filter");
   const {Connection} = require('../../core/utility/connection');
 
@@ -17,7 +15,7 @@
 
     const tableName = await Filter.getTableName(conn, view.id);
 
-    const filter =  await Filter.setWhere(conn, params);
+    const filter =  await Filter.setFilter(conn, params);
 
     let sqlWhere = filter.sqlWhere;
 
@@ -44,6 +42,7 @@
     try {
       result = await conn.execute(sql);
       let dataJson = result.rows;
+
 
       if (params.countTotal) {
         const sqlCount =
