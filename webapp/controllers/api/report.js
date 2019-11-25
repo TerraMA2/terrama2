@@ -176,7 +176,7 @@
           localization,
           area,
           countTotal,
-          viewId,
+          view,
           sortColumn,
           sortOrder,
           filter
