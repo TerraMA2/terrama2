@@ -13,29 +13,34 @@
 
     const view = JSON.parse(params.view);
 
-    const tableName = await Filter.getTableName(conn, view.id);
+    const table = {
+      name: await Filter.getTableName(conn, view.id),
+      alias: 'main_table',
+      owner: ''
+    };
 
-    const filter =  await Filter.setFilter(conn, params);
+    const filter =  await Filter.setFilter(conn, params, table, view);
 
     let sqlWhere = filter.sqlWhere;
 
     const select =
-        ` SELECT  main_table.*
-                  , ST_Y(ST_Transform (ST_Centroid(main_table.intersection_geom), 4326)) AS "lat"
-                  , ST_X(ST_Transform (ST_Centroid(main_table.intersection_geom), 4326)) AS "long"
+        ` SELECT  ${table.alias}.*
+                  , ST_Y(ST_Transform (ST_Centroid(${table.alias}.intersection_geom), 4326)) AS "lat"
+                  , ST_X(ST_Transform (ST_Centroid(${table.alias}.intersection_geom), 4326)) AS "long"
         `;
 
-    const from = ` FROM public.${tableName} main_table `;
+    const from = ` FROM public.${table.name} AS ${table.alias} `;
 
-    const sql = `
-                  ${select}
-                  ${from}
-                  ${filter.secondaryTables}
-                  ${filter.sqlWhere}
-                  ${filter.order}
-                  ${filter.limit}
-                  ${filter.offset}
-                `;
+    const sql =
+      `
+        ${select}
+        ${from}
+        ${filter.secondaryTables}
+        ${filter.sqlWhere}
+        ${filter.order}
+        ${filter.limit}
+        ${filter.offset}
+      `;
 
     let result;
     let resultCount;
@@ -46,7 +51,7 @@
 
       if (params.countTotal) {
         const sqlCount =
-            ` SELECT COUNT(*) AS count FROM public.${tableName} AS main_table
+            ` SELECT COUNT(*) AS count FROM public.${table.name} AS ${table.alias}
               ${filter.secondaryTables}
               ${filter.sqlWhere}
             `;
