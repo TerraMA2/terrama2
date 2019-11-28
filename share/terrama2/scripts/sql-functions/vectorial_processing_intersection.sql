@@ -191,7 +191,7 @@ BEGIN
     EXECUTE format('SELECT get_date_column_from_dynamic_table(''%s'')', dynamic_table_name_handler) INTO date_column_from_dynamic_table;
 
     -- Getting last time collected from analysis_metadata
-	EXECUTE format('SELECT COUNT(*) FROM terrama2.analysis_metadata WHERE key = ''last_analysis'' AND terrama2.analysis_metadata.analysis_id = %s', analysis_id) INTO number_of_rows_metadata;
+	  EXECUTE format('SELECT COUNT(*) FROM terrama2.analysis_metadata WHERE key = ''last_analysis'' AND terrama2.analysis_metadata.analysis_id = %s', analysis_id) INTO number_of_rows_metadata;
 
     EXECUTE format('SELECT MAX(value::TIMESTAMP) FROM terrama2.analysis_metadata WHERE key = ''last_analysis'' AND terrama2.analysis_metadata.analysis_id = %s', analysis_id) INTO last_analysis;
 
@@ -200,7 +200,7 @@ BEGIN
     EXECUTE 'SELECT get_primary_key($1)' INTO pk_static_table USING static_table_name;
     EXECUTE 'SELECT get_primary_key($1)' INTO pk_dynamic_table USING dynamic_table_name_handler;
 
-	EXECUTE format('SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE  table_schema = ''public'' AND table_name = ''%s'')', final_table) INTO is_table_exists;
+	  EXECUTE format('SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE  table_schema = ''public'' AND table_name = ''%s'')', final_table) INTO is_table_exists;
 
     EXECUTE format('SELECT COUNT(*) FROM information_schema.columns WHERE table_name = ''%s'' ', final_table) INTO number_of_columns;
 
@@ -208,13 +208,12 @@ BEGIN
 
     EXECUTE format('SELECT array_length(string_to_array(''%s'', '',''), 1) ', output_attributes) INTO number_of_attributes;
 
-	number_of_attributes := number_of_attributes + 6;
-	-- 6 this is the default number of attributes: monitored_id, intersect_id, execution_date, intersection_geom, calculated_area_ha, final_table_id;
+    number_of_attributes := number_of_attributes + 6;
+    -- 6 this is the default number of attributes: monitored_id, intersect_id, execution_date, intersection_geom, calculated_area_ha, final_table_id;
 
     IF (is_table_exists AND number_of_columns = number_of_attributes) THEN
         -- Creating analysis filter
         IF number_of_rows_metadata > 0 THEN
-            RAISE NOTICE 'HAS ANALYSIS_FILTER %', number_of_rows_metadata;
             analysis_filter := format(' %s.%s  >  ''%s'' ', dynamic_table_name_handler, date_column_from_dynamic_table, last_analysis);
         ELSE
             analysis_filter := '1 = 1';
@@ -222,7 +221,7 @@ BEGIN
 
         date_filter := '1 = 1';
 
-		EXECUTE format('SELECT update_attributes_from_analysis(''%s'')', output_attributes) INTO output_attributes_updated;
+		    EXECUTE format('SELECT update_attributes_from_analysis(''%s'')', output_attributes) INTO output_attributes_updated;
 
         query := format('INSERT INTO %s (monitored_id, intersect_id, execution_date, intersection_geom, calculated_area_ha, %s)
                               SELECT monitored_id,
@@ -279,7 +278,10 @@ BEGIN
               SELECT monitored_id,
                      intersect_id,
                      execution_date,
-                     intersection_geom,
+                     CASE WHEN ST_GeometryType(intersection_geom) = ''ST_Polygon'' THEN
+                       ST_Multi(intersection_geom)
+                     ELSE intersection_geom
+                     END AS intersection_geom,
                      ST_AREA(intersection_geom::GEOGRAPHY) / 10000 AS calculated_area_ha
                 FROM (
                   SELECT %s.%s::VARCHAR AS monitored_id,
