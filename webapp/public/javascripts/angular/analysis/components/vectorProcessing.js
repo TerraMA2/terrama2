@@ -381,8 +381,7 @@ define([],()=> {
                       id="inputAttributesLayer"
                       ng-model="$ctrl.listInputLayersSelected"
                       ng-options="key as value for (key, value) in $ctrl.inputTableAttributes"
-                      ng-change="$ctrl.onMultInputSelected()"
-                      ng-required="true" multiple>
+                      ng-change="$ctrl.onMultInputSelected()" multiple>
                     </select><br>
                   </div>
                 </div>
@@ -395,8 +394,7 @@ define([],()=> {
                     name="outputlayer"
                     id="outputlayer"
                     ng-model="$ctrl.model.outputlayer"
-                    ng-options="attributes for attributes in $ctrl.listOutputLayersSelected"
-                    ng-required="true" multiple>
+                    ng-options="attributes for attributes in $ctrl.listOutputLayersSelected" multiple>
                 </select><br>
                 </div>
               </div>
