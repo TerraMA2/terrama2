@@ -193,7 +193,7 @@ BEGIN
     -- Getting last time collected from analysis_metadata
 	EXECUTE format('SELECT COUNT(*) FROM terrama2.analysis_metadata WHERE key = ''last_analysis'' AND terrama2.analysis_metadata.analysis_id = %s', analysis_id) INTO number_of_rows_metadata;
 
-    EXECUTE format('SELECT MAX(value) FROM terrama2.analysis_metadata WHERE key = ''last_analysis'' AND terrama2.analysis_metadata.analysis_id = %s LIMIT 1', analysis_id) INTO last_analysis;
+    EXECUTE format('SELECT MAX(value::TIMESTAMP) FROM terrama2.analysis_metadata WHERE key = ''last_analysis'' AND terrama2.analysis_metadata.analysis_id = %s', analysis_id) INTO last_analysis;
 
     final_table := format('%s_%s', output_table_name, analysis_id);
 
@@ -214,6 +214,7 @@ BEGIN
     IF (is_table_exists AND number_of_columns = number_of_attributes) THEN
         -- Creating analysis filter
         IF number_of_rows_metadata > 0 THEN
+            RAISE NOTICE 'HAS ANALYSIS_FILTER %', number_of_rows_metadata;
             analysis_filter := format(' %s.%s  >  ''%s'' ', dynamic_table_name_handler, date_column_from_dynamic_table, last_analysis);
         ELSE
             analysis_filter := '1 = 1';
@@ -224,25 +225,40 @@ BEGIN
 		EXECUTE format('SELECT update_attributes_from_analysis(''%s'')', output_attributes) INTO output_attributes_updated;
 
         query := format('INSERT INTO %s (monitored_id, intersect_id, execution_date, intersection_geom, calculated_area_ha, %s)
-                        SELECT  %s.%s::VARCHAR AS monitored_id,
-                                %s.%s::VARCHAR AS intersect_id,
-                                %s.%s::TIMESTAMPTZ AS execution_date,
-                                ST_Intersection(%s.%s, ST_Transform(%s.%s, %s)) AS intersection_geom,
-                                ST_AREA(ST_Intersection(%s.%s, ST_Transform(%s.%s, %s))::GEOGRAPHY) / 10000 AS calculated_area_ha,
-                                %s
-                        FROM %s, %s
-                        WHERE ST_Intersects(%s.%s, ST_Transform(%s.%s, %s))
-                        AND %s
-                        AND %s
-                        AND (%s)
+                              SELECT monitored_id,
+                                     intersect_id,
+                                     execution_date,
+                                     CASE WHEN ST_GeometryType(intersection_geom) = ''ST_Polygon'' THEN
+                                       ST_Multi(intersection_geom)
+                                     ELSE intersection_geom
+                                     END AS intersection_geom,
+                                     ST_AREA(intersection_geom::GEOGRAPHY) / 10000 AS calculated_area_ha
+                                FROM (
+                                  SELECT %s.%s::VARCHAR AS monitored_id,
+                                         %s.%s::VARCHAR AS intersect_id,
+                                         %s.%s::TIMESTAMPTZ AS execution_date,
+                                         ST_Intersection(%s.%s, ST_Transform(%s.%s, %s)) AS intersection_geom,
+                                         ST_GeometryType(%s.%s) AS table_left_geometry_type,
+                                         ST_GeometryType(%s.%s) AS table_right_geometry_type,
+                                         %s
+                                    FROM %s, %s
+                                   WHERE ST_Intersects(%s.%s, ST_Transform(%s.%s, %s))
+                                         AND %s
+                                         AND %s
+                                         AND (%s)
+                                ) res
+                                WHERE CASE WHEN ST_GeometryType(intersection_geom) = ''ST_Polygon'' OR ST_GeometryType(intersection_geom) = ''ST_MultiPolygon'' THEN true
+                                           WHEN table_left_geometry_type <> ''ST_Point'' AND table_right_geometry_type = ''ST_Point'' THEN true
+                                      ELSE false
+                                      END;
                     ',
-                    final_table,
-                    output_attributes_updated,
+                    final_table, output_attributes_updated,
                     static_table_name, pk_static_table,
                     dynamic_table_name_handler, pk_dynamic_table,
                     dynamic_table_name_handler, date_column_from_dynamic_table,
                     static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
-                    static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
+                    static_table_name, static_table_name_column,
+                    dynamic_table_name_handler, dynamic_table_name_column,
                     output_attributes,
                     dynamic_table_name_handler, static_table_name,
                     static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
@@ -260,29 +276,42 @@ BEGIN
         query := format('
             DROP TABLE IF EXISTS %s;
             CREATE TABLE %s AS
-                    SELECT  %s.%s::VARCHAR AS monitored_id,
-                            %s.%s::VARCHAR AS intersect_id,
-                            %s.%s::TIMESTAMPTZ AS execution_date,
-                            ST_Intersection(%s.%s, ST_Transform(%s.%s, %s)) AS intersection_geom,
-                            ST_AREA(ST_Intersection(%s.%s, ST_Transform(%s.%s, %s))::GEOGRAPHY) / 10000 AS calculated_area_ha,
-                            %s
-                        FROM %s, %s
-                        WHERE ST_Intersects(%s.%s, ST_Transform(%s.%s, %s))
-                        AND %s
-                        AND %s
-                        AND (%s)
-                ',
-                final_table,
-                final_table,
-                static_table_name, pk_static_table,
-                dynamic_table_name_handler, pk_dynamic_table,
-                dynamic_table_name_handler, date_column_from_dynamic_table,
-                static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
-                static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
-                output_attributes,
-                dynamic_table_name_handler, static_table_name,
-                static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
-                analysis_filter, date_filter, class_name_filter);
+              SELECT monitored_id,
+                     intersect_id,
+                     execution_date,
+                     intersection_geom,
+                     ST_AREA(intersection_geom::GEOGRAPHY) / 10000 AS calculated_area_ha
+                FROM (
+                  SELECT %s.%s::VARCHAR AS monitored_id,
+                         %s.%s::VARCHAR AS intersect_id,
+                         %s.%s::TIMESTAMPTZ AS execution_date,
+                         ST_Intersection(%s.%s, ST_Transform(%s.%s, %s)) AS intersection_geom,
+                         ST_GeometryType(%s.%s) AS table_left_geometry_type,
+                         ST_GeometryType(%s.%s) AS table_right_geometry_type,
+                         %s
+                    FROM %s, %s
+                   WHERE ST_Intersects(%s.%s, ST_Transform(%s.%s, %s))
+                     AND %s
+                     AND %s
+                     AND (%s)
+                ) res
+                WHERE CASE WHEN ST_GeometryType(intersection_geom) = ''ST_Polygon'' OR ST_GeometryType(intersection_geom) = ''ST_MultiPolygon'' THEN true
+                           WHEN table_left_geometry_type <> ''ST_Point'' AND table_right_geometry_type = ''ST_Point'' THEN true
+                      ELSE false
+                      END;
+                    ',
+                    final_table,
+                    final_table,
+                    static_table_name, pk_static_table,
+                    dynamic_table_name_handler, pk_dynamic_table,
+                    dynamic_table_name_handler, date_column_from_dynamic_table,
+                    static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
+                    static_table_name, static_table_name_column,
+                    dynamic_table_name_handler, dynamic_table_name_column,
+                    output_attributes,
+                    dynamic_table_name_handler, static_table_name,
+                    static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
+                    analysis_filter, date_filter, class_name_filter);
 
         EXECUTE query;
 
