@@ -86,7 +86,7 @@ DECLARE
     query TEXT;
     result RECORD;
 BEGIN
-    query := format('SELECT column_name FROM information_schema.columns WHERE table_name = ''%s'' AND data_Type = ''timestamp with time zone''', table_name);
+    query := format('SELECT column_name FROM information_schema.columns WHERE table_name = ''%s'' AND data_Type IN (''timestamp with time zone'', ''timestamp without time zone'')', table_name);
 
     EXECUTE query INTO result USING table_name;
 
