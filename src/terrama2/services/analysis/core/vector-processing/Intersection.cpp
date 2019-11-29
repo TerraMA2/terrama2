@@ -31,6 +31,22 @@ void terrama2::services::analysis::core::vp::Intersection::execute()
   std::string attributes = analysis_->metadata.find("outputlayer")->second;
   std::replace(attributes.begin(), attributes.end(), '{', ' ');
   std::replace(attributes.begin(), attributes.end(), '}', ' ');
+  
+  QRegExp reg("(\\,)");
+  auto parts = QString(attributes.c_str()).split(reg);
+
+  std::string attributeFilter("");
+  reg = QRegExp("(AS)");
+
+  for(const auto& part: parts)
+  {
+    auto fieldParts = part.split(reg);
+    attributeFilter += fieldParts[1].replace("\"", "").toStdString() + ",";
+  }
+
+  attributeFilter.pop_back();
+
+  std::cout << QString(attributes.c_str()).split(reg).join(" ").toStdString() << std::endl;
 
   //Date filter handler
   if((analysis_->metadata.find("startDate") != analysis_->metadata.end()) &&
@@ -72,7 +88,9 @@ void terrama2::services::analysis::core::vp::Intersection::execute()
 
   std::string sql = "SELECT table_name, affected_rows::double precision FROM vectorial_processing_intersection("+ std::to_string(analysis_->id) +", '" +
                      outputTableName_ + "', '" + staticLayerTableName + "', '" + dynamicLayerTableName + "', '" + attributes + "', '" + whereCondition_ +
-                     "', '" + finalWhereCondition + "'" + ")";
+                     "', '" + finalWhereCondition + "', '" + attributeFilter + "'" + ")";
+
+  std::cout << sql << std::endl;
 
   resultDataSet_ = transactor->query(sql);
 }

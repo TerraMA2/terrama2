@@ -1,3 +1,9 @@
+--
+-- This file describes the Vector Processing funcionality of TerraMA2.
+-- In order to do that, it must have:
+-- - The dynamic data series table must TIMESTAMP temporal field type;
+-- - Both static and dynamic data series table must have a valid primary key;
+
 CREATE OR REPLACE FUNCTION get_geometry_column(table_name VARCHAR)
     RETURNS VARCHAR AS
 $$
@@ -130,7 +136,8 @@ CREATE OR REPLACE FUNCTION vectorial_processing_intersection(analysis_id INTEGER
                                                              dynamic_table_name VARCHAR,
                                                              output_attributes VARCHAR,
                                                              date_filter VARCHAR,
-                                                             class_name_filter VARCHAR)
+                                                             class_name_filter VARCHAR,
+                                                             attribute_fields VARCHAR)
     RETURNS TABLE(table_name VARCHAR, affected_rows BIGINT) AS
 $$
 DECLARE
@@ -231,7 +238,8 @@ BEGIN
                                        ST_Multi(intersection_geom)
                                      ELSE intersection_geom
                                      END AS intersection_geom,
-                                     ST_AREA(intersection_geom::GEOGRAPHY) / 10000 AS calculated_area_ha
+                                     ST_AREA(intersection_geom::GEOGRAPHY) / 10000 AS calculated_area_ha,
+                                     %s
                                 FROM (
                                   SELECT %s.%s::VARCHAR AS monitored_id,
                                          %s.%s::VARCHAR AS intersect_id,
@@ -252,6 +260,7 @@ BEGIN
                                       END;
                     ',
                     final_table, output_attributes_updated,
+                    attribute_fields,
                     static_table_name, pk_static_table,
                     dynamic_table_name_handler, pk_dynamic_table,
                     dynamic_table_name_handler, date_column_from_dynamic_table,
@@ -262,7 +271,8 @@ BEGIN
                     dynamic_table_name_handler, static_table_name,
                     static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
                     analysis_filter, date_filter, class_name_filter);
-
+        
+        RAISE NOTICE 'Query %', query;
         EXECUTE query;
 
         GET DIAGNOSTICS number_of_affected_rows = ROW_COUNT;
@@ -282,7 +292,8 @@ BEGIN
                        ST_Multi(intersection_geom)
                      ELSE intersection_geom
                      END AS intersection_geom,
-                     ST_AREA(intersection_geom::GEOGRAPHY) / 10000 AS calculated_area_ha
+                     ST_AREA(intersection_geom::GEOGRAPHY) / 10000 AS calculated_area_ha,
+                     %s
                 FROM (
                   SELECT %s.%s::VARCHAR AS monitored_id,
                          %s.%s::VARCHAR AS intersect_id,
@@ -304,6 +315,7 @@ BEGIN
                     ',
                     final_table,
                     final_table,
+                    attribute_fields,
                     static_table_name, pk_static_table,
                     dynamic_table_name_handler, pk_dynamic_table,
                     dynamic_table_name_handler, date_column_from_dynamic_table,
@@ -316,6 +328,8 @@ BEGIN
                     analysis_filter, date_filter, class_name_filter);
 
         EXECUTE query;
+
+        RAISE NOTICE 'Query Create %', query;
 
         -- Getting affected_rows
         GET DIAGNOSTICS number_of_affected_rows = ROW_COUNT;
