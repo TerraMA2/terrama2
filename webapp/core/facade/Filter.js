@@ -22,7 +22,6 @@
   function isCarArea(type){
     return (type === 'carArea');
   };
-
   const specificSearch = {
     car: async function(conn, sql, filter, columns, cod, aliasTablePrimary) {
       sql.secondaryTables = '';
@@ -523,12 +522,18 @@
                                       ), 00.00) AS value1 ` :
               `  COALESCE(COUNT(1), 00.00) AS value1 `;
 
+          const sqlWhere =
+            filter.sqlHaving ?
+              ` ${filter.sqlWhere} 
+                AND main_table.de_car_validado_sema_numero_do1 IN
+                    ( SELECT tableWhere.de_car_validado_sema_numero_do1 AS subtitle
+                      FROM public.apv_car_focos_48 AS tableWhere
+                      GROUP BY tableWhere.de_car_validado_sema_numero_do1
+                      ${filter.sqlHaving}) ` :
+              filter.sqlWhere;
+
           const value2 = alert.codgroup === 'FOCOS' ?
-              ` ( SELECT coalesce(sum(1), 0.00) as num_focos
-                                   FROM public.${table.name} AS ${table.alias}
-                                   ${filter.secondaryTables}
-                                   ${filter.sqlWhere}
-                                      ) AS value2 ` :
+              ` ( SELECT coalesce(sum(1), 0.00) as num_focos FROM public.${table.name} AS ${table.alias} ${filter.secondaryTables} ${sqlWhere} ) AS value2 ` :
               ` COALESCE(SUM(${collumns.columnArea}), 0.00) AS value2 `;
 
           const sqlFrom = alert.codgroup === 'FOCOS' ?
@@ -546,7 +551,7 @@
                     ${alert.activearea} AS activearea,
                     false AS immobilitactive,
                     null AS alertsgraphics 
-              ${sqlFrom}`;
+                  ${sqlFrom}`;
         } else {
           sql += ` SELECT 
                     '${alert.idview}' AS idview,

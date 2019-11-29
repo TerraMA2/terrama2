@@ -21,7 +21,15 @@
 
     const filter =  await Filter.setFilter(conn, params, table, view);
 
-    let sqlWhere = filter.sqlWhere;
+    const sqlWhere =
+      filter.sqlHaving ?
+      ` ${filter.sqlWhere} 
+        AND main_table.de_car_validado_sema_numero_do1 IN
+          ( SELECT tableWhere.de_car_validado_sema_numero_do1 AS subtitle
+            FROM public.apv_car_focos_48 AS tableWhere
+            GROUP BY tableWhere.de_car_validado_sema_numero_do1
+            ${filter.sqlHaving}) ` :
+      filter.sqlWhere;
 
     const select =
         ` SELECT  ${table.alias}.*
@@ -31,16 +39,13 @@
 
     const from = ` FROM public.${table.name} AS ${table.alias} `;
 
-    const sql =
-      `
-        ${select}
-        ${from}
-        ${filter.secondaryTables}
-        ${filter.sqlWhere}
-        ${filter.order}
-        ${filter.limit}
-        ${filter.offset}
-      `;
+    const sql = ` ${select}
+                  ${from}
+                  ${filter.secondaryTables}
+                  ${sqlWhere}
+                  ${filter.order}
+                  ${filter.limit}
+                  ${filter.offset} `;
 
     let result;
     let resultCount;
@@ -53,7 +58,7 @@
         const sqlCount =
             ` SELECT COUNT(*) AS count FROM public.${table.name} AS ${table.alias}
               ${filter.secondaryTables}
-              ${filter.sqlWhere}
+              ${sqlWhere}
             `;
         resultCount = await conn.execute(sqlCount);
         dataJson.push(resultCount.rows[0]['count']);
