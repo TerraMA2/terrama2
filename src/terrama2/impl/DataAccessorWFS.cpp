@@ -21,10 +21,6 @@
 
 /*!
   \file terrama2/core/data-access/DataAccessorGeometricObjectPostGIS.cpp
-
-  \brief
-
-  \author Jano Simas
  */
 
 #include "DataAccessorWFS.hpp"
