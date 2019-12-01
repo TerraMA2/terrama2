@@ -464,13 +464,12 @@ TcpManager.prototype.initialize = function(client) {
               for(let processToRun of targetProcess.processToRun)
               {
                 if (processToRun && processToRun.object && processToRun.object.active){
+                  await Utils.delay(1000);
 
-                  await Promise.resolve(
-                    self.startProcess(
-                      processToRun.instance,
-                      { ids: processToRun.ids, execution_date: response.execution_date }
-                    )
-                  )
+                  self.startProcess(
+                    processToRun.instance,
+                    { ids: processToRun.ids, execution_date: response.execution_date }
+                  );
                 }
               }
 

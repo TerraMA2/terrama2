@@ -160,7 +160,7 @@
 
         const analysisDataSeries = analysis.dataSeries.id;
 
-        const restritions = {
+        const where = {
           data_ids: {
             $contains: [analysisDataSeries]
           }
@@ -168,7 +168,7 @@
 
         const serviceInstance = await DataManager.getServiceInstance({ id: analysisResultObject.instance_id }, options);
 
-        const res = await listConditionedProcess(restritions, serviceInstance, options);
+        const res = await listConditionedProcess(where, serviceInstance, options);
 
         transaction.commit()
 
