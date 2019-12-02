@@ -466,6 +466,8 @@ TcpManager.prototype.initialize = function(client) {
                 if (processToRun && processToRun.object && processToRun.object.active){
                   await Utils.delay(1000);
 
+                  logger.debug(`Automatic Schedule: STARTING PROCESS ${processToRun.object.name} ON ${processToRun.instance.id} - ${processToRun.instance.name}`)
+
                   self.startProcess(
                     processToRun.instance,
                     { ids: processToRun.ids, execution_date: response.execution_date }
