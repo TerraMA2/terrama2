@@ -21,10 +21,6 @@
 
 /*!
   \file terrama2/impl/DataRetrieverWFS.cpp
-
-  \brief Data Retriever HTTP.
-
-  \author Jean Souza
 */
 
 // STL
@@ -122,7 +118,6 @@ std::string terrama2::core::DataRetrieverWFS::retrieveData(const std::string& ma
 
   try
   {
- //sadads
   }
   catch(const NoDataException&)
   {
