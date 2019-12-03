@@ -269,6 +269,14 @@
                               GROUP BY date
                               ORDER BY date;`;
 
+        const sqlDeterYear = `SELECT
+                              extract(year from date_trunc('year', cd.execution_date)) AS date,
+                              SUM(cd.calculated_area_ha) as area
+                              FROM public.apv_car_deter_28 cd
+                              WHERE cd.de_car_validado_sema_numero_do1 = '${carRegister}'
+                              GROUP BY date
+                              ORDER BY date;`;
+
         const sqlSpotlightsYear = `SELECT
                               extract(year from date_trunc('year', cf.execution_date)) AS date,
                               COUNT(cf.*) as spotlights
@@ -400,8 +408,6 @@
         // const resultLandAreaFOCOSCount = await conn.execute(sqlLandAreaFOCOSCount);
         // const landAreaFOCOSCount = resultLandAreaFOCOSCount.rows;
 
-
-
         const resultProdesArea = await conn.execute(sqlProdesArea);
         const prodesArea = resultProdesArea.rows;
 
@@ -426,6 +432,9 @@
         const resultNativeVegetation = await conn.execute(sqlNativeVegetation);
         const nativeVegetation = resultNativeVegetation.rows;
 
+        const resultDeterYear = await conn.execute(sqlDeterYear);
+        const deterYear = resultDeterYear.rows;
+
         const resultProdesYear = await conn.execute(sqlProdesYear);
         const prodesYear = resultProdesYear.rows;
 
@@ -438,6 +447,7 @@
           // propertyData.deter = deter[0]
           propertyData.prodesArea = prodesArea[0]['area'];
           propertyData.prodesYear = prodesYear;
+          propertyData.deterYear = deterYear;
           propertyData.spotlightsYear = spotlightsYear;
           propertyData.indigenousLand = indigenousLand[0];
           propertyData.conservationUnit = conservationUnit[0];
