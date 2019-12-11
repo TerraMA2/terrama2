@@ -269,6 +269,14 @@
                               GROUP BY date
                               ORDER BY date;`;
 
+        const sqlDeterYear = `SELECT
+                              extract(year from date_trunc('year', cd.execution_date)) AS date,
+                              SUM(cd.calculated_area_ha) as area
+                              FROM public.apv_car_deter_28 cd
+                              WHERE cd.de_car_validado_sema_numero_do1 = '${carRegister}'
+                              GROUP BY date
+                              ORDER BY date;`;
+
         const sqlSpotlightsYear = `SELECT
                               extract(year from date_trunc('year', cf.execution_date)) AS date,
                               COUNT(cf.*) as spotlights
@@ -288,6 +296,117 @@
         const sqlConsolidatedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_usocon_cardeter_39 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
         const sqlAnthropizedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_usoant_cardeter_36 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
         const sqlNativeVegetation = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_veg_cardeter_38 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+
+        const sqlAPPDETERCount = `SELECT COUNT(*) AS count FROM public.apv_app_cardeter_35 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlLegalReserveDETERCount = `SELECT COUNT(*) AS count FROM public.apv_reserva_cardeter_37 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlConservationUnitDETERCount = `SELECT COUNT(*) AS count FROM public.apv_uc_cardeter_63 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlIndigenousLandDETERCount = `SELECT COUNT(*) AS count FROM public.apv_ti_cardeter_68 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlConsolidatedUseDETERCount = `SELECT COUNT(*) AS count FROM public.apv_usocon_cardeter_39 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlExploraDETERCount = `SELECT COUNT(*) AS count FROM public.apv_explora_cardeter_ where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlDesmateDETERCount = `SELECT COUNT(*) AS count FROM public.apv_desmate_cardeter_ where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlEmbDETERCount = `SELECT COUNT(*) AS count FROM public.apv_emb_cardeter_ where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlDesembDETERCount = `SELECT COUNT(*) AS count FROM public.apv_desemb_cardeter_ where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+
+        const resultAPPDETERCount = await conn.execute(sqlAPPDETERCount);
+        const aPPDETERCount = resultAPPDETERCount.rows;
+
+        const resultLegalReserveDETERCount = await conn.execute(sqlLegalReserveDETERCount);
+        const legalReserveDETERCount = resultLegalReserveDETERCount.rows;
+
+        const resultConservationUnitDETERCount = await conn.execute(sqlConservationUnitDETERCount);
+        const conservationUnitDETERCount = resultConservationUnitDETERCount.rows;
+
+        const resultIndigenousLandDETERCount = await conn.execute(sqlIndigenousLandDETERCount);
+        const indigenousLandDETERCount = resultIndigenousLandDETERCount.rows;
+
+        const resultConsolidatedUseDETERCount = await conn.execute(sqlConsolidatedUseDETERCount);
+        const consolidatedUseDETERCount = resultConsolidatedUseDETERCount.rows;
+
+        // const resultExploraDETERCount = await conn.execute(sqlExploraDETERCount);
+        // const explorationDETERCount = resultExploraDETERCount.rows;
+
+        // const resultDesmateDETERCount = await conn.execute(sqlDesmateDETERCount);
+        // const deforestationDETERCount = resultDesmateDETERCount.rows;
+
+        // const resultEmbargoedAreaDETERCount = await conn.execute(sqlEmbargoedAreaDETERCount);
+        // const embargoedAreaDETERCount = resultEmbargoedAreaDETERCount.rows;
+
+        // const resultLandAreaDETERCount = await conn.execute(sqlLandAreaDETERCount);
+        // const landAreaDETERCount = resultLandAreaDETERCount.rows;
+
+        const sqlAPPPRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_app_carprodes_41 where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlLegalReservePRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_reserva_carprodes_43 where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlConservationUnitPRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_uc_carprodes_65 where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlIndigenousLandPRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_ti_carprodes_69 where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlConsolidatedUsePRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_usocon_carprodes_45 where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlExploraPRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_explora_carprodes_ where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlDesmatePRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_desmate_carprodes_ where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlEmbPRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_emb_carprodes_ where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlDesembPRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_desemb_carprodes_ where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+
+        const resultAPPPRODESSum = await conn.execute(sqlAPPPRODESSum);
+        const aPPPRODESSum = resultAPPPRODESSum.rows;
+
+        const resultLegalReservePRODESSum = await conn.execute(sqlLegalReservePRODESSum);
+        const legalReservePRODESSum = resultLegalReservePRODESSum.rows;
+
+        const resultConservationUnitPRODESSum = await conn.execute(sqlConservationUnitPRODESSum);
+        const conservationUnitPRODESSum = resultConservationUnitPRODESSum.rows;
+
+        const resultIndigenousLandPRODESSum = await conn.execute(sqlIndigenousLandPRODESSum);
+        const indigenousLandPRODESSum = resultIndigenousLandPRODESSum.rows;
+
+        const resultConsolidatedUsePRODESSum = await conn.execute(sqlConsolidatedUsePRODESSum);
+        const consolidatedUsePRODESSum = resultConsolidatedUsePRODESSum.rows;
+
+        // const resultExploraPRODESSum = await conn.execute(sqlExploraPRODESSum);
+        // const explorationPRODESSum = resultExploraPRODESSum.rows;
+
+        // const resultDesmatePRODESSum = await conn.execute(sqlDesmatePRODESSum);
+        // const deforestationPRODESSum = resultDesmatePRODESSum.rows;
+
+        // const resultEmbargoedAreaPRODESSum = await conn.execute(sqlEmbargoedAreaPRODESSum);
+        // const embargoedAreaPRODESSum = resultEmbargoedAreaPRODESSum.rows;
+
+        // const resultLandAreaPRODESSum = await conn.execute(sqlLandAreaPRODESSum);
+        // const landAreaPRODESSum = resultLandAreaPRODESSum.rows;
+
+        const sqlAPPFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_app_carfocos_49 where apv_car_focos_48_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlLegalReserveFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_reserva_carfocos_51 where apv_car_focos_48_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlConservationUnitFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_uc_carfocos_66 where apv_car_focos_48_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlIndigenousLandFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_ti_carfocos_70 where apv_car_focos_48_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlConsolidatedUseFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_usocon_carfocos_53 where apv_car_focos_48_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlExploraFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_explora_carfocos_ where apv_car_focos_48_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlDesmateFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_desmate_carfocos_ where apv_car_focos_48_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlEmbFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_emb_carfocos_ where apv_car_focos_48_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlDesembFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_desemb_carfocos_ where apv_car_focos_48_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+
+        const resultAPPFOCOSCount = await conn.execute(sqlAPPFOCOSCount);
+        const aPPFOCOSCount = resultAPPFOCOSCount.rows;
+
+        const resultLegalReserveFOCOSCount = await conn.execute(sqlLegalReserveFOCOSCount);
+        const legalReserveFOCOSCount = resultLegalReserveFOCOSCount.rows;
+
+        const resultConservationUnitFOCOSCount = await conn.execute(sqlConservationUnitFOCOSCount);
+        const conservationUnitFOCOSCount = resultConservationUnitFOCOSCount.rows;
+
+        const resultIndigenousLandFOCOSCount = await conn.execute(sqlIndigenousLandFOCOSCount);
+        const indigenousLandFOCOSCount = resultIndigenousLandFOCOSCount.rows;
+
+        const resultConsolidatedUseFOCOSCount = await conn.execute(sqlConsolidatedUseFOCOSCount);
+        const consolidatedUseFOCOSCount = resultConsolidatedUseFOCOSCount.rows;
+
+        // const resultExploraFOCOSCount = await conn.execute(sqlExploraFOCOSCount);
+        // const explorationFOCOSCount = resultExploraFOCOSCount.rows;
+
+        // const resultDesmateFOCOSCount = await conn.execute(sqlDesmateFOCOSCount);
+        // const deforestationFOCOSCount = resultDesmateFOCOSCount.rows;
+
+        // const resultEmbFOCOSCount = await conn.execute(sqlEmbFOCOSCount);
+        // const embargoedAreaFOCOSCount = resultEmbFOCOSCount.rows;
+
+        // const resultLandAreaFOCOSCount = await conn.execute(sqlLandAreaFOCOSCount);
+        // const landAreaFOCOSCount = resultLandAreaFOCOSCount.rows;
 
         const resultProdesArea = await conn.execute(sqlProdesArea);
         const prodesArea = resultProdesArea.rows;
@@ -313,6 +432,9 @@
         const resultNativeVegetation = await conn.execute(sqlNativeVegetation);
         const nativeVegetation = resultNativeVegetation.rows;
 
+        const resultDeterYear = await conn.execute(sqlDeterYear);
+        const deterYear = resultDeterYear.rows;
+
         const resultProdesYear = await conn.execute(sqlProdesYear);
         const prodesYear = resultProdesYear.rows;
 
@@ -325,6 +447,7 @@
           // propertyData.deter = deter[0]
           propertyData.prodesArea = prodesArea[0]['area'];
           propertyData.prodesYear = prodesYear;
+          propertyData.deterYear = deterYear;
           propertyData.spotlightsYear = spotlightsYear;
           propertyData.indigenousLand = indigenousLand[0];
           propertyData.conservationUnit = conservationUnit[0];
@@ -333,6 +456,79 @@
           propertyData.consolidatedArea = consolidatedArea[0];
           propertyData.anthropizedUse = anthropizedUse[0];
           propertyData.nativeVegetation = nativeVegetation[0];
+
+          propertyData.app = {
+            affectedArea: 'APP',
+            recentDeforestation: aPPDETERCount[0]['count']|'',
+            pastDeforestation: aPPPRODESSum[0]['area']|'',
+            burnlights: aPPFOCOSCount[0]['count']|'',
+            burnAreas: ''
+          }
+
+          propertyData.legalReserve = {
+            affectedArea: 'ARL',
+            recentDeforestation: legalReserveDETERCount[0]['count']|'',
+            pastDeforestation: legalReservePRODESSum[0]['area']|'',
+            burnlights: legalReserveFOCOSCount[0]['count']|'',
+            burnAreas: ''
+          }
+
+          propertyData.conservationUnit = {
+            affectedArea: 'UC',
+            recentDeforestation: conservationUnitDETERCount[0]['count']|'',
+            pastDeforestation: conservationUnitPRODESSum[0]['area']|'',
+            burnlights: conservationUnitFOCOSCount[0]['count']|'',
+            burnAreas: ''
+          }
+
+          propertyData.indigenousLand = {
+            affectedArea: 'TI',
+            recentDeforestation: indigenousLandDETERCount[0]['count']|'',
+            pastDeforestation: indigenousLandPRODESSum[0]['area']|'',
+            burnlights: indigenousLandFOCOSCount[0]['count']|'',
+            burnAreas: ''
+          }
+
+          propertyData.consolidatedUse = {
+            affectedArea: 'AUC',
+            recentDeforestation: consolidatedUseDETERCount[0]['count']|'',
+            pastDeforestation: consolidatedUsePRODESSum[0]['area']|'',
+            burnlights: consolidatedUseFOCOSCount[0]['count']|'',
+            burnAreas: ''
+          }
+
+          // propertyData.exploration = {
+          //   affectedArea: 'AUTEX',
+          //   recentDeforestation: explorationDETERCount[0],
+          //   pastDeforestation: explorationPRODESSum[0],
+          //   burnlights: explorationFOCOSCount[0],
+          //   burnAreas: ''
+          // }
+
+          // propertyData.deforestation = {
+          //   affectedArea: 'AD',
+          //   recentDeforestation: deforestationDETERCount[0],
+          //   pastDeforestation: deforestationPRODESSum[0],
+          //   burnlights: deforestationFOCOSCount[0],
+          //   burnAreas: ''
+          // }
+
+          // propertyData.embargoedArea = {
+          //   affectedArea: 'Área embargada',
+          //   recentDeforestation: embargoedAreaDETERCount[0],
+          //   pastDeforestation: embargoedAreaPRODESSum[0],
+          //   burnlights: embargoedAreaFOCOSCount[0],
+          //   burnAreas: ''
+          // }
+
+          // propertyData.landArea = {
+          //   affectedArea: 'Área desembargada',
+          //   recentDeforestation: landAreaDETERCount[0],
+          //   pastDeforestation: landAreaPRODESSum[0],
+          //   burnlights: landAreaFOCOSCount[0],
+          //   burnAreas: ''
+          // }
+
         }
 
         await conn.disconnect();
