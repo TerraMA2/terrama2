@@ -161,7 +161,7 @@ if(CPACK_GENERATOR MATCHES "DEB")
 #    ELSEIF(LSB_RELEASE_VERSION MATCHES "16.04")
 #      set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.3.1-6), libgcc1 (>= 1:3.4.2-12), terralib-5.4.2, nodejs (>= 8.0.0), build-essential, git, screen, python-bs4, python-psycopg2, gdal-bin")
 #    ELSEIF(LSB_RELEASE_VERSION MATCHES "18.04")
-      set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.3.1-6), libgcc1 (>= 1:3.4.2-12), terralib-5.4.2, nodejs (>= 8.0.0), build-essential, git, screen, python-bs4, python-psycopg2, gdal-bin")
+      set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.3.1-6), libgcc1 (>= 1:3.4.2-12), terralib-5.4.5, nodejs (>= 8.0.0), build-essential, git, screen, python-bs4, python-psycopg2, gdal-bin")
 #    ENDIF()
   ENDIF()
 
