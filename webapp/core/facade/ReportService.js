@@ -21,12 +21,14 @@
 
     const filter =  await Filter.setFilter(conn, params, table, view);
 
+    const column = view.isPrimary ?  'de_car_validado_sema_numero_do1' :  'apv_car_focos_48_de_car_validado_sema_numero_do1';
+
     const sqlWhere =
       filter.sqlHaving ?
       ` ${filter.sqlWhere} 
         AND main_table.de_car_validado_sema_numero_do1 IN
-          ( SELECT tableWhere.de_car_validado_sema_numero_do1 AS subtitle
-            FROM public.apv_car_focos_48 AS tableWhere
+          ( SELECT tableWhere.${column} AS subtitle
+            FROM public.${table.name} AS tableWhere
             GROUP BY tableWhere.de_car_validado_sema_numero_do1
             ${filter.sqlHaving}) ` :
       filter.sqlWhere;

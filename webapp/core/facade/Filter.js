@@ -62,7 +62,7 @@
           const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_municipios_sema LIMIT 1`);
           const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? ' county.geom ' : ` st_transform(county.geom, ${srid.rows[0].srid}) ` ;
 
-          sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(main_table.intersection_geom, 3), ${fieldIntersects}) `;
+          sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(${aliasTablePrimary}.intersection_geom, 3), ${fieldIntersects}) `;
           sql.sqlWhere += ` AND county.comarca = '${filter.themeSelected.value.name}'  `;
         }
       };
@@ -80,7 +80,7 @@
           const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_municipios_sema LIMIT 1`);
           const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'county.geom' : ` st_transform(county.geom, ${srid.rows[0].srid}) ` ;
 
-          sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(main_table.intersection_geom, 3), ${fieldIntersects}) `;
+          sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(${aliasTablePrimary}.intersection_geom, 3), ${fieldIntersects}) `;
           sql.sqlWhere += ` AND county.nm_meso = '${filter.themeSelected.value.name}' `;
         }
       };
@@ -98,7 +98,7 @@
           const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_municipios_sema LIMIT 1`);
           const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'county.geom' : ` st_transform(county.geom, ${srid.rows[0].srid}) ` ;
 
-          sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(main_table.intersection_geom, 3), ${fieldIntersects}) `;
+          sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(${aliasTablePrimary}.intersection_geom, 3), ${fieldIntersects}) `;
           sql.sqlWhere += ` AND county.nm_micro = '${filter.themeSelected.value.name}'  `;
         }
       };
@@ -115,7 +115,7 @@
           const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_municipios_sema LIMIT 1`);
           const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'county.geom' : ` st_transform(county.geom, ${srid.rows[0].srid}) ` ;
 
-          sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(main_table.intersection_geom, 3), ${fieldIntersects}) `;
+          sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(${aliasTablePrimary}.intersection_geom, 3), ${fieldIntersects}) `;
           sql.sqlWhere += ` AND county.gid = ${filter.themeSelected.value.gid} `;
         }
       };
@@ -127,7 +127,7 @@
       const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_unidade_cons_sema LIMIT 1`);
       const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'uc.geom' : ` st_transform(uc.geom, ${srid.rows[0].srid}) ` ;
 
-      sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(main_table.intersection_geom, 3), ${fieldIntersects}) `;
+      sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(${aliasTablePrimary}.intersection_geom, 3), ${fieldIntersects}) `;
 
       if (filter.themeSelected.value.gid > 0) {
         sql.sqlWhere += ` AND uc.gid = ${filter.themeSelected.value.gid} `;
@@ -139,7 +139,7 @@
       const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_terra_indigena_sema LIMIT 1`);
       const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'ti.geom' : ` st_transform(ti.geom, ${srid.rows[0].srid}) ` ;
 
-      sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(main_table.intersection_geom, 3), ${fieldIntersects}) `;
+      sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(${aliasTablePrimary}.intersection_geom, 3), ${fieldIntersects}) `;
 
       if (filter.themeSelected.value.gid > 0) {
         sql.sqlWhere += ` AND ti.gid = ${filter.themeSelected.value.gid} `;
@@ -357,7 +357,13 @@
     const tableName = dataSet.format.table_name;
 
     const sqlTableName = ` SELECT DISTINCT table_name FROM ${tableName}`;
-    const resultTableName = await conn.execute(sqlTableName);
+    let resultTableName = { rows: [] };
+
+    try {
+      resultTableName = await conn.execute(sqlTableName);
+    } catch(e) {
+      resultTableName.rows.push({table_name: tableName});
+    }
 
     return resultTableName.rows[0]['table_name'];
   };
@@ -525,7 +531,7 @@
           const sqlWhere =
             filter.sqlHaving ?
               ` ${filter.sqlWhere} 
-                AND main_table.de_car_validado_sema_numero_do1 IN
+                AND ${table.alias}.de_car_validado_sema_numero_do1 IN
                     ( SELECT tableWhere.de_car_validado_sema_numero_do1 AS subtitle
                       FROM public.apv_car_focos_48 AS tableWhere
                       GROUP BY tableWhere.de_car_validado_sema_numero_do1
@@ -599,6 +605,6 @@
 
     const columns = getColumns(view, table.owner, table.alias);
 
-    return getFilter(conn, table, params, view, columns);
+    return await getFilter(conn, table, params, view, columns);
   }
 } ());

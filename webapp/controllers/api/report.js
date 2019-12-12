@@ -4,6 +4,12 @@
   const ReportService = require("../../core/facade/ReportService")
 
 
+  const env = process.env.NODE_ENV.toLowerCase() || 'development';
+  const config = require('../../config/db')[env];
+
+
+  const URI = `postgis://${config.username}:${config.password}@${config.host}:${config.port}/${config.database}`;
+
   /**
    * Injecting NodeJS App configuration AS dependency. It retrieves a Views controllers API
    *
@@ -23,7 +29,7 @@
           sortOrder
         } = request.query;
 
-        const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt");
+        const conn = new Connection(URI);
         await conn.connect();
 
         const viewParam = JSON.parse(view);
@@ -31,9 +37,6 @@
         const viewAux = await ViewFacade.retrieve(viewParam.id);
         const dataSeries = await DataManager.getDataSeries({id: viewAux.data_series_id});
         const dataProvider = await DataManager.getDataProvider({id: dataSeries.data_provider_id});
-
-        // const uri = dataProvider.uri;
-        // const conn = new Connection(uri)
 
         const dataSet = dataSeries.dataSets[0];
         let tableName = dataSet.format.table_name;
@@ -103,8 +106,8 @@
         const dataSeries = await DataManager.getDataSeries({id: viewAuxi.data_series_id});
         const dataProvider = await DataManager.getDataProvider({id: dataSeries.data_provider_id});
         const uri = dataProvider.uri;
-        // const conn = new Connection(uri)
-        const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt");
+
+        const conn = new Connection(URI);
         await conn.connect();
 
         const dataSet = dataSeries.dataSets[0];
@@ -197,8 +200,8 @@
         const dataProvider = await DataManager.getDataProvider({id: dataSeries.data_provider_id});
         // const uri = dataProvider.uri
         const tableName = dataSeries.dataSets[0].format.table_name;
-        // const conn = new Connection(uri)
-        const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt");
+
+        const conn = new Connection(URI);
         await conn.connect();
         let dateFrom = null;
         let dateTo = null;
