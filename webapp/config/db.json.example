@@ -4,7 +4,10 @@
     "password": "postgres",
     "database": "terrama2",
     "host": "127.0.0.1",
+<<<<<<< HEAD
     "port": 5432,
+=======
+>>>>>>> b2d51689eb44177c03df7c6734240a8d9705ca0c
     "dialect": "postgres",
     "define": {
       "schema": "terrama2"
