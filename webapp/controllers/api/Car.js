@@ -1,6 +1,10 @@
-var {Connection} = require('../../core/utility/connection');
-var DataManager = require('../../core/DataManager');
-var ViewFacade = require("../../core/facade/View");
+const {Connection} = require('../../core/utility/connection');
+const DataManager = require('../../core/DataManager');
+const ViewFacade = require('../../core/facade/View');
+const Filter = require('../../core/facade/Filter');
+
+const env = process.env.NODE_ENV.toLowerCase() || 'development';
+const config = require('../../config/db')[env];
 
 /**
  * Injecting NodeJS App configuration AS dependency. It retrieves a Views controllers API
@@ -8,117 +12,105 @@ var ViewFacade = require("../../core/facade/View");
  * @param {Object}
  * @returns {Object}
  */
+
 module.exports = function(app) {
-    const uri = "postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt";
-    const conn = new Connection(uri)
+    const uri =  `postgis://${config.username}:${config.password}@${config.host}:${config.port}/${config.database}`;
 
     return {
         getAllSimplified: async (request, response) => {
-            let {
-                view,
-                limit,
-                offset,
-                sortField,
-                sortOrder,
-                count,
-                sum,
-                isDynamic,
-                tableAlias,
-                sumField,
-                sumAlias,
-                countAlias,
-                filter
-            } = request.query
+            const specificParameters = JSON.parse(request.query.specificParameters);
+            const view = JSON.parse(specificParameters.view);
+
+            const conn = new Connection(uri);
+            await conn.connect();
+
+            const table = {
+                name: await Filter.getTableName(conn, view.id),
+                alias: specificParameters.tableAlias,
+                owner: ''
+            };
+
+            const filter =
+              specificParameters.isDynamic ?
+                await Filter.setFilter(conn, request.query, table, view) :
+                {
+                    sqlWhere: '',
+                    secondaryTables: '',
+                    sqlHaving: '',
+                    order: '',
+                    limit: specificParameters.limit ? ` LIMIT ${specificParameters.limit}` : '',
+                    offset: specificParameters.offset ? ` OFFSET ${specificParameters.offset}` : ''
+                };
+
+            const sqlSelectCount = specificParameters.count ? `,COUNT(${specificParameters.tableAlias}.*) AS ${specificParameters.countAlias}` : '';
+            const sqlSelectSum = specificParameters.sum ? `,SUM(${specificParameters.tableAlias}.${specificParameters.sumField}) AS ${specificParameters.sumAlias}` : '';
+            const sqlSelect =
+                ` SELECT property.numero_do1 AS registro_estadual,
+                    property.numero_do2 AS registro_federal,
+                    property.nome_da_p1 AS nome_propriedade,
+                    property.municipio1 AS municipio,
+                    property.area_ha_ AS area,
+                    property.situacao_1 AS situacao,
+                    ST_Y(ST_Transform (ST_Centroid(property.geom), 4326)) AS "lat",
+                    ST_X(ST_Transform (ST_Centroid(property.geom), 4326)) AS "long"
+                    ${sqlSelectSum}
+                    ${sqlSelectCount} `;
+
+            const sqlFrom = ` FROM public.${table.name} AS ${specificParameters.tableAlias}`;
+
+            const sqlGroupBy =
+                ` GROUP BY  property.numero_do1,
+                        property.numero_do2,
+                        property.nome_da_p1,
+                        property.municipio1,
+                        property.area_ha_,
+                        property.situacao_1,
+                        ST_Y(ST_Transform (ST_Centroid(property.geom), 4326)),
+                        ST_X(ST_Transform (ST_Centroid(property.geom), 4326)) `;
+            const sqlOrderBy = ` ORDER BY ${specificParameters.sortField} DESC `;
 
 
-            const viewId = JSON.parse(view).id
-            view = await ViewFacade.retrieve(viewId)
-            const dataSeries = await DataManager.getDataSeries({id:view.data_series_id})
-            const dataProvider = await DataManager.getDataProvider({id:dataSeries.data_provider_id})
-            const uri = dataProvider.uri
-              // const conn = new Connection(uri)
-            const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
-            await conn.connect()
 
-            let tableName = dataSeries.dataSets[0].format.table_name
+            const column = view.isPrimary ?  'de_car_validado_sema_numero_do1' :  'apv_car_focos_48_de_car_validado_sema_numero_do1';
 
-            if (isDynamic == "true") {
-                resultTableName = await conn.execute(`SELECT DISTINCT table_name FROM ${tableName}`)
-                tableName = resultTableName.rows[0]['table_name']
-            }
 
-            let sql = '';
+            filter.secondaryTables += specificParameters.isDynamic ?
+              '  , public.de_car_validado_sema AS property' :
+              '';
 
-            let sqlSelect = '';
-            let sqlSelectSum = '';
-            let sqlSelectCount = '';
-            let sqlFrom = '';
-            let sqlJoin = '';
-            let sqlGroupBy = '';
-            let sqlOrderBy = '';
+            filter.sqlWhere += specificParameters.isDynamic ?
+              ` AND property.numero_do1 = ${specificParameters.tableAlias}.de_car_validado_sema_numero_do1 `: '';
 
-            if (count == "true") {
-                sqlSelectCount = `,COUNT(${tableAlias}.*) as ${countAlias}`;
-            }
+            const sqlWhere =
+              filter.sqlHaving ?
+                ` ${filter.sqlWhere} 
+                    AND ${specificParameters.tableAlias}.de_car_validado_sema_numero_do1 IN
+                      ( SELECT tableWhere.${column} AS subtitle
+                        FROM public.${table.name} AS tableWhere
+                        GROUP BY tableWhere.de_car_validado_sema_numero_do1
+                        ${filter.sqlHaving}) ` :
+                filter.sqlWhere;
 
-            if (sum == "true") {
-                sqlSelectSum = `,SUM(${tableAlias}.${sumField}) as ${sumAlias}`
-            }
-
-            sqlOrderBy = `${sortField} DESC`;
-
-            sqlSelect += `
-                    SELECT property.numero_do1 AS registro_estadual,
-                            property.numero_do2 AS registro_federal,
-                            property.nome_da_p1 AS nome_propriedade,
-                            property.municipio1 AS municipio,
-                            property.area_ha_ AS area,
-                            property.situacao_1 AS situacao,
-                            ST_Y(ST_Transform (ST_Centroid(property.geom), 4326)) AS "lat",
-                            ST_X(ST_Transform (ST_Centroid(property.geom), 4326)) AS "long"
-                            ${sqlSelectSum}
-                            ${sqlSelectCount}
-            `
-
-            sqlFrom += ` FROM public.${tableName} AS ${tableAlias}`
-
-            if (isDynamic == "true") {
-                sqlJoin += `
-                    LEFT JOIN public.de_car_validado_sema as property
-                    ON property.numero_do1 = ${tableAlias}.de_car_validado_sema_numero_do1
-                `
-            }
-
-            sqlGroupBy += ` GROUP BY registro_estadual,
-                                    registro_federal,
-                                    nome_propriedade,
-                                    municipio,
-                                    area,
-                                    situacao,
-                                    lat,
-                                    long
-                            order by ${sqlOrderBy}
-                `
-
-            sql += sqlSelect + sqlFrom + sqlJoin + sqlGroupBy
-
-            if (limit) {
-                sql +=` LIMIT ${limit}`
-            }
-
-            if (offset) {
-                sql +=` OFFSET ${offset}`
-            }
+            let sql =
+              ` ${sqlSelect}
+                ${sqlFrom}
+                ${filter.secondaryTables}
+                ${sqlWhere}
+                ${sqlGroupBy}
+                ${sqlOrderBy}
+                ${filter.limit}
+                ${filter.offset}`;
 
             try {
-                const result = await conn.execute(sql)
-                const car = result.rows
+                const result = await conn.execute(sql);
+                const car = result.rows;
 
-                const sqlCount = `SELECT COUNT(*) AS count FROM public.${tableName}`
-                const resultCount = await conn.execute(sqlCount)
-                car.push(resultCount.rows[0]['count'])
+                const resultCount = await conn.execute(
+                  `SELECT ROW_NUMBER() OVER(ORDER BY property.numero_do2 ASC) AS count 
+                        ${sqlFrom} ${filter.secondaryTables} ${sqlWhere} ${sqlGroupBy} ORDER BY count DESC LIMIT 1`);
+                car.push(resultCount.rows[0]['count']);
 
-                await conn.disconnect()
+                await conn.disconnect();
                 response.json(car)
             } catch (error) {
                 console.log(error)
@@ -127,7 +119,7 @@ module.exports = function(app) {
 
         getAll: async (request, response) => {
 
-            const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt")
+            const conn = new Connection(uri)
             await conn.connect()
 
             const sql = `SELECT
