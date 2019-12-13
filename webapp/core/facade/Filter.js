@@ -28,8 +28,8 @@
       sql.sqlWhere += ` ${addAND(sql.sqlWhere)} ${columns.column1} like '${filter.specificSearch.inputValue}' `;
     },
     cpf: async function(conn, sql, filter, columns, cod, aliasTablePrimary) {
-      // Missing table associating CARs with CPFCNPJ
-      sql.sqlWhere += ` ${addAND(sql.sqlWhere)} ${columns.column1} like '${filter.specificSearch.inputValue}' `;
+      sql.secondaryTables = '';
+      sql.sqlWhere += ` ${addAND(sql.sqlWhere)} ${columns.columnCpfCnpj} like '%${filter.specificSearch.inputValue}%' `;
     }
   };
   const themeSelected = {
@@ -224,6 +224,12 @@
     let column2 = '';
     let column3 = '';
     let column4 = '';
+
+    const columnCpfCnpj =
+      (view.isAnalysis && view.isPrimary) ?
+        ` ${aliasTablePrimary}.de_car_validado_sema_cpfcnpj ` :
+        ` ${aliasTablePrimary}.${tableOwner}_de_car_validado_sema_cpfcnpj `;
+
     const columnArea = `${aliasTablePrimary}.calculated_area_ha`;
 
     const filterColumns = {
@@ -271,7 +277,7 @@
       column3 = view.activearea ? ` ${aliasTablePrimary}.calculated_area_ha ` : '1';
     }
 
-    return {column1, column2, column3, column4, filterColumns, columnArea};
+    return {column1, column2, column3, column4, filterColumns, columnArea, columnCpfCnpj};
   };
   function getValues(analyze) {
     const values = {columnValue: '', columnValueFocos: ''};
