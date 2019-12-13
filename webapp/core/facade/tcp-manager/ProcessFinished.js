@@ -33,7 +33,6 @@
       return DataManager.getServiceInstance({id: response.instance_id})
         .then(function(service) {
           var handler = null;
-          var output = {};
           switch(service.service_type_id) {
             case ServiceType.COLLECTOR:
               handler = self.handleFinishedCollector(response);
@@ -161,13 +160,13 @@
 
         const analysisDataSeries = analysis.dataSeries.id;
 
-        const restritions = {
+        const where = {
           data_ids: {
             $contains: [analysisDataSeries]
           }
         };
 
-        const res = await listConditionedProcess(restritions, options);
+        const res = await listConditionedProcess(where, options);
 
         transaction.commit()
 
@@ -254,61 +253,51 @@
       }
     });
   }
+
   /**
    * Function to list conditioned process
    */
-  var listConditionedProcess = function(restritions, options, resolve, reject){
+  var listConditionedProcess = function(restritions, options){
     // Get automatic schedule list that contais the collector
     return DataManager.listAutomaticSchedule(restritions, options)
-      .then(function(automaticScheduleList){
+      .then(async function(automaticScheduleList){
         if (automaticScheduleList.length > 0){
           var promises = [];
           //for each automatic schedule in list, check if belong to an analysis or a view
-          automaticScheduleList.forEach(function(automaticSchedule){
-            promises.push(DataManager.getAnalysis({automatic_schedule_id: automaticSchedule.id}, options)
-              .then(function(analysisResult){
-                return DataManager.getServiceInstance({id: analysisResult.instance_id}, options)
-                  .then(function(instanceServiceResponse){
-                    var objectToRun = {
-                      ids: [analysisResult.id],
-                      object: analysisResult,
-                      instance: instanceServiceResponse,
-                    };
-                    return objectToRun;
-                  })
-              })
-              .catch(function(err){
-                return DataManager.getView({automatic_schedule_id: automaticSchedule.id}, options)
-                  .then(function(viewResult){
-                    return DataManager.getServiceInstance({id: viewResult.serviceInstanceId}, options)
-                      .then(function(instanceServiceResponse){
-                        var objectToRun = {
-                          ids: [viewResult.id],
-                          object: viewResult,
-                          instance: instanceServiceResponse,
-                        };
-                        return objectToRun;
-                      });
-                  })
-                  .catch(function(err){
-                    return DataManager.getAlert({automatic_schedule_id: automaticSchedule.id}, options)
-                      .then(function(alertResult){
-                        return DataManager.getServiceInstance({id: alertResult.service_instance_id}, options)
-                          .then(function(instanceServiceResponse){
-                            var objectToRun = {
-                              ids: [alertResult.id],
-                              object: alertResult,
-                              instance: instanceServiceResponse
-                            };
-                            return objectToRun;
-                          });
-                      })
-                      .catch(function(){
-                        return null;
-                      });
-                  });
-              }));
-          });
+
+          /**
+           * It tries to find the dependency process to dispatch in order to
+           * make automatic trigger.
+           * Currently, the model AutomaticSchedule does not contain context of ID, which
+           * turns out wrong architecture. It should work as PID Resolver.
+           * @todo Refactory automatic schedule next version
+           */
+          for(const automaticSchedule of automaticScheduleList) {
+            let result = await DataManager.listAnalysis({ automatic_schedule_id: automaticSchedule.id });
+
+            if (result.length === 0) {
+              result = await DataManager.listViews({ automatic_schedule_id: automaticSchedule.id });
+
+              if (result.length === 0) {
+                result = await DataManager.listAlerts({ automatic_schedule_id: automaticSchedule.id });
+
+                if (result.length === 0) {
+                  continue;
+                }
+              }
+            }
+
+            const modelInstance = result[0];
+            const id = modelInstance.instance_id || modelInstance.serviceInstanceId || modelInstance.service_instance_id;
+
+            const serviceInstance = await DataManager.getServiceInstance({ id });
+
+            promises.push({
+              ids: [modelInstance.id],
+              object: modelInstance,
+              instance: serviceInstance,
+            });
+          }
           return Promise.all(promises).then(function(processToRun){
             var objectResponse = {
               serviceType: ServiceType.COLLECTOR,
@@ -317,11 +306,8 @@
             return objectResponse;
           });
         } else {
-          return resolve();
+          return;
         }
-      })
-      .catch(function(err){
-        return reject(new Error(err.toString()));
       });
     };
 } ());

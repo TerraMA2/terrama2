@@ -1,3 +1,9 @@
+--
+-- This file describes the Vector Processing funcionality of TerraMA2.
+-- In order to do that, it must have:
+-- - The dynamic data series table must TIMESTAMP temporal field type;
+-- - Both static and dynamic data series table must have a valid primary key;
+
 CREATE OR REPLACE FUNCTION get_geometry_column(table_name VARCHAR)
     RETURNS VARCHAR AS
 $$
@@ -86,7 +92,7 @@ DECLARE
     query TEXT;
     result RECORD;
 BEGIN
-    query := format('SELECT column_name FROM information_schema.columns WHERE table_name = ''%s'' AND data_Type = ''timestamp with time zone''', table_name);
+    query := format('SELECT column_name FROM information_schema.columns WHERE table_name = ''%s'' AND data_Type IN (''timestamp with time zone'', ''timestamp without time zone'')', table_name);
 
     EXECUTE query INTO result USING table_name;
 
@@ -130,7 +136,8 @@ CREATE OR REPLACE FUNCTION vectorial_processing_intersection(analysis_id INTEGER
                                                              dynamic_table_name VARCHAR,
                                                              output_attributes VARCHAR,
                                                              date_filter VARCHAR,
-                                                             class_name_filter VARCHAR)
+                                                             class_name_filter VARCHAR,
+                                                             attribute_fields VARCHAR)
     RETURNS TABLE(table_name VARCHAR, affected_rows BIGINT) AS
 $$
 DECLARE
@@ -191,16 +198,16 @@ BEGIN
     EXECUTE format('SELECT get_date_column_from_dynamic_table(''%s'')', dynamic_table_name_handler) INTO date_column_from_dynamic_table;
 
     -- Getting last time collected from analysis_metadata
-	EXECUTE format('SELECT COUNT(*) FROM terrama2.analysis_metadata WHERE key = ''last_analysis'' AND terrama2.analysis_metadata.analysis_id = %s', analysis_id) INTO number_of_rows_metadata;
+	  EXECUTE format('SELECT COUNT(*) FROM terrama2.analysis_metadata WHERE key = ''last_analysis'' AND terrama2.analysis_metadata.analysis_id = %s', analysis_id) INTO number_of_rows_metadata;
 
-    EXECUTE format('SELECT MAX(value) FROM terrama2.analysis_metadata WHERE key = ''last_analysis'' AND terrama2.analysis_metadata.analysis_id = %s LIMIT 1', analysis_id) INTO last_analysis;
+    EXECUTE format('SELECT MAX(value::TIMESTAMP) FROM terrama2.analysis_metadata WHERE key = ''last_analysis'' AND terrama2.analysis_metadata.analysis_id = %s', analysis_id) INTO last_analysis;
 
     final_table := format('%s_%s', output_table_name, analysis_id);
 
     EXECUTE 'SELECT get_primary_key($1)' INTO pk_static_table USING static_table_name;
     EXECUTE 'SELECT get_primary_key($1)' INTO pk_dynamic_table USING dynamic_table_name_handler;
 
-	EXECUTE format('SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE  table_schema = ''public'' AND table_name = ''%s'')', final_table) INTO is_table_exists;
+	  EXECUTE format('SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE  table_schema = ''public'' AND table_name = ''%s'')', final_table) INTO is_table_exists;
 
     EXECUTE format('SELECT COUNT(*) FROM information_schema.columns WHERE table_name = ''%s'' ', final_table) INTO number_of_columns;
 
@@ -208,8 +215,8 @@ BEGIN
 
     EXECUTE format('SELECT array_length(string_to_array(''%s'', '',''), 1) ', output_attributes) INTO number_of_attributes;
 
-	number_of_attributes := number_of_attributes + 6;
-	-- 6 this is the default number of attributes: monitored_id, intersect_id, execution_date, intersection_geom, calculated_area_ha, final_table_id;
+    number_of_attributes := number_of_attributes + 6;
+    -- 6 this is the default number of attributes: monitored_id, intersect_id, execution_date, intersection_geom, calculated_area_ha, final_table_id;
 
     IF (is_table_exists AND number_of_columns = number_of_attributes) THEN
         -- Creating analysis filter
@@ -221,33 +228,51 @@ BEGIN
 
         date_filter := '1 = 1';
 
-		EXECUTE format('SELECT update_attributes_from_analysis(''%s'')', output_attributes) INTO output_attributes_updated;
+		    EXECUTE format('SELECT update_attributes_from_analysis(''%s'')', output_attributes) INTO output_attributes_updated;
 
         query := format('INSERT INTO %s (monitored_id, intersect_id, execution_date, intersection_geom, calculated_area_ha, %s)
-                        SELECT  %s.%s::VARCHAR AS monitored_id,
-                                %s.%s::VARCHAR AS intersect_id,
-                                %s.%s::TIMESTAMPTZ AS execution_date,
-                                ST_Intersection(%s.%s, ST_Transform(%s.%s, %s)) AS intersection_geom,
-                                ST_AREA(ST_Intersection(%s.%s, ST_Transform(%s.%s, %s))::GEOGRAPHY) / 10000 AS calculated_area_ha,
-                                %s
-                        FROM %s, %s
-                        WHERE ST_Intersects(%s.%s, ST_Transform(%s.%s, %s))
-                        AND %s
-                        AND %s
-                        AND (%s)
+                              SELECT monitored_id,
+                                     intersect_id,
+                                     execution_date,
+                                     CASE WHEN ST_GeometryType(intersection_geom) = ''ST_Polygon'' THEN
+                                       ST_Multi(intersection_geom)
+                                     ELSE intersection_geom
+                                     END AS intersection_geom,
+                                     ST_AREA(intersection_geom::GEOGRAPHY) / 10000 AS calculated_area_ha,
+                                     %s
+                                FROM (
+                                  SELECT %s.%s::VARCHAR AS monitored_id,
+                                         %s.%s::VARCHAR AS intersect_id,
+                                         %s.%s::TIMESTAMPTZ AS execution_date,
+                                         ST_Intersection(%s.%s, ST_Transform(%s.%s, %s)) AS intersection_geom,
+                                         ST_GeometryType(%s.%s) AS table_left_geometry_type,
+                                         ST_GeometryType(%s.%s) AS table_right_geometry_type,
+                                         %s
+                                    FROM %s, %s
+                                   WHERE ST_Intersects(%s.%s, ST_Transform(%s.%s, %s))
+                                         AND %s
+                                         AND %s
+                                         AND (%s)
+                                ) res
+                                WHERE CASE WHEN ST_GeometryType(intersection_geom) = ''ST_Polygon'' OR ST_GeometryType(intersection_geom) = ''ST_MultiPolygon'' THEN true
+                                           WHEN table_left_geometry_type <> ''ST_Point'' AND table_right_geometry_type = ''ST_Point'' THEN true
+                                      ELSE false
+                                      END;
                     ',
-                    final_table,
-                    output_attributes_updated,
+                    final_table, output_attributes_updated,
+                    attribute_fields,
                     static_table_name, pk_static_table,
                     dynamic_table_name_handler, pk_dynamic_table,
                     dynamic_table_name_handler, date_column_from_dynamic_table,
                     static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
-                    static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
+                    static_table_name, static_table_name_column,
+                    dynamic_table_name_handler, dynamic_table_name_column,
                     output_attributes,
                     dynamic_table_name_handler, static_table_name,
                     static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
                     analysis_filter, date_filter, class_name_filter);
-
+        
+        RAISE NOTICE 'Query %', query;
         EXECUTE query;
 
         GET DIAGNOSTICS number_of_affected_rows = ROW_COUNT;
@@ -260,31 +285,51 @@ BEGIN
         query := format('
             DROP TABLE IF EXISTS %s;
             CREATE TABLE %s AS
-                    SELECT  %s.%s::VARCHAR AS monitored_id,
-                            %s.%s::VARCHAR AS intersect_id,
-                            %s.%s::TIMESTAMPTZ AS execution_date,
-                            ST_Intersection(%s.%s, ST_Transform(%s.%s, %s)) AS intersection_geom,
-                            ST_AREA(ST_Intersection(%s.%s, ST_Transform(%s.%s, %s))::GEOGRAPHY) / 10000 AS calculated_area_ha,
-                            %s
-                        FROM %s, %s
-                        WHERE ST_Intersects(%s.%s, ST_Transform(%s.%s, %s))
-                        AND %s
-                        AND %s
-                        AND (%s)
-                ',
-                final_table,
-                final_table,
-                static_table_name, pk_static_table,
-                dynamic_table_name_handler, pk_dynamic_table,
-                dynamic_table_name_handler, date_column_from_dynamic_table,
-                static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
-                static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
-                output_attributes,
-                dynamic_table_name_handler, static_table_name,
-                static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
-                analysis_filter, date_filter, class_name_filter);
+              SELECT monitored_id,
+                     intersect_id,
+                     execution_date,
+                     CASE WHEN ST_GeometryType(intersection_geom) = ''ST_Polygon'' THEN
+                       ST_Multi(intersection_geom)
+                     ELSE intersection_geom
+                     END AS intersection_geom,
+                     ST_AREA(intersection_geom::GEOGRAPHY) / 10000 AS calculated_area_ha,
+                     %s
+                FROM (
+                  SELECT %s.%s::VARCHAR AS monitored_id,
+                         %s.%s::VARCHAR AS intersect_id,
+                         %s.%s::TIMESTAMPTZ AS execution_date,
+                         ST_Intersection(%s.%s, ST_Transform(%s.%s, %s)) AS intersection_geom,
+                         ST_GeometryType(%s.%s) AS table_left_geometry_type,
+                         ST_GeometryType(%s.%s) AS table_right_geometry_type,
+                         %s
+                    FROM %s, %s
+                   WHERE ST_Intersects(%s.%s, ST_Transform(%s.%s, %s))
+                     AND %s
+                     AND %s
+                     AND (%s)
+                ) res
+                WHERE CASE WHEN ST_GeometryType(intersection_geom) = ''ST_Polygon'' OR ST_GeometryType(intersection_geom) = ''ST_MultiPolygon'' THEN true
+                           WHEN table_left_geometry_type <> ''ST_Point'' AND table_right_geometry_type = ''ST_Point'' THEN true
+                      ELSE false
+                      END;
+                    ',
+                    final_table,
+                    final_table,
+                    attribute_fields,
+                    static_table_name, pk_static_table,
+                    dynamic_table_name_handler, pk_dynamic_table,
+                    dynamic_table_name_handler, date_column_from_dynamic_table,
+                    static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
+                    static_table_name, static_table_name_column,
+                    dynamic_table_name_handler, dynamic_table_name_column,
+                    output_attributes,
+                    dynamic_table_name_handler, static_table_name,
+                    static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
+                    analysis_filter, date_filter, class_name_filter);
 
         EXECUTE query;
+
+        RAISE NOTICE 'Query Create %', query;
 
         -- Getting affected_rows
         GET DIAGNOSTICS number_of_affected_rows = ROW_COUNT;

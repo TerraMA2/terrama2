@@ -51,6 +51,17 @@ function getTokenCodeMessage(code) {
 }
 
 var Utils = module.exports = {
+  /**
+   * Delay a promise handling for time provided
+   *
+   * @param {number} milliseconds Number of milliseconds to delay
+   * @return {Promise}
+   */
+  delay(milliseconds) {
+    return new Promise(resolve => {
+      setTimeout(resolve, milliseconds);
+    })
+  },
   clone: function(object) {
     return cloneDeep(object);
   },

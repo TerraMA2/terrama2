@@ -6,6 +6,7 @@
   var DataManager = require("./../DataManager");
   var TcpService = require("./../facade/tcp-manager/TcpService");
   var PostgisRequest = require("./../PostgisRequest");
+  const nodeURI = require('url');
   
   var DataProvider = module.exports = {};
 
@@ -35,28 +36,19 @@
    * @returns {object}
    */
   function getPostgisUriInfo(uri) {
-    var params = {};
-    params.protocol = uri.split(':')[0];
-    var hostData = uri.split('@')[1];
+    const fragments = nodeURI.parse(uri);
 
-    if(hostData) {
-      params.hostname = hostData.split(':')[0];
-      params.port = hostData.split(':')[1].split('/')[0];
-      params.database = hostData.split('/')[1];
-    }
-
-    var auth = uri.split('@')[0];
-
-    if(auth) {
-      var userData = auth.split('://')[1];
-
-      if(userData) {
-        params.user = userData.split(':')[0];
-        params.password = userData.split(':')[1];
+    if(fragments.auth) {
+      const auth = fragments.auth.split(/:(.+)/);
+    
+      if (auth.length > 0) {
+        fragments.user = auth[0];
+        fragments.password = auth[1];
       }
     }
+    fragments.database = fragments.pathname.replace('/', '');
 
-    return params;
+    return fragments;
   }
   
   /**
@@ -262,6 +254,7 @@
           var providerObject = dataProvider.toObject();
           var uriInfo = getPostgisUriInfo(providerObject.uri);
           uriInfo.objectToGet = objectToGet;
+          uriInfo.password = decodeURIComponent(uriInfo.password);
           uriInfo.tableName = tableName;
           uriInfo.columnName = columnName;
           var postgisRequest = new PostgisRequest(uriInfo);
