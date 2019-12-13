@@ -169,10 +169,11 @@
         /**
          * @type {View}
          */
-        var view;
+        let view;
         var removeSchedule = null;
         var scheduleIdToRemove = null;
         var scheduleTypeToRemove = null;
+
         return DataManager.getView({id: viewId, project_id: projectId}, options)
           .then(function(viewResult) {
             view = viewResult;
