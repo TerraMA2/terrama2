@@ -95,7 +95,7 @@ te::se::Symbolizer* terrama2::services::view::core::getSymbolizer(const te::gm::
       case te::gm::MultiSurfaceZMType:
       {
         te::se::Fill* fill = CreateFill(color, opacity);
-        te::se::Stroke* stroke = CreateStroke("#000000", "1", opacity, "", "", "");
+        te::se::Stroke* stroke = CreateStroke("#000000", "1", opacity, "1 0", "", "");
 
         te::se::PolygonSymbolizer* symbolizer(new te::se::PolygonSymbolizer);
 
@@ -114,7 +114,7 @@ te::se::Symbolizer* terrama2::services::view::core::getSymbolizer(const te::gm::
       case te::gm::MultiLineStringZType:
       case te::gm::MultiLineStringZMType:
       {
-        te::se::Stroke* stroke = CreateStroke(color, "1", opacity, "", "", "");
+        te::se::Stroke* stroke = CreateStroke(color, "1", opacity, "1 0", "", "");
 
         te::se::LineSymbolizer* symbolizer(new te::se::LineSymbolizer);
 
@@ -133,7 +133,7 @@ te::se::Symbolizer* terrama2::services::view::core::getSymbolizer(const te::gm::
       case te::gm::MultiPointZMType:
       {
         te::se::Fill* markFill = CreateFill(color, opacity);
-        te::se::Stroke* markStroke = CreateStroke("#000000", "1", opacity, "", "", "");
+        te::se::Stroke* markStroke = CreateStroke("#000000", "1", opacity, "1 0", "", "");
         te::se::Mark* mark = te::se::CreateMark("circle", markStroke, markFill);
 
         te::se::Graphic* graphic = te::se::CreateGraphic(mark, "8", "", opacity);;
