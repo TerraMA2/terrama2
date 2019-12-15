@@ -71,7 +71,7 @@ module.exports = function(app) {
 
 
 
-            const column = view.isPrimary ?  'de_car_validado_sema_numero_do1' :  'apv_car_focos_48_de_car_validado_sema_numero_do1';
+            const column = view.isPrimary ?  'de_car_validado_sema_numero_do1' :  'a_carfocos_20_de_car_validado_sema_numero_do1';
 
 
             filter.secondaryTables += specificParameters.isDynamic ?
