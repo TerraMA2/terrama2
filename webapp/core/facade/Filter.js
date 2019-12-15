@@ -537,10 +537,10 @@
           const sqlWhere =
             filter.sqlHaving ?
               ` ${filter.sqlWhere} 
-                AND ${table.alias}.de_car_validado_sema_numero_do1 IN
-                    ( SELECT tableWhere.de_car_validado_sema_numero_do1 AS subtitle
-                      FROM public.apv_car_focos_48 AS tableWhere
-                      GROUP BY tableWhere.de_car_validado_sema_numero_do1
+                AND ${table.alias}.${collumns.column1} IN
+                    ( SELECT tableWhere.${collumns.column1} AS subtitle
+                      FROM public.${table.name} AS tableWhere
+                      GROUP BY tableWhere.${collumns.column1}
                       ${filter.sqlHaving}) ` :
               filter.sqlWhere;
 
