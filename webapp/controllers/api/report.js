@@ -211,9 +211,6 @@
           dateTo = date[1];
         }
 
-        // let sqlDeter = `
-        //   SELECT orbitpoint, date, sensor, satellite FROM public.dd_deter_inpe di where di.gid = ${intersectId}
-        // `
         let sql = `SELECT
             car.numero_do1 AS register,
             car.area_ha_ AS area,
@@ -258,16 +255,13 @@
                     group by year
                   `;
 
-        // const resultDeter = await conn.execute(sqlDeter)
-        // const deter = resultDeter.rows
-
         const resultBurnedAreas = await conn.execute(sqlBurnedAreas);
         const burnedAreas = resultBurnedAreas.rows;
 
         const sqlProdesYear = `SELECT
                               extract(year from date_trunc('year', cp.execution_date)) AS date,
                               SUM(cp.calculated_area_ha) as area
-                              FROM public.apv_car_prodes_40 cp
+                              FROM public.a_carprodes_15 cp
                               WHERE cp.de_car_validado_sema_numero_do1 = '${carRegister}'
                               GROUP BY date
                               ORDER BY date;`;
@@ -290,15 +284,15 @@
 
         let dateSql = ` and execution_date::date >= '${dateFrom}' AND execution_date::date <= '${dateTo}'`;
 
-        const sqlProdesArea = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_car_prodes_40 where de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlProdesArea = `SELECT SUM(calculated_area_ha) AS area FROM public.a_carprodes_15 where de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
 
         const sqlIndigenousLand = `SELECT SUM(calculated_area_ha) AS area FROM public.a_cardeter_ti_9 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlConservationUnit = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_uc_carprodes_65 where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlConservationUnit = `SELECT SUM(calculated_area_ha) AS area FROM public.a_carprodes_uc_23 where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
         const sqlLegalReserve = `SELECT SUM(calculated_area_ha) AS area FROM public.a_cardeter_reserva_6 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
         const sqlAPP = `SELECT SUM(calculated_area_ha) AS area FROM public.a_cardeter_app_4 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
         const sqlConsolidatedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.a_cardeter_usocon_8 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlAnthropizedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_usoant_cardeter_36 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlNativeVegetation = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_veg_cardeter_38 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlAnthropizedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.a_cardeter_usoant_5 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlNativeVegetation = `SELECT SUM(calculated_area_ha) AS area FROM public.a_cardeter_veg_7 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
 
         const sqlAPPDETERCount = `SELECT COUNT(*) AS count FROM public.a_cardeter_app_4 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
         const sqlLegalReserveDETERCount = `SELECT COUNT(*) AS count FROM public.a_cardeter_reserva_6 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
@@ -307,8 +301,8 @@
         const sqlConsolidatedUseDETERCount = `SELECT COUNT(*) AS count FROM public.a_cardeter_usocon_8 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
         // const sqlExploraDETERCount = `SELECT COUNT(*) AS count FROM public.apv_explora_cardeter_ where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
         // const sqlDesmateDETERCount = `SELECT COUNT(*) AS count FROM public.apv_desmate_cardeter_ where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        // const sqlEmbDETERCount = `SELECT COUNT(*) AS count FROM public.apv_emb_cardeter_ where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        // const sqlDesembDETERCount = `SELECT COUNT(*) AS count FROM public.apv_desemb_cardeter_ where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlEmbDETERCount = `SELECT COUNT(*) AS count FROM public.a_cardeter_emb_11 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlDesembDETERCount = `SELECT COUNT(*) AS count FROM public.a_cardeter_desemb_12 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
 
         const resultAPPDETERCount = await conn.execute(sqlAPPDETERCount);
         const aPPDETERCount = resultAPPDETERCount.rows;
@@ -337,15 +331,15 @@
         // const resultLandAreaDETERCount = await conn.execute(sqlLandAreaDETERCount);
         // const landAreaDETERCount = resultLandAreaDETERCount.rows;
 
-        const sqlAPPPRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_app_carprodes_41 where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlLegalReservePRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_reserva_carprodes_43 where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlConservationUnitPRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_uc_carprodes_65 where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlIndigenousLandPRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_ti_carprodes_69 where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlConsolidatedUsePRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_usocon_carprodes_45 where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        // const sqlExploraPRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_explora_carprodes_ where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        // const sqlDesmatePRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_desmate_carprodes_ where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        // const sqlEmbPRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_emb_carprodes_ where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        // const sqlDesembPRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_desemb_carprodes_ where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlAPPPRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_carprodes_app_16 where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlLegalReservePRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_carprodes_reserva_19 where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlConservationUnitPRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_carprodes_uc_23 where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlIndigenousLandPRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_carprodes_ti_22 where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlConsolidatedUsePRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_carprodes_usocon_21 where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlExploraPRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_explora_carprodes_ where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlDesmatePRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_desmate_carprodes_ where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlEmbPRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_emb_carprodes_ where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlDesembPRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_desemb_carprodes_ where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
 
         const resultAPPPRODESSum = await conn.execute(sqlAPPPRODESSum);
         const aPPPRODESSum = resultAPPPRODESSum.rows;
@@ -374,30 +368,30 @@
         // const resultLandAreaPRODESSum = await conn.execute(sqlLandAreaPRODESSum);
         // const landAreaPRODESSum = resultLandAreaPRODESSum.rows;
 
-        const sqlAPPFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_app_carfocos_49 where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlLegalReserveFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_reserva_carfocos_51 where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlConservationUnitFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_uc_carfocos_66 where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlIndigenousLandFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_ti_carfocos_70 where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlConsolidatedUseFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_usocon_carfocos_53 where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlAPPFOCOSCount = `SELECT COUNT(*) AS count FROM public.a_carfocos_app_29 where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlLegalReserveFOCOSCount = `SELECT COUNT(*) AS count FROM public.a_carfocos_reserva_31 where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlConservationUnitFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_uc_carfocos_66 where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlIndigenousLandFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_ti_carfocos_70 where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlConsolidatedUseFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_usocon_carfocos_53 where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
         // const sqlExploraFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_explora_carfocos_ where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
         // const sqlDesmateFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_desmate_carfocos_ where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
         // const sqlEmbFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_emb_carfocos_ where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
         // const sqlDesembFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_desemb_carfocos_ where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
 
-        const resultAPPFOCOSCount = await conn.execute(sqlAPPFOCOSCount);
-        const aPPFOCOSCount = resultAPPFOCOSCount.rows;
+        // const resultAPPFOCOSCount = await conn.execute(sqlAPPFOCOSCount);
+        // const aPPFOCOSCount = resultAPPFOCOSCount.rows;
 
-        const resultLegalReserveFOCOSCount = await conn.execute(sqlLegalReserveFOCOSCount);
-        const legalReserveFOCOSCount = resultLegalReserveFOCOSCount.rows;
+        // const resultLegalReserveFOCOSCount = await conn.execute(sqlLegalReserveFOCOSCount);
+        // const legalReserveFOCOSCount = resultLegalReserveFOCOSCount.rows;
 
-        const resultConservationUnitFOCOSCount = await conn.execute(sqlConservationUnitFOCOSCount);
-        const conservationUnitFOCOSCount = resultConservationUnitFOCOSCount.rows;
+        // const resultConservationUnitFOCOSCount = await conn.execute(sqlConservationUnitFOCOSCount);
+        // const conservationUnitFOCOSCount = resultConservationUnitFOCOSCount.rows;
 
-        const resultIndigenousLandFOCOSCount = await conn.execute(sqlIndigenousLandFOCOSCount);
-        const indigenousLandFOCOSCount = resultIndigenousLandFOCOSCount.rows;
+        // const resultIndigenousLandFOCOSCount = await conn.execute(sqlIndigenousLandFOCOSCount);
+        // const indigenousLandFOCOSCount = resultIndigenousLandFOCOSCount.rows;
 
-        const resultConsolidatedUseFOCOSCount = await conn.execute(sqlConsolidatedUseFOCOSCount);
-        const consolidatedUseFOCOSCount = resultConsolidatedUseFOCOSCount.rows;
+        // const resultConsolidatedUseFOCOSCount = await conn.execute(sqlConsolidatedUseFOCOSCount);
+        // const consolidatedUseFOCOSCount = resultConsolidatedUseFOCOSCount.rows;
 
         // const resultExploraFOCOSCount = await conn.execute(sqlExploraFOCOSCount);
         // const explorationFOCOSCount = resultExploraFOCOSCount.rows;
