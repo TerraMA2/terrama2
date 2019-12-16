@@ -275,7 +275,7 @@
         const sqlDeterYear = `SELECT
                               extract(year from date_trunc('year', cd.execution_date)) AS date,
                               SUM(cd.calculated_area_ha) as area
-                              FROM public.apv_car_deter_28 cd
+                              FROM public.a_cardeter_3 cd
                               WHERE cd.de_car_validado_sema_numero_do1 = '${carRegister}'
                               GROUP BY date
                               ORDER BY date;`;
@@ -292,23 +292,23 @@
 
         const sqlProdesArea = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_car_prodes_40 where de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
 
-        const sqlIndigenousLand = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_ti_cardeter_68 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlIndigenousLand = `SELECT SUM(calculated_area_ha) AS area FROM public.a_cardeter_ti_9 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
         const sqlConservationUnit = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_uc_carprodes_65 where apv_car_prodes_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlLegalReserve = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_reserva_cardeter_37 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlAPP = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_app_cardeter_35 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlConsolidatedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_usocon_cardeter_39 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlAnthropizedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_usoant_cardeter_36 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlNativeVegetation = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_veg_cardeter_38 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlLegalReserve = `SELECT SUM(calculated_area_ha) AS area FROM public.a_cardeter_reserva_6 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlAPP = `SELECT SUM(calculated_area_ha) AS area FROM public.a_cardeter_app_4 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlConsolidatedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.a_cardeter_usocon_8 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlAnthropizedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_usoant_cardeter_36 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlNativeVegetation = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_veg_cardeter_38 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
 
-        const sqlAPPDETERCount = `SELECT COUNT(*) AS count FROM public.apv_app_cardeter_35 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlLegalReserveDETERCount = `SELECT COUNT(*) AS count FROM public.apv_reserva_cardeter_37 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlConservationUnitDETERCount = `SELECT COUNT(*) AS count FROM public.apv_uc_cardeter_63 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlIndigenousLandDETERCount = `SELECT COUNT(*) AS count FROM public.apv_ti_cardeter_68 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlConsolidatedUseDETERCount = `SELECT COUNT(*) AS count FROM public.apv_usocon_cardeter_39 where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        // const sqlExploraDETERCount = `SELECT COUNT(*) AS count FROM public.apv_explora_cardeter_ where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        // const sqlDesmateDETERCount = `SELECT COUNT(*) AS count FROM public.apv_desmate_cardeter_ where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        // const sqlEmbDETERCount = `SELECT COUNT(*) AS count FROM public.apv_emb_cardeter_ where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        // const sqlDesembDETERCount = `SELECT COUNT(*) AS count FROM public.apv_desemb_cardeter_ where apv_car_deter_28_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlAPPDETERCount = `SELECT COUNT(*) AS count FROM public.a_cardeter_app_4 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlLegalReserveDETERCount = `SELECT COUNT(*) AS count FROM public.a_cardeter_reserva_6 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlConservationUnitDETERCount = `SELECT COUNT(*) AS count FROM public.a_cardeter_uc_10 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlIndigenousLandDETERCount = `SELECT COUNT(*) AS count FROM public.a_cardeter_ti_9 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlConsolidatedUseDETERCount = `SELECT COUNT(*) AS count FROM public.a_cardeter_usocon_8 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlExploraDETERCount = `SELECT COUNT(*) AS count FROM public.apv_explora_cardeter_ where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlDesmateDETERCount = `SELECT COUNT(*) AS count FROM public.apv_desmate_cardeter_ where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlEmbDETERCount = `SELECT COUNT(*) AS count FROM public.apv_emb_cardeter_ where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlDesembDETERCount = `SELECT COUNT(*) AS count FROM public.apv_desemb_cardeter_ where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
 
         const resultAPPDETERCount = await conn.execute(sqlAPPDETERCount);
         const aPPDETERCount = resultAPPDETERCount.rows;
