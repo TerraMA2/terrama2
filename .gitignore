@@ -38,3 +38,4 @@ config_local.py
 scripts/.idea/
 webmonitor/.idea/
 webapp/.idea/
+.history/

@@ -59,7 +59,7 @@ module.exports = function(app) {
             const sqlFrom = ` FROM public.${table.name} AS ${specificParameters.tableAlias}`;
 
             const sqlGroupBy =
-                ` GROUP BY  property.numero_do1,
+                ` GROUP BY property.numero_do1,
                         property.numero_do2,
                         property.nome_da_p1,
                         property.municipio1,
@@ -83,7 +83,7 @@ module.exports = function(app) {
 
             const sqlWhere =
               filter.sqlHaving ?
-                ` ${filter.sqlWhere} 
+                ` ${filter.sqlWhere}
                     AND ${specificParameters.tableAlias}.de_car_validado_sema_numero_do1 IN
                       ( SELECT tableWhere.${column} AS subtitle
                         FROM public.${table.name} AS tableWhere
@@ -106,7 +106,7 @@ module.exports = function(app) {
                 const car = result.rows;
 
                 const resultCount = await conn.execute(
-                  `SELECT ROW_NUMBER() OVER(ORDER BY property.numero_do2 ASC) AS count 
+                  `SELECT ROW_NUMBER() OVER(ORDER BY property.numero_do2 ASC) AS count
                         ${sqlFrom} ${filter.secondaryTables} ${sqlWhere} ${sqlGroupBy} ORDER BY count DESC LIMIT 1`);
                 car.push(resultCount.rows[0]['count']);
 
