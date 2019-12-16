@@ -237,7 +237,7 @@
                     SELECT
                     count(*) as focuscount,
                     extract('YEAR' FROM focus.execution_date) as year
-                    FROM public.apv_car_focos_48 as focus
+                    FROM public.a_carprodes_15 as focus
                     INNER JOIN public.${tableName} AS car on
                     focus.de_car_validado_sema_numero_do1 = car.numero_do1 AND
                     car.numero_do1 = '${carRegister}'
@@ -251,7 +251,7 @@
                     SELECT
                     count(*) as focuscount,
                     extract('YEAR' FROM focus.execution_date) as year
-                    FROM public.apv_car_focos_48 as focus
+                    FROM public.a_carprodes_15 as focus
                     INNER JOIN public.${tableName} AS car on
                     focus.de_car_validado_sema_numero_do1 = car.numero_do1 AND
                     car.numero_do1 = '${carRegister}'
@@ -283,7 +283,7 @@
         const sqlSpotlightsYear = `SELECT
                               extract(year from date_trunc('year', cf.execution_date)) AS date,
                               COUNT(cf.*) as spotlights
-                              FROM public.apv_car_focos_48 cf
+                              FROM public.a_carprodes_15 cf
                               WHERE cf.de_car_validado_sema_numero_do1 = '${carRegister}'
                               GROUP BY date
                               ORDER BY date;`;
@@ -374,15 +374,15 @@
         // const resultLandAreaPRODESSum = await conn.execute(sqlLandAreaPRODESSum);
         // const landAreaPRODESSum = resultLandAreaPRODESSum.rows;
 
-        const sqlAPPFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_app_carfocos_49 where apv_car_focos_48_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlLegalReserveFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_reserva_carfocos_51 where apv_car_focos_48_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlConservationUnitFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_uc_carfocos_66 where apv_car_focos_48_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlIndigenousLandFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_ti_carfocos_70 where apv_car_focos_48_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlConsolidatedUseFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_usocon_carfocos_53 where apv_car_focos_48_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        // const sqlExploraFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_explora_carfocos_ where apv_car_focos_48_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        // const sqlDesmateFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_desmate_carfocos_ where apv_car_focos_48_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        // const sqlEmbFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_emb_carfocos_ where apv_car_focos_48_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        // const sqlDesembFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_desemb_carfocos_ where apv_car_focos_48_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlAPPFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_app_carfocos_49 where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlLegalReserveFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_reserva_carfocos_51 where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlConservationUnitFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_uc_carfocos_66 where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlIndigenousLandFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_ti_carfocos_70 where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlConsolidatedUseFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_usocon_carfocos_53 where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlExploraFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_explora_carfocos_ where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlDesmateFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_desmate_carfocos_ where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlEmbFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_emb_carfocos_ where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        // const sqlDesembFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_desemb_carfocos_ where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
 
         const resultAPPFOCOSCount = await conn.execute(sqlAPPFOCOSCount);
         const aPPFOCOSCount = resultAPPFOCOSCount.rows;

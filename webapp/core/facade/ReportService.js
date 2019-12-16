@@ -21,7 +21,7 @@
 
     const filter =  await Filter.setFilter(conn, params, table, view);
 
-    const column = view.isPrimary ?  'de_car_validado_sema_numero_do1' :  'apv_car_focos_48_de_car_validado_sema_numero_do1';
+    const column = view.isPrimary ?  'de_car_validado_sema_numero_do1' :  'a_carprodes_15_de_car_validado_sema_numero_do1';
 
     const sqlWhere =
       filter.sqlHaving ?
