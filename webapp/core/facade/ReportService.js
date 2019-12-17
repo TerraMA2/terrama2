@@ -1,3 +1,9 @@
+
+const env = process.env.NODE_ENV.toLowerCase() || 'development';
+const config = require('../../config/db')[env];
+
+const URI = `postgis://${config.username}:${config.password}@${config.host}:${config.port}/${config.database}`;
+
 (function() {
   'use strict';
 
@@ -8,7 +14,7 @@
 
   ReportService.findAnaliseData = async function(params) {
 
-    const conn = new Connection("postgis://mpmt:secreto@terrama2.dpi.inpe.br:5432/mpmt");
+    const conn = new Connection(URI);
     await conn.connect();
 
     const view = JSON.parse(params.view);

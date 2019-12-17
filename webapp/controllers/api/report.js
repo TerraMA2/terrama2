@@ -170,22 +170,12 @@
         }
       },
       getAnalysisData: async (request, response) => {
-        const params = {
-          projectName,
-          limit,
-          offset,
-          group,
-          date,
-          localization,
-          area,
-          countTotal,
-          view,
-          sortColumn,
-          sortOrder,
-          filter
-        } = request.query;
+        const params = JSON.parse(request.query.specificParameters);
+        params.date = request.query.date;
+        params.filter = request.query.filter;
 
         const result = await ReportService.findAnaliseData(params);
+
         response.json(result);
       },
       getCarData: async (request, response) => {
