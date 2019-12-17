@@ -275,6 +275,16 @@
       }
 
       column3 = view.activearea ? ` ${aliasTablePrimary}.calculated_area_ha ` : '1';
+    } else if (view.codgroup && view.codgroup === 'AREA_QUEIMADA') {
+      if (view.isAnalysis && view.isPrimary) {
+        column1 = ` ${aliasTablePrimary}.de_car_validado_sema_numero_do1 `;
+        column2 = ` ${aliasTablePrimary}.de_car_validado_sema_numero_do1 `;
+      } else {
+        column1 = ` ${aliasTablePrimary}.${tableOwner}_de_car_validado_sema_numero_do1 `;
+        column2 = ` ${aliasTablePrimary}.${tableOwner}_de_car_validado_sema_numero_do1 `;
+      }
+
+      column3 = view.activearea ? ` ${aliasTablePrimary}.calculated_area_ha ` : '1';
     }
 
     return {column1, column2, column3, column4, filterColumns, columnArea, columnCpfCnpj};
