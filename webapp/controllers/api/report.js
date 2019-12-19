@@ -239,6 +239,7 @@
                     FROM public.a_carfocos_28 as focus
                     INNER JOIN public.${tableName} AS car on
                     focus.de_car_validado_sema_numero_do1 = car.numero_do1 AND
+                    extract('YEAR' FROM focus.execution_date) > 2007 AND
                     car.numero_do1 = '${carRegister}'
                     group by year
                   `;
@@ -246,19 +247,30 @@
         const resultBurningSpotlights = await conn.execute(sqlBurningSpotlights);
         const burningSpotlights = resultBurningSpotlights.rows;
 
-        // const sqlBurnedAreas = `
-        //             SELECT
-        //             SUM(areaq.calculated_area_ha) as focuscount,
-        //             extract('YEAR' FROM focus.execution_date) as year
-        //             FROM public.a_caraq_40 as areaq
-        //             INNER JOIN public.${tableName} AS car on
-        //             areaq.de_car_validado_sema_numero_do1 = car.numero_do1 AND
-        //             car.numero_do1 = '${carRegister}'
-        //             group by year
-        //           `;
+        const sqlBurnedAreas = `
+                    SELECT
+                    SUM(areaq.calculated_area_ha) as burnedAreas,
+                    extract('YEAR' FROM areaq.execution_date) as year
+                    FROM public.a_caraq_40 as areaq
+                    INNER JOIN public.${tableName} AS car on
+                    areaq.de_car_validado_sema_numero_do1 = car.numero_do1 AND
+                    car.numero_do1 = '${carRegister}'
+                    group by year
+                  `;
 
-        // const resultBurnedAreas = await conn.execute(sqlBurnedAreas);
-        // const burnedAreas = resultBurnedAreas.rows;
+        const resultBurnedAreas = await conn.execute(sqlBurnedAreas);
+        const burnedAreas = resultBurnedAreas.rows;
+
+        const sqlBurnedAreasYear = `SELECT
+                              extract(year from date_trunc('year', areaq.execution_date)) AS date,
+                              SUM(areaq.calculated_area_ha) as burnedAreas
+                              FROM public.a_caraq_40 areaq
+                              WHERE areaq.de_car_validado_sema_numero_do1 = '${carRegister}'
+                              GROUP BY date
+                              ORDER BY date;`;
+
+        const resultBurnedAreasYear = await conn.execute(sqlBurnedAreasYear);
+        const burnedAreasYear = resultBurnedAreasYear.rows;
 
         const sqlProdesYear = `SELECT
                               extract(year from date_trunc('year', cp.execution_date)) AS date,
@@ -280,7 +292,8 @@
                               extract(year from date_trunc('year', cf.execution_date)) AS date,
                               COUNT(cf.*) as spotlights
                               FROM public.a_carfocos_28 cf
-                              WHERE cf.de_car_validado_sema_numero_do1 = '${carRegister}'
+                              WHERE cf.de_car_validado_sema_numero_do1 = '${carRegister}' AND
+                              extract('YEAR' FROM cf.execution_date) > 2007
                               GROUP BY date
                               ORDER BY date;`;
 
@@ -295,6 +308,28 @@
         const sqlConsolidatedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.a_cardeter_usocon_8 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
         const sqlAnthropizedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.a_cardeter_usoant_5 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
         const sqlNativeVegetation = `SELECT SUM(calculated_area_ha) AS area FROM public.a_cardeter_veg_7 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+
+        const resultIndigenousLand = await conn.execute(sqlIndigenousLand);
+        const indigenousLand = resultIndigenousLand.rows;
+
+        const resultConservationUnit = await conn.execute(sqlConservationUnit);
+        const conservationUnit = resultConservationUnit.rows;
+
+        const resultLegalReserve = await conn.execute(sqlLegalReserve);
+        const legalReserve = resultLegalReserve.rows;
+
+        const resultAPP = await conn.execute(sqlAPP);
+        const app = resultAPP.rows;
+
+        const resultConsolidatedUse = await conn.execute(sqlConsolidatedUse);
+        const consolidatedArea = resultConsolidatedUse.rows;
+
+        const resultAnthropizedUse = await conn.execute(sqlAnthropizedUse);
+        const anthropizedUse = resultAnthropizedUse.rows;
+
+        const resultNativeVegetation = await conn.execute(sqlNativeVegetation);
+        const nativeVegetation = resultNativeVegetation.rows;
+
 
         const sqlAPPDETERCount = `SELECT SUM(calculated_area_ha) AS count FROM public.a_cardeter_app_4 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
         const sqlLegalReserveDETERCount = `SELECT SUM(calculated_area_ha) AS count FROM public.a_cardeter_reserva_6 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
@@ -407,8 +442,6 @@
         const resultLandAreaFOCOSCount = await conn.execute(sqlLandAreaFOCOSCount);
         const landAreaFOCOSCount = resultLandAreaFOCOSCount.rows;
 
-
-
         const sqlAPPBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_app_41 where a_caraq_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
         const sqlLegalReserveBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_reserva_43 where a_caraq_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
         const sqlConservationUnitBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_uc_47 where a_caraq_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
@@ -446,32 +479,8 @@
         const resultLandAreaBURNEDAREASum = await conn.execute(sqlLandAreaBURNEDAREASum);
         const landAreaBURNEDAREASum = resultLandAreaBURNEDAREASum.rows;
 
-
-
-
         const resultProdesArea = await conn.execute(sqlProdesArea);
         const prodesArea = resultProdesArea.rows;
-
-        const resultIndigenousLand = await conn.execute(sqlIndigenousLand);
-        const indigenousLand = resultIndigenousLand.rows;
-
-        const resultConservationUnit = await conn.execute(sqlConservationUnit);
-        const conservationUnit = resultConservationUnit.rows;
-
-        const resultLegalReserve = await conn.execute(sqlLegalReserve);
-        const legalReserve = resultLegalReserve.rows;
-
-        const resultAPP = await conn.execute(sqlAPP);
-        const app = resultAPP.rows;
-
-        const resultConsolidatedUse = await conn.execute(sqlConsolidatedUse);
-        const consolidatedArea = resultConsolidatedUse.rows;
-
-        const resultAnthropizedUse = await conn.execute(sqlAnthropizedUse);
-        const anthropizedUse = resultAnthropizedUse.rows;
-
-        const resultNativeVegetation = await conn.execute(sqlNativeVegetation);
-        const nativeVegetation = resultNativeVegetation.rows;
 
         const resultDeterYear = await conn.execute(sqlDeterYear);
         const deterYear = resultDeterYear.rows;
@@ -484,12 +493,13 @@
 
         if (propertyData) {
           propertyData.burningSpotlights = burningSpotlights;
-          // propertyData.burnedAreas = burnedAreas;
+          propertyData.burnedAreas = burnedAreas;
           // propertyData.deter = deter[0]
           propertyData.prodesArea = prodesArea[0]['area'];
           propertyData.prodesYear = prodesYear;
           propertyData.deterYear = deterYear;
           propertyData.spotlightsYear = spotlightsYear;
+          propertyData.burnedAreasYear = burnedAreasYear;
           propertyData.indigenousLand = indigenousLand[0];
           propertyData.conservationUnit = conservationUnit[0];
           propertyData.legalReserve = legalReserve[0];
@@ -519,7 +529,7 @@
             recentDeforestation: conservationUnitDETERCount[0]['count']|'',
             pastDeforestation: conservationUnitPRODESSum[0]['area']|'',
             burnlights: conservationUnitFOCOSCount[0]['count']|'',
-            burnAreas: conservationUnitDETERCount[0]['area']|''
+            burnAreas: conservationUnitBURNEDAREASum[0]['area']|''
           }
 
           propertyData.indigenousLand = {
