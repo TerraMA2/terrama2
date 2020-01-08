@@ -402,15 +402,15 @@
         const sqlAPPBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_app_87 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
         const sqlLegalReserveBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_reserva_89 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
 
-        const sqlConservationUnitBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_uc_47 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlIndigenousLandBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_ti_46 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlConsolidatedUseBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_usocon_45 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlConservationUnitBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_uc_93 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlIndigenousLandBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_ti_92 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlConsolidatedUseBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_usocon_91 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
 
         // const sqlExploraPRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_explora_carprodes_ where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
 
-        const sqlDesmateBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_desmate_50 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlEmbargoedAreaBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_emb_48 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlLandAreaBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_desemb_49 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlDesmateBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_desmate_96 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlEmbargoedAreaBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_emb_94 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+        const sqlLandAreaBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_desemb_95 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
 
         const resultAPPBURNEDAREASum = await conn.execute(sqlAPPBURNEDAREASum);
         const aPPBURNEDAREASum = resultAPPBURNEDAREASum.rows;
