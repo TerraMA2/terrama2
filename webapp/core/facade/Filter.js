@@ -374,21 +374,27 @@
     const tableName = dataSet.format.table_name;
 
     const sqlTableName = ` SELECT DISTINCT table_name FROM ${tableName}`;
-    let resultTableName = { rows: [] };
 
+    let resultTableName = { rows: [] };
     try {
       resultTableName = await conn.execute(sqlTableName);
     } catch(e) {
-      if (e.message === `Error in query execution. relação "${tableName}" não existe`) {
-        let queryTableName =  await conn.execute(`SELECT tablename AS table_name FROM pg_catalog.pg_tables where tablename like '${tableName}%'`);
-        resultTableName = queryTableName
-      } else {
-        resultTableName.rows.push({table_name: tableName});
-      }
+      resultTableName = await exceptionNoView(conn, tableName, e);
     }
 
     return resultTableName.rows[0]['table_name'];
   };
+
+  async function exceptionNoView(conn, tableName, err) {
+    let resultTableName = { rows: [] };
+
+    if (err.message.indexOf(`Error in query execution.`) > -1 ) {
+      return await conn.execute(`SELECT tablename AS table_name FROM pg_catalog.pg_tables where tablename like '${tableName}%'`);
+    } else {
+      return resultTableName.rows.push({table_name: tableName});
+    }
+  };
+
   function setAlertGraphic(alert, graphic1, graphic2) {
     return {
       cod: alert.cod,
