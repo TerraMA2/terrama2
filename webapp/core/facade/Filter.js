@@ -275,6 +275,7 @@
       }
 
       column3 = view.activearea ? ` ${aliasTablePrimary}.calculated_area_ha ` : '1';
+
     } else if (view.codgroup && view.codgroup === 'AREA_QUEIMADA') {
       if (view.isAnalysis && view.isPrimary) {
         column1 = ` ${aliasTablePrimary}.de_car_validado_sema_numero_do1 `;
@@ -378,7 +379,12 @@
     try {
       resultTableName = await conn.execute(sqlTableName);
     } catch(e) {
-      resultTableName.rows.push({table_name: tableName});
+      if (e.message === `Error in query execution. relação "${tableName}" não existe`) {
+        let queryTableName =  await conn.execute(`SELECT tablename AS table_name FROM pg_catalog.pg_tables where tablename like '${tableName}%'`);
+        resultTableName = queryTableName
+      } else {
+        resultTableName.rows.push({table_name: tableName});
+      }
     }
 
     return resultTableName.rows[0]['table_name'];
