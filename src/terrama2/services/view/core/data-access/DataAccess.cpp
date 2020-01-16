@@ -164,5 +164,14 @@ terrama2::services::view::core::DataAccess::getDCPPostgisTableInfo(terrama2::cor
                                          tableInfo.tableName,
                                          "POSTGIS");
 
+  try
+  {
+    tableInfo.timestampPropertyName = dataAccessorPostGis->getTimestampPropertyName(inputDataSeries->datasetList[0], false);
+  }
+  catch (...)
+  {
+
+  }
+
   return tableInfo;
 }

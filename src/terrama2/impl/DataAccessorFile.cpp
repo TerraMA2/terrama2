@@ -660,7 +660,12 @@ QFileInfoList terrama2::core::DataAccessorFile::getDataFileInfoList(const std::s
 
       // TODO: verify if the uncompressed files matches the mask?
       for(const auto& fileI : fileList)
-        pathSet.insert(fileI.absoluteFilePath());
+      {
+        if (matchUncompressedFile(fileI.absoluteFilePath().toStdString()))
+        {
+          pathSet.insert(fileI.absoluteFilePath());
+        }
+      }
     }
     else
     {

@@ -136,6 +136,8 @@ namespace terrama2
                                                   const Filter& filter,
                                                   std::shared_ptr<terrama2::core::FileRemover> remover) const;
 
+        virtual bool matchUncompressedFile(const std::string& filePath) const { return true; }
+
       protected:
         virtual std::shared_ptr<te::mem::DataSet> createCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType) const;
         virtual std::shared_ptr<te::mem::DataSet> internalCreateCompleteDataSet(std::shared_ptr<te::da::DataSetType> dataSetType, bool enableFileName, bool enableFileTimestamp) const final;
