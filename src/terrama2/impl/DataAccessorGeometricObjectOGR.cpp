@@ -136,14 +136,23 @@ void terrama2::core::DataAccessorGeometricObjectOGR::retrieveDataCallback (const
 
   //download shp files
   dataRetriever->retrieveDataCallback(mask, filter, timezone, remover, "", folderPath, [&](const std::string& tempFolder, const std::string& filename, const std::string&) {
-    //download auxiliary files
-    std::string dbfFile = std::string{filename.cbegin(), filename.cend()-3}+"dbf";
-    std::string prjFile = std::string{filename.cbegin(), filename.cend()-3}+"prj";
-    std::string shxFile = std::string{filename.cbegin(), filename.cend()-3}+"shx";
 
-    dataRetriever->retrieveDataCallback(dbfFile, filter, timezone, remover, tempFolder, folderPath, [](const std::string&, const std::string &){});
-    dataRetriever->retrieveDataCallback(prjFile, filter, timezone, remover, tempFolder, folderPath, [](const std::string&, const std::string &){});
-    dataRetriever->retrieveDataCallback(shxFile, filter, timezone, remover, tempFolder, folderPath, processFile);
+    if(QString::fromStdString(filename).endsWith(".shp")){
+      std::string dbfFile = std::string{filename.cbegin(), filename.cend()-3}+"dbf";
+      std::string prjFile = std::string{filename.cbegin(), filename.cend()-3}+"prj";
+      std::string shxFile = std::string{filename.cbegin(), filename.cend()-3}+"shx";
+
+      dataRetriever->retrieveDataCallback(dbfFile, filter, timezone, remover, tempFolder, folderPath, [](const std::string&, const std::string &){});
+      dataRetriever->retrieveDataCallback(prjFile, filter, timezone, remover, tempFolder, folderPath, [](const std::string&, const std::string &){});
+      dataRetriever->retrieveDataCallback(shxFile, filter, timezone, remover, tempFolder, folderPath, processFile);
+    }else {
+      processFile(tempFolder, filename);
+
+      const QUrl urlToFile(QString::fromStdString(tempFolder + "/" + folderPath + "/" + filename));
+      QFile removeFile(urlToFile.toString(QUrl::NormalizePathSegments | QUrl::RemoveScheme));
+      removeFile.remove();
+    }
+
   });
 }
 
@@ -226,4 +235,10 @@ void terrama2::core::DataAccessorGeometricObjectOGR::adapt(DataSetPtr dataSet, s
 void terrama2::core::DataAccessorGeometricObjectOGR::addColumns(std::shared_ptr<te::da::DataSetTypeConverter> /*converter*/, const std::shared_ptr<te::da::DataSetType>& /*datasetType*/) const
 {
   //columns add by the adapt method
+}
+
+bool terrama2::core::DataAccessorGeometricObjectOGR::matchUncompressedFile(const std::string& filePath) const
+{
+  // checar se é somente shp
+  return QString(filePath.c_str()).endsWith(".shp");
 }
