@@ -61,7 +61,7 @@
 
 #include <utility>
 
-std::string getIdentifierProperty(const terrama2::services::analysis::core::AnalysisDataSeries& analysisDataSeries)
+std::string getIdentifierProperty(const terrama2::services::analysis::core::AnalysisDataSeries& analysisDataSeries, std::shared_ptr<const terrama2::services::analysis::core::Analysis> analysis)
 {
   std::string identifier;
   try
@@ -71,6 +71,15 @@ std::string getIdentifierProperty(const terrama2::services::analysis::core::Anal
   catch (...)
   {
     /* code */
+
+    try
+    {
+      identifier = analysis->metadata.at("identifier");
+    }
+    catch (...)
+    {
+
+    }
   }
 
   return identifier;
@@ -136,7 +145,7 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
         dataSeriesContext->series = series;
 
         if(analysis->type == AnalysisType::MONITORED_OBJECT_TYPE)
-          dataSeriesContext->identifier = getIdentifierProperty(analysisDataSeries);
+          dataSeriesContext->identifier = getIdentifierProperty(analysisDataSeries, analysis);
 
         dataSeriesContext->geometryPos = geomPropertyPosition;
 
