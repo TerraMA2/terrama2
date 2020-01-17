@@ -252,6 +252,16 @@
         const resultBurnedAreas = await conn.execute(sqlBurnedAreas);
         const burnedAreas = resultBurnedAreas.rows;
 
+        const sqlBurnedAreasYear = `SELECT
+                              extract(year from date_trunc('year', areaq.execution_date)) AS date,
+                              SUM(areaq.calculated_area_ha) as burnedAreas
+                              FROM public.a_caraq_86 areaq
+                              WHERE areaq.de_car_validado_sema_numero_do1 = '${carRegister}'
+                              GROUP BY date
+                              ORDER BY date;`;
+        const resultBurnedAreasYear = await conn.execute(sqlBurnedAreasYear);
+        const burnedAreasYear = resultBurnedAreasYear.rows;
+
         const sqlProdesYear = `SELECT
                               extract(year from date_trunc('year', cp.execution_date)) AS date,
                               SUM(cp.calculated_area_ha) as area
@@ -443,6 +453,27 @@
 
         const resultProdesArea = await conn.execute(sqlProdesArea);
         const prodesArea = resultProdesArea.rows;
+
+        const resultIndigenousLand = await conn.execute(sqlIndigenousLand);
+        const indigenousLand = resultIndigenousLand.rows;
+
+        const resultConservationUnit = await conn.execute(sqlConservationUnit);
+        const conservationUnit = resultConservationUnit.rows;
+
+        const resultLegalReserve = await conn.execute(sqlLegalReserve);
+        const legalReserve = resultLegalReserve.rows;
+
+        const resultAPP = await conn.execute(sqlAPP);
+        const app = resultAPP.rows;
+
+        const resultConsolidatedUse = await conn.execute(sqlConsolidatedUse);
+        const consolidatedArea = resultConsolidatedUse.rows;
+
+        const resultAnthropizedUse = await conn.execute(sqlAnthropizedUse);
+        const anthropizedUse = resultAnthropizedUse.rows;
+
+        const resultNativeVegetation = await conn.execute(sqlNativeVegetation);
+        const nativeVegetation = resultNativeVegetation.rows;
 
         const resultDeterYear = await conn.execute(sqlDeterYear);
         const deterYear = resultDeterYear.rows;
