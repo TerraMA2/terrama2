@@ -203,6 +203,7 @@
 
         let sql = `SELECT
             car.numero_do1 AS register,
+            car.numero_do2 AS federalregister,
             car.area_ha_ AS area,
             car.nome_da_p1 AS name,
             car.municipio1 AS city,
@@ -217,7 +218,7 @@
             INNER JOIN de_municipios_sema munic ON
             car.numero_do1 = '${carRegister}'
             AND munic.municipio = car.municipio1
-            GROUP BY car.numero_do1, car.area_ha_, car.nome_da_p1, car.municipio1, car.geom, munic.comarca, car.cpfcnpj, car.nomepropri`;
+            GROUP BY car.numero_do1, car.numero_do2, car.area_ha_, car.nome_da_p1, car.municipio1, car.geom, munic.comarca, car.cpfcnpj, car.nomepropri`;
 
         const result = await conn.execute(sql);
         let propertyData = result.rows[0];
@@ -236,19 +237,19 @@
         const resultBurningSpotlights = await conn.execute(sqlBurningSpotlights);
         const burningSpotlights = resultBurningSpotlights.rows;
 
-        // const sqlBurnedAreas = `
-        //             SELECT
-        //             SUM(areaq.calculated_area_ha) as focuscount,
-        //             extract('YEAR' FROM focus.execution_date) as year
-        //             FROM public.a_caraq_86 as areaq
-        //             INNER JOIN public.${tableName} AS car on
-        //             areaq.de_car_validado_sema_numero_do1 = car.numero_do1 AND
-        //             car.numero_do1 = '${carRegister}'
-        //             group by year
-        //           `;
+        const sqlBurnedAreas = `
+                    SELECT
+                    SUM(areaq.calculated_area_ha) as burnedAreas,
+                    extract('YEAR' FROM areaq.execution_date) as date
+                    FROM public.a_caraq_86 as areaq
+                    INNER JOIN public.${tableName} AS car on
+                    areaq.de_car_validado_sema_numero_do1 = car.numero_do1 AND
+                    car.numero_do1 = '${carRegister}'
+                    group by date
+                  `;
 
-        // const resultBurnedAreas = await conn.execute(sqlBurnedAreas);
-        // const burnedAreas = resultBurnedAreas.rows;
+        const resultBurnedAreas = await conn.execute(sqlBurnedAreas);
+        const burnedAreas = resultBurnedAreas.rows;
 
         const sqlProdesYear = `SELECT
                               extract(year from date_trunc('year', cp.execution_date)) AS date,
@@ -477,7 +478,7 @@
 
         if (propertyData) {
           propertyData.burningSpotlights = burningSpotlights;
-          // propertyData.burnedAreas = burnedAreas;
+          propertyData.burnedAreas = burnedAreas;
           // propertyData.deter = deter[0]
           propertyData.prodesArea = prodesArea[0]['area'];
           propertyData.prodesYear = prodesYear;
