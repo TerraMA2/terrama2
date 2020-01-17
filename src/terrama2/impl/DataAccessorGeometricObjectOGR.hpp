@@ -68,6 +68,8 @@ namespace terrama2
         }
         static DataAccessorType dataAccessorType(){ return "GEOMETRIC_OBJECT-ogr"; }
 
+        virtual bool matchUncompressedFile(const std::string& filePath) const override;
+
         // Doc in base class
         virtual std::string dataSourceType() const override;
         // Doc in base class

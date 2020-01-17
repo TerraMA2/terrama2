@@ -306,6 +306,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
                            logger,
                            logId,
                            "",
+                           tableInfo.timestampPropertyName,
                            SQL);
 
       QJsonObject layer;
@@ -918,6 +919,8 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const terra
 
   }
 
+  std::cout << timestampPropertyName << std::endl;
+
   if(!sql.empty())
   {
     te::gm::GeomType geomType;
@@ -987,6 +990,8 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const terra
   }
 
   xml += "</featureType>";
+
+  std::cout << sql << std::endl;
 
   std::string uri = uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/"
                     + QString(QUrl::toPercentEncoding(QString::fromStdString(dataStoreName), "", "-._~/")).toStdString()
@@ -2020,6 +2025,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
         }
 
         std::unique_ptr<te::mem::DataSetItem> dsItem (new te::mem::DataSetItem(ds.get()));
+
         dsItem->setGeometry("the_geom", geom.release());
         dsItem->setString("location", file.absoluteFilePath().toStdString());
         dsItem->setDateTime("timestamp", new te::dt::TimeInstantTZ(*rasterInfo.timeTz));

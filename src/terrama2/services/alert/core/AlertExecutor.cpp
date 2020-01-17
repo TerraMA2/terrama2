@@ -867,6 +867,17 @@ te::core::URI terrama2::services::alert::core::AlertExecutor::generateImage(Aler
 
   // create temporary folder
   auto tempDir = getTemporaryFolder(remover);
+
+  // Search for the substring in string
+  std::string toErase = "file://";
+  size_t pos = tempDir.find(toErase);
+
+  if (pos != std::string::npos)
+  {
+      // If found then erase it from string
+      tempDir.erase(pos, toErase.length());
+  }
+
   auto imagePath = tempDir+"/"+imageName;
   remover->addTemporaryFile(imagePath);
 
