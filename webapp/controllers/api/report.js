@@ -241,7 +241,6 @@
         const sqlBurnedAreas = `
                     SELECT
                     SUM(areaq.calculated_area_ha) as burnedAreas,
-<<<<<<< HEAD
                     extract('YEAR' FROM areaq.execution_date) as date
                     FROM public.a_caraq_86 as areaq
                     INNER JOIN public.${tableName} AS car on
@@ -252,29 +251,6 @@
 
         const resultBurnedAreas = await conn.execute(sqlBurnedAreas);
         const burnedAreas = resultBurnedAreas.rows;
-=======
-                    extract('YEAR' FROM areaq.execution_date) as year
-                    FROM public.a_caraq_40 as areaq
-                    INNER JOIN public.${tableName} AS car on
-                    areaq.de_car_validado_sema_numero_do1 = car.numero_do1 AND
-                    car.numero_do1 = '${carRegister}'
-                    group by year
-                  `;
-
-        const resultBurnedAreas = await conn.execute(sqlBurnedAreas);
-        const burnedAreas = resultBurnedAreas.rows;
-
-        const sqlBurnedAreasYear = `SELECT
-                              extract(year from date_trunc('year', areaq.execution_date)) AS date,
-                              SUM(areaq.calculated_area_ha) as burnedAreas
-                              FROM public.a_caraq_40 areaq
-                              WHERE areaq.de_car_validado_sema_numero_do1 = '${carRegister}'
-                              GROUP BY date
-                              ORDER BY date;`;
-
-        const resultBurnedAreasYear = await conn.execute(sqlBurnedAreasYear);
-        const burnedAreasYear = resultBurnedAreasYear.rows;
->>>>>>> ab86549aa2840440f3e37dd813f7d4632301f7c1
 
         const sqlProdesYear = `SELECT
                               extract(year from date_trunc('year', cp.execution_date)) AS date,
@@ -295,20 +271,13 @@
         const sqlSpotlightsYear = `SELECT
                               extract(year from date_trunc('year', cf.execution_date)) AS date,
                               COUNT(cf.*) as spotlights
-<<<<<<< HEAD
                               FROM public.a_carfocos_74 cf
                               WHERE cf.de_car_validado_sema_numero_do1 = '${carRegister}'
-=======
-                              FROM public.a_carfocos_28 cf
-                              WHERE cf.de_car_validado_sema_numero_do1 = '${carRegister}' AND
-                              extract('YEAR' FROM cf.execution_date) > 2007
->>>>>>> ab86549aa2840440f3e37dd813f7d4632301f7c1
                               GROUP BY date
                               ORDER BY date;`;
 
         let dateSql = ` and execution_date::date >= '${dateFrom}' AND execution_date::date <= '${dateTo}'`;
 
-<<<<<<< HEAD
         const sqlProdesArea = `SELECT SUM(calculated_area_ha) AS area FROM public.a_carprodes_62 where de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
 
         const sqlIndigenousLand = `SELECT SUM(calculated_area_ha) AS area FROM public.a_cardeter_ti_56 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
@@ -328,49 +297,6 @@
         const sqlDesmateDETERCount = `SELECT SUM(calculated_area_ha) AS count FROM public.a_cardeter_desmate_60 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
         const sqlEmbargoedAreaDETERCount = `SELECT SUM(calculated_area_ha) AS count FROM public.a_cardeter_emb_58 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
         const sqlLandAreaDETERCount = `SELECT SUM(calculated_area_ha) AS count FROM public.a_cardeter_desemb_59 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-=======
-        const sqlProdesArea = `SELECT SUM(calculated_area_ha) AS area FROM public.a_carprodes_15 where de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-
-        const sqlIndigenousLand = `SELECT SUM(calculated_area_ha) AS area FROM public.a_cardeter_ti_9 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlConservationUnit = `SELECT SUM(calculated_area_ha) AS area FROM public.a_carprodes_uc_23 where a_carprodes_15_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlLegalReserve = `SELECT SUM(calculated_area_ha) AS area FROM public.a_cardeter_reserva_6 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlAPP = `SELECT SUM(calculated_area_ha) AS area FROM public.a_cardeter_app_4 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlConsolidatedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.a_cardeter_usocon_8 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlAnthropizedUse = `SELECT SUM(calculated_area_ha) AS area FROM public.a_cardeter_usoant_5 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlNativeVegetation = `SELECT SUM(calculated_area_ha) AS area FROM public.a_cardeter_veg_7 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-
-        const resultIndigenousLand = await conn.execute(sqlIndigenousLand);
-        const indigenousLand = resultIndigenousLand.rows;
-
-        const resultConservationUnit = await conn.execute(sqlConservationUnit);
-        const conservationUnit = resultConservationUnit.rows;
-
-        const resultLegalReserve = await conn.execute(sqlLegalReserve);
-        const legalReserve = resultLegalReserve.rows;
-
-        const resultAPP = await conn.execute(sqlAPP);
-        const app = resultAPP.rows;
-
-        const resultConsolidatedUse = await conn.execute(sqlConsolidatedUse);
-        const consolidatedArea = resultConsolidatedUse.rows;
-
-        const resultAnthropizedUse = await conn.execute(sqlAnthropizedUse);
-        const anthropizedUse = resultAnthropizedUse.rows;
-
-        const resultNativeVegetation = await conn.execute(sqlNativeVegetation);
-        const nativeVegetation = resultNativeVegetation.rows;
-
-
-        const sqlAPPDETERCount = `SELECT SUM(calculated_area_ha) AS count FROM public.a_cardeter_app_4 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlLegalReserveDETERCount = `SELECT SUM(calculated_area_ha) AS count FROM public.a_cardeter_reserva_6 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlConservationUnitDETERCount = `SELECT SUM(calculated_area_ha) AS count FROM public.a_cardeter_uc_10 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlIndigenousLandDETERCount = `SELECT SUM(calculated_area_ha) AS count FROM public.a_cardeter_ti_9 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlConsolidatedUseDETERCount = `SELECT SUM(calculated_area_ha) AS count FROM public.a_cardeter_usocon_8 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        // const sqlExploraDETERCount = `SELECT SUM(calculated_area_ha) AS count FROM public.a_explora_cardeter_ where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlDesmateDETERCount = `SELECT SUM(calculated_area_ha) AS count FROM public.a_cardeter_desmate_13 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlEmbargoedAreaDETERCount = `SELECT SUM(calculated_area_ha) AS count FROM public.a_cardeter_emb_11 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlLandAreaDETERCount = `SELECT SUM(calculated_area_ha) AS count FROM public.a_cardeter_desemb_12 where a_cardeter_3_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
->>>>>>> ab86549aa2840440f3e37dd813f7d4632301f7c1
 
         const resultAPPDETERCount = await conn.execute(sqlAPPDETERCount);
         const aPPDETERCount = resultAPPDETERCount.rows;
@@ -473,7 +399,6 @@
         const resultLandAreaFOCOSCount = await conn.execute(sqlLandAreaFOCOSCount);
         const landAreaFOCOSCount = resultLandAreaFOCOSCount.rows;
 
-<<<<<<< HEAD
 
 
         const sqlAPPBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_app_87 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
@@ -488,17 +413,6 @@
         const sqlDesmateBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_desmate_96 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
         const sqlEmbargoedAreaBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_emb_94 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
         const sqlLandAreaBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_desemb_95 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-=======
-        const sqlAPPBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_app_41 where a_caraq_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlLegalReserveBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_reserva_43 where a_caraq_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlConservationUnitBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_uc_47 where a_caraq_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlIndigenousLandBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_ti_46 where a_caraq_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlConsolidatedUseBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_usocon_45 where a_caraq_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        // const sqlExploraPRODESSum = `SELECT SUM(calculated_area_ha) AS area FROM public.apv_explora_carprodes_ where a_caraq_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlDesmateBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_desmate_50 where a_caraq_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlEmbargoedAreaBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_emb_48 where a_caraq_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-        const sqlLandAreaBURNEDAREASum = `SELECT SUM(calculated_area_ha) AS area FROM public.a_caraq_desemb_49 where a_caraq_40_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
->>>>>>> ab86549aa2840440f3e37dd813f7d4632301f7c1
 
         const resultAPPBURNEDAREASum = await conn.execute(sqlAPPBURNEDAREASum);
         const aPPBURNEDAREASum = resultAPPBURNEDAREASum.rows;
