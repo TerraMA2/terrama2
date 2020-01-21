@@ -41,6 +41,7 @@
         others: async function() {
           sql.secondaryTables += ' , public.de_biomas_mt biome ';
 
+          srid = srid && srid.rows[0] && srid.rows[0].srid ? srid : { rows: [{srid: 4326}]};
           const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_biomas_mt LIMIT 1`);
           const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'biome.geom' : ` st_transform(biome.geom, ${srid.rows[0].srid}) ` ;
 
@@ -59,6 +60,7 @@
           sql.sqlWhere += ` AND ${columns.filterColumns.columnsTheme.geocod} = cast(county.geocodigo AS integer) `;
         },
         others: async function() {
+          srid = srid && srid.rows[0] && srid.rows[0].srid ? srid : { rows: [{srid: 4326}]};
           const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_municipios_sema LIMIT 1`);
           const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? ' county.geom ' : ` st_transform(county.geom, ${srid.rows[0].srid}) ` ;
 
@@ -77,6 +79,7 @@
           sql.sqlWhere += ` AND ${columns.filterColumns.columnsTheme.geocod} = cast(county.geocodigo AS integer) `;
         },
         others: async function() {
+          srid = srid && srid.rows[0] && srid.rows[0].srid ? srid : { rows: [{srid: 4326}]};
           const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_municipios_sema LIMIT 1`);
           const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'county.geom' : ` st_transform(county.geom, ${srid.rows[0].srid}) ` ;
 
@@ -95,6 +98,7 @@
           sql.sqlWhere += ` AND ${columns.filterColumns.columnsTheme.geocod} = cast(county.geocodigo AS integer) `;
         },
         others: async function() {
+          srid = srid && srid.rows[0] && srid.rows[0].srid ? srid : { rows: [{srid: 4326}]};
           const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_municipios_sema LIMIT 1`);
           const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'county.geom' : ` st_transform(county.geom, ${srid.rows[0].srid}) ` ;
 
@@ -111,6 +115,7 @@
         },
         others: async function() {
           sql.secondaryTables += ' , public.de_municipios_sema county ';
+          srid = srid && srid.rows[0] && srid.rows[0].srid ? srid : { rows: [{srid: 4326}]};
 
           const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_municipios_sema LIMIT 1`);
           const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'county.geom' : ` st_transform(county.geom, ${srid.rows[0].srid}) ` ;
@@ -123,6 +128,7 @@
     },
     uc: async function(conn, sql, filter, columns, cod, aliasTablePrimary, srid){
       sql.secondaryTables += ' , public.de_unidade_cons_sema uc ';
+      srid = srid && srid.rows[0] && srid.rows[0].srid ? srid : { rows: [{srid: 4326}]};
 
       const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_unidade_cons_sema LIMIT 1`);
       const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'uc.geom' : ` st_transform(uc.geom, ${srid.rows[0].srid}) ` ;
@@ -135,6 +141,7 @@
     },
     ti: async function(conn, sql, filter, columns, cod, aliasTablePrimary, srid){
       sql.secondaryTables += ' , public.de_terra_indigena_sema ti ';
+      srid = srid && srid.rows[0] && srid.rows[0].srid ? srid : { rows: [{srid: 4326}]};
 
       const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_terra_indigena_sema LIMIT 1`);
       const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'ti.geom' : ` st_transform(ti.geom, ${srid.rows[0].srid}) ` ;
@@ -147,6 +154,7 @@
     },
     projus: async function(conn, sql, filter, columns, cod, aliasTablePrimary, srid){
       sql.secondaryTables += ' , public.de_projus_bacias_sema projus ';
+      srid = srid && srid.rows[0] && srid.rows[0].srid ? srid : { rows: [{srid: 4326}]};
 
       const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_projus_bacias_sema LIMIT 1`);
       const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'projus.geom' : ` st_transform(projus.geom, ${srid.rows[0].srid}) ` ;
