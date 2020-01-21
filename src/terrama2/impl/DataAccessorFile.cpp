@@ -769,6 +769,13 @@ terrama2::core::DataAccessorFile::readFile(DataSetSeries& series,
 
   std::shared_ptr<te::dt::TimeInstantTZ> thisFileTimestamp = getFileTimestamp(mask, timezone, name);
 
+  if (this->dataSeries_->semantics.code == "GEOMETRIC_OBJECT-ogr" && thisFileTimestamp == nullptr)
+  {
+    auto maskToSHP = QString::fromStdString(mask).replace(".zip", ".shp").toStdString();
+
+    thisFileTimestamp = getFileTimestamp(maskToSHP, timezone, name);
+  }
+
   if(needToOpenConfigFile())
   {
     std::string configFilename = getConfigFilename(dataSet, fileInfo.absoluteFilePath().toStdString());
@@ -898,6 +905,13 @@ void terrama2::core::DataAccessorFile::applyFilters(const terrama2::core::Filter
                                     std::shared_ptr<te::dt::TimeInstantTZ> &lastFileTimestamp) const
 {
   filterDataSet(completeDataset, filter);
+
+  if (this->dataSeries_->semantics.code == "GEOMETRIC_OBJECT-ogr" && lastFileTimestamp != nullptr)
+  {
+    // TODO:
+    lastDateTime_ = lastFileTimestamp;
+    return;
+  }
 
   //Get last data timestamp and compare with file name timestamp
   std::shared_ptr<te::dt::TimeInstantTZ> dataTimeStamp = getDataLastTimestamp(dataSet, completeDataset);
