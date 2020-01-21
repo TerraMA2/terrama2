@@ -27,7 +27,7 @@
       sql.secondaryTables = '';
       sql.sqlWhere += ` ${addAND(sql.sqlWhere)} ${columns.column1} like '${filter.specificSearch.inputValue}' `;
     },
-    carFederal: async function(conn, sql, filter, columns, cod, aliasTablePrimary) {
+    car_federal: async function(conn, sql, filter, columns, cod, aliasTablePrimary) {
       sql.secondaryTables = '';
       sql.sqlWhere += ` ${addAND(sql.sqlWhere)} ${columns.columnCarFederal} like '${filter.specificSearch.inputValue}' `;
     },
