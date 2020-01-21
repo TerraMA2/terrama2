@@ -27,6 +27,10 @@
       sql.secondaryTables = '';
       sql.sqlWhere += ` ${addAND(sql.sqlWhere)} ${columns.column1} like '${filter.specificSearch.inputValue}' `;
     },
+    carFederal: async function(conn, sql, filter, columns, cod, aliasTablePrimary) {
+      sql.secondaryTables = '';
+      sql.sqlWhere += ` ${addAND(sql.sqlWhere)} ${columns.columnCarFederal} like '${filter.specificSearch.inputValue}' `;
+    },
     cpf: async function(conn, sql, filter, columns, cod, aliasTablePrimary) {
       sql.secondaryTables = '';
       sql.sqlWhere += ` ${addAND(sql.sqlWhere)} ${columns.columnCpfCnpj} like '%${filter.specificSearch.inputValue}%' `;
@@ -237,6 +241,10 @@
       (view.isAnalysis && view.isPrimary) ?
         ` ${aliasTablePrimary}.de_car_validado_sema_cpfcnpj ` :
         ` ${aliasTablePrimary}.${tableOwner}_de_car_validado_sema_cpfcnpj `;
+    const columnCarFederal =
+      (view.isAnalysis && view.isPrimary) ?
+        ` ${aliasTablePrimary}.de_car_validado_sema_numero_do2 ` :
+        ` ${aliasTablePrimary}.${tableOwner}_de_car_validado_sema_numero_do2 `;
 
     const columnArea = `${aliasTablePrimary}.calculated_area_ha`;
 
