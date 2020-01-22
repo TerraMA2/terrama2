@@ -501,6 +501,48 @@
           propertyData.anthropizedUse = anthropizedUse[0];
           propertyData.nativeVegetation = nativeVegetation[0];
 
+          let prodesSumArea = 0;
+
+          prodesSumArea+=conservationUnitPRODESSum[0]['area']?conservationUnitPRODESSum[0]['area']:0;
+          prodesSumArea+=aPPPRODESSum[0]['area']?aPPPRODESSum[0]['area']:0;
+          prodesSumArea+=legalReservePRODESSum[0]['area']?legalReservePRODESSum[0]['area']:0;
+          prodesSumArea+=indigenousLandPRODESSum[0]['area']?indigenousLandPRODESSum[0]['area']:0;
+          prodesSumArea+=consolidatedUsePRODESSum[0]['area']?consolidatedUsePRODESSum[0]['area']:0;
+          prodesSumArea+=deforestationPRODESSum[0]['area']?deforestationPRODESSum[0]['area']:0;
+          prodesSumArea+=embargoedAreaPRODESSum[0]['area']?embargoedAreaPRODESSum[0]['area']:0;
+          prodesSumArea+=landAreaPRODESSum[0]['area']?landAreaPRODESSum[0]['area']:0
+
+          let deterSumArea = 0;
+
+          deterSumArea+=aPPDETERCount[0]['count']?aPPDETERCount[0]['count']:0
+          deterSumArea+=legalReserveDETERCount[0]['count']?legalReserveDETERCount[0]['count']:0
+          deterSumArea+=conservationUnitDETERCount[0]['count']?conservationUnitDETERCount[0]['count']:0
+          deterSumArea+=indigenousLandDETERCount[0]['count']?indigenousLandDETERCount[0]['count']:0
+          deterSumArea+=consolidatedUseDETERCount[0]['count']?consolidatedUseDETERCount[0]['count']:0
+          deterSumArea+=deforestationDETERCount[0]['count']?deforestationDETERCount[0]['count']:0
+          deterSumArea+=embargoedAreaDETERCount[0]['count']?embargoedAreaDETERCount[0]['count']:0
+          deterSumArea+=landAreaDETERCount[0]['count']?landAreaDETERCount[0]['count']:0
+
+          let burnlightCount = 0
+          burnlightCount+=aPPFOCOSCount[0]['count']?aPPFOCOSCount[0]['count']:0
+          burnlightCount+=legalReserveFOCOSCount[0]['count']?legalReserveFOCOSCount[0]['count']:0
+          burnlightCount+=conservationUnitFOCOSCount[0]['count']?conservationUnitFOCOSCount[0]['count']:0
+          burnlightCount+=indigenousLandFOCOSCount[0]['count']?indigenousLandFOCOSCount[0]['count']:0
+          burnlightCount+=consolidatedUseFOCOSCount[0]['count']?consolidatedUseFOCOSCount[0]['count']:0
+          burnlightCount+=deforestationFOCOSCount[0]['count']?deforestationFOCOSCount[0]['count']:0
+          burnlightCount+=embargoedAreaFOCOSCount[0]['count']?embargoedAreaFOCOSCount[0]['count']:0
+          burnlightCount+=landAreaFOCOSCount[0]['count']?landAreaFOCOSCount[0]['count']:0
+
+          let burnedAreaSum = 0
+          burnedAreaSum+=aPPBURNEDAREASum[0]['area']?aPPBURNEDAREASum[0]['area']:0
+          burnedAreaSum+=legalReserveBURNEDAREASum[0]['area']?legalReserveBURNEDAREASum[0]['area']:0
+          burnedAreaSum+=conservationUnitBURNEDAREASum[0]['area']?conservationUnitBURNEDAREASum[0]['area']:0
+          burnedAreaSum+=indigenousLandBURNEDAREASum[0]['area']?indigenousLandBURNEDAREASum[0]['area']:0
+          burnedAreaSum+=consolidatedUseBURNEDAREASum[0]['area']?consolidatedUseBURNEDAREASum[0]['area']:0
+          burnedAreaSum+=deforestationBURNEDAREASum[0]['area']?deforestationBURNEDAREASum[0]['area']:0
+          burnedAreaSum+=embargoedAreaBURNEDAREASum[0]['area']?embargoedAreaBURNEDAREASum[0]['area']:0
+          burnedAreaSum+=landAreaBURNEDAREASum[0]['area']?landAreaBURNEDAREASum[0]['area']:0
+
           propertyData.app = {
             affectedArea: 'APP',
             recentDeforestation: aPPDETERCount[0]['count']|'',
@@ -572,6 +614,9 @@
             burnlights: landAreaFOCOSCount[0]['count']|'',
             burnAreas: landAreaBURNEDAREASum[0]['area']|'',
           }
+          propertyData.foundProdes = prodesSumArea?true:false
+          propertyData.foundDeter = deterSumArea?true:false
+          propertyData.foundBurnlight = burnlightCount || burnedAreaSum?true:false
 
         }
 
