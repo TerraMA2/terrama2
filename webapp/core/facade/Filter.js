@@ -20,12 +20,16 @@
     return ((analyze.type && analyze.type === 'burned_area') && (view.codgroup === 'AREA_QUEIMADA'));
   };
   function isCarArea(type){
-    return (type === 'carArea');
+    return (type === 'car_area');
   };
   const specificSearch = {
     car: async function(conn, sql, filter, columns, cod, aliasTablePrimary) {
       sql.secondaryTables = '';
       sql.sqlWhere += ` ${addAND(sql.sqlWhere)} ${columns.column1} like '${filter.specificSearch.inputValue}' `;
+    },
+    car_federal: async function(conn, sql, filter, columns, cod, aliasTablePrimary) {
+      sql.secondaryTables = '';
+      sql.sqlWhere += ` ${addAND(sql.sqlWhere)} ${columns.columnCarFederal} like '${filter.specificSearch.inputValue}' `;
     },
     cpf: async function(conn, sql, filter, columns, cod, aliasTablePrimary) {
       sql.secondaryTables = '';
@@ -174,7 +178,7 @@
           burned() {
             sql.sqlHaving += ` HAVING count(1) ${values.columnValueFocos} `;
           },
-          carArea() {
+          car_area() {
             sql.secondaryTables += ' , public.de_car_validado_sema car ';
             sql.sqlWhere += ` ${addAND(sql.sqlWhere)} car.area_ha_ ${values.columnValue} `;
             sql.sqlWhere += ` ${addAND(sql.sqlWhere)} car.numero_do1 = ${columns.column1} `;
@@ -193,7 +197,7 @@
         }
 
         if (isCarArea(analyze.type)) {
-          alertType[analyse.type]();
+          alertType[analyze.type]();
         }
       }
     });
@@ -237,6 +241,10 @@
       (view.isAnalysis && view.isPrimary) ?
         ` ${aliasTablePrimary}.de_car_validado_sema_cpfcnpj ` :
         ` ${aliasTablePrimary}.${tableOwner}_de_car_validado_sema_cpfcnpj `;
+    const columnCarFederal =
+      (view.isAnalysis && view.isPrimary) ?
+        ` ${aliasTablePrimary}.de_car_validado_sema_numero_do2 ` :
+        ` ${aliasTablePrimary}.${tableOwner}_de_car_validado_sema_numero_do2 `;
 
     const columnArea = `${aliasTablePrimary}.calculated_area_ha`;
 
