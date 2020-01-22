@@ -20,7 +20,7 @@
     return ((analyze.type && analyze.type === 'burned_area') && (view.codgroup === 'AREA_QUEIMADA'));
   };
   function isCarArea(type){
-    return (type === 'carArea');
+    return (type === 'car_area');
   };
   const specificSearch = {
     car: async function(conn, sql, filter, columns, cod, aliasTablePrimary) {
@@ -178,7 +178,7 @@
           burned() {
             sql.sqlHaving += ` HAVING count(1) ${values.columnValueFocos} `;
           },
-          carArea() {
+          car_area() {
             sql.secondaryTables += ' , public.de_car_validado_sema car ';
             sql.sqlWhere += ` ${addAND(sql.sqlWhere)} car.area_ha_ ${values.columnValue} `;
             sql.sqlWhere += ` ${addAND(sql.sqlWhere)} car.numero_do1 = ${columns.column1} `;
@@ -197,7 +197,7 @@
         }
 
         if (isCarArea(analyze.type)) {
-          alertType[analyse.type]();
+          alertType[analyze.type]();
         }
       }
     });
