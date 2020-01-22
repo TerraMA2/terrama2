@@ -23,12 +23,14 @@
         let result
         try {
           result = await conn.execute(sql)
+
           let biome = result.rows
 
-          await conn.disconnect()
           response.json(biome)
         } catch (error) {
           console.log(error)
+        } finally {
+          await conn.disconnect()
         }
       }
     }
