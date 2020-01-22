@@ -304,7 +304,7 @@
       column3 = view.activearea ? ` ${aliasTablePrimary}.calculated_area_ha ` : '1';
     }
 
-    return {column1, column2, column3, column4, filterColumns, columnArea, columnCpfCnpj};
+    return {column1, column2, column3, column4, filterColumns, columnArea, columnCpfCnpj, columnCarFederal};
   };
   function getValues(analyze) {
     const values = {columnValue: '', columnValueFocos: ''};
