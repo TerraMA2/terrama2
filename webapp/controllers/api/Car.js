@@ -68,6 +68,7 @@ module.exports = function(app) {
                             property.situacao_1,
                             ST_Y(ST_Transform (ST_Centroid(property.geom), 4326)),
                             ST_X(ST_Transform (ST_Centroid(property.geom), 4326)) `;
+
                 const sqlOrderBy = ` ORDER BY ${specificParameters.sortField} DESC `;
 
 

@@ -66,8 +66,8 @@ const URI = `postgis://${config.username}:${config.password}@${config.host}:${co
         const sqlCount =
             ` SELECT COUNT(*) AS count FROM public.${table.name} AS ${table.alias}
               ${filter.secondaryTables}
-              ${sqlWhere}
-            `;
+              ${sqlWhere} `;
+
         resultCount = await conn.execute(sqlCount);
         dataJson.push(resultCount.rows[0]['count']);
       }

@@ -34,41 +34,43 @@
 
         const viewParam = JSON.parse(view);
 
-        const viewAux = await ViewFacade.retrieve(viewParam.id);
-        const dataSeries = await DataManager.getDataSeries({id: viewAux.data_series_id});
-        const dataProvider = await DataManager.getDataProvider({id: dataSeries.data_provider_id});
-
-        const dataSet = dataSeries.dataSets[0];
-        let tableName = dataSet.format.table_name;
-
-        let sqlSelect = `SELECT *`;
-        let sqlFrom = '';
-        let sqlWhere = '';
-
-        sqlSelect += `, ST_Y(ST_Transform (ST_Centroid(geom), 4326)) AS "lat",
-                      ST_X(ST_Transform (ST_Centroid(geom), 4326)) AS "long"
-        `;
-
-
-        sqlFrom += ` FROM public.${tableName}`;
-
-        if (sortColumn && sortOrder) {
-          sqlWhere += ` ORDER BY ${sortColumn} ${sortOrder === 1?'ASC':'DESC'}`
-        }
-
-        if (limit) {
-          sqlWhere += ` LIMIT ${limit}`
-        }
-
-        if (offset) {
-          sqlWhere += ` OFFSET ${offset}`
-        }
-
-        const sql = sqlSelect + sqlFrom + sqlWhere;
-
-        let result;
-        let resultCount;
         try {
+
+          const viewAux = await ViewFacade.retrieve(viewParam.id);
+          const dataSeries = await DataManager.getDataSeries({id: viewAux.data_series_id});
+          const dataProvider = await DataManager.getDataProvider({id: dataSeries.data_provider_id});
+
+          const dataSet = dataSeries.dataSets[0];
+          let tableName = dataSet.format.table_name;
+
+          let sqlSelect = `SELECT *`;
+          let sqlFrom = '';
+          let sqlWhere = '';
+
+          sqlSelect += `, ST_Y(ST_Transform (ST_Centroid(geom), 4326)) AS "lat",
+                        ST_X(ST_Transform (ST_Centroid(geom), 4326)) AS "long"
+          `;
+
+
+          sqlFrom += ` FROM public.${tableName}`;
+
+          if (sortColumn && sortOrder) {
+            sqlWhere += ` ORDER BY ${sortColumn} ${sortOrder === 1?'ASC':'DESC'}`
+          }
+
+          if (limit) {
+            sqlWhere += ` LIMIT ${limit}`
+          }
+
+          if (offset) {
+            sqlWhere += ` OFFSET ${offset}`
+          }
+
+          const sql = sqlSelect + sqlFrom + sqlWhere;
+
+          let result;
+          let resultCount;
+
           result = await conn.execute(sql);
           let dataJson = result.rows;
 
@@ -81,10 +83,11 @@
             dataJson.push(resultCount.rows[0]['count']);
           }
 
-          await conn.disconnect();
           response.json(dataJson)
         } catch (error) {
           console.log(error)
+        } finally {
+          await conn.disconnect();
         }
       },
       getDynamicData: async (request, response) => {
