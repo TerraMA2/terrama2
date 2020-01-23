@@ -24,84 +24,85 @@ module.exports = function(app) {
             const conn = new Connection(uri);
             await conn.connect();
 
-            const table = {
-                name: await Filter.getTableName(conn, view.id),
-                alias: specificParameters.tableAlias,
-                owner: ''
-            };
-
-            const filter =
-              specificParameters.isDynamic ?
-                await Filter.setFilter(conn, request.query, table, view) :
-                {
-                    sqlWhere: '',
-                    secondaryTables: '',
-                    sqlHaving: '',
-                    order: '',
-                    limit: specificParameters.limit ? ` LIMIT ${specificParameters.limit}` : '',
-                    offset: specificParameters.offset ? ` OFFSET ${specificParameters.offset}` : ''
+            try {
+                const table = {
+                    name: await Filter.getTableName(conn, view.id),
+                    alias: specificParameters.tableAlias,
+                    owner: ''
                 };
 
-            const sqlSelectCount = specificParameters.count ? `,COUNT(${specificParameters.tableAlias}.*) AS ${specificParameters.countAlias}` : '';
-            const sqlSelectSum = specificParameters.sum ? `,SUM(${specificParameters.tableAlias}.${specificParameters.sumField}) AS ${specificParameters.sumAlias}` : '';
-            const sqlSelect =
-                ` SELECT property.numero_do1 AS registro_estadual,
-                    property.numero_do2 AS registro_federal,
-                    property.nome_da_p1 AS nome_propriedade,
-                    property.municipio1 AS municipio,
-                    property.area_ha_ AS area,
-                    property.situacao_1 AS situacao,
-                    ST_Y(ST_Transform (ST_Centroid(property.geom), 4326)) AS "lat",
-                    ST_X(ST_Transform (ST_Centroid(property.geom), 4326)) AS "long"
-                    ${sqlSelectSum}
-                    ${sqlSelectCount} `;
+                const filter =
+                  specificParameters.isDynamic ?
+                    await Filter.setFilter(conn, request.query, table, view) :
+                    {
+                        sqlWhere: '',
+                        secondaryTables: '',
+                        sqlHaving: '',
+                        order: '',
+                        limit: specificParameters.limit ? ` LIMIT ${specificParameters.limit}` : '',
+                        offset: specificParameters.offset ? ` OFFSET ${specificParameters.offset}` : ''
+                    };
 
-            const sqlFrom = ` FROM public.${table.name} AS ${specificParameters.tableAlias}`;
+                const sqlSelectCount = specificParameters.count ? `,COUNT(${specificParameters.tableAlias}.*) AS ${specificParameters.countAlias}` : '';
+                const sqlSelectSum = specificParameters.sum ? `,SUM(${specificParameters.tableAlias}.${specificParameters.sumField}) AS ${specificParameters.sumAlias}` : '';
+                const sqlSelect =
+                    ` SELECT property.numero_do1 AS registro_estadual,
+                        property.numero_do2 AS registro_federal,
+                        property.nome_da_p1 AS nome_propriedade,
+                        property.municipio1 AS municipio,
+                        property.area_ha_ AS area,
+                        property.situacao_1 AS situacao,
+                        ST_Y(ST_Transform (ST_Centroid(property.geom), 4326)) AS "lat",
+                        ST_X(ST_Transform (ST_Centroid(property.geom), 4326)) AS "long"
+                        ${sqlSelectSum}
+                        ${sqlSelectCount} `;
 
-            const sqlGroupBy =
-                ` GROUP BY property.numero_do1,
-                        property.numero_do2,
-                        property.nome_da_p1,
-                        property.municipio1,
-                        property.area_ha_,
-                        property.situacao_1,
-                        ST_Y(ST_Transform (ST_Centroid(property.geom), 4326)),
-                        ST_X(ST_Transform (ST_Centroid(property.geom), 4326)) `;
-            const sqlOrderBy = ` ORDER BY ${specificParameters.sortField} DESC `;
+                const sqlFrom = ` FROM public.${table.name} AS ${specificParameters.tableAlias}`;
+
+                const sqlGroupBy =
+                    ` GROUP BY property.numero_do1,
+                            property.numero_do2,
+                            property.nome_da_p1,
+                            property.municipio1,
+                            property.area_ha_,
+                            property.situacao_1,
+                            ST_Y(ST_Transform (ST_Centroid(property.geom), 4326)),
+                            ST_X(ST_Transform (ST_Centroid(property.geom), 4326)) `;
+
+                const sqlOrderBy = ` ORDER BY ${specificParameters.sortField} DESC `;
 
 
 
-            const column = view.isPrimary ?  'de_car_validado_sema_numero_do1' :  'a_carfocos_20_de_car_validado_sema_numero_do1';
+                const column = view.isPrimary ?  'de_car_validado_sema_numero_do1' :  'a_carfocos_20_de_car_validado_sema_numero_do1';
 
 
-            filter.secondaryTables += specificParameters.isDynamic ?
-              '  , public.de_car_validado_sema AS property' :
-              '';
+                filter.secondaryTables += specificParameters.isDynamic ?
+                  '  , public.de_car_validado_sema AS property' :
+                  '';
 
-            filter.sqlWhere += specificParameters.isDynamic ?
-              ` AND property.numero_do1 = ${specificParameters.tableAlias}.de_car_validado_sema_numero_do1 `: '';
+                filter.sqlWhere += specificParameters.isDynamic ?
+                  ` AND property.numero_do1 = ${specificParameters.tableAlias}.de_car_validado_sema_numero_do1 `: '';
 
-            const sqlWhere =
-              filter.sqlHaving ?
-                ` ${filter.sqlWhere}
-                    AND ${specificParameters.tableAlias}.de_car_validado_sema_numero_do1 IN
-                      ( SELECT tableWhere.${column} AS subtitle
-                        FROM public.${table.name} AS tableWhere
-                        GROUP BY tableWhere.de_car_validado_sema_numero_do1
-                        ${filter.sqlHaving}) ` :
-                filter.sqlWhere;
+                const sqlWhere =
+                  filter.sqlHaving ?
+                    ` ${filter.sqlWhere}
+                        AND ${specificParameters.tableAlias}.de_car_validado_sema_numero_do1 IN
+                          ( SELECT tableWhere.${column} AS subtitle
+                            FROM public.${table.name} AS tableWhere
+                            GROUP BY tableWhere.de_car_validado_sema_numero_do1
+                            ${filter.sqlHaving}) ` :
+                    filter.sqlWhere;
 
-            let sql =
-              ` ${sqlSelect}
-                ${sqlFrom}
-                ${filter.secondaryTables}
-                ${sqlWhere}
-                ${sqlGroupBy}
-                ${sqlOrderBy}
-                ${filter.limit}
-                ${filter.offset}`;
+                let sql =
+                  ` ${sqlSelect}
+                    ${sqlFrom}
+                    ${filter.secondaryTables}
+                    ${sqlWhere}
+                    ${sqlGroupBy}
+                    ${sqlOrderBy}
+                    ${filter.limit}
+                    ${filter.offset}`;
 
-            try {
                 const result = await conn.execute(sql);
                 const car = result.rows;
 
@@ -110,10 +111,11 @@ module.exports = function(app) {
                         ${sqlFrom} ${filter.secondaryTables} ${sqlWhere} ${sqlGroupBy} ORDER BY count DESC LIMIT 1`);
                 car.push(resultCount.rows[0]['count']);
 
-                await conn.disconnect();
                 response.json(car)
             } catch (error) {
                 console.log(error)
+            } finally {
+                await conn.disconnect();
             }
         },
 
@@ -134,15 +136,17 @@ module.exports = function(app) {
                             geom
                         FROM public.de_car_validado_sema`
 
-            let result
+            let result;
+
             try {
                 result = await conn.execute(sql)
                 let car = result.rows
 
-                await conn.disconnect()
                 response.json(car)
             } catch (error) {
                 console.log(error)
+            } finally {
+                await conn.disconnect();
             }
         },
 
@@ -170,10 +174,11 @@ module.exports = function(app) {
             try {
                 const result = await conn.execute(sql)
 
-                await conn.disconnect()
                 response.json(result.rows[0])
             } catch (error) {
                 console.log(error)
+            } finally {
+                await conn.disconnect();
             }
         }
     }

@@ -20,12 +20,16 @@
     return ((analyze.type && analyze.type === 'burned_area') && (view.codgroup === 'AREA_QUEIMADA'));
   };
   function isCarArea(type){
-    return (type === 'carArea');
+    return (type === 'car_area');
   };
   const specificSearch = {
     car: async function(conn, sql, filter, columns, cod, aliasTablePrimary) {
       sql.secondaryTables = '';
       sql.sqlWhere += ` ${addAND(sql.sqlWhere)} ${columns.column1} like '${filter.specificSearch.inputValue}' `;
+    },
+    car_federal: async function(conn, sql, filter, columns, cod, aliasTablePrimary) {
+      sql.secondaryTables = '';
+      sql.sqlWhere += ` ${addAND(sql.sqlWhere)} ${columns.columnCarFederal} like '${filter.specificSearch.inputValue}' `;
     },
     cpf: async function(conn, sql, filter, columns, cod, aliasTablePrimary) {
       sql.secondaryTables = '';
@@ -45,7 +49,7 @@
           const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_biomas_mt LIMIT 1`);
           const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'biome.geom' : ` st_transform(biome.geom, ${srid.rows[0].srid}) ` ;
 
-          sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(${aliasTablePrimary}.intersection_geom, 3), ${fieldIntersects}) `;
+          sql.sqlWhere += ` AND ST_Intersects(${aliasTablePrimary}.intersection_geom, ${fieldIntersects}) `;
           sql.sqlWhere += ` AND biome.gid = ${filter.themeSelected.value.gid} `;
         }
       };
@@ -64,7 +68,7 @@
           const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_municipios_sema LIMIT 1`);
           const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? ' county.geom ' : ` st_transform(county.geom, ${srid.rows[0].srid}) ` ;
 
-          sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(${aliasTablePrimary}.intersection_geom, 3), ${fieldIntersects}) `;
+          sql.sqlWhere += ` AND ST_Intersects(${aliasTablePrimary}.intersection_geom, ${fieldIntersects}) `;
           sql.sqlWhere += ` AND county.comarca = '${filter.themeSelected.value.name}'  `;
         }
       };
@@ -83,7 +87,7 @@
           const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_municipios_sema LIMIT 1`);
           const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'county.geom' : ` st_transform(county.geom, ${srid.rows[0].srid}) ` ;
 
-          sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(${aliasTablePrimary}.intersection_geom, 3), ${fieldIntersects}) `;
+          sql.sqlWhere += ` AND ST_Intersects(${aliasTablePrimary}.intersection_geom, ${fieldIntersects}) `;
           sql.sqlWhere += ` AND county.nm_meso = '${filter.themeSelected.value.name}' `;
         }
       };
@@ -102,7 +106,7 @@
           const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_municipios_sema LIMIT 1`);
           const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'county.geom' : ` st_transform(county.geom, ${srid.rows[0].srid}) ` ;
 
-          sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(${aliasTablePrimary}.intersection_geom, 3), ${fieldIntersects}) `;
+          sql.sqlWhere += ` AND ST_Intersects(${aliasTablePrimary}.intersection_geom, ${fieldIntersects}) `;
           sql.sqlWhere += ` AND county.nm_micro = '${filter.themeSelected.value.name}'  `;
         }
       };
@@ -120,7 +124,7 @@
           const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_municipios_sema LIMIT 1`);
           const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'county.geom' : ` st_transform(county.geom, ${srid.rows[0].srid}) ` ;
 
-          sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(${aliasTablePrimary}.intersection_geom, 3), ${fieldIntersects}) `;
+          sql.sqlWhere += ` AND ST_Intersects(${aliasTablePrimary}.intersection_geom, ${fieldIntersects}) `;
           sql.sqlWhere += ` AND county.gid = ${filter.themeSelected.value.gid} `;
         }
       };
@@ -133,7 +137,7 @@
       const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_unidade_cons_sema LIMIT 1`);
       const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'uc.geom' : ` st_transform(uc.geom, ${srid.rows[0].srid}) ` ;
 
-      sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(${aliasTablePrimary}.intersection_geom, 3), ${fieldIntersects}) `;
+      sql.sqlWhere += ` AND ST_Intersects(${aliasTablePrimary}.intersection_geom, ${fieldIntersects}) `;
 
       if (filter.themeSelected.value.gid > 0) {
         sql.sqlWhere += ` AND uc.gid = ${filter.themeSelected.value.gid} `;
@@ -146,7 +150,7 @@
       const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_terra_indigena_sema LIMIT 1`);
       const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'ti.geom' : ` st_transform(ti.geom, ${srid.rows[0].srid}) ` ;
 
-      sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(${aliasTablePrimary}.intersection_geom, 3), ${fieldIntersects}) `;
+      sql.sqlWhere += ` AND ST_Intersects(${aliasTablePrimary}.intersection_geom, ${fieldIntersects}) `;
 
       if (filter.themeSelected.value.gid > 0) {
         sql.sqlWhere += ` AND ti.gid = ${filter.themeSelected.value.gid} `;
@@ -159,7 +163,7 @@
       const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_projus_bacias_sema LIMIT 1`);
       const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'projus.geom' : ` st_transform(projus.geom, ${srid.rows[0].srid}) ` ;
 
-      sql.sqlWhere += ` ${addAND(sql.sqlWhere)} ST_Intersects(ST_CollectionExtract(${aliasTablePrimary}.intersection_geom, 3), ${fieldIntersects}) `;
+      sql.sqlWhere += ` ${addAND(sql.sqlWhere)} ST_Intersects(${aliasTablePrimary}.intersection_geom, ${fieldIntersects}) `;
 
       if (filter.themeSelected.value.gid > 0) {
         sql.sqlWhere += ` ${addAND(sql.sqlWhere)} projus.gid = ${filter.themeSelected.value.gid} `;
@@ -174,7 +178,7 @@
           burned() {
             sql.sqlHaving += ` HAVING count(1) ${values.columnValueFocos} `;
           },
-          carArea() {
+          car_area() {
             sql.secondaryTables += ' , public.de_car_validado_sema car ';
             sql.sqlWhere += ` ${addAND(sql.sqlWhere)} car.area_ha_ ${values.columnValue} `;
             sql.sqlWhere += ` ${addAND(sql.sqlWhere)} car.numero_do1 = ${columns.column1} `;
@@ -193,7 +197,7 @@
         }
 
         if (isCarArea(analyze.type)) {
-          alertType[analyse.type]();
+          alertType[analyze.type]();
         }
       }
     });
@@ -237,6 +241,10 @@
       (view.isAnalysis && view.isPrimary) ?
         ` ${aliasTablePrimary}.de_car_validado_sema_cpfcnpj ` :
         ` ${aliasTablePrimary}.${tableOwner}_de_car_validado_sema_cpfcnpj `;
+    const columnCarFederal =
+      (view.isAnalysis && view.isPrimary) ?
+        ` ${aliasTablePrimary}.de_car_validado_sema_numero_do2 ` :
+        ` ${aliasTablePrimary}.${tableOwner}_de_car_validado_sema_numero_do2 `;
 
     const columnArea = `${aliasTablePrimary}.calculated_area_ha`;
 
@@ -296,7 +304,7 @@
       column3 = view.activearea ? ` ${aliasTablePrimary}.calculated_area_ha ` : '1';
     }
 
-    return {column1, column2, column3, column4, filterColumns, columnArea, columnCpfCnpj};
+    return {column1, column2, column3, column4, filterColumns, columnArea, columnCpfCnpj, columnCarFederal};
   };
   function getValues(analyze) {
     const values = {columnValue: '', columnValueFocos: ''};

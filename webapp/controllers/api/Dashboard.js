@@ -20,15 +20,17 @@ module.exports = function(app) {
       const conn = new Connection(URI);
       await conn.connect();
 
-      const sql = await FilterService.getSqlAnalysisTotals(conn, params);
-
       try {
+        const sql = await FilterService.getSqlAnalysisTotals(conn, params);
+
+
         const result = await conn.execute(sql);
 
-        await conn.disconnect();
         response.json(result.rows);
       } catch (error) {
         console.log(error);
+      } finally {
+        await conn.disconnect();
       }
     },
     getDetailsAnalysisTotals: async (request, response) => {
@@ -43,10 +45,11 @@ module.exports = function(app) {
 
       const result = await FilterService.getAlertsGraphics(conn, params);
       try {
-        await conn.disconnect();
         response.json(result);
       } catch (error) {
         console.log(error);
+      } finally {
+        await conn.disconnect();
       }
     }
   }
