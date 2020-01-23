@@ -453,7 +453,7 @@
 
           const resultLandAreaBURNEDAREASum = await conn.execute(sqlLandAreaBURNEDAREASum);
           const landAreaBURNEDAREASum = resultLandAreaBURNEDAREASum.rows;
-
+          
           const resultProdesArea = await conn.execute(sqlProdesArea);
           const prodesArea = resultProdesArea.rows;
 
@@ -504,44 +504,86 @@
             propertyData.anthropizedUse = anthropizedUse[0];
             propertyData.nativeVegetation = nativeVegetation[0];
 
+            let prodesSumArea = 0;
+
+            prodesSumArea+=conservationUnitPRODESSum[0]['area']?conservationUnitPRODESSum[0]['area']:0;
+            prodesSumArea+=aPPPRODESSum[0]['area']?aPPPRODESSum[0]['area']:0;
+            prodesSumArea+=legalReservePRODESSum[0]['area']?legalReservePRODESSum[0]['area']:0;
+            prodesSumArea+=indigenousLandPRODESSum[0]['area']?indigenousLandPRODESSum[0]['area']:0;
+            prodesSumArea+=consolidatedUsePRODESSum[0]['area']?consolidatedUsePRODESSum[0]['area']:0;
+            prodesSumArea+=deforestationPRODESSum[0]['area']?deforestationPRODESSum[0]['area']:0;
+            prodesSumArea+=embargoedAreaPRODESSum[0]['area']?embargoedAreaPRODESSum[0]['area']:0;
+            prodesSumArea+=landAreaPRODESSum[0]['area']?landAreaPRODESSum[0]['area']:0
+
+            let deterSumArea = 0;
+
+            deterSumArea+=aPPDETERCount[0]['count']?aPPDETERCount[0]['count']:0
+            deterSumArea+=legalReserveDETERCount[0]['count']?legalReserveDETERCount[0]['count']:0
+            deterSumArea+=conservationUnitDETERCount[0]['count']?conservationUnitDETERCount[0]['count']:0
+            deterSumArea+=indigenousLandDETERCount[0]['count']?indigenousLandDETERCount[0]['count']:0
+            deterSumArea+=consolidatedUseDETERCount[0]['count']?consolidatedUseDETERCount[0]['count']:0
+            deterSumArea+=deforestationDETERCount[0]['count']?deforestationDETERCount[0]['count']:0
+            deterSumArea+=embargoedAreaDETERCount[0]['count']?embargoedAreaDETERCount[0]['count']:0
+            deterSumArea+=landAreaDETERCount[0]['count']?landAreaDETERCount[0]['count']:0
+
+            let burnlightCount = 0
+            burnlightCount+=aPPFOCOSCount[0]['count']?aPPFOCOSCount[0]['count']:0
+            burnlightCount+=legalReserveFOCOSCount[0]['count']?legalReserveFOCOSCount[0]['count']:0
+            burnlightCount+=conservationUnitFOCOSCount[0]['count']?conservationUnitFOCOSCount[0]['count']:0
+            burnlightCount+=indigenousLandFOCOSCount[0]['count']?indigenousLandFOCOSCount[0]['count']:0
+            burnlightCount+=consolidatedUseFOCOSCount[0]['count']?consolidatedUseFOCOSCount[0]['count']:0
+            burnlightCount+=deforestationFOCOSCount[0]['count']?deforestationFOCOSCount[0]['count']:0
+            burnlightCount+=embargoedAreaFOCOSCount[0]['count']?embargoedAreaFOCOSCount[0]['count']:0
+            burnlightCount+=landAreaFOCOSCount[0]['count']?landAreaFOCOSCount[0]['count']:0
+
+            let burnedAreaSum = 0
+            burnedAreaSum+=aPPBURNEDAREASum[0]['area']?aPPBURNEDAREASum[0]['area']:0
+            burnedAreaSum+=legalReserveBURNEDAREASum[0]['area']?legalReserveBURNEDAREASum[0]['area']:0
+            burnedAreaSum+=conservationUnitBURNEDAREASum[0]['area']?conservationUnitBURNEDAREASum[0]['area']:0
+            burnedAreaSum+=indigenousLandBURNEDAREASum[0]['area']?indigenousLandBURNEDAREASum[0]['area']:0
+            burnedAreaSum+=consolidatedUseBURNEDAREASum[0]['area']?consolidatedUseBURNEDAREASum[0]['area']:0
+            burnedAreaSum+=deforestationBURNEDAREASum[0]['area']?deforestationBURNEDAREASum[0]['area']:0
+            burnedAreaSum+=embargoedAreaBURNEDAREASum[0]['area']?embargoedAreaBURNEDAREASum[0]['area']:0
+            burnedAreaSum+=landAreaBURNEDAREASum[0]['area']?landAreaBURNEDAREASum[0]['area']:0
+
             propertyData.app = {
               affectedArea: 'APP',
-              recentDeforestation: aPPDETERCount[0]['count'] | '',
-              pastDeforestation: aPPPRODESSum[0]['area'] | '',
-              burnlights: aPPFOCOSCount[0]['count'] | '',
-              burnAreas: aPPBURNEDAREASum[0]['area'] | ''
+              recentDeforestation: aPPDETERCount[0]['count']|'',
+              pastDeforestation: aPPPRODESSum[0]['area']|'',
+              burnlights: aPPFOCOSCount[0]['count']|'',
+              burnAreas: aPPBURNEDAREASum[0]['area']|''
             }
 
             propertyData.legalReserve = {
               affectedArea: 'ARL',
-              recentDeforestation: legalReserveDETERCount[0]['count'] | '',
-              pastDeforestation: legalReservePRODESSum[0]['area'] | '',
-              burnlights: legalReserveFOCOSCount[0]['count'] | '',
-              burnAreas: legalReserveBURNEDAREASum[0]['area'] | '',
+              recentDeforestation: legalReserveDETERCount[0]['count']|'',
+              pastDeforestation: legalReservePRODESSum[0]['area']|'',
+              burnlights: legalReserveFOCOSCount[0]['count']|'',
+              burnAreas: legalReserveBURNEDAREASum[0]['area']|'',
             }
 
             propertyData.conservationUnit = {
               affectedArea: 'UC',
-              recentDeforestation: conservationUnitDETERCount[0]['count'] | '',
-              pastDeforestation: conservationUnitPRODESSum[0]['area'] | '',
-              burnlights: conservationUnitFOCOSCount[0]['count'] | '',
-              burnAreas: conservationUnitBURNEDAREASum[0]['area'] | ''
+              recentDeforestation: conservationUnitDETERCount[0]['count']|'',
+              pastDeforestation: conservationUnitPRODESSum[0]['area']|'',
+              burnlights: conservationUnitFOCOSCount[0]['count']|'',
+              burnAreas: conservationUnitBURNEDAREASum[0]['area']|''
             }
 
             propertyData.indigenousLand = {
               affectedArea: 'TI',
-              recentDeforestation: indigenousLandDETERCount[0]['count'] | '',
-              pastDeforestation: indigenousLandPRODESSum[0]['area'] | '',
-              burnlights: indigenousLandFOCOSCount[0]['count'] | '',
-              burnAreas: indigenousLandBURNEDAREASum[0]['area'] | '',
+              recentDeforestation: indigenousLandDETERCount[0]['count']|'',
+              pastDeforestation: indigenousLandPRODESSum[0]['area']|'',
+              burnlights: indigenousLandFOCOSCount[0]['count']|'',
+              burnAreas: indigenousLandBURNEDAREASum[0]['area']|'',
             }
 
             propertyData.consolidatedUse = {
               affectedArea: 'AUC',
-              recentDeforestation: consolidatedUseDETERCount[0]['count'] | '',
-              pastDeforestation: consolidatedUsePRODESSum[0]['area'] | '',
-              burnlights: consolidatedUseFOCOSCount[0]['count'] | '',
-              burnAreas: consolidatedUseBURNEDAREASum[0]['area'] | '',
+              recentDeforestation: consolidatedUseDETERCount[0]['count']|'',
+              pastDeforestation: consolidatedUsePRODESSum[0]['area']|'',
+              burnlights: consolidatedUseFOCOSCount[0]['count']|'',
+              burnAreas: consolidatedUseBURNEDAREASum[0]['area']|'',
             }
 
             // propertyData.exploration = {
@@ -554,31 +596,32 @@
 
             propertyData.deforestation = {
               affectedArea: 'AD',
-              recentDeforestation: deforestationDETERCount[0]['count'] | '',
-              pastDeforestation: deforestationPRODESSum[0]['area'] | '',
-              burnlights: deforestationFOCOSCount[0]['count'] | '',
-              burnAreas: deforestationBURNEDAREASum[0]['area'] | '',
+              recentDeforestation: deforestationDETERCount[0]['count']|'',
+              pastDeforestation: deforestationPRODESSum[0]['area']|'',
+              burnlights: deforestationFOCOSCount[0]['count']|'',
+              burnAreas: deforestationBURNEDAREASum[0]['area']|'',
             }
 
             propertyData.embargoedArea = {
               affectedArea: 'Área embargada',
-              recentDeforestation: embargoedAreaDETERCount[0]['count'] | '',
-              pastDeforestation: embargoedAreaPRODESSum[0]['area'] | '',
-              burnlights: embargoedAreaFOCOSCount[0]['count'] | '',
-              burnAreas: embargoedAreaBURNEDAREASum[0]['area'] | '',
+              recentDeforestation: embargoedAreaDETERCount[0]['count']|'',
+              pastDeforestation: embargoedAreaPRODESSum[0]['area']|'',
+              burnlights: embargoedAreaFOCOSCount[0]['count']|'',
+              burnAreas: embargoedAreaBURNEDAREASum[0]['area']|'',
             }
 
             propertyData.landArea = {
               affectedArea: 'Área desembargada',
-              recentDeforestation: landAreaDETERCount[0]['count'] | '',
-              pastDeforestation: landAreaPRODESSum[0]['area'] | '',
-              burnlights: landAreaFOCOSCount[0]['count'] | '',
-              burnAreas: landAreaBURNEDAREASum[0]['area'] | '',
+              recentDeforestation: landAreaDETERCount[0]['count']|'',
+              pastDeforestation: landAreaPRODESSum[0]['area']|'',
+              burnlights: landAreaFOCOSCount[0]['count']|'',
+              burnAreas: landAreaBURNEDAREASum[0]['area']|'',
             }
+            propertyData.foundProdes = prodesSumArea?true:false
+            propertyData.foundDeter = deterSumArea?true:false
+            propertyData.foundBurnlight = burnlightCount || burnedAreaSum?true:false
 
-          }
-
-          response.json(propertyData);
+            response.json(propertyData);
         } finally {
           await conn.disconnect();
         }
