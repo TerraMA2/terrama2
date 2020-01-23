@@ -109,7 +109,10 @@ module.exports = function(app) {
                 const resultCount = await conn.execute(
                   `SELECT ROW_NUMBER() OVER(ORDER BY property.numero_do2 ASC) AS count
                         ${sqlFrom} ${filter.secondaryTables} ${sqlWhere} ${sqlGroupBy} ORDER BY count DESC LIMIT 1`);
-                car.push(resultCount.rows[0]['count']);
+
+                const count = resultCount.rows[0] ? resultCount.rows[0]['count'] : 0;
+
+                car.push(count);
 
                 response.json(car)
             } catch (error) {
