@@ -622,6 +622,7 @@
             propertyData.foundBurnlight = burnlightCount || burnedAreaSum?true:false
 
             response.json(propertyData);
+          }
         } finally {
           await conn.disconnect();
         }
