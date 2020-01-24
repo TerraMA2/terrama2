@@ -151,9 +151,7 @@
 
     if (analysisResultObject.result){
 
-      const transaction = await DataManager.orm.transaction()
-
-      const options = { transaction };
+      const options = {};
 
       try {
         const analysis = await DataManager.getAnalysis({id: analysisResultObject.process_id}, options);
@@ -168,11 +166,8 @@
 
         const res = await listConditionedProcess(where, options);
 
-        transaction.commit()
-
         return res;
       } catch (err) {
-        transaction.rollback()
         throw err
       }
     }
@@ -191,9 +186,7 @@
 
     if (collectorResultObject.result){
 
-      const transaction = await DataManager.orm.transaction()
-
-      const options = { transaction };
+      const options = {};
 
       try {
         const collector = await DataManager.getCollector({id: collectorResultObject.process_id}, options);
@@ -208,11 +201,8 @@
 
         const res = await listConditionedProcess(restritions, options);
 
-        transaction.commit();
-
         return res;
       } catch (err) {
-        transaction.rollback()
         throw err
       }
     }
