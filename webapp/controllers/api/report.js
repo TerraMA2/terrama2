@@ -496,13 +496,13 @@
             propertyData.deterYear = deterYear;
             propertyData.spotlightsYear = spotlightsYear;
             propertyData.burnedAreasYear = burnedAreasYear;
-            propertyData.indigenousLand = indigenousLand[0]['area'];
-            propertyData.conservationUnit = conservationUnit[0]['area'];
-            propertyData.legalReserve = legalReserve[0]['area'];
-            propertyData.app = app[0]['area'];
-            propertyData.consolidatedArea = consolidatedArea[0]['area'];
-            propertyData.anthropizedUse = anthropizedUse[0]['area'];
-            propertyData.nativeVegetation = nativeVegetation[0]['area'];
+            propertyData.indigenousLand = indigenousLand[0];
+            propertyData.conservationUnit = conservationUnit[0];
+            propertyData.legalReserve = legalReserve[0];
+            propertyData.app = app[0];
+            propertyData.consolidatedArea = consolidatedArea[0];
+            propertyData.anthropizedUse = anthropizedUse[0];
+            propertyData.nativeVegetation = nativeVegetation[0];
 
             let prodesSumArea = 0;
 
