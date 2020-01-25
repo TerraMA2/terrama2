@@ -292,25 +292,25 @@
 
           let dateSql = ` and execution_date::date >= '${dateFrom}' AND execution_date::date <= '${dateTo}'`;
 
-          const sqlProdesArea = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_carprodes_62 where de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlProdesArea = `SELECT COALESCE(SUM(calculated_area_ha)) AS area FROM public.a_carprodes_62 where de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
 
-          const sqlIndigenousLand = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_cardeter_ti_56 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-          const sqlConservationUnit = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_carprodes_uc_69 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-          const sqlLegalReserve = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_cardeter_reserva_52 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-          const sqlAPP = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_cardeter_app_50 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-          const sqlConsolidatedUse = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_cardeter_usocon_55 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-          const sqlAnthropizedUse = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_cardeter_usoant_51 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-          const sqlNativeVegetation = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_cardeter_veg_53 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlIndigenousLand = `SELECT COALESCE(SUM(calculated_area_ha)) AS area FROM public.a_carprodes_ti_68 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlConservationUnit = `SELECT COALESCE(SUM(calculated_area_ha)) AS area FROM public.a_carprodes_uc_69 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlLegalReserve = `SELECT COALESCE(SUM(calculated_area_ha)) AS area FROM public.a_carprodes_reserva_65 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlAPP = `SELECT COALESCE(SUM(calculated_area_ha)) AS area FROM public.a_carprodes_app_63 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlConsolidatedUse = `SELECT COALESCE(SUM(calculated_area_ha)) AS area FROM public.a_carprodes_usocon_67 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlAnthropizedUse = `SELECT COALESCE(SUM(calculated_area_ha)) AS area FROM public.a_carprodes_usoant_64 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlNativeVegetation = `SELECT COALESCE(SUM(calculated_area_ha)) AS area FROM public.a_carprodes_veg_66 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
 
-          const sqlAPPDETERCount = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS count FROM public.a_cardeter_app_50 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-          const sqlLegalReserveDETERCount = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS count FROM public.a_cardeter_reserva_52 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-          const sqlConservationUnitDETERCount = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS count FROM public.a_cardeter_uc_57 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-          const sqlIndigenousLandDETERCount = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS count FROM public.a_cardeter_ti_56 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-          const sqlConsolidatedUseDETERCount = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS count FROM public.a_cardeter_usocon_55 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-          // const sqlExploraDETERCount = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS count FROM public.a_explora_cardeter_ where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-          const sqlDesmateDETERCount = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS count FROM public.a_cardeter_desmate_60 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-          const sqlEmbargoedAreaDETERCount = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS count FROM public.a_cardeter_emb_58 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-          const sqlLandAreaDETERCount = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS count FROM public.a_cardeter_desemb_59 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlAPPDETERCount = `SELECT COALESCE(SUM(calculated_area_ha)) AS count FROM public.a_cardeter_app_50 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlLegalReserveDETERCount = `SELECT COALESCE(SUM(calculated_area_ha)) AS count FROM public.a_cardeter_reserva_52 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlConservationUnitDETERCount = `SELECT COALESCE(SUM(calculated_area_ha)) AS count FROM public.a_cardeter_uc_57 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlIndigenousLandDETERCount = `SELECT COALESCE(SUM(calculated_area_ha)) AS count FROM public.a_cardeter_ti_56 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlConsolidatedUseDETERCount = `SELECT COALESCE(SUM(calculated_area_ha)) AS count FROM public.a_cardeter_usocon_55 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          // const sqlExploraDETERCount = `SELECT SUM(calculated_area_ha) AS count FROM public.a_explora_cardeter_ where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlDesmateDETERCount = `SELECT COALESCE(SUM(calculated_area_ha)) AS count FROM public.a_cardeter_desmate_60 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlEmbargoedAreaDETERCount = `SELECT COALESCE(SUM(calculated_area_ha)) AS count FROM public.a_cardeter_emb_58 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlLandAreaDETERCount = `SELECT COALESCE(SUM(calculated_area_ha)) AS count FROM public.a_cardeter_desemb_59 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
 
           const resultAPPDETERCount = await conn.execute(sqlAPPDETERCount);
           const aPPDETERCount = resultAPPDETERCount.rows;
