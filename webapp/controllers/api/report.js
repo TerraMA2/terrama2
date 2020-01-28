@@ -292,9 +292,9 @@
 
           let dateSql = ` and execution_date::date >= '${dateFrom}' AND execution_date::date <= '${dateTo}'`;
 
-          const sqlProdesArea = `SELECT COALESCE(SUM(calculated_area_ha)) AS area FROM public.a_carprodes_62 where de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlProdesArea = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_carprodes_62 where de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
 
-          const sqlProdesTotalArea = `SELECT COALESCE(SUM(calculated_area_ha)) AS area FROM public.a_carprodes_62 where de_car_validado_sema_numero_do1 = '${carRegister}'`;
+          const sqlProdesTotalArea = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_carprodes_62 where de_car_validado_sema_numero_do1 = '${carRegister}'`;
 
           const sqlIndigenousLand = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_carprodes_ti_68 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlConservationUnit = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_carprodes_uc_69 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
