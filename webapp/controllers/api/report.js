@@ -294,6 +294,8 @@
 
           const sqlProdesArea = `SELECT COALESCE(SUM(calculated_area_ha)) AS area FROM public.a_carprodes_62 where de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
 
+          const sqlProdesTotalArea = `SELECT COALESCE(SUM(calculated_area_ha)) AS area FROM public.a_carprodes_62 where de_car_validado_sema_numero_do1 = '${carRegister}'`;
+
           const sqlIndigenousLand = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_carprodes_ti_68 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlConservationUnit = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_carprodes_uc_69 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlLegalReserve = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_carprodes_reserva_65 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
@@ -304,7 +306,7 @@
 
           const sqlAPPDETERCount = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS count FROM public.a_cardeter_app_50 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlLegalReserveDETERCount = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS count FROM public.a_cardeter_reserva_52 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-          const sqlConservationUnitDETERCount = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS count FROM public.a_cardeter_uc_57 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          // const sqlConservationUnitDETERCount = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS count FROM public.a_cardeter_uc_57 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlIndigenousLandDETERCount = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS count FROM public.a_cardeter_ti_56 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlConsolidatedUseDETERCount = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS count FROM public.a_cardeter_usocon_55 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           // const sqlExploraDETERCount = `SELECT SUM(calculated_area_ha) AS count FROM public.a_explora_cardeter_ where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
@@ -318,8 +320,8 @@
           const resultLegalReserveDETERCount = await conn.execute(sqlLegalReserveDETERCount);
           const legalReserveDETERCount = resultLegalReserveDETERCount.rows;
 
-          const resultConservationUnitDETERCount = await conn.execute(sqlConservationUnitDETERCount);
-          const conservationUnitDETERCount = resultConservationUnitDETERCount.rows;
+          // const resultConservationUnitDETERCount = await conn.execute(sqlConservationUnitDETERCount);
+          // const conservationUnitDETERCount = resultConservationUnitDETERCount.rows;
 
           const resultIndigenousLandDETERCount = await conn.execute(sqlIndigenousLandDETERCount);
           const indigenousLandDETERCount = resultIndigenousLandDETERCount.rows;
@@ -457,6 +459,9 @@
           const resultProdesArea = await conn.execute(sqlProdesArea);
           const prodesArea = resultProdesArea.rows;
 
+          const resultProdesTotalArea = await conn.execute(sqlProdesTotalArea);
+          const prodesTotalArea = resultProdesTotalArea.rows;
+
           const resultIndigenousLand = await conn.execute(sqlIndigenousLand);
           const indigenousLand = resultIndigenousLand.rows;
 
@@ -492,6 +497,7 @@
             propertyData.burnedAreas = burnedAreas;
             // propertyData.deter = deter[0]
             propertyData.prodesArea = prodesArea[0]['area'];
+            propertyData.prodesTotalArea = prodesTotalArea[0]['area'];
             propertyData.prodesYear = prodesYear;
             propertyData.deterYear = deterYear;
             propertyData.spotlightsYear = spotlightsYear;
@@ -516,10 +522,9 @@
             prodesSumArea+=landAreaPRODESSum[0]['area']?landAreaPRODESSum[0]['area']:0
 
             let deterSumArea = 0;
-
             deterSumArea+=aPPDETERCount[0]['count']?aPPDETERCount[0]['count']:0
             deterSumArea+=legalReserveDETERCount[0]['count']?legalReserveDETERCount[0]['count']:0
-            deterSumArea+=conservationUnitDETERCount[0]['count']?conservationUnitDETERCount[0]['count']:0
+            // deterSumArea+=conservationUnitDETERCount[0]['count']?conservationUnitDETERCount[0]['count']:0
             deterSumArea+=indigenousLandDETERCount[0]['count']?indigenousLandDETERCount[0]['count']:0
             deterSumArea+=consolidatedUseDETERCount[0]['count']?consolidatedUseDETERCount[0]['count']:0
             deterSumArea+=deforestationDETERCount[0]['count']?deforestationDETERCount[0]['count']:0
@@ -546,7 +551,7 @@
             burnedAreaSum+=embargoedAreaBURNEDAREASum[0]['area']?embargoedAreaBURNEDAREASum[0]['area']:0
             burnedAreaSum+=landAreaBURNEDAREASum[0]['area']?landAreaBURNEDAREASum[0]['area']:0
 
-            propertyData.app = {
+            propertyData.prodesApp = {
               affectedArea: 'APP',
               recentDeforestation: aPPDETERCount[0]['count']|'',
               pastDeforestation: aPPPRODESSum[0]['area'],
@@ -554,7 +559,7 @@
               burnAreas: aPPBURNEDAREASum[0]['area']
             }
 
-            propertyData.legalReserve = {
+            propertyData.prodesLegalReserve = {
               affectedArea: 'ARL',
               recentDeforestation: legalReserveDETERCount[0]['count']|'',
               pastDeforestation: legalReservePRODESSum[0]['area'],
@@ -562,15 +567,15 @@
               burnAreas: legalReserveBURNEDAREASum[0]['area'],
             }
 
-            propertyData.conservationUnit = {
+            propertyData.prodesConservationUnit = {
               affectedArea: 'UC',
-              recentDeforestation: conservationUnitDETERCount[0]['count']|'',
+              recentDeforestation: 0, /*conservationUnitDETERCount[0]['count']|'',*/
               pastDeforestation: conservationUnitPRODESSum[0]['area'],
               burnlights: conservationUnitFOCOSCount[0]['count']|'',
               burnAreas: conservationUnitBURNEDAREASum[0]['area']
             }
 
-            propertyData.indigenousLand = {
+            propertyData.prodesIndigenousLand = {
               affectedArea: 'TI',
               recentDeforestation: indigenousLandDETERCount[0]['count']|'',
               pastDeforestation: indigenousLandPRODESSum[0]['area'],
@@ -578,7 +583,7 @@
               burnAreas: indigenousLandBURNEDAREASum[0]['area'],
             }
 
-            propertyData.consolidatedUse = {
+            propertyData.prodesConsolidatedUse = {
               affectedArea: 'AUC',
               recentDeforestation: consolidatedUseDETERCount[0]['count']|'',
               pastDeforestation: consolidatedUsePRODESSum[0]['area'],
@@ -594,7 +599,7 @@
             //   burnAreas: ''
             // }
 
-            propertyData.deforestation = {
+            propertyData.prodesDeforestation = {
               affectedArea: 'AD',
               recentDeforestation: deforestationDETERCount[0]['count']|'',
               pastDeforestation: deforestationPRODESSum[0]['area'],
@@ -602,7 +607,7 @@
               burnAreas: deforestationBURNEDAREASum[0]['area'],
             }
 
-            propertyData.embargoedArea = {
+            propertyData.prodesEmbargoedArea = {
               affectedArea: 'Área embargada',
               recentDeforestation: embargoedAreaDETERCount[0]['count']|'',
               pastDeforestation: embargoedAreaPRODESSum[0]['area'],
@@ -610,7 +615,7 @@
               burnAreas: embargoedAreaBURNEDAREASum[0]['area'],
             }
 
-            propertyData.landArea = {
+            propertyData.prodesLandArea = {
               affectedArea: 'Área desembargada',
               recentDeforestation: landAreaDETERCount[0]['count']|'',
               pastDeforestation: landAreaPRODESSum[0]['area'],
