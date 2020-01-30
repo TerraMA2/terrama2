@@ -190,8 +190,6 @@
 
         const view = await ViewFacade.retrieve(viewId);
         const dataSeries = await DataManager.getDataSeries({id: view.data_series_id});
-        const dataProvider = await DataManager.getDataProvider({id: dataSeries.data_provider_id});
-        // const uri = dataProvider.uri
         const tableName = dataSeries.dataSets[0].format.table_name;
 
         const conn = new Connection(URI);
@@ -309,10 +307,23 @@
           // const sqlConservationUnitDETERCount = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS count FROM public.a_cardeter_uc_57 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlIndigenousLandDETERCount = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS count FROM public.a_cardeter_ti_56 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlConsolidatedUseDETERCount = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS count FROM public.a_cardeter_usocon_55 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-          // const sqlExploraDETERCount = `SELECT SUM(calculated_area_ha) AS count FROM public.a_explora_cardeter_ where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlExploraDETERCount = `SELECT SUM(calculated_area_ha) AS count FROM public.a_cardeter_explora_98 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlDesmateDETERCount = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS count FROM public.a_cardeter_desmate_60 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlEmbargoedAreaDETERCount = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS count FROM public.a_cardeter_emb_58 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlLandAreaDETERCount = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS count FROM public.a_cardeter_desemb_59 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+
+          const sqlRestrictUseDETERCount = `SELECT COUNT(*) AS count FROM public.a_cardeter_usorestrito_106 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlBurnAuthorizationDETERCount = `SELECT COUNT(*) AS count FROM public.a_cardeter_queima_61 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlFisionomiaDETERCount = `SELECT de_veg_radambr_fisionomia AS class, COUNT(*) AS count FROM public.a_cardeter_vegradam_99 where a_cardeter_49_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql} group by de_veg_radambr_fisionomia`
+
+          const resultRestrictUseDETERCount = await conn.execute(sqlRestrictUseDETERCount);
+          const restrictUseDETERCount = resultRestrictUseDETERCount.rows;
+
+          const resultBurnAuthorizationDETERCount = await conn.execute(sqlBurnAuthorizationDETERCount);
+          const burnAuthorizationDETERCount = resultBurnAuthorizationDETERCount.rows;
+
+          const resultFisionomiaDETERCount = await conn.execute(sqlFisionomiaDETERCount);
+          const fisionomiaDETERCount = resultFisionomiaDETERCount.rows;
 
           const resultAPPDETERCount = await conn.execute(sqlAPPDETERCount);
           const aPPDETERCount = resultAPPDETERCount.rows;
@@ -329,8 +340,8 @@
           const resultConsolidatedUseDETERCount = await conn.execute(sqlConsolidatedUseDETERCount);
           const consolidatedUseDETERCount = resultConsolidatedUseDETERCount.rows;
 
-          // const resultExploraDETERCount = await conn.execute(sqlExploraDETERCount);
-          // const explorationDETERCount = resultExploraDETERCount.rows;
+          const resultExploraDETERCount = await conn.execute(sqlExploraDETERCount);
+          const explorationDETERCount = resultExploraDETERCount.rows;
 
           const resultDesmateDETERCount = await conn.execute(sqlDesmateDETERCount);
           const deforestationDETERCount = resultDesmateDETERCount.rows;
@@ -346,10 +357,22 @@
           const sqlConservationUnitPRODESSum = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_carprodes_uc_69 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlIndigenousLandPRODESSum = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_carprodes_ti_68 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlConsolidatedUsePRODESSum = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_carprodes_usocon_67 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-          // const sqlExploraPRODESSum = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.apv_explora_carprodes_ where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlExploraPRODESSum = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_carprodes_explora_100 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlDesmatePRODESSum = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_carprodes_desmate_72 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlEmbargoedAreaPRODESSum = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_carprodes_emb_70 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlLandAreaPRODESSum = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_carprodes_desemb_71 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlRestrictUsePRODESSum = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_carprodes_usorestrito_107 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlBurnAuthorizationPRODESSum = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_carprodes_queima_73 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlFisionomiaPRODESSum = `SELECT de_veg_radambr_fisionomia AS class, sum(calculated_area_ha) AS area FROM public.a_carprodes_vegradam_101 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql} group by de_veg_radambr_fisionomia`
+
+          const resultRestrictUsePRODESSum = await conn.execute(sqlRestrictUsePRODESSum);
+          const restrictUsePRODESSum = resultRestrictUsePRODESSum.rows;
+
+          const resultBurnAuthorizationPRODESSum = await conn.execute(sqlBurnAuthorizationPRODESSum);
+          const burnAuthorizationPRODESSum = resultBurnAuthorizationPRODESSum.rows;
+
+          const resultFisionomiaPRODESSum = await conn.execute(sqlFisionomiaPRODESSum);
+          const fisionomiaPRODESSum = resultFisionomiaPRODESSum.rows;
 
           const resultAPPPRODESSum = await conn.execute(sqlAPPPRODESSum);
           const aPPPRODESSum = resultAPPPRODESSum.rows;
@@ -366,8 +389,8 @@
           const resultConsolidatedUsePRODESSum = await conn.execute(sqlConsolidatedUsePRODESSum);
           const consolidatedUsePRODESSum = resultConsolidatedUsePRODESSum.rows;
 
-          // const resultExploraPRODESSum = await conn.execute(sqlExploraPRODESSum);
-          // const explorationPRODESSum = resultExploraPRODESSum.rows;
+          const resultExploraPRODESSum = await conn.execute(sqlExploraPRODESSum);
+          const explorationPRODESSum = resultExploraPRODESSum.rows;
 
           const resultDesmatePRODESSum = await conn.execute(sqlDesmatePRODESSum);
           const deforestationPRODESSum = resultDesmatePRODESSum.rows;
@@ -383,10 +406,22 @@
           const sqlConservationUnitFOCOSCount = `SELECT COUNT(*) AS count FROM public.a_carfocos_uc_81 where a_carfocos_74_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlIndigenousLandFOCOSCount = `SELECT COUNT(*) AS count FROM public.a_carfocos_ti_80 where a_carfocos_74_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlConsolidatedUseFOCOSCount = `SELECT COUNT(*) AS count FROM public.a_carfocos_usocon_79 where a_carfocos_74_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
-          // const sqlExploraFOCOSCount = `SELECT COUNT(*) AS count FROM public.apv_explora_carfocos_ where a_carfocos_74_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlExploraFOCOSCount = `SELECT COUNT(*) AS count FROM public.a_carfocos_explora_102 where a_carfocos_74_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlDesmateFOCOSCount = `SELECT COUNT(*) AS count FROM public.a_carfocos_desmate_84 where a_carfocos_74_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlEmbFOCOSCount = `SELECT COUNT(*) AS count FROM public.a_carfocos_emb_82 where a_carfocos_74_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlLandAreaFOCOSCount = `SELECT COUNT(*) AS count FROM public.a_carfocos_desemb_83 where a_carfocos_74_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlRestrictUseFOCOSCount = `SELECT COUNT(*) AS count FROM public.a_carfocos_usorestrito_108 where a_carfocos_74_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlBurnAuthorizationFOCOSCount = `SELECT COUNT(*) AS count FROM public.a_carfocos_queima_85 where a_carfocos_74_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlFisionomiaFOCOSCount = `SELECT de_veg_radambr_fisionomia AS class, COUNT(*) AS count FROM public.a_carfocos_vegradam_103 where a_carfocos_74_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql} group by de_veg_radambr_fisionomia`
+
+          const resultRestrictUseFOCOSCount = await conn.execute(sqlRestrictUseFOCOSCount);
+          const restrictUseFOCOSCount = resultRestrictUseFOCOSCount.rows;
+
+          const resultBurnAuthorizationFOCOSCount = await conn.execute(sqlBurnAuthorizationFOCOSCount);
+          const burnAuthorizationFOCOSCount = resultBurnAuthorizationFOCOSCount.rows;
+
+          const resultFisionomiaFOCOSCount = await conn.execute(sqlFisionomiaFOCOSCount);
+          const fisionomiaFOCOSCount = resultFisionomiaFOCOSCount.rows;
 
           const resultAPPFOCOSCount = await conn.execute(sqlAPPFOCOSCount);
           const aPPFOCOSCount = resultAPPFOCOSCount.rows;
@@ -403,8 +438,8 @@
           const resultConsolidatedUseFOCOSCount = await conn.execute(sqlConsolidatedUseFOCOSCount);
           const consolidatedUseFOCOSCount = resultConsolidatedUseFOCOSCount.rows;
 
-          // const resultExploraFOCOSCount = await conn.execute(sqlExploraFOCOSCount);
-          // const explorationFOCOSCount = resultExploraFOCOSCount.rows;
+          const resultExploraFOCOSCount = await conn.execute(sqlExploraFOCOSCount);
+          const explorationFOCOSCount = resultExploraFOCOSCount.rows;
 
           const resultDesmateFOCOSCount = await conn.execute(sqlDesmateFOCOSCount);
           const deforestationFOCOSCount = resultDesmateFOCOSCount.rows;
@@ -423,11 +458,24 @@
           const sqlIndigenousLandBURNEDAREASum = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_caraq_ti_92 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlConsolidatedUseBURNEDAREASum = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_caraq_usocon_91 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
 
-          // const sqlExploraPRODESSum = `SELECT COALESCE(SUM(calculated_area_ha) AS area FROM public.apv_explora_carprodes_ where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlExploraBURNEDAREASum = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_caraq_explora_104 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
 
           const sqlDesmateBURNEDAREASum = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_caraq_desmate_96 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlEmbargoedAreaBURNEDAREASum = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_caraq_emb_94 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlLandAreaBURNEDAREASum = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_caraq_desemb_95 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+
+          const sqlRestrictUseBURNEDAREASum = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_caraq_usorestrito_109 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlBurnAuthorizationBURNEDAREASum = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_caraq_queima_97 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+          const sqlFisionomiaBURNEDAREASum = `SELECT de_veg_radambr_fisionomia AS class, sum(calculated_area_ha) AS area FROM public.a_caraq_vegradam_105 where a_caraq_86_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql} group by de_veg_radambr_fisionomia`
+
+          const resultRestrictUseBURNEDAREASum = await conn.execute(sqlRestrictUseBURNEDAREASum);
+          const restrictUseBURNEDAREASum = resultRestrictUseBURNEDAREASum.rows;
+
+          const resultBurnAuthorizationBURNEDAREASum = await conn.execute(sqlBurnAuthorizationBURNEDAREASum);
+          const burnAuthorizationBURNEDAREASum = resultBurnAuthorizationBURNEDAREASum.rows;
+
+          const resultFisionomiaBURNEDAREASum = await conn.execute(sqlFisionomiaBURNEDAREASum);
+          const fisionomiaBURNEDAREASum = resultFisionomiaBURNEDAREASum.rows;
 
           const resultAPPBURNEDAREASum = await conn.execute(sqlAPPBURNEDAREASum);
           const aPPBURNEDAREASum = resultAPPBURNEDAREASum.rows;
@@ -444,8 +492,8 @@
           const resultConsolidatedUseBURNEDAREASum = await conn.execute(sqlConsolidatedUseBURNEDAREASum);
           const consolidatedUseBURNEDAREASum = resultConsolidatedUseBURNEDAREASum.rows;
 
-          // const resultExploraPRODESSum = await conn.execute(sqlExploraPRODESSum);
-          // const explorationPRODESSum = resultExploraPRODESSum.rows;
+          const resultExploraBURNEDAREASum = await conn.execute(sqlExploraBURNEDAREASum);
+          const explorationBURNEDAREASum = resultExploraBURNEDAREASum.rows;
 
           const resultDesmateBURNEDAREASum = await conn.execute(sqlDesmateBURNEDAREASum);
           const deforestationBURNEDAREASum = resultDesmateBURNEDAREASum.rows;
@@ -567,6 +615,14 @@
               burnAreas: legalReserveBURNEDAREASum[0]['area'],
             }
 
+            propertyData.prodesRestrictedUse = {
+              affectedArea: 'AUR',
+              recentDeforestation: restrictUseDETERCount[0]['count']|'',
+              pastDeforestation: restrictUsePRODESSum[0]['area'],
+              burnlights: restrictUseFOCOSCount[0]['count']|'',
+              burnAreas: restrictUseBURNEDAREASum[0]['area'],
+            }
+
             propertyData.prodesConservationUnit = {
               affectedArea: 'UC',
               recentDeforestation: 0, /*conservationUnitDETERCount[0]['count']|'',*/
@@ -591,13 +647,13 @@
               burnAreas: consolidatedUseBURNEDAREASum[0]['area'],
             }
 
-            // propertyData.exploration = {
-            //   affectedArea: 'AUTEX',
-            //   recentDeforestation: explorationDETERCount[0],
-            //   pastDeforestation: explorationPRODESSum[0],
-            //   burnlights: explorationFOCOSCount[0],
-            //   burnAreas: ''
-            // }
+            propertyData.prodesExploration = {
+              affectedArea: 'AUTEX',
+              recentDeforestation: explorationDETERCount[0]['count'],
+              pastDeforestation: explorationPRODESSum[0]['area'],
+              burnlights: explorationFOCOSCount[0]['count'],
+              burnAreas: explorationBURNEDAREASum[0]['area'],
+            }
 
             propertyData.prodesDeforestation = {
               affectedArea: 'AD',
@@ -622,6 +678,17 @@
               burnlights: landAreaFOCOSCount[0]['count']|'',
               burnAreas: landAreaBURNEDAREASum[0]['area'],
             }
+
+            propertyData.prodesBurnAuthorization = {
+              affectedArea: 'AQ',
+              recentDeforestation: burnAuthorizationDETERCount[0]['count']|'',
+              pastDeforestation: burnAuthorizationPRODESSum[0]['area'],
+              burnlights: burnAuthorizationFOCOSCount[0]['count']|'',
+              burnAreas: burnAuthorizationBURNEDAREASum[0]['area'],
+            }
+
+            propertyData.prodesRadam = fisionomiaPRODESSum
+
             propertyData.foundProdes = prodesSumArea?true:false
             propertyData.foundDeter = deterSumArea?true:false
             propertyData.foundBurnlight = burnlightCount || burnedAreaSum?true:false
