@@ -14,10 +14,10 @@
     return ((analyze.type && analyze.type === 'deforestation') && (view.codgroup === 'PRODES'));
   };
   function isBurned(analyze, view) {
-    return ((analyze.type && analyze.type === 'burned') && (view.codgroup === 'FOCOS'));
+    return ((analyze.type && analyze.type === 'burned') && (view.codgroup === 'BURNED'));
   };
   function isBurnedArea(analyze, view) {
-    return ((analyze.type && analyze.type === 'burned_area') && (view.codgroup === 'AREA_QUEIMADA'));
+    return ((analyze.type && analyze.type === 'burned_area') && (view.codgroup === 'BURNED_AREA'));
   };
   function isCarArea(type){
     return (type === 'car_area');
@@ -259,7 +259,7 @@
       }
     };
 
-    if (view.codgroup && view.codgroup === 'FOCOS') {
+    if (view.codgroup && view.codgroup === 'BURNED') {
       if (view.isAnalysis && view.isPrimary) {
         column1 = ` ${aliasTablePrimary}.de_car_validado_sema_numero_do1 `;
         column2 = ` ${aliasTablePrimary}.dd_focos_inpe_bioma `;
@@ -292,7 +292,7 @@
 
       column3 = view.activearea ? ` ${aliasTablePrimary}.calculated_area_ha ` : '1';
 
-    } else if (view.codgroup && view.codgroup === 'AREA_QUEIMADA') {
+    } else if (view.codgroup && view.codgroup === 'BURNED_AREA') {
       if (view.isAnalysis && view.isPrimary) {
         column1 = ` ${aliasTablePrimary}.de_car_validado_sema_numero_do1 `;
         column2 = ` ${aliasTablePrimary}.de_car_validado_sema_numero_do1 `;
@@ -359,7 +359,7 @@
     if (filter) {
       const filtered = filter.specificSearch && filter.specificSearch.isChecked ? 'specificSearch' : 'others';
 
-      const cod = (view.codgroup === 'FOCOS') ? 'focos' : 'others';
+      const cod = (view.codgroup === 'BURNED') ? 'focos' : 'others';
       await setFilter[filtered](conn, sql, filter, columns, cod, table, view);
     }
 
@@ -468,7 +468,7 @@
       }]
     };
   };
-  async function getSqlDetailsAnalysisTotals(conn, alert, tableOwner, params) {
+  async function getSqlDetailsAnalysisTotals(conn, alert, params) {
     let sql1 = '';
     let sql2 = '';
 
@@ -478,12 +478,12 @@
     if (alert.idview && alert.idview > 0 && alert.idview !== 'null') {
 
       const table = {
-        name: await getTable(conn, alert.idview),
+        name: alert.tableName,
         alias: 'main_table',
-        owner: tableOwner
+        owner: alert.tableOwner
       };
 
-      const columns = getColumns(alert, tableOwner, table.alias);
+      const columns = getColumns(alert, table.owner, table.alias);
 
       const limit = params.limit && params.limit !== 'null' && params.limit > 0 ?
           params.limit :
@@ -552,7 +552,7 @@
         if (alert.idview && alert.idview > 0 && alert.idview !== 'null') {
 
           const table = {
-            name: await getTable(conn, alert.idview),
+            name: alert.tableName,
             alias: 'main_table'
           };
 
@@ -560,7 +560,7 @@
 
           const filter = await getFilter(conn, table, params, alert, collumns);
 
-          const value1 = alert.codgroup === 'FOCOS' ?
+          const value1 = alert.codgroup === 'BURNED' ?
               ` COALESCE( ( SELECT ROW_NUMBER() OVER(ORDER BY ${collumns.column1} ASC) AS Row
                                          FROM public.${table.name} AS ${table.alias}
                                          ${filter.secondaryTables}
@@ -582,11 +582,11 @@
                       ${filter.sqlHaving}) ` :
               filter.sqlWhere;
 
-          const value2 = alert.codgroup === 'FOCOS' ?
+          const value2 = alert.codgroup === 'BURNED' ?
               ` ( SELECT coalesce(sum(1), 0.00) as num_focos FROM public.${table.name} AS ${table.alias} ${filter.secondaryTables} ${sqlWhere} ) AS value2 ` :
               ` COALESCE(SUM(${collumns.columnArea}), 0.00) AS value2 `;
 
-          const sqlFrom = alert.codgroup === 'FOCOS' ?
+          const sqlFrom = alert.codgroup === 'BURNED' ?
               ` ` :
               ` FROM public.${table.name} AS ${table.alias} ${filter.secondaryTables} ${filter.sqlWhere} `;
 
@@ -625,11 +625,11 @@
         JSON.parse(params.specificParameters) : [];
 
     const result = [];
-    const tableOwner = await getTableOwner(conn, alerts);
+    // const tableOwner = await getTableOwner(conn, alerts);
 
     if (alerts.length > 0) {
       for (let alert of alerts) {
-        const sql = await getSqlDetailsAnalysisTotals(conn, alert, tableOwner, params);
+        const sql = await getSqlDetailsAnalysisTotals(conn, alert, params);
 
         let resultAux = await conn.execute(sql.sql1);
         const graphic1 = await setGraphic(resultAux, sql.value1, sql.subtitle);
