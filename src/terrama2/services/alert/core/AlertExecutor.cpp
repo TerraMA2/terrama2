@@ -762,12 +762,32 @@ void terrama2::services::alert::core::AlertExecutor::runAlert(terrama2::core::Ex
         for(const auto& notification : alertPtr->notifications)
           {
             //check if should emit a notification
-            if((reportPtr->maxRisk() != terrama2::core::DefaultRiskLevel && notification.notifyOnRiskLevel <= reportPtr->maxRisk())
-               || (notification.notifyOnChange && reportPtr->riskChanged()))
+
+            if(notification.notifyOnRiskLevel > 0) //Notify on legend level is selected
+            {
+              if(notification.notifyOnRiskLevel <= reportPtr->maxRisk())
               {
-                notify = true;
-                sendNotification(serverMap, reportPtr, notification, executionPackage, logger);
+                if(notification.notifyOnChange){
+                  if(reportPtr->riskChanged()){
+                    notify = true;
+                    sendNotification(serverMap, reportPtr, notification, executionPackage, logger);
+                  }
+                }else
+                {
+                  notify = true;
+                  sendNotification(serverMap, reportPtr, notification, executionPackage, logger);
+                }
               }
+            } else if(notification.notifyOnChange && reportPtr->riskChanged()) //Only Notify on change is selected and verify is risk is changed
+            {
+              notify = true;
+              sendNotification(serverMap, reportPtr, notification, executionPackage, logger);
+            } else if(notification.notifyOnRiskLevel == 0 && !notification.notifyOnChange) //Anyone has selected
+            {
+              notify = true;
+              sendNotification(serverMap, reportPtr, notification, executionPackage, logger);
+            }
+
           }
 
         alertGenerated = true;

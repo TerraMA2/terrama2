@@ -256,7 +256,7 @@ void terrama2::services::alert::core::Report::updateReportMonitoredObjectDataset
           continue;
 
         //update max and min risk values
-        if(it == riskDates_.begin())
+        if(it == riskDates_.end()-1)
         {
           if(numericRisk > maxRisk_)
             maxRisk_ = numericRisk;

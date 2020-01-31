@@ -54,6 +54,7 @@ $$
 DECLARE
     indice INTEGER;
     id_analysis INTEGER;
+    number_of_rows INTEGER;
     automatic_schedule_id_selected INTEGER;
 BEGIN
 
@@ -61,15 +62,20 @@ IF array_length(list_id, 1) > 0 THEN
 
     FOR indice IN 1 .. array_upper(list_id, 1)
     LOOP
-        EXECUTE format('SELECT value FROM terrama2.analysis_metadata
+        -- Check if the attribute from first iteration exists
+        EXECUTE format('SELECT COUNT(*) FROM terrama2.analysis_metadata WHERE key = ''dynamicDataSeries'' AND analysis_id = %s', CAST(list_id[indice] AS INTEGER)) INTO number_of_rows;
+
+        IF number_of_rows > 0 THEN
+            EXECUTE format('SELECT value FROM terrama2.analysis_metadata
                     WHERE key = ''dynamicDataSeries'' AND analysis_id = %s', CAST(list_id[indice] AS INTEGER) ) INTO id_analysis;
 
-        EXECUTE format('SELECT automatic_schedule_id FROM terrama2.analysis
-                    WHERE automatic_schedule_id is not null AND id = %s', CAST(list_id[indice] AS INTEGER) ) INTO automatic_schedule_id_selected;
+            EXECUTE format('SELECT automatic_schedule_id FROM terrama2.analysis
+                        WHERE automatic_schedule_id is not null AND id = %s', CAST(list_id[indice] AS INTEGER) ) INTO automatic_schedule_id_selected;
 
-        UPDATE terrama2.automatic_schedules
-            SET data_ids = ARRAY[id_analysis]
-            WHERE id = automatic_schedule_id_selected;
+            UPDATE terrama2.automatic_schedules
+                SET data_ids = ARRAY[id_analysis]
+                WHERE id = automatic_schedule_id_selected;
+        END IF;       
 
     END LOOP;
 
