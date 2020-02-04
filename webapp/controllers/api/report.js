@@ -363,6 +363,7 @@
           const sqlLandAreaPRODESSum = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_carprodes_desemb_71 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlRestrictUsePRODESSum = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_carprodes_usorestrito_107 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
           const sqlBurnAuthorizationPRODESSum = `SELECT COALESCE(SUM(calculated_area_ha), 0) AS area FROM public.a_carprodes_queima_73 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql}`;
+
           const sqlFisionomiaPRODESSum = `SELECT de_veg_radambr_fisionomia AS class, sum(calculated_area_ha) AS area FROM public.a_carprodes_vegradam_101 where a_carprodes_62_de_car_validado_sema_numero_do1 = '${carRegister}' ${dateSql} group by de_veg_radambr_fisionomia`
 
           const resultRestrictUsePRODESSum = await conn.execute(sqlRestrictUsePRODESSum);
