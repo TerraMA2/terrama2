@@ -26,7 +26,7 @@ module.exports = function(app) {
 
             try {
                 const table = {
-                    name: await Filter.getTableName(conn, view.id),
+                    name: view.tableName,
                     alias: specificParameters.tableAlias,
                     owner: ''
                 };
