@@ -893,12 +893,8 @@ img[src=""] {
 }
 
 .ui-dialog {
-  width: 50% !important;
   height: calc(100% - 80px) !important;
-  bottom: 50px;
   overflow: hidden;
-  top: 20px !important;
-  margin: 0 auto;
   z-index: 99999 !important;
 }
 
