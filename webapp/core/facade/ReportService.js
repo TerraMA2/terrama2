@@ -20,22 +20,23 @@ const URI = `postgis://${config.username}:${config.password}@${config.host}:${co
       const view = JSON.parse(params.view);
 
       const table = {
-        name: await Filter.getTableName(conn, view.id),
+        name: view.tableName,
         alias: 'main_table',
-        owner: ''
+        owner:  view.isPrimary ? '' : `${view.tableOwner}_`
       };
 
       const filter =  await Filter.setFilter(conn, params, table, view);
 
-      const column = view.isPrimary ?  'de_car_validado_sema_numero_do1' :  'a_carprodes_15_de_car_validado_sema_numero_do1';
+      const column =  `${table.owner}de_car_validado_sema_numero_do1`;
+
 
       const sqlWhere =
         filter.sqlHaving ?
         ` ${filter.sqlWhere} 
-          AND main_table.de_car_validado_sema_numero_do1 IN
+          AND main_table.${column}  IN
             ( SELECT tableWhere.${column} AS subtitle
               FROM public.${table.name} AS tableWhere
-              GROUP BY tableWhere.de_car_validado_sema_numero_do1
+              GROUP BY tableWhere.${column}
               ${filter.sqlHaving}) ` :
         filter.sqlWhere;
 
