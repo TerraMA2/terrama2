@@ -185,8 +185,10 @@ define(
 
       $('#about-btn').on('click', function() {
         $('#about-dialog').dialog({
-          resizable: false,
-          draggable: false,
+          resizable: true,
+          draggable: true,
+          width: 600,
+          height: 500,
           title: "",
           closeOnEscape: true,
           closeText: "",
