@@ -649,9 +649,14 @@
 
     const columns = getColumns(view, table.owner, table.alias);
 
-    const paramsFilter = JSON.parse(params.specificParameters);
-    paramsFilter['date'] = params.date;
-    paramsFilter['filter'] = params.filter;
+    let paramsFilter = {};
+    if (params.specificParameters) {
+      paramsFilter = JSON.parse(params.specificParameters);
+      paramsFilter['date'] = params.date;
+      paramsFilter['filter'] = params.filter;
+    } else {
+      paramsFilter = params;
+    }
 
     return await getFilter(conn, table, paramsFilter, view, columns);
   }

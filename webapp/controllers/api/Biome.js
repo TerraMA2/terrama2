@@ -1,5 +1,5 @@
   const {Connection} = require('../../core/utility/connection');
-  const env = process.env.NODE_ENV.toLowerCase() || 'development';
+  const env = process.env.NODE_ENV.toLowerCase() ? process.env.NODE_ENV.toLowerCase() : 'development';
   const config = require('../../config/db')[env];
 
 
