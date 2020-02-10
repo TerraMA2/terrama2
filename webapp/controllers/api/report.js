@@ -107,8 +107,6 @@
 
         const viewAuxi = await ViewFacade.retrieve(viewParam.id);
         const dataSeries = await DataManager.getDataSeries({id: viewAuxi.data_series_id});
-        const dataProvider = await DataManager.getDataProvider({id: dataSeries.data_provider_id});
-        const uri = dataProvider.uri;
 
         const conn = new Connection(URI);
         await conn.connect();
@@ -177,9 +175,7 @@
         params.date = request.query.date;
         params.filter = request.query.filter;
 
-        const result = await ReportService.findAnaliseData(params);
-
-        response.json(result);
+        response.json(await ReportService.findAnaliseData(params));
       },
       getCarData: async (request, response) => {
         const {
