@@ -20,28 +20,13 @@
   module.exports = function(app) {
     return {
       getStaticData: async (request, response) => {
-        const {
-          limit,
-          offset,
-          view,
-          countTotal,
-          sortColumn,
-          sortOrder
-        } = request.query;
+        const specificParameters = JSON.parse(request.query.specificParameters);
 
         const conn = new Connection(URI);
         await conn.connect();
 
-        const viewParam = JSON.parse(view);
-
         try {
-
-          const viewAux = await ViewFacade.retrieve(viewParam.id);
-          const dataSeries = await DataManager.getDataSeries({id: viewAux.data_series_id});
-          const dataProvider = await DataManager.getDataProvider({id: dataSeries.data_provider_id});
-
-          const dataSet = dataSeries.dataSets[0];
-          let tableName = dataSet.format.table_name;
+          const view = JSON.parse(specificParameters.view);
 
           let sqlSelect = `SELECT *`;
           let sqlFrom = '';
@@ -52,18 +37,18 @@
           `;
 
 
-          sqlFrom += ` FROM public.${tableName}`;
+          sqlFrom += ` FROM public.${view.tableName}`;
 
-          if (sortColumn && sortOrder) {
-            sqlWhere += ` ORDER BY ${sortColumn} ${sortOrder === 1?'ASC':'DESC'}`
+          if (specificParameters.sortColumn && specificParameters.sortOrder) {
+            sqlWhere += ` ORDER BY ${specificParameters.sortColumn} ${specificParameters.sortOrder === 1?'ASC':'DESC'}`
           }
 
-          if (limit) {
-            sqlWhere += ` LIMIT ${limit}`
+          if (specificParameters.limit) {
+            sqlWhere += ` LIMIT ${specificParameters.limit}`
           }
 
-          if (offset) {
-            sqlWhere += ` OFFSET ${offset}`
+          if (specificParameters.offset) {
+            sqlWhere += ` OFFSET ${specificParameters.offset}`
           }
 
           const sql = sqlSelect + sqlFrom + sqlWhere;
@@ -76,8 +61,8 @@
 
 
           let sqlCount;
-          if (countTotal) {
-            sqlCount = `SELECT COUNT(*) AS count FROM public.${tableName}`;
+          if (specificParameters.countTotal) {
+            sqlCount = `SELECT COUNT(*) AS count FROM public.${view.tableName}`;
             resultCount = await conn.execute(sqlCount);
 
             dataJson.push(resultCount.rows[0]['count']);
