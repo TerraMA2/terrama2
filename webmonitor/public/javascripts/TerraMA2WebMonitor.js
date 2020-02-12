@@ -582,6 +582,16 @@ define(
                           if(typeof response !== 'undefined' && response.length > 0 && response[0].value){
                             var attributesResponseStr = response[0].value;
                             var attributesJson = JSON.parse(attributesResponseStr);
+
+                            if (layerType == "static"){
+
+                              attributesJson.forEach(e => {
+                                  if(e.name == "gid"){
+                                    e.visible = false;
+                                  }
+                              });
+
+                            }
                           }
                           
                           if(featuresLength > 0) {
