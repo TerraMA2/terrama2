@@ -123,9 +123,12 @@ define(
         var layerid = $(this).closest('li').data('layerid');
         var layerObject = Layers.getLayerById(layerid);
         var isVisible = layerObject.visible;
+        var hiddenLayer = false;
+
         if(isVisible) {
           $('#terrama2-sortlayers').find('li#' + layerObject.htmlId).addClass('hide');
           Layers.changeLayerVisible(layerObject.id, false);
+          hiddenLayer = true;
         } else {
           $('#terrama2-sortlayers').find('li#' + layerObject.htmlId).removeClass('hide');
           Layers.changeLayerVisible(layerObject.id, true);
@@ -140,6 +143,16 @@ define(
         $("#terrama2-map").trigger("setGetFeatureInfoToolSelect");
         $("#terrama2-map").trigger("createAttributesTable");
         $("#legend-box").trigger("setLegends");
+
+
+        if(hiddenLayer){
+          TerraMA2WebComponents.MapDisplay.getMap().getLayers().array_.forEach(e =>{
+            if(e.values_.name === layerid){
+              TerraMA2WebComponents.MapDisplay.getMap().removeLayer(e);
+            }
+          });
+          hiddenLayer = false;
+        }
 
         if(layerObject.status == LayerStatusEnum.NEW || layerObject.status == LayerStatusEnum.ALERT) {
           TerraMA2WebComponents.MapDisplay.updateLayerSourceParams(layerObject.id, {
