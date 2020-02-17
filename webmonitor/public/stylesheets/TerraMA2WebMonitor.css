@@ -890,10 +890,10 @@ img[src=""] {
   margin: 0 auto;
   text-align: justify;
   font-size: 18px;
+  height: 500px !important;
 }
 
 .ui-dialog {
-  height: calc(100% - 80px) !important;
   overflow: hidden;
   z-index: 99999 !important;
 }
