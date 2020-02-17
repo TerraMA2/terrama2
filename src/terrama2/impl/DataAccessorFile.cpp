@@ -905,7 +905,8 @@ void terrama2::core::DataAccessorFile::applyFilters(const terrama2::core::Filter
                                     std::shared_ptr<te::dt::TimeInstantTZ> &lastFileTimestamp) const
 {
 
-  if (this->dataSeries_->semantics.code == "GEOMETRIC_OBJECT-ogr" && lastFileTimestamp != nullptr)
+  if ((this->dataSeries_->semantics.code == "GEOMETRIC_OBJECT-ogr" && lastFileTimestamp != nullptr) ||
+          (this->dataSeries_->semantics.code == "Occurrence-generic" && lastFileTimestamp != nullptr))
   {
     // TODO:
     lastDateTime_ = lastFileTimestamp;
