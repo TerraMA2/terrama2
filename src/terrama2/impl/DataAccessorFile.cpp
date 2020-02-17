@@ -904,7 +904,6 @@ void terrama2::core::DataAccessorFile::applyFilters(const terrama2::core::Filter
                                     const std::shared_ptr<te::mem::DataSet> &completeDataset,
                                     std::shared_ptr<te::dt::TimeInstantTZ> &lastFileTimestamp) const
 {
-  filterDataSet(completeDataset, filter);
 
   if (this->dataSeries_->semantics.code == "GEOMETRIC_OBJECT-ogr" && lastFileTimestamp != nullptr)
   {
@@ -912,6 +911,8 @@ void terrama2::core::DataAccessorFile::applyFilters(const terrama2::core::Filter
     lastDateTime_ = lastFileTimestamp;
     return;
   }
+
+  filterDataSet(completeDataset, filter);
 
   //Get last data timestamp and compare with file name timestamp
   std::shared_ptr<te::dt::TimeInstantTZ> dataTimeStamp = getDataLastTimestamp(dataSet, completeDataset);
