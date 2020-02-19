@@ -3,7 +3,8 @@
   "version": "4.1.0-release",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "grunt && NODE_ENV=PRODUCTION node ./bin/www",
+    "dev": "grunt && NODE_ENV=DEVELOPMENT node ./bin/www",
     "grunt": "grunt"
   },
   "dependencies": {
