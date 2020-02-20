@@ -4,7 +4,7 @@ const Application = require('./../core/Application');
 const logger = require('./../core/Logger');
 
 const semanticsSupported = [
-  'DCP-json_cemaden', 'DCP-generic', 'DCP-inpe',
+  /*'DCP-json_cemaden'*/, 'DCP-generic', 'DCP-inpe',
   'DCP-postgis','DCP-single_table', 'DCP-toa5',
   'GEOMETRIC_OBJECT-ogr', 'GEOMETRIC_OBJECT-wfe',
   'STATIC_DATA-ogr', 'GEOMETRIC_OBJECT-postgis',
@@ -13,7 +13,7 @@ const semanticsSupported = [
   'NETCDF-nc', 'GRID-grads', 'GRID-grib',
   'ANALYSIS_MONITORED_OBJECT-postgis',
   'Occurrence-generic', 'OCCURRENCE-wfp',
-  'OCCURRENCE-lightning', 'OCCURRENCE-postgis'
+  /*'OCCURRENCE-lightning'*/, 'OCCURRENCE-postgis'
 ]
 
 module.exports = {
