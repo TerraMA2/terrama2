@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "grunt && NODE_ENV=PRODUCTION node ./bin/www",
-    "dev": "grunt && NODE_ENV=DEVELOPMENT node ./bin/www",
+    "dev": "grunt && NODE_ENV=DEVELOPMENT node --inspect=0.0.0.0:9230 ./bin/www",
     "grunt": "grunt"
   },
   "dependencies": {
