@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "grunt && NODE_ENV=PRODUCTION node ./bin/www",
-    "dev": "grunt && NODE_ENV=DEVELOPMENT node --inspect=0.0.0.0:9229 ./bin/www",
+    "dev": "grunt && NODE_ENV=DEVELOPMENT node --inspect=0.0.0.0:5858 ./bin/www",
     "grunt": "grunt",
     "test": "mocha -c --reporter=spec --timeout 99999 --recursive 'tests/**/*.spec.js'",
     "sequelize": "sequelize",
