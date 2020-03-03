@@ -131,6 +131,7 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
 
     std::shared_ptr<te::dt::TimeInstantTZ> lastDateTime;
     auto status = CollectorLogger::ProcessLogger::Status::START;
+    bool verifyStatusDoneExist = false;
 
     /////////////////////////////////
     //
@@ -148,14 +149,17 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
         auto dataMap = dataAccessor->getSeries({{datasetId, uri}}, filter, remover);
         if(dataMap.empty())
         {
-          QString errMsg = tr("No data to collect.");
-          logger->log(CollectorLogger::MessageType::WARNING_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
-          logger->result(CollectorLogger::Status::WARNING, nullptr, executionPackage.registerId);
-          TERRAMA2_LOG_WARNING() << errMsg;
+          if(!verifyStatusDoneExist)
+          {
+            QString errMsg = tr("No data to collect.");
+            logger->log(CollectorLogger::MessageType::WARNING_MESSAGE, errMsg.toStdString(), executionPackage.registerId);
+            logger->result(CollectorLogger::Status::WARNING, nullptr, executionPackage.registerId);
+            TERRAMA2_LOG_WARNING() << errMsg;
 
-          // yellow status to the user
-          status = CollectorLogger::ProcessLogger::Status::WARNING;
-          return;
+            // yellow status to the user
+            status = CollectorLogger::ProcessLogger::Status::WARNING;
+            return;
+          }
         }
 
         thisFileLastDateTime = dataAccessor->lastDateTime();
@@ -188,6 +192,8 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
           lastDateTime = thisFileLastDateTime;
         }
 
+        verifyStatusDoneExist = true;
+
         status = CollectorLogger::ProcessLogger::Status::DONE;
       }
       catch(const terrama2::core::LogException& e)
@@ -199,12 +205,15 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
       }
       catch(const terrama2::core::NoDataException& e)
       {
-        status = CollectorLogger::ProcessLogger::Status::WARNING;
-        std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
-        TERRAMA2_LOG_INFO() << tr("No data available for collector %1.").arg(QString::fromStdString(outputDataSeries->name));
+        if(!verifyStatusDoneExist)
+        {
+          status = CollectorLogger::ProcessLogger::Status::WARNING;
+          std::string errMsg = boost::get_error_info<terrama2::ErrorDescription>(e)->toStdString();
+          TERRAMA2_LOG_INFO() << tr("No data available for collector %1.").arg(QString::fromStdString(outputDataSeries->name));
 
-        if(executionPackage.registerId != 0)
-          logger->log(CollectorLogger::MessageType::WARNING_MESSAGE, errMsg, executionPackage.registerId);
+          if(executionPackage.registerId != 0)
+            logger->log(CollectorLogger::MessageType::WARNING_MESSAGE, errMsg, executionPackage.registerId);
+        }
       }
       catch(const terrama2::core::DataAccessorException& e)
       {
