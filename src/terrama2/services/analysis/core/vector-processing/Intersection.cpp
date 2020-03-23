@@ -69,6 +69,7 @@ void terrama2::services::analysis::core::vp::Intersection::execute()
     splitClassColumnSelected = splitClassColumnSelected.split(":")[1];
 
     std::string classNameSelected = analysis_->metadata.find("classNameSelected")->second;
+    std::cout << classNameSelected << std::endl;
     std::replace(classNameSelected.begin(), classNameSelected.end(), '{', ' ');
     std::replace(classNameSelected.begin(), classNameSelected.end(), '}', ' ');
 
@@ -85,11 +86,15 @@ void terrama2::services::analysis::core::vp::Intersection::execute()
   }
   else
     finalWhereCondition = "1 = 1";
+  finalWhereCondition = analysis_->script;
+
+  if(analysis_->script.empty()){
+      finalWhereCondition = "1 = 1";
+  }
 
   std::string sql = "SELECT table_name, affected_rows::double precision FROM vectorial_processing_intersection("+ std::to_string(analysis_->id) +", '" +
                      outputTableName_ + "', '" + staticLayerTableName + "', '" + dynamicLayerTableName + "', '" + attributes + "', '" + whereCondition_ +
-                     "', '" + finalWhereCondition + "', '" + attributeFilter + "'" + ")";
-
+                     "', E'" + finalWhereCondition + "', '" + attributeFilter + "'" + ")";
   std::cout << sql << std::endl;
 
   resultDataSet_ = transactor->query(sql);

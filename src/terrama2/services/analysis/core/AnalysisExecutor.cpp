@@ -103,6 +103,9 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
 {
   AnalysisHashCode analysisHashCode = analysis->hashCode(executionPackage.executionDate);
 
+  std::cout << "Resultado" << std::endl;
+  std::cout << dataManager << std::endl;
+
   auto logId = executionPackage.registerId;
   auto startTime = executionPackage.executionDate;
 

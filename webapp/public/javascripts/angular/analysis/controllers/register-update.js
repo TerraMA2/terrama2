@@ -993,6 +993,45 @@ define([], function() {
         self.onMetadataFormatClick = function(format) {
           self.analysis.metadata.INFLUENCE_RADIUS_UNIT = format;
         };
+        self.charCount = function(str, letter){
+          var letter_Count = 0;
+          for (var position = 0; position < str.length; position++) 
+          {
+            if (str.charAt(position) == letter) 
+              {
+              letter_Count += 1;
+              }
+          }
+          return letter_Count;
+        }
+
+        self.clauseCount = function(main_str, sub_str){
+          main_str = main_str.toUpperCase() +  '';
+          sub_str += '';
+      
+          if (sub_str.length <= 0) 
+          {
+              return main_str.length + 1;
+          }
+      
+          var subStr = sub_str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          return (main_str.match(new RegExp(subStr, 'gi')) || []).length;
+        }
+
+        self.queryIsValid = function(query){
+            if (self.charCount(query, '(') == self.charCount(query, ')')){
+              var clauseAnd = self.clauseCount(query, 'AND');
+              var clauseOr = self.clauseCount(query, 'OR');
+              var clauseCount = clauseAnd + clauseOr;
+
+              if (clauseCount !== (self.charCount(query, '(') - 1)){
+                return false;
+              }
+
+              return true;
+            }
+            return false;
+        }
 
         /**
          * It prepares analysis object to send via API
@@ -1013,6 +1052,13 @@ define([], function() {
            * @type {string}
            */
           var errMessageEmptyFields = i18n.__("There are invalid fields on form");
+
+          var queryResult = $scope.forms.targetDataSeriesForm.$$controls[13].$modelValue;
+
+          if (!self.queryIsValid(queryResult) && queryResult !== ""){
+            $scope.forms.targetDataSeriesForm.$invalid = true;
+            errMessageEmptyFields = i18n.__("Query result is invalid!");
+          }
 
           var scheduleForm = angular.element('form[name="scheduleForm"]').scope().scheduleForm;
           if ($scope.forms.generalDataForm.$invalid ||
@@ -1156,7 +1202,9 @@ define([], function() {
 
           // preparing data to send
           var analysisToSend = Object.assign({}, self.analysis);
-
+          analysisToSend.script = queryResult.replace(/'/g, "\\'");
+          console.log(`Analise:`);
+          console.log(analysisToSend);
           // setting target data series metadata (monitored object, dcp..)
           if (typeId !== Globals.enums.AnalysisType.GRID) {
             //If analysis type is DCP, save analysis data series as monitored object
@@ -1257,24 +1305,26 @@ define([], function() {
 
         // save function
         self.save = function(shouldRun) {
+          debugger;
           try {
             var objectToSend = self.$prepare(shouldRun);
-
+            
             if (self.isUpdating && !hasProjectPermission){
               return MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this analysis. He belongs to a protected project!"));
             }
-
+            
             if (!canSave){
               return MessageBoxService.danger(i18n.__("Analysis"), i18n.__(serviceOfflineMessage));
             }
-
+            
             var performOperation = function() {
               /**
                * Target object request (update/insert)
                * @type {angular.IPromise<any>}
                */
               var request;
-
+              
+              console.log(objectToSend);
               if (self.isUpdating) { request = AnalysisService.update(config.analysis.id, objectToSend); }
               else { request = AnalysisService.create(objectToSend); }
 
