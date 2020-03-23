@@ -1,22 +1,25 @@
-[
+Para o Arquivo ser ativado novamente, inserir no arquivo "occurrence-inpe.json" e deletar este
+
+
+
+,
   {
-    "name": "Occurrence – INPE fire program",
-    "code": "OCCURRENCE-wfp",
-    "driver": "OCCURRENCE-wfp",
+    "name": "Occurrence – INPE lightning program",
+    "code": "OCCURRENCE-lightning",
+    "driver": "OCCURRENCE-lightning",
     "type": "OCCURRENCE",
     "temporality": "DYNAMIC",
     "format": "CSV",
     "providers_type_list": ["FILE", "FTP", "HTTP", "HTTPS"],
     "metadata": {
-      "timestamp_property": "data_hora_gmt",
-      "input_geometry_property": "geometria",
-      "geometry_property": "geometria",
-      "latitude_property": "latitude",
-      "longitude_property": "longitude",
-      "float_properties": "latitude,longitude",
-      "int_properties": "id_0,id_1,id_2,bioma_id",
+      "input_timestamp_property": "Horario (GMT)",
+      "input_geometry_property": "position",
+      "latitude_property": "Latitude",
+      "longitude_property": "Longitude",
       "timezone": "UTM+00",
-      "srid": "4326"
+      "srid": "4326",
+      "timestamp_property": "horario_gmt",
+      "geometry_property": "geom"
     },
     "collector": true,
     "gui": {
@@ -40,4 +43,3 @@
       ]
     }
   }
-]

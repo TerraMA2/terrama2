@@ -38,8 +38,8 @@ app.use(webMonitorSession);
 
 passport.setupPassport(app);
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', parameterLimit: 100000, extended: false }));
 
 app.use(app.locals.BASE_URL, express.static(path.join(__dirname, 'public')));
 app.use(app.locals.BASE_URL + 'locales', express.static(path.join(__dirname, 'locales')));

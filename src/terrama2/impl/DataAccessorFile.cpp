@@ -140,6 +140,54 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::mem::Da
 
   terrama2::core::DataSetSeries filterDataSetSeries;
   std::unique_ptr<te::sam::rtree::Index<size_t, 8> > rtree;
+
+  //Verify date is compatible
+  bool dateIsCompatible = true;
+  // lastDateTime_  contain the date in the name of File
+  if(this->lastDateTime_ != nullptr){
+  /*
+  * DiscardBefore can be the last file date readed or
+  * can be declared in filter
+  */
+    if(filter.discardBefore.get())
+    {
+      if((*this->lastDateTime_) > (*filter.discardBefore))
+      {
+        if(filter.discardAfter.get())
+        {
+          if((*this->lastDateTime_) < (*filter.discardAfter))
+          {
+            dateIsCompatible = true;
+          }else
+          {
+            dateIsCompatible = false;
+          }
+        } else
+        {
+          dateIsCompatible = true;
+        }
+      }
+    } else if(filter.discardAfter.get())
+    {
+      if((*this->lastDateTime_) < (*filter.discardAfter))
+      {
+        dateIsCompatible = true;
+      } else
+      {
+        dateIsCompatible = false;
+      }
+    } else
+    {
+      dateIsCompatible = true;
+    }
+  }
+
+  if(!dateIsCompatible)
+  {
+    return;
+  }
+
+
   // Apply filter by static data
   if(filter.dataProvider && filter.dataSeries)
   {
@@ -188,9 +236,9 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::mem::Da
     {
       for(size_t i = begin; i < end; ++i)
       {
-        if(!isValidTimestamp(syncDataSet, i, filter, dateColumn)
-           || !isValidGeometry(syncDataSet, i, filter, geomColumn, filterDataSetSeries, rtree)
+        if(!isValidGeometry(syncDataSet, i, filter, geomColumn, filterDataSetSeries, rtree)
            || !isValidRaster(syncDataSet, i, filter, rasterColumn, filterDataSetSeries, rtree, mutex))
+        //!isValidTimestamp(syncDataSet, i, filter, dateColumn) ||       THIS LINE WILL VERIFY EVERY DATE IN FILE AND IT IS NOT USED FOR WHILE
         {
           std::unique_lock<std::mutex> lock(mutex);
           removeIndexes.insert(i);
@@ -904,14 +952,17 @@ void terrama2::core::DataAccessorFile::applyFilters(const terrama2::core::Filter
                                     const std::shared_ptr<te::mem::DataSet> &completeDataset,
                                     std::shared_ptr<te::dt::TimeInstantTZ> &lastFileTimestamp) const
 {
-  filterDataSet(completeDataset, filter);
 
-  if (this->dataSeries_->semantics.code == "GEOMETRIC_OBJECT-ogr" && lastFileTimestamp != nullptr)
+ //if ((this->dataSeries_->semantics.code == "GEOMETRIC_OBJECT-ogr" && lastFileTimestamp != nullptr) ||
+          //(this->dataSeries_->semantics.code == "Occurrence-generic" && lastFileTimestamp != nullptr))
+  if(lastFileTimestamp != nullptr)
   {
     // TODO:
     lastDateTime_ = lastFileTimestamp;
-    return;
+    //return;
   }
+
+  filterDataSet(completeDataset, filter);
 
   //Get last data timestamp and compare with file name timestamp
   std::shared_ptr<te::dt::TimeInstantTZ> dataTimeStamp = getDataLastTimestamp(dataSet, completeDataset);

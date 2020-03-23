@@ -25,6 +25,7 @@ module.exports = function(app) {
 
 
         const result = await conn.execute(sql);
+        result.rows[0].activearea = true;
 
         response.json(result.rows);
       } catch (error) {

@@ -181,8 +181,8 @@ double terrama2::services::analysis::core::grid::zonal::forecast::accum::operato
         // - The beginning should be before the end
         if(bandBegin <= 0
           || bandBegin > bandEnd
-          || bandBegin > raster->getNumberOfBands()
-          || bandEnd > raster->getNumberOfBands())
+          || bandBegin >= raster->getNumberOfBands()
+          || bandEnd >= raster->getNumberOfBands())
         {
           QString errMsg{QObject::tr("Invalid value of band index.")};
           throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription(errMsg);
