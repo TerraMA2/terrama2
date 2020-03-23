@@ -174,7 +174,7 @@
 		}
 	},
 	"Chart": "Chart",
-  	"Chart description is required": "Chart description is required",
+	"Chart description is required": "Chart description is required",
 	"Chart name is required": "Chart name is required",
 	"Chart type is required": "Chart type is required",
 	"Choose data series": "Choose data series",
@@ -1136,5 +1136,23 @@
 	"View Error": " Error in query execution. relation \"undefined\" does not exist",
 	"Attribute is required": "Attribute is required",
 	"Column value is invalid": "Column value is invalid",
-	"STATIC-HTTP": "STATIC-HTTP"
+	"STATIC-HTTP": "STATIC-HTTP",
+	"Add attributes configuration": "Add attributes configuration",
+	"WFS – Deter": "WFS – Deter",
+	"Filename": "Filename",
+	"Map": "Map",
+	"Save and Run5": "Save and Run5",
+	"Validate5": "Validate5",
+	"Table": "Table",
+	"Operator": "Operator",
+	"SQL Result": "SQL Result",
+	"Clause": "Clause",
+	"Custom Class Filter": "Custom Class Filter",
+	"not found": {
+		"": "not found."
+	},
+	"Query result is invalid!": "Query result is invalid!",
+	"WFS": "WFS",
+	"Transfer Shapefile4": "Transfer Shapefile4",
+	"Transfer Shapefile5": "Transfer Shapefile5"
 }
