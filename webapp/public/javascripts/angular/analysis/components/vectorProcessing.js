@@ -249,16 +249,15 @@ define([],()=> {
         if (clauses.includes(value)){
           var lastCharFromCursor = fieldText.value.substring(startPos - 1, endPos);
           if (lastCharFromCursor == ")"){
-            this.filterString = fieldText.value.substring(0, startPos)+ value 
+            this.filterString = fieldText.value.substring(0, startPos)+ ` ${value}` 
                + fieldText.value.substring(endPos, fieldText.value.length);
           }else if(lastCharFromCursor == "\n"){
-            this.filterString = fieldText.value.substring(0, startPos).replace(/\n$/, "") + value + "\n"
+            this.filterString = fieldText.value.substring(0, startPos).replace(/\n$/, "") + ` ${value}` + "\n"
                + fieldText.value.substring(endPos, fieldText.value.length)
           }else{
             return;
           }
         }else{
-          console.log("normal");
           this.filterString = fieldText.value.substring(0, startPos)+ value 
                  + fieldText.value.substring(endPos, fieldText.value.length);
         }
@@ -275,18 +274,18 @@ define([],()=> {
             var lastCharFromCursor = fieldText.value.substring(startPos - 1, endPos);
             var lastClause = fieldText.value.substring(startPos - 5, endPos).replace(/\n$/, "").trim();
             if (lastCharFromCursor == ")"){
-              this.filterString = fieldText.value.substring(0, startPos)+ value 
+              this.filterString = fieldText.value.substring(0, startPos) + ` ${value}`
                 + fieldText.value.substring(endPos, fieldText.value.length);
             }else if(clauses.includes(lastClause)){
               return;
             }else if(lastCharFromCursor == "\n"){
-              this.filterString = fieldText.value.substring(0, startPos).replace(/\n$/, "") + value + "\n"
+              this.filterString = fieldText.value.substring(0, startPos).replace(/\n$/, "") + ` ${value}` + "\n"
                 + fieldText.value.substring(endPos, fieldText.value.length)
             }else{
               return;
             }
           }else{
-            this.filterString = fieldText.value.substring(0, startPos)+ value 
+            this.filterString = fieldText.value.substring(0, startPos)+ ` ${value}` 
                   + fieldText.value.substring(endPos, fieldText.value.length);
           }
 
