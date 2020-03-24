@@ -1022,11 +1022,11 @@ define([], function() {
             if (self.charCount(query, '(') == self.charCount(query, ')')){
               var clauseAnd = self.clauseCount(query, 'AND');
               var clauseOr = self.clauseCount(query, 'OR');
-              var clauseCount = clauseAnd + clauseOr;
+              // var clauseCount = clauseAnd + clauseOr;
 
-              if (clauseCount !== (self.charCount(query, '(') - 1)){
-                return false;
-              }
+              // if (clauseCount !== (self.charCount(query, '(') - 1)){
+              //   return false;
+              // }
 
               return true;
             }
