@@ -151,7 +151,7 @@ DECLARE
     dynamic_table_name_column VARCHAR;
     dynamic_table_name_handler VARCHAR;
 
-    static_table_srid INTEGER;
+    dynamic_table_srid INTEGER;
     number_of_rows INTEGER;
     number_of_rows_metadata INTEGER;
 
@@ -192,13 +192,7 @@ BEGIN
     -- Retrieves Geometry Column Name from Intersect Data Series
     EXECUTE 'SELECT get_geometry_column($1)' INTO dynamic_table_name_column USING dynamic_table_name_handler;
 
-    EXECUTE format('SELECT ST_SRID(%s) FROM %s LIMIT 1', static_table_name_column, static_table_name) INTO static_table_srid;
-
-    IF static_table_srid <= 0 THEN
-        RAISE NOTICE 'The table "%" has no SRID "%". Using "4326" as default.', static_table_name, static_table_srid;
-
-        static_table_srid := 4326;
-    END IF;
+    EXECUTE format('SELECT ST_SRID(%s) FROM %s LIMIT 1', dynamic_table_name_column, dynamic_table_name) INTO dynamic_table_srid;
 
     -- Getting date_column_from_dynamic_table
     EXECUTE format('SELECT get_date_column_from_dynamic_table(''%s'')', dynamic_table_name_handler) INTO date_column_from_dynamic_table;
@@ -222,7 +216,7 @@ BEGIN
     EXECUTE format('SELECT array_length(string_to_array(''%s'', '',''), 1) ', output_attributes) INTO number_of_attributes;
 
     number_of_attributes := number_of_attributes + 6;
-    -- 6 this is the default number of attributes: monitored_id, intersect_id, execution_date, intersection_geom, calculated_area_ha, final_table_id;
+    -- 6 this is the default number of attributes: mo   nitored_id, intersect_id, execution_date, intersection_geom, calculated_area_ha, final_table_id;
 
     IF (is_table_exists AND number_of_columns = number_of_attributes) THEN
         -- Creating analysis filter
@@ -250,12 +244,12 @@ BEGIN
                                   SELECT %s.%s::VARCHAR AS monitored_id,
                                          %s.%s::VARCHAR AS intersect_id,
                                          %s.%s::TIMESTAMPTZ AS execution_date,
-                                         ST_Intersection(%s.%s, ST_Transform(%s.%s, %s)) AS intersection_geom,
+                                         ST_Intersection(ST_Transform(%s.%s, %s), %s.%s) AS intersection_geom,
                                          ST_GeometryType(%s.%s) AS table_left_geometry_type,
                                          ST_GeometryType(%s.%s) AS table_right_geometry_type,
                                          %s
                                     FROM %s, %s
-                                   WHERE ST_Intersects(%s.%s, ST_Transform(%s.%s, %s))
+                                   WHERE ST_Intersects(ST_Transform(%s.%s, %s), %s.%s)
                                          AND %s
                                          AND %s
                                          AND (%s)
@@ -270,12 +264,12 @@ BEGIN
                     static_table_name, pk_static_table,
                     dynamic_table_name_handler, pk_dynamic_table,
                     dynamic_table_name_handler, date_column_from_dynamic_table,
-                    static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
+                    static_table_name, static_table_name_column, dynamic_table_srid, dynamic_table_name_handler, dynamic_table_name_column,
                     static_table_name, static_table_name_column,
                     dynamic_table_name_handler, dynamic_table_name_column,
                     output_attributes,
                     dynamic_table_name_handler, static_table_name,
-                    static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
+                    static_table_name, static_table_name_column, dynamic_table_srid, dynamic_table_name_handler, dynamic_table_name_column,
                     analysis_filter, date_filter, class_name_filter);
         
         RAISE NOTICE 'Query %', query;
@@ -304,12 +298,12 @@ BEGIN
                   SELECT %s.%s::VARCHAR AS monitored_id,
                          %s.%s::VARCHAR AS intersect_id,
                          %s.%s::TIMESTAMPTZ AS execution_date,
-                         ST_Intersection(%s.%s, ST_Transform(%s.%s, %s)) AS intersection_geom,
+                         ST_Intersection(ST_Transform(%s.%s, %s), %s.%s) AS intersection_geom,
                          ST_GeometryType(%s.%s) AS table_left_geometry_type,
                          ST_GeometryType(%s.%s) AS table_right_geometry_type,
                          %s
                     FROM %s, %s
-                   WHERE ST_Intersects(%s.%s, ST_Transform(%s.%s, %s))
+                   WHERE ST_Intersects(ST_Transform(%s.%s, %s), %s.%s)
                      AND %s
                      AND %s
                      AND (%s)
@@ -325,12 +319,12 @@ BEGIN
                     static_table_name, pk_static_table,
                     dynamic_table_name_handler, pk_dynamic_table,
                     dynamic_table_name_handler, date_column_from_dynamic_table,
-                    static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
+                    static_table_name, static_table_name_column, dynamic_table_srid, dynamic_table_name_handler, dynamic_table_name_column,
                     static_table_name, static_table_name_column,
                     dynamic_table_name_handler, dynamic_table_name_column,
                     output_attributes,
                     dynamic_table_name_handler, static_table_name,
-                    static_table_name, static_table_name_column, dynamic_table_name_handler, dynamic_table_name_column, static_table_srid,
+                    static_table_name, static_table_name_column, dynamic_table_srid, dynamic_table_name_handler, dynamic_table_name_column,
                     analysis_filter, date_filter, class_name_filter);
 
         EXECUTE query;
@@ -354,7 +348,7 @@ BEGIN
     END IF;
 
 	query := format('ALTER TABLE %s ALTER COLUMN intersection_geom TYPE geometry(GEOMETRY, %s)
-				USING ST_Transform(ST_SetSRID(intersection_geom,%s), %s)',final_table, static_table_srid, static_table_srid, static_table_srid);
+				USING ST_Transform(ST_SetSRID(intersection_geom,%s), %s)',final_table, dynamic_table_srid, dynamic_table_srid, dynamic_table_srid);
 	EXECUTE query;
 
     EXECUTE 'SELECT get_id_from_first_analysis(get_automatic_schedule_id_list())';
