@@ -387,8 +387,8 @@ void terrama2::core::DataRetrieverFTP::retrieveDataCallback(const std::string& m
     if(!hasData)
     {
       QString errMsg = QObject::tr("No data in the remote server.");
-      TERRAMA2_LOG_WARNING() << errMsg;
-      throw NoDataException() << ErrorDescription(errMsg);
+      TERRAMA2_LOG_WARNING() << QObject::tr("Not find data for %1.").arg(QString::fromStdString(mask));
+      NoDataException() << ErrorDescription(errMsg);
     }
   }
   catch(const NoDataException&)

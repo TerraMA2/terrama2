@@ -133,6 +133,23 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
     auto status = CollectorLogger::ProcessLogger::Status::START;
     bool verifyStatusDoneExist = false;
 
+    //verify if some file has founded
+    bool filehasfounded = false;
+
+    bool hasAlias = false;
+    auto datasetListRealSize = inputDataSeries->datasetList.size();
+    std::list <std::string> listAliasReal,listAliasFind, listAliasLost;
+    for(const auto& datasetReal : inputDataSeries->datasetList)
+    {
+      if ( !(datasetReal->format.find("alias") == datasetReal->format.end()) ) {
+        auto auxAliasDataSerieReal = datasetReal->format.at("alias");
+        listAliasReal.push_back(auxAliasDataSerieReal);
+        hasAlias = true;
+      }
+    }
+    std::string aliasDataSerie = "";
+
+
     /////////////////////////////////
     //
     // begin processing
@@ -145,6 +162,8 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
         // don't continue
         if(status == CollectorLogger::ProcessLogger::Status::ERROR)
           return;
+
+        filehasfounded = true;
 
         auto dataMap = dataAccessor->getSeries({{datasetId, uri}}, filter, remover);
         if(dataMap.empty())
@@ -159,6 +178,23 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
             // yellow status to the user
             status = CollectorLogger::ProcessLogger::Status::WARNING;
             return;
+          }
+        }
+
+        if(hasAlias)
+        {
+          if(dataMap.size() == 1)
+          {
+            for(const auto& data : dataMap)
+            {
+              const auto& dataSetSeries = data.first;
+              auto auxAliasDataSerie = dataSetSeries->format.at("alias");
+              if(aliasDataSerie == "" || auxAliasDataSerie != aliasDataSerie)
+              {
+                aliasDataSerie = auxAliasDataSerie;
+                listAliasFind.push_back(aliasDataSerie);
+              }
+            }
           }
         }
 
@@ -270,6 +306,12 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
     //
     /////////////////////////////////
 
+    if(!filehasfounded)
+    {
+      QString errMsg = QObject::tr("No data in the remote server.");
+      throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
+    }
+
     TERRAMA2_LOG_INFO() << tr("Collector %1 finished successfully.").arg(QString::fromStdString(outputDataSeries->name));
 
     auto processingEndTime = terrama2::core::TimeUtils::nowUTC();
@@ -277,6 +319,30 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
     // log processing time
     logger->setStartProcessingTime(processingStartTime, executionPackage.registerId);
     logger->setEndProcessingTime(processingEndTime, executionPackage.registerId);
+
+    if(hasAlias)
+    {
+      if(datasetListRealSize != listAliasFind.size())
+      {
+        for(auto& aliasReal : listAliasReal)
+        {
+          if(!(std::find(listAliasFind.begin(), listAliasFind.end(), aliasReal) != listAliasFind.end()))
+          {
+            listAliasLost.push_back(aliasReal);
+          }
+        }
+      }
+    }
+
+    if(listAliasLost.size() > 0)
+    {
+      std::string finalAliasLost = "Dados Faltantes: \n";
+      for(auto& aliasLost : listAliasLost)
+      {
+        finalAliasLost = finalAliasLost + aliasLost + " ;\n";
+      }
+      logger->log(CollectorLogger::MessageType::WARNING_MESSAGE, finalAliasLost, executionPackage.registerId);
+    }
 
     logger->result(status, lastDateTime, executionPackage.registerId);
 
