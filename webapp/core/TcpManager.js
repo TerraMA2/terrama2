@@ -156,9 +156,9 @@ TcpManager.prototype.$send = function(serviceInstance, data, signal) {
     var config = Application.getContextConfig();
     data.webAppId = config.webAppId;
 
-    var buffer = this.makebuffer(signal, data);
+    var buffer = this.  makebuffer(signal, data);
 
-    //logger.debug(buffer);
+    // logger.debug(buffer);
     // logger.debug("BufferToString: ", buffer.toString());
     // logger.debug("BufferToString size: ", buffer.length);
     // logger.debug("Signal: ", signal, " serviceInstance: ", serviceInstance.name)
@@ -276,7 +276,7 @@ TcpManager.prototype.startService = function(serviceInstance) {
         instance.adapter.execute(serviceInstance.pathToBinary, ['--version', '-platform', 'minimal'], {}),
         instance.startService()
       ]).spread(function(versionResponse, startResponse) {
-        self.emit("serviceVersion", serviceInstance, versionResponse.data);
+          self.emit("serviceVersion", serviceInstance, versionResponse.data);
 
         return resolve(startResponse.code);
       }).catch(function(err) {

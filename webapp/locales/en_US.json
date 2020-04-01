@@ -1154,5 +1154,21 @@
 	"Query result is invalid!": "Query result is invalid!",
 	"WFS": "WFS",
 	"Transfer Shapefile4": "Transfer Shapefile4",
-	"Transfer Shapefile5": "Transfer Shapefile5"
+	"Transfer Shapefile5": "Transfer Shapefile5",
+	"Error in PostGIS connection": " Could not connect to Postgres due database \"naruto\" does not exist",
+	"ENOENT": " no such file or directory, open '../../../share/terrama2/scripts/sql-functions/vectorial_processing_intersection.sql'",
+	"There is no connection with postgres": {
+		" Make sure you are connected": {
+			"": "There is no connection with postgres. Make sure you are connected."
+		}
+	},
+	"Error in query execution": {
+		" relation \"postgres": {
+			"analysis\" does not exist": "Error in query execution. relation \"postgres.analysis\" does not exist"
+		},
+		" return type mismatch in function declared to return text[]": "Error in query execution. return type mismatch in function declared to return text[]",
+		" syntax error at or near \"AS\"": "Error in query execution. syntax error at or near \"AS\"",
+		" syntax error at or near \"SELECT\"": "Error in query execution. syntax error at or near \"SELECT\""
+	},
+	"Cannot read property 'replace' of undefined": "Cannot read property 'replace' of undefined"
 }
