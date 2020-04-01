@@ -46,7 +46,9 @@ module.exports = function(app) {
                 const sqlSelectCount = specificParameters.count ? `,COUNT(${specificParameters.tableAlias}.*) AS ${specificParameters.countAlias}` : '';
                 const sqlSelectSum = specificParameters.sum ? `,SUM(${specificParameters.tableAlias}.${specificParameters.sumField}) AS ${specificParameters.sumAlias}` : '';
                 const sqlSelect =
-                    ` SELECT property.numero_do1 AS registro_estadual,
+                    ` SELECT 
+                        property.gid AS gid,
+                        property.numero_do1 AS registro_estadual,
                         property.numero_do2 AS registro_federal,
                         property.nome_da_p1 AS nome_propriedade,
                         property.municipio1 AS municipio,
@@ -62,6 +64,7 @@ module.exports = function(app) {
                 const sqlGroupBy =
                     ` GROUP BY property.numero_do1,
                             property.numero_do2,
+                            property.gid,
                             property.nome_da_p1,
                             property.municipio1,
                             property.area_ha_,
