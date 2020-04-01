@@ -53,6 +53,7 @@ define([], function() {
 
     $scope.forms = {};
     $scope.isDynamic = configuration.dataSeriesType === "dynamic";
+    $scope.showButton = false;
     $scope.hasProjectPermission = configuration.hasProjectPermission;
     $scope.semantics = "";
     $scope.semanticsCode = "";
@@ -397,6 +398,7 @@ define([], function() {
             return BASE_URL + "images/data-server/postGIS/postGIS.png";
         }
       }
+
 
       /**
        * Checks if Data series semantics is Cemaden
@@ -1219,6 +1221,14 @@ define([], function() {
         return (dataSeries.data_series_semantics.data_series_type_name == globals.enums.DataSeriesType.GEOMETRIC_OBJECT ||
                 dataSeries.data_series_semantics.data_series_type_name == globals.enums.DataSeriesType.GRID);
       };
+
+      $("#choiceDatabase").on('click', (e)=>{
+        $scope.showButton = false;
+      });
+
+      $("#choiceShapefile").on("click", (e)=>{
+        $scope.showButton = true;
+      });
 
       $scope.onFilterRegion = function() {
         if ($scope.filter.filterArea === $scope.filterTypes.NO_FILTER.value) {
