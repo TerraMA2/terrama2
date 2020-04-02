@@ -415,9 +415,32 @@ define([], function() {
           if (response.data.status == 400){
             return result.reject(response.data);
           }
-          self.columnsList = response.data.data.map(function(item, index) {
-            return item.column_name;
-          });
+
+          if(isVectorialProcessing()){    
+            DataProviderService.listPostgisObjects({providerId: dataProvider.id, objectToGet: "values", tableName: tableName, columnName: "table_name"})
+            .then(function(responseVectorialValues){
+              if (responseVectorialValues.data.status == 400){
+                return result.reject(responseVectorialValues.data);
+              } else {
+                DataProviderService.listPostgisObjects({providerId: dataProvider.id, objectToGet: "column", tableName: responseVectorialValues.data.data[0]})
+                .then(function(responseRealVectorialTable){
+                  if (responseRealVectorialTable.data.status == 400){
+                    return result.reject(responseRealVectorialTable.data);
+                  } else {
+                    self.columnsList = responseRealVectorialTable.data.data.map(function(item, index) {
+                      return item.column_name;
+                    });                    
+                  }
+                });
+                
+              }
+            });
+          } else{
+            self.columnsList = response.data.data.map(function(item, index) {
+              return item.column_name;
+            });
+          }
+
           result.resolve(response.data.data);
         });
 
@@ -457,58 +480,56 @@ define([], function() {
             return;
           }
 
-          if (!isVectorialProcessing()) {
-            if(!self.legend.metadata.creation_type)
-              return MessageBoxService.danger(i18n.__("View"), i18n.__("Select the Style Creation Type"));
+          if(!self.legend.metadata.creation_type)
+            return MessageBoxService.danger(i18n.__("View"), i18n.__("Select the Style Creation Type"));
 
-            if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type == "editor") {
-              if (!self.legend.colors || self.legend.colors.length === 0) {
-                return MessageBoxService.danger(i18n.__("View"), i18n.__("You must generate the style colors to classify Data Series"));
-              }
-              for(var i = 0; i < self.legend.colors.length; ++i) {
-                var colorIt = self.legend.colors[i];
-                if (colorIt.isDefault) {
-                  continue;
-                }
-                for(var j = i + 1; j < self.legend.colors.length; ++j) {
-                  if (self.legend.colors[j].value === colorIt.value) {
-                    return MessageBoxService.danger(i18n.__("View"), i18n.__("The colors must have unique values"));
-                  }
-                }
-              }
+          if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type == "editor") {
+            if (!self.legend.colors || self.legend.colors.length === 0) {
+              return MessageBoxService.danger(i18n.__("View"), i18n.__("You must generate the style colors to classify Data Series"));
             }
-            else if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type == "xml" && (self.legend.metadata.xml_style == "" || self.legend.metadata.xml_style == undefined) ) {
-              return MessageBoxService.danger(i18n.__("View"), i18n.__("You must fill the SLD field"));
-            }
-            else if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type != "editor" && self.legend.metadata.creation_type != "xml"){
-              if (self.legend.fieldsToReplace){
-                var prefixValueToReplace = "Band";
-                if (self.legend.metadata.hasOwnProperty("hasOneBand") && self.legend.metadata.hasOneBand){
-                  prefixValueToReplace = "";
-                  self.legend.metadata.band = 0;
+            for(var i = 0; i < self.legend.colors.length; ++i) {
+              var colorIt = self.legend.colors[i];
+              if (colorIt.isDefault) {
+                continue;
+              }
+              for(var j = i + 1; j < self.legend.colors.length; ++j) {
+                if (self.legend.colors[j].value === colorIt.value) {
+                  return MessageBoxService.danger(i18n.__("View"), i18n.__("The colors must have unique values"));
                 }
-                self.legend.fieldsToReplace.forEach(function(field){
-                  //Must increase 1 because geoserver starts the band name from 1
-                  var bandNumber = self.legend.metadata[field] + 1;
-                  self.legend.metadata.xml_style = self.legend.metadata.xml_style.split("%"+field).join(prefixValueToReplace+bandNumber);
-                });
-                delete self.legend.fieldsToReplace;
               }
             }
+          }
+          else if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type == "xml" && (self.legend.metadata.xml_style == "" || self.legend.metadata.xml_style == undefined) ) {
+            return MessageBoxService.danger(i18n.__("View"), i18n.__("You must fill the SLD field"));
+          }
+          else if (Object.keys(self.legend).length !== 0 && self.legend.metadata.creation_type != "editor" && self.legend.metadata.creation_type != "xml"){
+            if (self.legend.fieldsToReplace){
+              var prefixValueToReplace = "Band";
+              if (self.legend.metadata.hasOwnProperty("hasOneBand") && self.legend.metadata.hasOneBand){
+                prefixValueToReplace = "";
+                self.legend.metadata.band = 0;
+              }
+              self.legend.fieldsToReplace.forEach(function(field){
+                //Must increase 1 because geoserver starts the band name from 1
+                var bandNumber = self.legend.metadata[field] + 1;
+                self.legend.metadata.xml_style = self.legend.metadata.xml_style.split("%"+field).join(prefixValueToReplace+bandNumber);
+              });
+              delete self.legend.fieldsToReplace;
+            }
+          }
 
-            if(self.legend.metadata.creation_type == "editor") {
-              delete self.legend.metadata.xml_style;
-            } else if(self.legend.metadata.creation_type == "xml") {
-              self.legend.colors = [];
-              delete self.legend.bands;
-              delete self.legend.beginColor;
-              delete self.legend.endColor;
-            } else {
-              self.legend.colors = [];
-              delete self.legend.bands;
-              delete self.legend.beginColor;
-              delete self.legend.endColor;
-            }
+          if(self.legend.metadata.creation_type == "editor") {
+            delete self.legend.metadata.xml_style;
+          } else if(self.legend.metadata.creation_type == "xml") {
+            self.legend.colors = [];
+            delete self.legend.bands;
+            delete self.legend.beginColor;
+            delete self.legend.endColor;
+          } else {
+            self.legend.colors = [];
+            delete self.legend.bands;
+            delete self.legend.beginColor;
+            delete self.legend.endColor;
           }
 
           // If dynamic, schedule validation is required
