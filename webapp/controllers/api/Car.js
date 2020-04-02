@@ -162,12 +162,12 @@ module.exports = function(app) {
 
             await conn.connect();
 
-            const sqlWhere = cpf ? ` WHERE cpf = '${cpf}' ` : ` `;
+            const sqlWhere = cpf ? ` WHERE cpfcnpj = '${cpf}' ` : ` `;
 
             const sql = `SELECT
                             gid,
                             id as id_car,
-                            '835.751.920-22' AS cpf,
+                            cpfcnpj AS cpf,
                             numero_do1 as mt_car_number,
                             numero_do2 as federal_car_number,
                             nome_da_p1 as property_name,
