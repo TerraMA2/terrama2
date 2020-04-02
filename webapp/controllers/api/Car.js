@@ -55,7 +55,8 @@ module.exports = function(app) {
                         property.area_ha_ AS area,
                         property.situacao_1 AS situacao,
                         ST_Y(ST_Transform (ST_Centroid(property.geom), 4326)) AS "lat",
-                        ST_X(ST_Transform (ST_Centroid(property.geom), 4326)) AS "long"
+                        ST_X(ST_Transform (ST_Centroid(property.geom), 4326)) AS "long",
+                        (SELECT count(1) > 0 FROM alertas.reports rep WHERE property.gid = rep.car_gid) AS has_pdf
                         ${sqlSelectSum}
                         ${sqlSelectCount} `;
 
