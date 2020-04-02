@@ -312,7 +312,11 @@ define([
 
               switch(logMessage.status) {
                 case Globals.enums.StatusLog.DONE:
-                  out.message = "Done...";
+                  if(logMessage.messages[0].description.includes("Dados Faltantes:")){
+                    out.message = "Done. Lost Data";
+                  }else{
+                    out.message = "Done...";
+                  }                  
                   if (logMessage.data){
                     var dateProcessInfo = getDateProcessInfo(logMessage.data);
                     if (dateProcessInfo){
