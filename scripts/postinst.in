@@ -1,6 +1,6 @@
 #!/bin/bash
 
-INSTALL_COMMAND="yarn"
+INSTALL_COMMAND="npm"
 
 function valid()
 {
@@ -12,8 +12,8 @@ function valid()
 
 printf "Post-installation script...\n"
 
-npm install yarn -g
-valid $? "Unable to install Yarn."
+# npm install yarn -g
+# valid $? "Unable to install Yarn."
 
 (
   printf "Webapp dependencies...\n"

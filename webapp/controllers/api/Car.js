@@ -46,14 +46,17 @@ module.exports = function(app) {
                 const sqlSelectCount = specificParameters.count ? `,COUNT(${specificParameters.tableAlias}.*) AS ${specificParameters.countAlias}` : '';
                 const sqlSelectSum = specificParameters.sum ? `,SUM(${specificParameters.tableAlias}.${specificParameters.sumField}) AS ${specificParameters.sumAlias}` : '';
                 const sqlSelect =
-                    ` SELECT property.numero_do1 AS registro_estadual,
+                    ` SELECT 
+                        property.gid AS gid,
+                        property.numero_do1 AS registro_estadual,
                         property.numero_do2 AS registro_federal,
                         property.nome_da_p1 AS nome_propriedade,
                         property.municipio1 AS municipio,
                         property.area_ha_ AS area,
                         property.situacao_1 AS situacao,
                         ST_Y(ST_Transform (ST_Centroid(property.geom), 4326)) AS "lat",
-                        ST_X(ST_Transform (ST_Centroid(property.geom), 4326)) AS "long"
+                        ST_X(ST_Transform (ST_Centroid(property.geom), 4326)) AS "long",
+                        (SELECT count(1) > 0 FROM alertas.reports rep WHERE property.gid = rep.car_gid) AS has_pdf
                         ${sqlSelectSum}
                         ${sqlSelectCount} `;
 
@@ -62,6 +65,7 @@ module.exports = function(app) {
                 const sqlGroupBy =
                     ` GROUP BY property.numero_do1,
                             property.numero_do2,
+                            property.gid,
                             property.nome_da_p1,
                             property.municipio1,
                             property.area_ha_,
@@ -158,12 +162,12 @@ module.exports = function(app) {
 
             await conn.connect();
 
-            const sqlWhere = cpf ? ` WHERE cpf = '${cpf}' ` : ` `;
+            const sqlWhere = cpf ? ` WHERE cpfcnpj = '${cpf}' ` : ` `;
 
             const sql = `SELECT
                             gid,
                             id as id_car,
-                            '835.751.920-22' AS cpf,
+                            cpfcnpj AS cpf,
                             numero_do1 as mt_car_number,
                             numero_do2 as federal_car_number,
                             nome_da_p1 as property_name,
