@@ -234,7 +234,7 @@ define([],()=> {
                                 + fieldText.value.substring(endPos, fieldText.value.length);
       }
     }
-
+    
     insertAtCaret(value) {
       var fieldText = document.getElementById('sql-result');
       var clauses = ['and', 'or', 'AND', 'OR']
@@ -245,13 +245,14 @@ define([],()=> {
 
       }else if(window.navigator.userAgent.indexOf("Edge") > -1) {
         var startPos = fieldText.selectionStart; 
-        var endPos = fieldText.selectionEnd; 
+        var endPos = fieldText.selectionEnd;
+
         if (clauses.includes(value)){
-          var lastCharFromCursor = fieldText.value.substring(startPos - 1, endPos);
+          var lastCharFromCursor = fieldText.value.substring(startPos - 1, endPos).trim();
           if (lastCharFromCursor == ")"){
             this.filterString = fieldText.value.substring(0, startPos)+ ` ${value}` 
                + fieldText.value.substring(endPos, fieldText.value.length);
-          }else if(lastCharFromCursor == "\n"){
+          }else if((lastCharFromCursor == "\n") || ( lastCharFromCursor == ") " )){
             this.filterString = fieldText.value.substring(0, startPos).replace(/\n$/, "") + ` ${value}` + "\n"
                + fieldText.value.substring(endPos, fieldText.value.length)
           }else{
@@ -269,16 +270,16 @@ define([],()=> {
       else if (fieldText.selectionStart || fieldText.selectionStart == '0') {
           var startPos = fieldText.selectionStart;
           var endPos = fieldText.selectionEnd;
-
+          console.log(fieldText.value.length);
+          if (startPos == 0){
+            startPos = fieldText.value.length;
+            endPos = fieldText.value.length;
+          }
           if (clauses.includes(value)){
             var lastCharFromCursor = fieldText.value.substring(startPos - 1, endPos);
             var lastClause = fieldText.value.substring(startPos - 5, endPos).replace(/\n$/, "").trim();
-            if (lastCharFromCursor == ")"){
-              this.filterString = fieldText.value.substring(0, startPos) + ` ${value}`
-                + fieldText.value.substring(endPos, fieldText.value.length);
-            }else if(clauses.includes(lastClause)){
-              return;
-            }else if(lastCharFromCursor == "\n"){
+
+            if((lastCharFromCursor == ")") || (lastCharFromCursor == " ") || (lastCharFromCursor == "")){
               this.filterString = fieldText.value.substring(0, startPos).replace(/\n$/, "") + ` ${value}` + "\n"
                 + fieldText.value.substring(endPos, fieldText.value.length)
             }else{
@@ -293,7 +294,6 @@ define([],()=> {
           fieldText.value += value;
           this.filterString = fieldText.value;
       }
-
     }
 
     makeQuery(){
@@ -308,7 +308,7 @@ define([],()=> {
         this.listAttributeValues = null;
       }else{
         this.msgValueError = "";
-        var query = `(${table}.${attribute} ${operator} '${value}') ${clause} \n`;
+        var query = `(${table}.${attribute} ${operator} '${value}')`;
         this.insertAtCaret(query);
       }
 
@@ -321,10 +321,9 @@ define([],()=> {
       this.operatorValue = operatorValue;
     }
 
-    setClauseValue(){
-      const{ clauseValue } = this;
+    setClauseValue(value){
 
-      this.clauseValue = clauseValue;
+      this.clauseValue = value;
       this.insertAtCaret(this.clauseValue);
 
     }
@@ -738,19 +737,18 @@ define([],()=> {
                     </button>
                   </div>
 
-                  <div class="col-md-1">
-                    <label>{{ $ctrl.clauseLabel }}</label>
-                    <select class="form-control" ng-click="$ctrl.setClauseValue(this)" ng-model="$ctrl.clauseValue">
-                      <option value="">---</option>
-                      <option value="and">AND</option>
-                      <option value="or">OR</option>
-                    </select>
-                  </div>
-
-                  <div class="col-md-1">
-                    <button class="btn btn-primary" ng-click="$ctrl.getSelectedText()" style="margin-top:20px">
-                    ( )
-                    </button>
+                  <div class="col-md-2">
+                    <div class="row">
+                      <button class="btn btn-primary" ng-click="$ctrl.setClauseValue('and')" value="and" ng-model="$ctrl.clauseValue" style="margin-top:25px">
+                      AND
+                      </button>
+                      <button class="btn btn-primary" ng-click="$ctrl.setClauseValue('or')" value="and" ng-model="$ctrl.clauseValue" style="margin-top:25px">
+                      OR
+                      </button>
+                      <button class="btn btn-primary" ng-click="$ctrl.getSelectedText()" style="margin-top:25px">
+                      ( )
+                      </button>
+                    </div>
                   </div>
 
                 </div>
@@ -760,17 +758,6 @@ define([],()=> {
                   <textarea ng-model="$ctrl.filterString" style="height:250px;overflow:auto;min-height:150px;width:100%" id="sql-result"></textarea>
                 </div>
 
-                <div class="form-group" terrama2-show-errors>
-                  <label>Class Name:</label>
-                  <select class="form-control"
-                          name="classNameSelected"
-                          id="classNameSelected"
-                          ng-model="$ctrl.listClassNameColumnValueSelected"
-                          ng-options="attributes for attributes in $ctrl.listClassNameColumnValue"
-                          ng-change="$ctrl.onMultSelectClassName()"
-                          multiple>
-                  </select><br>
-                </div>
               </div>
               `
   };
