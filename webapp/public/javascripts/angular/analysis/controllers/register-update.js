@@ -350,6 +350,7 @@ define([], function() {
 
             if (analysisDs.type === Globals.enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE) {
               var dataSeriesTemporality = analysisDs.dataSeries.data_series_semantics.temporality == 'DYNAMIC' ? 'dynamic' : 'static';
+              
               if (dataSeriesTemporality == 'dynamic')
                 ds.isDynamic = true;
               else
@@ -1053,7 +1054,12 @@ define([], function() {
            */
           var errMessageEmptyFields = i18n.__("There are invalid fields on form");
 
-          var queryResult = $scope.forms.targetDataSeriesForm.$$controls[13].$modelValue;
+          try{
+            var queryResult = $scope.forms.targetDataSeriesForm.$$controls[13].$modelValue;
+          }catch(err){
+            var queryResult ="";
+          }
+          
 
           if (!self.queryIsValid(queryResult) && queryResult !== ""){
             $scope.forms.targetDataSeriesForm.$invalid = true;

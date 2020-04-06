@@ -113,7 +113,7 @@ define([], function() {
       $templateCache.put(
         "importShapefile.html",
         "<div id=\"shapefile-import-loader\" class=\"hidden\"><img src=\"" + BASE_URL + "images/loader.gif\"/></div>" +
-        "<button class=\"btn btn-default\" ng-click=\"openImportShapefileModal()\">{{ i18n.__('Transfer Shapefile') }}</button>" +
+        "<button class=\"btn btn-default\" ng-show=\"showButton\" ng-click=\"openImportShapefileModal()\">{{ i18n.__('Transfer Shapefile') }}</button>" +
         "<div class=\"modal fade\" id=\"shapefileModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"shapefileModalLabel\">" +
           "<div class=\"modal-dialog modal-md\" role=\"document\">" +
             "<div class=\"modal-content\">" +
@@ -227,7 +227,7 @@ define([], function() {
           $scope.defaultValueFilter = function(item) {
             return $scope.dataSeries.semantics.metadata.schema.properties[item.key] === undefined || $scope.dataSeries.semantics.metadata.schema.properties[item.key].defaultForImport === undefined;
           };
-
+          
           $scope.openImportParametersModal = function() {
             if (!$scope.isCemadenType())
               $('#importParametersModal').modal('show');
