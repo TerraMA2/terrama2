@@ -1059,6 +1059,7 @@ define([], function() {
           }catch(err){
             var queryResult ="";
           }
+          
 
           if (!self.queryIsValid(queryResult) && queryResult !== ""){
             $scope.forms.targetDataSeriesForm.$invalid = true;
