@@ -753,7 +753,7 @@ define([],()=> {
 
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" name="script">
                   <label>{{ $ctrl.sqlResultLabel }}:</label>
                   <textarea ng-model="$ctrl.filterString" style="height:250px;overflow:auto;min-height:150px;width:100%" id="sql-result"></textarea>
                 </div>
