@@ -1054,16 +1054,19 @@ define([], function() {
            */
           var errMessageEmptyFields = i18n.__("There are invalid fields on form");
 
-          try{
-            var queryResult = $scope.forms.targetDataSeriesForm.$$controls[13].$modelValue;
-          }catch(err){
-            var queryResult ="";
-          }
-          
-
-          if (!self.queryIsValid(queryResult) && queryResult !== ""){
-            $scope.forms.targetDataSeriesForm.$invalid = true;
-            errMessageEmptyFields = i18n.__("Query result is invalid!");
+          if(self.semanticsSelected == "Vector Processing"){
+            var queryResult = ""
+            try{
+              queryResult = $scope.forms.targetDataSeriesForm.$$controls[13].$modelValue;
+            }catch(err){
+              queryResult ="";
+            }
+            
+  
+            if (!self.queryIsValid(queryResult) && queryResult !== ""){
+              $scope.forms.targetDataSeriesForm.$invalid = true;
+              errMessageEmptyFields = i18n.__("Query result is invalid!");
+            }
           }
 
           var scheduleForm = angular.element('form[name="scheduleForm"]').scope().scheduleForm;
@@ -1102,7 +1105,6 @@ define([], function() {
             };
 
             var expression, message;
-
             if (typeId === AnalysisService.types.GRID) {
               expression = "return";
               message = "Grid analysis script must end with 'return' statement";
@@ -1208,9 +1210,10 @@ define([], function() {
 
           // preparing data to send
           var analysisToSend = Object.assign({}, self.analysis);
-          analysisToSend.script = queryResult.replace(/'/g, "\\'");
-          console.log(`Analise:`);
-          console.log(analysisToSend);
+          if(self.semanticsSelected == "Vector Processing"){
+            analysisToSend.script = queryResult.replace(/'/g, "\\'");
+          }
+
           // setting target data series metadata (monitored object, dcp..)
           if (typeId !== Globals.enums.AnalysisType.GRID) {
             //If analysis type is DCP, save analysis data series as monitored object
