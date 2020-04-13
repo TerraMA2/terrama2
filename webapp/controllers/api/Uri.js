@@ -12,15 +12,6 @@ module.exports = function(app) {
       try {
         // requesting for an object to check connection
         var factoryResult = RequestFactory.build(obj);
-        if (obj.database !== undefined){
-
-          const conn = new Connection(factoryResult.uri);
-          await conn.connect();
-          var sql = fs.readFileSync(SQL_FILE).toString();
-  
-          await conn.execute(sql);
-          await conn.disconnect()
-        }
         
         factoryResult.request().then(function(data) {
             return response.json({status: 200, data: data});
