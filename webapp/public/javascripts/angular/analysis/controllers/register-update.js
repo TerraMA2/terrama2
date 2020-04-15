@@ -1034,6 +1034,10 @@ define([], function() {
             return false;
         }
 
+        self.teste = function(){
+          console.log("teste ok");
+        }
+
         /**
          * It prepares analysis object to send via API
          *
@@ -1057,7 +1061,7 @@ define([], function() {
           if(self.semanticsSelected == "Vector Processing"){
             var queryResult = ""
             try{
-              queryResult = $scope.forms.targetDataSeriesForm.$$controls[13].$modelValue;
+              queryResult = $("#sql-result").val();
             }catch(err){
               queryResult ="";
             }
@@ -1210,6 +1214,7 @@ define([], function() {
 
           // preparing data to send
           var analysisToSend = Object.assign({}, self.analysis);
+          console.log("Vector processing");
           if(self.semanticsSelected == "Vector Processing"){
             analysisToSend.script = queryResult.replace(/'/g, "\\'");
           }

@@ -27,6 +27,9 @@ define([],()=> {
       this.listAttributeValues = [];
       this.listValuesOfColumn = [];
       this.clauseCount = 56;
+      this.showQueryResult = false;
+      this.checked = false
+      this.hasChecked = false;
 
       this.staticDataSerieSelected = "";
       this.dynamicDataSerieSelected = "";
@@ -35,6 +38,7 @@ define([],()=> {
       this.clauseValue = "";
       this.filterString = "";
       this.msgValueError = "";
+      this.msgValueErrorOperator = "";
       this.tableNameSelected = {};
 
       this.dynamicDataSerie = {};
@@ -64,10 +68,17 @@ define([],()=> {
 
 
     
-
+    checkFilter(e){
+      if(this.hasChecked){
+        this.showQueryResult = false;
+        this.hasChecked = false;
+      }else{
+        this.showQueryResult = true;
+        this.hasChecked = true;
+      }
+    }
     verifyData(){
       this.$timeout(()=>{
-
         this.onChangeStaticDataSeries();
         this.onChangeDynamicDataSeries();
 
@@ -75,7 +86,6 @@ define([],()=> {
 
         let outputLayerJson = model.outputlayer;
         let outputClassNameSelected = model.classNameSelected;
-
         $("#outputlayer").attr('disabled',true);
 
         if(typeof outputLayerJson !== 'undefined' && outputLayerJson != ""){
@@ -91,6 +101,10 @@ define([],()=> {
 
           $("#selectStaticDataSeries").attr('disabled',true);
           $("#selectDynamicDataSeries").attr('disabled',true);
+          console.log("1");
+          this.checked = true;
+          this.hasChecked = true;
+          this.showQueryResult = true;
         }
 
         if(typeof outputClassNameSelected !== 'undefined' && outputClassNameSelected != ""){
@@ -197,7 +211,6 @@ define([],()=> {
         this.inputTableAttributes[key] = value;
         this.listDynamicDataSerie[key] = value;
       });
-
       this.dynamicDataSerieSelected = dynamicDataSeries.name;
       this.dynamicDataSerie = dynamicDataSeries;
 
@@ -303,6 +316,13 @@ define([],()=> {
       var value = `${this.attributeValue}`;
       var clause = `${this.clauseValue}`;
 
+      if(operator == ""){
+        this.msgValueErrorOperator = "Select one operator!"
+        return;
+      }else{
+        this.msgValueErrorOperator = "";
+      }
+
       if (!this.listValuesOfColumn.includes(value)){
         this.msgValueError = `${ this.valueLabel } ${ value } ${ this.notFoundText }`;
         this.listAttributeValues = null;
@@ -329,7 +349,8 @@ define([],()=> {
     }
 
     complete(evt){
-      var str = this.attributeValue;
+      console.log(evt);
+      var str = evt;
       var output=[];
       this.msgValueError = "";
 			angular.forEach(this.listValuesOfColumn,function(value){
@@ -347,7 +368,11 @@ define([],()=> {
       
     }
     
-
+    changeAttribute(){
+      this.operatorValue = "";
+      this.attributeValue = "";
+      this.$scope.$apply();
+    }
     async getValuesByColumn(){
       const{ DataProviderService, attributeFilter } = this;
 
@@ -362,6 +387,8 @@ define([],()=> {
       
       if (res.data.status == 200){
         this.listValuesOfColumn = res.data.data;
+        this.complete("");
+        this.$scope.$apply();
 
       }else{
         throw new Error(res.data.message);
@@ -428,6 +455,8 @@ define([],()=> {
 
         }
         this.listTableAttributes = attributeList;
+        this.attributeValue = "";
+        this.operatorValue = "";
         this.$scope.$apply();
       }
         
@@ -672,13 +701,13 @@ define([],()=> {
               <div class="col-md-12">
                   <div class="checkbox">
                     <label class="form-check-label" for="customClassFilter">
-                        <input type="checkbox" ng-model="checked" ng-init="checked=false" id="customClassFilter">{{ $ctrl.classFilterLabel }}
+                        <input type="checkbox" ng-change="$ctrl.checkFilter(this)" ng-model="$ctrl.checked" id="customClassFilter">{{ $ctrl.classFilterLabel }}
                     </label>
                   </div>
               </div>
               
               
-              <div class="col-md-12" ng-hide="!checked">
+              <div class="col-md-12" ng-hide="!$ctrl.showQueryResult">
                 <div class="form-group col-md-12">
 
                   <div class="col-md-2">
@@ -697,14 +726,14 @@ define([],()=> {
                       id="listAttributeId"
                       ng-model="$ctrl.attributeFilter"
                       ng-options="item for item in $ctrl.listTableAttributes"
-                      ng-change="$ctrl.getValuesByColumn()">
+                      ng-change="$ctrl.changeAttribute()">
                       <option value="" selected>--- {{ $ctrl.selectLabel }} ---</option>
                     </select>
                   </div>
 
                   <div class="col-md-1">
                     <label>{{ $ctrl.operatorLabel }}:</label>
-                    <select class="form-control" id="operatorId" ng-click="$ctrl.setOperatorValue(this)" ng-model="$ctrl.operatorValue">
+                    <select class="form-control" id="operatorId" ng-click="$ctrl.setOperatorValue(this)" ng-model="$ctrl.operatorValue" required>
                       <option value="=" style="font-size:16px">=</option>
                       <option value=">" style="font-size:16px">></option>
                       <option value="<" style="font-size:16px"><</option>
@@ -713,18 +742,19 @@ define([],()=> {
                       <option value="<>" style="font-size:16px"><></option>
                       <option value="LIKE" style="font-size:16px">LIKE</option>
                     </select>
+                    <span style="color:red;font-size:12px">{{ $ctrl.msgValueErrorOperator }}</span>
                   </div>
 
                   <div class="col-md-1">
                     <label></label>
-                    <button class="btn btn-primary" style="margin-top:25px">
+                    <button class="btn btn-primary" ng-click="$ctrl.getValuesByColumn()" style="margin-top:25px">
                       <i class="fa fa-search fa-1x"></i>
                     </button>
                   </div>
 
                   <div class="col-md-2">
                     <label>{{ $ctrl.valueLabel }}:</label>
-                    <input type="text" name="attributeValue" id="attributeValue" ng-model="$ctrl.attributeValue" ng-keypress="$ctrl.complete(attributeValue)" class="form-control" />
+                    <input type="text" name="attributeValue" id="attributeValue" ng-model="$ctrl.attributeValue" ng-keypress="$ctrl.complete($ctrl.attributeValue)" class="form-control" />
                     <span style="color:red;font-size:12px">{{ $ctrl.msgValueError }}</span>
                     <ul class="col-md-10" style="max-height:100px;overflow:auto;overflow-x:hidden;padding:0px;position:absolute">
                       <li class="list-group-item" ng-repeat="attributeValue in $ctrl.listAttributeValues" ng-click="$ctrl.fillTextbox(attributeValue)">{{attributeValue}}</li>
@@ -757,7 +787,7 @@ define([],()=> {
                   <label>{{ $ctrl.sqlResultLabel }}:</label>
                   <textarea ng-model="$ctrl.filterString" style="height:250px;overflow:auto;min-height:150px;width:100%" id="sql-result"></textarea>
                 </div>
-
+                teste
               </div>
               `
   };
