@@ -1154,9 +1154,8 @@
 	},
 	"Query result is invalid!": "Query result is invalid!",
 	"WFS": "WFS",
-	"Transfer Shapefile4": "Transfer Shapefile4",
-	"Transfer Shapefile5": "Transfer Shapefile5",
-	"Error in PostGIS connection": " Could not connect to Postgres due database \"naruto\" does not exist",
+	"Transfer Shapefile4": "Transfer Shapefile",
+	"Transfer Shapefile5": "Transfer Shapefile",
 	"ENOENT": " no such file or directory, open '../../../share/terrama2/scripts/sql-functions/vectorial_processing_intersection.sql'",
 	"There is no connection with postgres": {
 		" Make sure you are connected": {
