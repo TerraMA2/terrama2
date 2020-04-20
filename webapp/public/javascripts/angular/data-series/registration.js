@@ -53,10 +53,15 @@ define([], function() {
 
     $scope.forms = {};
     $scope.isDynamic = configuration.dataSeriesType === "dynamic";
+    $scope.getTables = true;
     $scope.showButton = false;
+    $scope.showCheckbox = true;
     $scope.hasProjectPermission = configuration.hasProjectPermission;
     $scope.semantics = "";
     $scope.semanticsCode = "";
+    $scope.labelField1 = "";
+    $scope.labelField2 = "";
+
     var queryParameters = {
       metadata: true,
       type: $scope.isDynamic ? "dynamic" : "static"
@@ -540,7 +545,30 @@ define([], function() {
       $scope.onDataSemanticsChange = function() {
         if(!$scope.semanticsSelected)
           $scope.semanticsSelected = true;
-
+        let semanticsCode = $scope.dataSeries.semantics.code;
+        switch(semanticsCode){
+          case "STATIC_DATA-postgis":
+            $scope.labelField1 = i18n.__("Choose table in the database");
+            $scope.labelField2 = i18n.__("File transfer to create table");
+            break;
+          case "GRID-static_gdal":
+            $scope.labelField1 = i18n.__("Choose file on the data server");
+            $scope.labelField2 = i18n.__("File transfer to data server");
+            break;
+          case "STATIC_DATA-ogr":
+            $scope.labelField1 = i18n.__("Choose file on the data server");
+            $scope.labelField2 = i18n.__("File transfer to data server");
+            break;
+          case "STATIC_DATA-VIEW-postgis":
+            $scope.showCheckbox = false;
+            // $scope.getTables = false;
+            // $scope.getViews = true;
+            break
+          default:
+            $scope.labelField1 = "";
+            $scope.labelField2 = "";
+        }
+        
         $scope.semantics = $scope.dataSeries.semantics.data_series_type_name;
         $scope.semanticsCode = $scope.dataSeries.semantics.code;
 
@@ -968,8 +996,8 @@ define([], function() {
             wizardStep.wzData.error = true;
             return;
           }
-
-          var condition = $scope.forms[name].$invalid;
+          var condition = false;
+          // var condition = $scope.forms[name].$invalid || true;
           var secondName = wizardStep.wzData.secondForm;
 
           if (secondName)
@@ -984,6 +1012,10 @@ define([], function() {
 
         });
       };
+
+      $scope.teste = function(){
+        console.log("ok teste");
+      }
 
       // intersection
       // components: data series tree modal
@@ -1224,11 +1256,25 @@ define([], function() {
 
       $("#choiceDatabase").on('click', (e)=>{
         $scope.showButton = false;
+        $scope.$apply();
       });
 
       $("#choiceShapefile").on("click", (e)=>{
         $scope.showButton = true;
+        $scope.$apply();
       });
+
+      $("#createView").on("click", ()=>{
+        $scope.getTables = true;
+        $scope.getViews = false;
+        $scope.$apply();
+      });
+
+      $("#choiceView").on("click", ()=>{
+        $scope.getViews = true;
+        $scope.getTables = false;
+        $scope.$apply();
+      })
 
       $scope.onFilterRegion = function() {
         if ($scope.filter.filterArea === $scope.filterTypes.NO_FILTER.value) {
@@ -1563,9 +1609,25 @@ define([], function() {
           // Provider type of PostGIS is 4
           if (dataProvider.length > 0 && dataProvider[0].data_provider_type.id == 4){
             listTables(dataProvider[0]);
+            listViews(dataProvider[0]);
           }
         }
       });
+
+      var listViews = function(dataProvider){
+        var result = $q.defer();
+        DataProviderService.listPostgisObjects({providerId: dataProvider.id, objectToGet: "views"})
+          .then(function(response){
+            if(response.data.status == 400){
+              return result.reject(resonse.data);
+            }
+            $scope.viewList = response.data.data.map(function(item, index){
+              return item.table_name;
+            });
+            result.resolve(response.data.data);
+          })
+          return result.promise;
+      }
 
       var listTables = function(dataProvider){
         var result = $q.defer();
