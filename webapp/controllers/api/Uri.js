@@ -3,7 +3,7 @@ var handleRequestError = require("./../../core/Utils").handleRequestError;
 var { Connection } = require("../../core/utility/connection");
 var fs  = require("fs");
 var path = require("path");
-var SQL_FILE = path.join(__dirname, 'vectorial_processing_intersection.sql');
+// var SQL_FILE = path.join(__dirname, 'vectorial_processing_intersection.sql');
 module.exports = function(app) {
   return {
     post: async function(request, response) {
@@ -12,6 +12,15 @@ module.exports = function(app) {
       try {
         // requesting for an object to check connection
         var factoryResult = RequestFactory.build(obj);
+        // if (obj.database !== undefined){
+
+        //   const conn = new Connection(factoryResult.uri);
+        //   await conn.connect();
+        //   var sql = fs.readFileSync(SQL_FILE).toString();
+  
+        //   await conn.execute(sql);
+        //   await conn.disconnect()
+        // }
         
         factoryResult.request().then(function(data) {
             return response.json({status: 200, data: data});
