@@ -973,8 +973,8 @@
 	"To import this file you need to have at least one view service": "Para importar este arquivo você precisa ter pelo menos um serviço de visualização",
 	"To upload your shapefile you have to create a .zip compressed file containing all the shapefile files (.shp, .dbf, .shx, etc). The size limit is 300 MB per file, therefore, neither of the shapefile files can be larger than 300 MB.": "Para realizar o upload do seu shapefile é necessário compactar os arquivos (.shp, .dbf, .shx, etc) em um arquivo .zip. O tamanho limite é de 300 MB por arquivo, portanto nenhum dos arquivos do shapefile podem ser maiores que 300 MB.",
 	"Tools": "Ferramentas",
-	"Transfer Shapefile": "Transferir Shapefile",
-	"Transfer GeoTIFF": "Transferir GeoTIFF",
+	"Transfer Shapefile": "Transferir Shapefile ...",
+	"Transfer GeoTIFF": "Transferir GeoTIFF ...",
 	"Tuesday": "Terça-feira",
 	"Type": "Tipo",
 	"Type a projetion": {
@@ -1135,5 +1135,9 @@
 	"not found.": "não encontrado.",
 	"Filename": "Filename",
 	"Descrição": "Descrição",
-	"Choose available table":"Escolher tabela no banco"
+	"Choose available table":"Escolher tabela no banco",
+	"Choose table in the database": "Escolher tabela no banco",
+	"File transfer to create table": "Transferência de arquivo para criar tabela",
+	"Choose file on the data server": "Escolher arquivo no servidor de dados",
+	"File transfer to data server": "Transferência de arquivo para servidor de dados"
 }
