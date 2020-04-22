@@ -101,6 +101,7 @@ define([],()=> {
 
           $("#selectStaticDataSeries").attr('disabled',true);
           $("#selectDynamicDataSeries").attr('disabled',true);
+          console.log("1");
           this.checked = true;
           this.hasChecked = true;
           this.showQueryResult = true;
@@ -786,6 +787,7 @@ define([],()=> {
                   <label>{{ $ctrl.sqlResultLabel }}:</label>
                   <textarea ng-model="$ctrl.filterString" style="height:250px;overflow:auto;min-height:150px;width:100%" id="sql-result"></textarea>
                 </div>
+                teste
               </div>
               `
   };
