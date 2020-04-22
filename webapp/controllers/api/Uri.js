@@ -12,6 +12,7 @@ module.exports = function(app) {
       try {
         // requesting for an object to check connection
         var factoryResult = RequestFactory.build(obj);
+        
         // if (obj.database !== undefined){
 
         //   const conn = new Connection(factoryResult.uri);
