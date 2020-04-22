@@ -46,18 +46,29 @@
       <div ng-class="{ 'col-md-12' : !$ctrl.isFilteredTable(), 'col-md-8': $ctrl.isFilteredTable() }">
 
         <!-- schema form5 -->
-        <form name="forms.parametersForm" sf-schema="schema" ng-show="!isDynamic" sf-form="form" sf-model="model" sf-options="options">
-          <div class="form-check" style="margin-left:20px">
-            <input type="radio" ng-click="showButtonShape()" name="showBtn" class="form-check-input" id="choiceDatabase" value="option1" checked>
-            <label class="form-check-label" for="choiceDatabase">Escolher tabela no banco</label>
-          </div>
-          <div class="form-check" style="margin-left:20px">
-            <input type="radio" ng-click="showButtonShape()" name="showBtn" class="form-check-input" id="choiceShapefile" value="option2">
-            <label class="form-check-label" for="choiceShapefile">Transferência de arquivo para criar tabela</label>
-          </div>
+        <div class="form-check" ng-show="!isDynamic && showCheckbox" style="margin-left:20px">
+          <input type="radio" name="showBtn" class="form-check-input" id="choiceDatabase" value="option1" checked>
+          <label class="form-check-label" for="choiceDatabase">{{ labelField1 }}</label>
+        </div>
+        <div class="form-check" ng-show="!isDynamic && showCheckbox" style="margin-left:20px">
+          <input type="radio" name="showBtn" class="form-check-input" id="choiceShapefile" value="option2">
+          <label class="form-check-label" for="choiceShapefile">{{ labelField2 }}</label>
+        </div>
+        <form name="forms.parametersForm" sf-schema="schema" ng-if="!isDynamic && showCheckbox" sf-form="form" sf-model="model" sf-options="options">
         </form>
 
-        <form name="forms.parametersForm" ng-show="isDynamic" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
+        <form name="forms.parametersForm" ng-if="!isDynamic && !showCheckbox" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options">
+          <!-- <div class="form-check" style="margin-left:20px">
+            <input type="radio" name="show_view" class="form-check-input" id="choiceView" value="" checked>
+            <label class="form-check-label" for="choiceView">Escolher visão no banco</label>
+          </div>
+          <div class="form-check" style="margin-left:20px">
+            <input type="radio" ng-model="model['show_view']" name="show_view" class="form-check-input" id="createView" value="show">
+            <label class="form-check-label" for="createView">Criar visão a partir de tabela</label>
+          </div> -->
+        </form>
+        <form name="forms.parametersForm" ng-if="isDynamic" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options">
+        </form>
 
         <div ng-if="isDCP()">
           <div class="col-md-3 terrama2-top-field">
@@ -327,8 +338,11 @@
 </div>
 
 <!-- List with database tables -->
-<datalist id='databaseTableList'>
+<datalist id='databaseTableList' ng-if="getTables">
     <option ng-repeat="table in tableList" value="{{table}}">
+</datalist>
+<datalist id='databaseTableList' ng-if="getViews">
+    <option ng-repeat="view in viewList" value="{{view}}">
 </datalist>
 <!-- List with database table columns-->
 <datalist id='tableParamsColumnsList'>

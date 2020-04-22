@@ -435,7 +435,8 @@ module.exports = {
     DATABASE: "database",
     TABLE: "table",
     COLUMN: "column",
-    VALUES: "values"
+    VALUES: "values",
+    VIEWS: "views"
   },
 
   /**

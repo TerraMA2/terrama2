@@ -53,7 +53,9 @@ define([], function() {
 
     $scope.forms = {};
     $scope.isDynamic = configuration.dataSeriesType === "dynamic";
+    $scope.getTables = true;
     $scope.showButton = false;
+    $scope.showCheckbox = true;
     $scope.hasProjectPermission = configuration.hasProjectPermission;
     $scope.semantics = "";
     $scope.semanticsCode = "";
@@ -540,6 +542,30 @@ define([], function() {
       $scope.onDataSemanticsChange = function() {
         if(!$scope.semanticsSelected)
           $scope.semanticsSelected = true;
+        
+        let semanticsCode = $scope.dataSeries.semantics.code;
+        switch(semanticsCode){
+          case "STATIC_DATA-postgis":
+            $scope.labelField1 = i18n.__("Choose table in the database");
+            $scope.labelField2 = i18n.__("File transfer to create table");
+            break;
+          case "GRID-static_gdal":
+            $scope.labelField1 = i18n.__("Choose file on the data server");
+            $scope.labelField2 = i18n.__("File transfer to data server");
+            break;
+          case "STATIC_DATA-ogr":
+            $scope.labelField1 = i18n.__("Choose file on the data server");
+            $scope.labelField2 = i18n.__("File transfer to data server");
+            break;
+          case "STATIC_DATA-VIEW-postgis":
+            $scope.showCheckbox = false;
+            // $scope.getTables = false;
+            // $scope.getViews = true;
+            break
+          default:
+            $scope.labelField1 = "";
+            $scope.labelField2 = "";
+        }
 
         $scope.semantics = $scope.dataSeries.semantics.data_series_type_name;
         $scope.semanticsCode = $scope.dataSeries.semantics.code;
@@ -1148,12 +1174,25 @@ define([], function() {
       }
 
       $scope.$watch("model.table_name", function(val) {
+
         var dataProvider = $scope.providersList.filter(function(element) {
           return element.id == $scope.dataSeries.data_provider_id;
         });
 
-        if(dataProvider.length > 0 && dataProvider[0].data_provider_type.id == 4)
-          listParamsColumns(dataProvider[0], val);
+        var output=[];
+        if($scope.showButton == false){
+          angular.forEach($scope.listOfTables,function(value){
+            if(value.toLowerCase().indexOf(val.toLowerCase())>=0){
+              output.push(value);
+            }
+          });
+          $scope.tableList = output;
+        }else{
+          $scope.tableList = output;
+        }
+
+        // if(dataProvider.length > 0 && dataProvider[0].data_provider_type.id == 4)
+        //   listParamsColumns(dataProvider[0], val);
       });
 
       $scope.isIntersectionEmpty = function() {
@@ -1224,11 +1263,25 @@ define([], function() {
 
       $("#choiceDatabase").on('click', (e)=>{
         $scope.showButton = false;
+        $scope.$apply();
       });
 
       $("#choiceShapefile").on("click", (e)=>{
         $scope.showButton = true;
+        $scope.$apply();
       });
+
+      $("#createView").on("click", ()=>{
+        $scope.getTables = true;
+        $scope.getViews = false;
+        $scope.$apply();
+      });
+
+      $("#choiceView").on("click", ()=>{
+        $scope.getViews = true;
+        $scope.getTables = false;
+        $scope.$apply();
+      })
 
       $scope.onFilterRegion = function() {
         if ($scope.filter.filterArea === $scope.filterTypes.NO_FILTER.value) {
@@ -1563,9 +1616,25 @@ define([], function() {
           // Provider type of PostGIS is 4
           if (dataProvider.length > 0 && dataProvider[0].data_provider_type.id == 4){
             listTables(dataProvider[0]);
+            listViews(dataProvider[0]);
           }
         }
       });
+
+      var listViews = function(dataProvider){
+        var result = $q.defer();
+        DataProviderService.listPostgisObjects({providerId: dataProvider.id, objectToGet: "views"})
+          .then(function(response){
+            if(response.data.status == 400){
+              return result.reject(response.data);
+            }
+            $scope.viewList = response.data.data.map(function(item, index){
+              return item.table_name;
+            });
+            result.resolve(response.data.data);
+          })
+          return result.promise;
+      }
 
       var listTables = function(dataProvider){
         var result = $q.defer();
@@ -1578,6 +1647,7 @@ define([], function() {
             $scope.tableList = response.data.data.map(function(item, index) {
               return item.table_name;
             });
+            $scope.listOfTables = $scope.tableList;
             result.resolve(response.data.data);
           });
 
@@ -2268,13 +2338,33 @@ define([], function() {
         }
       };
 
+      $scope.validTableName = function(tableName){
+        if($scope.listOfTables.includes(tableName)){
+          return true;
+        }
+        return false;
+      }
+
       $scope.save = async function(shouldRun) {
+
         $scope.shouldRun = shouldRun;
         $scope.extraProperties = {};
         $scope.$broadcast('formFieldValidation');
 
         if($scope.isWizard) {
           isWizardStepValid();
+        }
+
+        if($scope.listOfTables !== undefined){
+
+          if(!$scope.showButton && !$scope.validTableName($scope.model.table_name) && !$scope.isDynamic){
+            MessageBoxService.danger(i18n.__("Data Registration"), i18n.__("Table name no exists!"));
+            return;
+          }
+          if($scope.showButton && $scope.validTableName($scope.model.table_name) && !$scope.isDynamic){
+            MessageBoxService.danger(i18n.__("Data Registration"), i18n.__("Table name already exists!"));
+            return;
+          }
         }
 
         if (!$scope.hasProjectPermission && $scope.isUpdating){
