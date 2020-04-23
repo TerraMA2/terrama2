@@ -1131,6 +1131,8 @@
 	"Operator": "Operador",
 	"SQL Result": "Resultado(SQL)",
 	"Clause": "Cláusula",
+	"Table name already exists!":"Tabela/View já existe!",
+	"Table name not exists!":"Tabela/Views não existe!",
 	"Custom Class Filter": "Filtros Customizados",
 	"not found.": "não encontrado.",
 	"Filename": "Filename",
