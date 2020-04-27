@@ -5,6 +5,11 @@
   var Utils = require('../../core/Utils');
   var DataManager = require('../../core/DataManager');
   var {Connection} = require('../../core/utility/connection');
+  const env = process.env.NODE_ENV.toLowerCase() ? process.env.NODE_ENV.toLowerCase() : 'production';
+  const config = require('../../config/db')[env];
+
+
+  const URI = `postgis://${config.username}:${config.password}@${config.host}:${config.port}/${config.database}`;
 
   // Facade
   var ViewFacade = require("../../core/facade/View");
@@ -23,10 +28,8 @@
         } = request.query
 
         const view = await ViewFacade.retrieve(viewId)
-        const dataSeries = await DataManager.getDataSeries({id:view.data_series_id})
-        const dataProvider = await DataManager.getDataProvider({id:dataSeries.data_provider_id})
         
-        const conn = new Connection(dataProvider.uri);
+        const conn = new Connection(URI);
         await conn.connect();
         let sql = "";
         sql = `
@@ -47,10 +50,8 @@
         } = request.query
 
         const view = await ViewFacade.retrieve(viewId)
-        const dataSeries = await DataManager.getDataSeries({id:view.data_series_id})
-        const dataProvider = await DataManager.getDataProvider({id:dataSeries.data_provider_id})
         
-        const conn = new Connection(dataProvider.uri);
+        const conn = new Connection(URI);
         await conn.connect();
         let sql = "";
         sql = `
@@ -70,9 +71,7 @@
           dataProviderid,dataSerieTableName
         } = request.query
 
-        const dataProvider = await DataManager.getDataProvider({id:dataProviderid})
-        
-        const conn = new Connection(dataProvider.uri);
+        const conn = new Connection(URI);
         await conn.connect();
         let sql = "";
         sql = `
@@ -80,7 +79,6 @@
           FROM  terrama2.data_set_formats
           WHERE key = 'table_name' AND value='${dataSerieTableName}';
         `;
-
         const result = await conn.execute(sql)
         let rows = result.rows
         await conn.disconnect();
@@ -92,9 +90,7 @@
           dataProviderid,dataSetid
         } = request.query
 
-        const dataProvider = await DataManager.getDataProvider({id:dataProviderid})
-        
-        const conn = new Connection(dataProvider.uri);
+        const conn = new Connection(URI);
         await conn.connect();
         let sql = "";
         sql = `
