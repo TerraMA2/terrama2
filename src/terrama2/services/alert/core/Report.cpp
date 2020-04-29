@@ -290,13 +290,13 @@ void terrama2::services::alert::core::Report::updateReportMonitoredObjectDataset
         {
           riskChanged_ = true;
           //comp = "INCREASED";
-          comp = "🡅";
+          comp = "🠉";
         }
         else if(resComp == -1)
         {
           riskChanged_= true;
           //comp = "DECREASED";
-          comp = "🡇";
+          comp = "🠋";
         }
         else
           //comp = "UNKNOW";
