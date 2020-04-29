@@ -52,7 +52,7 @@ namespace terrama2
     {
       namespace core
       {
-        const std::string COMPARISON_PROPERTY_NAME = "comparison";
+        const std::string COMPARISON_PROPERTY_NAME = "Situação *";
         //! Additional dataseries for alert process.
         struct AdditionalData
         {

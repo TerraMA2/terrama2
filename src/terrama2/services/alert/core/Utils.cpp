@@ -101,6 +101,8 @@ std::string terrama2::services::alert::core::dataSetHtmlTable(const std::shared_
 
   htmlTable += "</table>";
 
+  htmlTable +="<br />* Comparação entre as duas últimas análises ( = :sem alteração, 🡅 :aumentou, 🡇 :diminuiu e 🚫:houve algum erro no dado)<br />";
+
   return htmlTable;
 }
 
