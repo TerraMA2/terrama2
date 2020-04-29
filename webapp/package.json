@@ -59,7 +59,7 @@
     "i18n": "0.8.1",
     "i18n-node-angular": "=1.4.0",
     "intl-tel-input": "=9.2.7",
-    "jquery": "=2.2.4",
+    "jquery": "=3.5.0",
     "jquery-ui": "=1.12.1",
     "jquery.inputmask": "=3.3.4",
     "lodash": "4.6.1",
