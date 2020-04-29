@@ -284,19 +284,23 @@ void terrama2::services::alert::core::Report::updateReportMonitoredObjectDataset
         int resComp = dataSet_->getInt32(posComparison);
 
         if(resComp == 0)
-          comp = "SAME";
+          //comp = "SAME";
+            comp = "=";
         else if(resComp == 1)
         {
           riskChanged_ = true;
-          comp = "INCREASED";
+          //comp = "INCREASED";
+          comp = "🡅";
         }
         else if(resComp == -1)
         {
           riskChanged_= true;
-          comp = "DECREASED";
+          //comp = "DECREASED";
+          comp = "🡇";
         }
         else
-          comp = "UNKNOW";
+          //comp = "UNKNOW";
+           comp = "🚫";
       }
 
       dataSet_->setString(COMPARISON_PROPERTY_NAME , comp);
