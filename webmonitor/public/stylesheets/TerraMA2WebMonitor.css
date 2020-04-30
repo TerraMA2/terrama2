@@ -573,6 +573,10 @@ img[src=""] {
   height: 29px
 }
 
+#feature-info-box {
+  height: 50vh !important;
+}
+
 #feature-info-box,
 #map-info-box {
   width: 100%!important;
