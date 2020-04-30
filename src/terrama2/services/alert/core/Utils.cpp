@@ -91,9 +91,15 @@ std::string terrama2::services::alert::core::dataSetHtmlTable(const std::shared_
     for(std::size_t i = 0; i < numProperties; i++)
     {
       if(dataSet->isNull(i))
+      {
         line += "<td> NULL </td>";
+      }
       else
-        line += "<td><span>" +dataSet->getAsString(i, 2)+ "</span></td>";
+      {
+          QString valueEncoded = QString::fromStdString(dataSet->getAsString(i, 2));
+          valueEncoded = valueEncoded.toHtmlEscaped();
+          line += "<td>" + valueEncoded.toStdString() + "</td>";
+      }
     }
 
     htmlTable += "<tr>" + line + "</tr>";
