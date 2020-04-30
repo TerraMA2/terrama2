@@ -93,7 +93,7 @@ std::string terrama2::services::alert::core::dataSetHtmlTable(const std::shared_
       if(dataSet->isNull(i))
         line += "<td> NULL </td>";
       else
-        line += "<td>" + dataSet->getAsString(i, 2) +"</td>";
+        line += "<td><span>" +dataSet->getAsString(i, 2)+ "</span></td>";
     }
 
     htmlTable += "<tr>" + line + "</tr>";
