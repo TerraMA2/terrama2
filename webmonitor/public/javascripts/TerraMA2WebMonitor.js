@@ -869,21 +869,6 @@ define(
 
       $.TerraMAMonitor.tree('.sidebar');
 
-      $(document).on('click', "#collapseButton", function () {
-        if($(".main-sidebar").width == 0){
-          $("#terrama2-map").width("100vw");
-        }else {
-          $("#terrama2-map").width("100%");
-        }
-      })
-
-      var mapWidthInterval = window.setInterval(function() {
-        $("#terrama2-map").width("100vw");
-      }, 100);
-      window.setTimeout(function() {
-        clearInterval(mapWidthInterval);
-      }, 2000);
-
       $("#dynamic > .group-name > .sidebar-item-text").find("div").each(function() {
         $(this).addClass("fa fa-clock-o");
       });
