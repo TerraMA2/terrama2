@@ -558,7 +558,6 @@ define(
           var featureInfo = data.msg;
           var featuresLength = featureInfo.features.length;
 
-          var features = featureInfo.features[0].properties;
           var layerId = data.params.layerId;
           var layerData = Layers.getLayerById(layerId);
           var layerType = layerData.parent;
