@@ -966,8 +966,8 @@
 	"To import this file you need to have at least one view service": "To import this file you need to have at least one view service",
 	"To upload your shapefile you have to create a .zip compressed file containing all the shapefile files (.shp, .dbf, .shx, etc). The size limit is 300 MB per file, therefore, neither of the shapefile files can be larger than 300 MB.": "To upload your shapefile you have to create a .zip compressed file containing all the shapefile files (.shp, .dbf, .shx, etc). The size limit is 300 MB per file, therefore, neither of the shapefile files can be larger than 300 MB.",
 	"Tools": "Tools",
-	"Transfer GeoTIFF": "Transfer GeoTIFF",
-	"Transfer Shapefile": "Transfer Shapefile",
+	"Transfer GeoTIFF": "Transfer GeoTIFF ...",
+	"Transfer Shapefile": "Transfer Shapefile ...",
 	"Tuesday": "Tuesday",
 	"Type": "Type",
 	"Type a projetion": {
@@ -1170,7 +1170,9 @@
 		},
 		" return type mismatch in function declared to return text[]": "Error in query execution. return type mismatch in function declared to return text[]",
 		" syntax error at or near \"AS\"": "Error in query execution. syntax error at or near \"AS\"",
-		" syntax error at or near \"SELECT\"": "Error in query execution. syntax error at or near \"SELECT\""
+		" syntax error at or near \"SELECT\"": "Error in query execution. syntax error at or near \"SELECT\"",
+		" cannot drop view mahatan_v because other objects depend on it": "Error in query execution. cannot drop view mahatan_v because other objects depend on it",
+		" cannot drop view other_view because other objects depend on it": "Error in query execution. cannot drop view other_view because other objects depend on it"
 	},
 	"Cannot read property 'replace' of undefined": "Cannot read property 'replace' of undefined",
 	"Date/Time property": "Date/Time property",
@@ -1186,5 +1188,22 @@
 	"View is valid, the query returned undefined register": "View is valid, the query returned undefined register",
 	"Cannot read property 'token' of undefined": "Cannot read property 'token' of undefined",
 	"View is valid, the query returned 1 register": "View is valid, the query returned 1 register",
-	"Query Builder5": "Query Builder5"
+	"Query Builder5": "Query Builder5",
+	" Data Series5": " Data Series5",
+	"Dcp Data Series5": "Dcp Data Series5",
+	"View is valid, the query returned 9 registers": "View is valid, the query returned 9 registers",
+	"attributesSelect is not defined": "attributesSelect is not defined",
+	"View is valid, the query returned 344 registers": "View is valid, the query returned 344 registers",
+	"View is valid, the query returned 645 registers": "View is valid, the query returned 645 registers",
+	"attributes": {
+		"join is not a function": "attributes.join is not a function"
+	},
+	"View is valid, the query returned 47 registers": "View is valid, the query returned 47 registers",
+	"View is valid, the query returned 2 registers": "View is valid, the query returned 2 registers",
+	"No such file \"terrama2_service\" in directory": "No such file \"terrama2_service\" in directory",
+	"views": "views",
+	"Static Data Series":"Static Data Series",
+	"Input Attribute Layer":"Input Attribute Layer",
+	"Output Attribute Layer":"Output Attribute Layer",
+	"Visible":"Visible"
 }

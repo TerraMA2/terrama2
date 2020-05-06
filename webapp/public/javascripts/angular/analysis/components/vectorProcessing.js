@@ -14,6 +14,9 @@ define([],()=> {
       this.classFilterLabel = i18n.__("Custom Class Filter");
       this.selectLabel = i18n.__("Select");
       this.notFoundText = i18n.__("not found.")
+      this.staticDataSerie = i18n.__('Static Data Series');
+      this.inputAttributeLabel = i18n.__('Input Attribute Layer');
+      this.outputAttributeLabel = i18n.__('Output Attribute Layer');
       
       this.SpatialOperations = SpatialOperations;
       this.DataSeriesService = DataSeriesService;
@@ -101,7 +104,7 @@ define([],()=> {
 
           $("#selectStaticDataSeries").attr('disabled',true);
           $("#selectDynamicDataSeries").attr('disabled',true);
-          console.log("1");
+          
           this.checked = true;
           this.hasChecked = true;
           this.showQueryResult = true;
@@ -349,7 +352,7 @@ define([],()=> {
     }
 
     complete(evt){
-      console.log(evt);
+      
       var str = evt;
       var output=[];
       this.msgValueError = "";
@@ -625,7 +628,7 @@ define([],()=> {
               <div class="col-md-6">
                 <div class="col-align-self-start">
                   <div class="form-group has-feedback" terrama2-show-errors>
-                    <label>Static Data Series:</label>
+                    <label>{{ $ctrl.staticDataSerie }}:</label>
                     <select id="selectStaticDataSeries"
                             class="form-control"
                             name="targetMonitoredDataSeries"
@@ -674,7 +677,7 @@ define([],()=> {
               <div class="col-md-6">
                 <div class="col-align-self-start">
                   <div class="form-group has-feedback" terrama2-show-errors>
-                    <label>Input Attribute Layer:</label>
+                    <label>{{ $ctrl.inputAttributeLabel }}:</label>
                     <select class="form-control"
                       name="inputAttributesLayer"
                       id="inputAttributesLayer"
@@ -688,7 +691,7 @@ define([],()=> {
 
               <div class="col-md-6">
                 <div class="form-group" terrama2-show-errors>
-                  <label>Output Attribute Layer:</label>
+                  <label>{{ $ctrl.outputAttributeLabel }}:</label>
                   <select class="form-control"
                     name="outputlayer"
                     id="outputlayer"
@@ -787,7 +790,6 @@ define([],()=> {
                   <label>{{ $ctrl.sqlResultLabel }}:</label>
                   <textarea ng-model="$ctrl.filterString" style="height:250px;overflow:auto;min-height:150px;width:100%" id="sql-result"></textarea>
                 </div>
-                teste
               </div>
               `
   };

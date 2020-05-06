@@ -2,12 +2,16 @@ define([],()=> {
   class AttributesComponent {
     constructor(i18n, dataProviderService, $timeout) {
       this.saveBtnTitle=i18n.__("Save")
+      this.attributeNameLabel = i18n.__("Attribute Name")
+      this.aliasLabel = i18n.__("Alias")
+      this.visibleLabel = i18n.__("Visible")
       this.dataProviderService=dataProviderService
       this.$timeout=$timeout
       this.onListColumns()
     }
 
     onListColumns(){
+      
       this.$timeout(()=>{
         this.model = [];
         
@@ -45,7 +49,6 @@ define([],()=> {
             });
           }
         });
-
         dataProviderService.listPostgisObjects({providerId: provider, objectToGet: "column", tableName})
         .then(response=>{
           if (response.data.status == 400){
@@ -93,9 +96,9 @@ define([],()=> {
             <table class="table table-hover">
               <thead>
                 <tr>
-                  <th class="col-md-2">Attribute name</th>
-                  <th class="col-md-1">Visible</th>
-                  <th class="col-md-9">Alias</th>
+                  <th class="col-md-2">{{ $ctrl.attributeNameLabel }}</th>
+                  <th class="col-md-1">{{ $ctrl.visibleLabel }}</th>
+                  <th class="col-md-9">{{ $ctrl.aliasLabel }}</th>
                 </tr>
               </thead>
               <tbody>
