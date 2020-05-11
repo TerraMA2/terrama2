@@ -56,6 +56,7 @@ define([], function() {
     $scope.getTables = true;
     $scope.showButton = false;
     $scope.showCheckbox = true;
+    $scope.attributesSelect = "";
     $scope.hasProjectPermission = configuration.hasProjectPermission;
     $scope.semantics = "";
     $scope.semanticsCode = "";
@@ -558,9 +559,11 @@ define([], function() {
             $scope.labelField2 = i18n.__("File transfer to data server");
             break;
           case "STATIC_DATA-VIEW-postgis":
+            $scope.labelField1 = i18n.__("Choose view in the database");
+            $scope.labelField2 = i18n.__("Create view from table");
             $scope.showCheckbox = false;
-            // $scope.getTables = false;
-            // $scope.getViews = true;
+            $scope.getTables = false;
+            $scope.getViews = true;
             break
           default:
             $scope.labelField1 = "";
@@ -824,6 +827,7 @@ define([], function() {
             } else {
               var dataSetFormat = inputDataSeries.dataSets[0].format;
               $scope.model = $scope.prepareFormatToForm(inputDataSeries.dataSets[0].format);
+
               if(inputDataSeries.data_series_semantics.custom_format) {
                 $scope.csvFormatData.fields = JSON.parse(dataSetFormat.fields)
                 $scope.csvFormatData.header_size = parseInt(dataSetFormat.header_size);
@@ -1167,6 +1171,7 @@ define([], function() {
             $scope.paramsColumnsList = response.data.data.map(function(item, index) {
               return item.column_name;
             });
+
             result.resolve(response.data.data);
           });
 
@@ -1191,8 +1196,8 @@ define([], function() {
           $scope.tableList = output;
         }
 
-        // if(dataProvider.length > 0 && dataProvider[0].data_provider_type.id == 4)
-        //   listParamsColumns(dataProvider[0], val);
+        if(dataProvider.length > 0 && dataProvider[0].data_provider_type.id == 4)
+          listParamsColumns(dataProvider[0], val);
       });
 
       $scope.isIntersectionEmpty = function() {
@@ -1261,27 +1266,24 @@ define([], function() {
                 dataSeries.data_series_semantics.data_series_type_name == globals.enums.DataSeriesType.GRID);
       };
 
-      $("#choiceDatabase").on('click', (e)=>{
-        $scope.showButton = false;
-        $scope.$apply();
+      $scope.$watch("model.show_transfer", function(val){
+        if(val == 'option1'){
+          $scope.showButton = false;  
+        }else if(val == 'option2'){
+          $scope.showButton = true;
+        }
       });
 
-      $("#choiceShapefile").on("click", (e)=>{
-        $scope.showButton = true;
+      $scope.$watch("model.show_view", function(val) {
+        if(val.length > 1){
+          $scope.getTables = true;
+          $scope.getViews = false;
+        }else{
+          $scope.getTables = false;
+          $scope.getViews = true;
+        }
         $scope.$apply();
       });
-
-      $("#createView").on("click", ()=>{
-        $scope.getTables = true;
-        $scope.getViews = false;
-        $scope.$apply();
-      });
-
-      $("#choiceView").on("click", ()=>{
-        $scope.getViews = true;
-        $scope.getTables = false;
-        $scope.$apply();
-      })
 
       $scope.onFilterRegion = function() {
         if ($scope.filter.filterArea === $scope.filterTypes.NO_FILTER.value) {
@@ -2250,6 +2252,10 @@ define([], function() {
               format.output_geometry_property = getAliasFromCsvFields("GEOMETRY_POINT", $scope.csvFormatData.fields);
               var stringFields = angular.toJson($scope.csvFormatData.fields);
               format.fields = stringFields;
+            }
+
+            if ($scope.semanticsCode === 'STATIC_DATA-VIEW-postgis'){
+              format.listOutputLayersSelected = $scope.attributesSelect;
             }
 
             var dataSet = {
