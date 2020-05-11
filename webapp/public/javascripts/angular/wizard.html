@@ -47,25 +47,25 @@
 
         <!-- schema form5 -->
         <div class="form-check" ng-show="!isDynamic && showCheckbox" style="margin-left:20px">
-          <input type="radio" name="showBtn" class="form-check-input" id="choiceDatabase" value="option1" checked>
+          <input type="radio" name="showBtn" ng-model="model['show_transfer']" class="form-check-input" id="choiceDatabase" value="option1" ng-checked="true">
           <label class="form-check-label" for="choiceDatabase">{{ labelField1 }}</label>
         </div>
         <div class="form-check" ng-show="!isDynamic && showCheckbox" style="margin-left:20px">
-          <input type="radio" name="showBtn" class="form-check-input" id="choiceShapefile" value="option2">
+          <input type="radio" name="showBtn" ng-model="model['show_transfer']" class="form-check-input" id="choiceShapefile" value="option2" >
           <label class="form-check-label" for="choiceShapefile">{{ labelField2 }}</label>
         </div>
         <form name="forms.parametersForm" sf-schema="schema" ng-if="!isDynamic && showCheckbox" sf-form="form" sf-model="model" sf-options="options">
         </form>
 
+        <!--<div class="form-check" style="margin-left:20px" ng-if="!isDynamic && !showCheckbox">
+          <input type="radio" name="show_view" ng-model="model['show_view']" class="form-check-input" id="choiceView" value="">
+          <label class="form-check-label" for="choiceView">{{ labelField1 }}</label>
+        </div>
+        <div class="form-check" style="margin-left:20px" ng-if="!isDynamic && !showCheckbox">
+          <input type="radio" name="show_view" ng-model="model['show_view']" class="form-check-input" id="createView" value="show">
+          <label class="form-check-label" for="createView">{{ labelField2 }}</label>
+        </div>-->
         <form name="forms.parametersForm" ng-if="!isDynamic && !showCheckbox" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options">
-          <!-- <div class="form-check" style="margin-left:20px">
-            <input type="radio" name="show_view" class="form-check-input" id="choiceView" value="" checked>
-            <label class="form-check-label" for="choiceView">Escolher visão no banco</label>
-          </div>
-          <div class="form-check" style="margin-left:20px">
-            <input type="radio" ng-model="model['show_view']" name="show_view" class="form-check-input" id="createView" value="show">
-            <label class="form-check-label" for="createView">Criar visão a partir de tabela</label>
-          </div> -->
         </form>
         <form name="forms.parametersForm" ng-if="isDynamic" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options">
         </form>
