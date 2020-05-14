@@ -192,7 +192,7 @@ BEGIN
     -- Retrieves Geometry Column Name from Intersect Data Series
     EXECUTE 'SELECT get_geometry_column($1)' INTO dynamic_table_name_column USING dynamic_table_name_handler;
 
-    EXECUTE format('SELECT ST_SRID(%s) FROM %s LIMIT 1', dynamic_table_name_column, dynamic_table_name) INTO dynamic_table_srid;
+    EXECUTE format('SELECT ST_SRID(%s) FROM %s LIMIT 1', dynamic_table_name_column, dynamic_table_name_handler) INTO dynamic_table_srid;
 
     -- Getting date_column_from_dynamic_table
     EXECUTE format('SELECT get_date_column_from_dynamic_table(''%s'')', dynamic_table_name_handler) INTO date_column_from_dynamic_table;
