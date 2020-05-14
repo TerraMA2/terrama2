@@ -34,7 +34,12 @@ Analysis.save = function(analysisObject, storager, scheduleObject, projectId) {
       if (!analysisObject.project_id) { analysisObject.project_id = projectId; }
 
       // temp code. TODO:fix
-      analysisObject.script_language_id = 1;
+      if(storager.semantics.format.code == "VECTOR_PROCESSING_OBJECT-postgis"){
+        analysisObject.script_language_id = 2;
+      }else{
+        analysisObject.script_language_id = 1;
+      }
+
       analysisObject.data_series_id = analysisObject.dataSeries.id;
 
       var dataSeries = {
@@ -186,7 +191,11 @@ Analysis.validate = function(analysisObject, storagerObject, scheduleObject, pro
     analysisObject.schedule = scheduleObject;
     analysisObject.project_id = projectId;
     // Todo: remove it
-    analysisObject.script_language_id = 1;
+    if(storagerObject.semantics.format.code == "VECTOR_PROCESSING_OBJECT-postgis"){
+      analysisObject.script_language_id = 2;
+    }else{
+      analysisObject.script_language_id = 1;
+    }
 
     var promiseWKT = null;
     if (analysisObject.grid && analysisObject.grid.area_of_interest_box) {
