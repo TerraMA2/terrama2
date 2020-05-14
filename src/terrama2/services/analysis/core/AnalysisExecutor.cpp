@@ -1317,9 +1317,8 @@ terrama2::services::analysis::core::ValidateResult terrama2::services::analysis:
   }
   else
   {
-    QString errMsg = QObject::tr("VALIDATION FOR LUA SCRIPT NOT IMPLEMENTED YET.");
-    TERRAMA2_LOG_WARNING() << errMsg;
-    validateResult.messages.insert(errMsg.toStdString());
+      validateResult.valid = validateResult.messages.empty();
+      return validateResult;
   }
 
   validateResult.valid = validateResult.messages.empty();

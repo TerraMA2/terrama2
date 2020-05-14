@@ -1066,9 +1066,8 @@ define([], function() {
               queryResult ="";
             }
             
-  
             if (!self.queryIsValid(queryResult) && queryResult !== ""){
-              $scope.forms.targetDataSeriesForm.$invalid = true;
+              $scope.forms.scriptForm.$invalid = true;
               errMessageEmptyFields = i18n.__("Query result is invalid!");
             }
           }
@@ -1078,7 +1077,6 @@ define([], function() {
               $scope.forms.storagerDataForm.$invalid ||
               $scope.forms.storagerForm.$invalid ||
               scheduleForm.$invalid ||
-              $scope.forms.targetDataSeriesForm.$invalid ||
               $scope.forms.scriptForm.$invalid) {
             throw new Error(errMessageEmptyFields);
           }

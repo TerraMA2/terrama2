@@ -86,6 +86,9 @@ PostgisRequest.prototype.get = function (){
           case PostGISObjects.VALUES:
             query = "SELECT DISTINCT " + self.params.columnName + " FROM public." + self.params.tableName + " order by " + self.params.columnName + " LIMIT 31;";
             break;
+          case PostGISObjects.ALLVALUES:
+              query = "SELECT DISTINCT " + self.params.columnName + " FROM public." + self.params.tableName + " WHERE "+ self.params.tableName + " IS NOT NULL order by " + self.params.columnName + ";";
+              break;
           case PostGISObjects.VIEWS:
               query = "SELECT table_name FROM information_schema.views WHERE table_name NOT IN ('geography_columns', 'geometry_columns') AND table_schema='public';";
               break;
@@ -105,6 +108,9 @@ PostgisRequest.prototype.get = function (){
         } else {
           results = results.map(result => result[self.params.columnName]);
         }
+      }else if (self.params.objectToGet === PostGISObjects.ALLVALUES){
+        var listValues = results.map(result => result[self.params.columnName]);
+        return resolve(listValues);
       }
 
       return resolve(results);

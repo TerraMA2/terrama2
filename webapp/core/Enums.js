@@ -436,6 +436,7 @@ module.exports = {
     TABLE: "table",
     COLUMN: "column",
     VALUES: "values",
+    ALLVALUES :"allvalues",
     VIEWS: "views"
   },
 

@@ -326,14 +326,9 @@ define([],()=> {
         this.msgValueErrorOperator = "";
       }
 
-      if (!this.listValuesOfColumn.includes(value)){
-        this.msgValueError = `${ this.valueLabel } ${ value } ${ this.notFoundText }`;
-        this.listAttributeValues = null;
-      }else{
-        this.msgValueError = "";
-        var query = `(${table}.${attribute} ${operator} '${value}')`;
-        this.insertAtCaret(query);
-      }
+      this.msgValueError = "";
+      var query = `(${table}.${attribute} ${operator} '${value}')`;
+      this.insertAtCaret(query);
 
 
     }
@@ -356,11 +351,11 @@ define([],()=> {
       var str = evt;
       var output=[];
       this.msgValueError = "";
-			angular.forEach(this.listValuesOfColumn,function(value){
-				if(value.toLowerCase().indexOf(str.toLowerCase())>=0){
-					output.push(value);
-				}
-			});
+      angular.forEach(this.listValuesOfColumn,function(value){
+        if(value.toString().toLowerCase().indexOf(str.toLowerCase())>=0){
+          output.push(value);
+        }
+      });
       this.listAttributeValues = output;
       
     }
@@ -381,13 +376,13 @@ define([],()=> {
 
       const options = {
         providerId: this.tableNameSelected.data_provider_id,
-        objectToGet: "values",
+        objectToGet: "allvalues",
         columnName: attributeFilter,
         tableName : this.tableNameSelected.dataSets[0].format.table_name
       }
 
       const res = await DataProviderService.listPostgisObjects(options);
-      
+      console.log(res);
       if (res.data.status == 200){
         this.listValuesOfColumn = res.data.data;
         this.complete("");
