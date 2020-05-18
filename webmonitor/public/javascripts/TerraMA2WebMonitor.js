@@ -14,7 +14,6 @@ define(
     'TerraMA2WebComponents'
   ],
   function(Calendar, Capabilities, Slider, Utils, LayerStatus, Layers, AddLayerByUri, Sortable, Login, LayerStatusEnum, TerraMA2WebComponents) {
-
     var visibleLayers = [];
     var memberWindowHeight;
     var memberReducedHeight;
@@ -85,6 +84,8 @@ define(
         TerraMA2WebComponents.MapDisplay.updateMapSize();
       });
 
+      changeLanguage(USER_CONFIG.language);
+
       // Language change events
 
       $("#language-pt").parent().on("click", function() {
@@ -143,7 +144,6 @@ define(
         $("#terrama2-map").trigger("setGetFeatureInfoToolSelect");
         $("#terrama2-map").trigger("createAttributesTable");
         $("#legend-box").trigger("setLegends");
-
 
         if(hiddenLayer){
           TerraMA2WebComponents.MapDisplay.getMap().getLayers().array_.forEach(e =>{
@@ -355,8 +355,12 @@ define(
             $('#projects').append($('<option></option>').attr('value', viewsData.projects[i].id).text(viewsData.projects[i].name));
         }
 
-        var currentProject = $("#projects").val();
+        var defaultProject = USER_CONFIG.project;
+        if (defaultProject){
+          $("#projects").val($('#projects option').filter(function () { return $(this).html() == defaultProject; }).val());
+        }
 
+        var currentProject = $("#projects").val();
         for(var i = 0, viewsLength = viewsData.views.length; i < viewsLength; i++) {
           const currentView = viewsData.views[i];
 
@@ -409,6 +413,11 @@ define(
           Layers.fillLayersData();
 
         // Layers.addLayersToSort();
+        const userLayers = USER_CONFIG.selectedLayers;
+        for (let i = 0; i < userLayers.length; i++) {
+          const layer = userLayers[i];
+          $("li[title='"+layer+"'] input").trigger('click');
+        }
       });
 
       // Checking map server connection response
@@ -545,6 +554,11 @@ define(
               }
             };
 
+            const zoomToLayer = USER_CONFIG.zoomToLayer;
+            if (layerCapabilities[layerIndex].title == zoomToLayer) {
+              $("li[title='"+zoomToLayer+"'] input").trigger('click');
+              TerraMA2WebComponents.MapDisplay.zoomToExtent(layerCapabilities[layerIndex].boundingBox);
+            }
             Utils.getSocket().emit('proxyRequest', jsonData);
           }
         } catch(e) {
@@ -1064,14 +1078,22 @@ define(
       loadSocketsListeners();
       loadEvents();
       loadLayout();
-      $("#osm input").trigger("click");
 
+      var defaultTemplate = 'osm';
+      var userConfigTemplate = USER_CONFIG.template;
+      if (userConfigTemplate == 'osm') {
+        defaultTemplate = 'osm';
+      } else if (userConfigTemplate == 'gebco') {
+        defaultTemplate = 'gebco_08_grid';
+      } else if (userConfigTemplate == 'sentinel') {
+        defaultTemplate = 's2cloudless';
+      }
+      $("#"+defaultTemplate+" input").trigger("click");
       Utils.isAuthenticated()
         .then(flag => {
           Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, initialRequest: true, token: flag ? Utils.getToken() : "" });
         })
         .catch(error => console.error(error));
-    
     };
 
     return {

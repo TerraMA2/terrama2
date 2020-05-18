@@ -1337,8 +1337,7 @@ define(
      * @inner
      */
     var getCurrentExtent = function() {
-      var extent = memberOlMap.getView().calculateExtent(memberOlMap.getSize());
-      return extent;
+      return memberOlMap.getView().calculateExtent(memberOlMap.getSize());
     };
 
     /**
@@ -1363,6 +1362,14 @@ define(
     var zoomToExtent = function(extent) {
       memberOlMap.getView().fit(extent, { size: memberOlMap.getSize(), constrainResolution: false });
     };
+
+    var setCenter = function(latLong) {
+      memberOlMap.getView().setCenter([latLong[1], latLong[0]]);
+    }
+
+    var setZoom = function(zoom) {
+      memberOlMap.getView().setZoom(zoom);
+    }
 
     /**
      * Returns the current map resolution.
@@ -1671,6 +1678,8 @@ define(
       init: init,
       updateLayerOpacity: updateLayerOpacity,
       getLayerOpacity: getLayerOpacity,
+      setCenter: setCenter,
+      setZoom: setZoom,
       updateLayerLength
     };
   }
