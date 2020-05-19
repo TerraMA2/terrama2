@@ -556,7 +556,6 @@ define(
 
             const zoomToLayer = USER_CONFIG.zoomToLayer;
             if (layerCapabilities[layerIndex].title == zoomToLayer) {
-              $("li[title='"+zoomToLayer+"'] input").trigger('click');
               TerraMA2WebComponents.MapDisplay.zoomToExtent(layerCapabilities[layerIndex].boundingBox);
             }
             Utils.getSocket().emit('proxyRequest', jsonData);
