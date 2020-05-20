@@ -53,7 +53,7 @@
 
               {% if userConfig.logo %}
                 <a class="logo-container" href="{[ userConfig.logoLink ]}">
-                  <img src="{[ userConfig.logo ]}" class="img-square logo-img" alt="Logo Image">
+                  <img src="{[ BASE_URL ]}images/{[ userConfig.logo ]}" class="img-square logo-img" alt="Logo Image">
                   <span class="logo-text">TerraMA²</span>
                 </a>
               {% else %}
@@ -126,23 +126,26 @@
           </div>
           <div class="sidebar-footer">
             <div class="institutions-logos">
-              <a href="http://www.inpe.br/" target="_blank">
-                <img id="inpe-image" src="{[ BASE_URL ]}images/inpe.png">
-              </a>
-              <a href="http://www.inpe.br/queimadas/" target="_blank">
-                <img id="programa-queimadas-image" src="{[ BASE_URL ]}images/programa_queimadas.png">
-              </a>
-              <a href="https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs" target="_blank">
-                <img id="defra-image" src="{[ BASE_URL ]}images/defra.png">
-              </a>
-              <a href="http://www.worldbank.org/" target="_blank">
-                <img id="world-bank-image" src="{[ BASE_URL ]}images/banco_mundial.png">
-              </a>
-              {% for lf in userConfig.logoFooter %}
-                <a href="{[lf.link]}" target="_blank">
-                  <img id="world-bank-image" src="{[lf.path]}">
+              {% if userConfig.logoFooter && userConfig.logoFooter.length > 0 %}
+                {% for lf in userConfig.logoFooter %}
+                  <a href="{[lf.link]}" target="_blank">
+                    <img id="world-bank-image" src="{[ BASE_URL ]}images/{[lf.path]}">
+                  </a>
+                {% endfor %}
+              {% else %}
+                <a href="http://www.inpe.br/" target="_blank">
+                  <img id="inpe-image" src="{[ BASE_URL ]}images/inpe.png">
                 </a>
-              {% endfor %}
+                <a href="http://www.inpe.br/queimadas/" target="_blank">
+                  <img id="programa-queimadas-image" src="{[ BASE_URL ]}images/programa_queimadas.png">
+                </a>
+                <a href="https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs" target="_blank">
+                  <img id="defra-image" src="{[ BASE_URL ]}images/defra.png">
+                </a>
+                <a href="http://www.worldbank.org/" target="_blank">
+                  <img id="world-bank-image" src="{[ BASE_URL ]}images/banco_mundial.png">
+                </a>
+              {% endif %}
             </div>
           </div>
         </section>
