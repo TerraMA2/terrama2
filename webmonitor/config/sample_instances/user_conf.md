@@ -28,7 +28,7 @@ Latitude and longitude to center the map.
 
 ## Default Zoom
 
-Map zoom level  (1 to 18).
+Map zoom level.
 
 **Example**
 
