@@ -67,11 +67,11 @@ Zoom to a specific layer. The layer must be on the selectedLayers list.
 
 ## Logo
 
-Path of the logo to show on the sidebar header. Image must be place on the folder "/opt/terrama2/4.1.0/webmonitor/public/images/" through the volume "webmonitor_images".
+Path of the logo to show on the sidebar header. Image must be placed on the folder "/opt/terrama2/4.1.0/webmonitor/public/images/" through a docker volume (folder "images" inside the docker configuration of the project).
 
 **Example**
 
-    "logo": "images/terrama2_logo.png"
+    "logo": "terrama2_logo.png"
 
 ## Logo link
 
@@ -83,14 +83,14 @@ Link to open on logo click.
 
 ## Logo footer
 
-Logos to show on the sidebar footer. 
+Logos to show on the sidebar footer. Substitute all the logo, otherwise, keep the four default logos.
 
 **Example**
 
     "logoFooter": [
     	{ 
     		link: "http://www.inpe.br/",
-    		path: "images/inpe.png"
+    		path: "inpe.png"
     	}
     ]
 
