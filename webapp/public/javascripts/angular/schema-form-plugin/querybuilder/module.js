@@ -3,17 +3,157 @@ define([
 ], (QueryBuilderController) => {
   function runModule($templateCache) {
     $templateCache.put("directives/decorators/bootstrap/querybuilder/querybuilder.html",
-      `<div class="form-group {{form.htmlClass}}" ng-class="{'has-error': hasError(), 'has-success': hasSuccess(), 'has-feedback': form.feedback !== false}"
+      `<style>
+        .align-buttons  {
+          display:block
+        }
+        .attr-select {
+          max-height:100px;
+          overflow:auto;
+          overflow-x:hidden;
+          padding:0px;
+          position:absolute;
+          margin-top:-20px;
+          z-index:99;
+        }
+      </style>
+      <div class="form-group {{form.htmlClass}}" ng-class="{'has-error': hasError(), 'has-success': hasSuccess(), 'has-feedback': form.feedback !== false}" ng-controller="QueryBuilderController as ctrl">
+          <div ng-if="ctrl.getTableName()">
+            <label class="control-label " ng-class="{'sr-only': !showTitle()}" for="view_name">{{ ctrl.viewNameLabel }}</label>
+            <input ng-show="form.key" type="text" step="any" sf-changed="form" placeholder="" class="form-control  ng-empty ng-valid-schema-form ng-dirty ng-invalid ng-invalid-tv4-302 ng-touched" id="view_name" ng-model-options="form.ngModelOptions" ng-model="model['view_name']" ng-disabled="form.readonly" schema-validate="form" name="view_name" aria-describedby="view_nameStatus" required>
+          </div>
+          <div class="col-md-12 row" style="margin-left:5%">
+            <div class="col-md-5" ng-if="ctrl.getTableName()">
+              <div class="col-align-self-start">
+                <div class="form-group has-feedback" terrama2-show-errors>
+                  <label>{{ ctrl.inputAttributeLabel }}:</label>
+                  <select style="height:250px"
+                    class="form-control"
+                    name="inputAttributesLayer"
+                    id="inputAttributesLayer"
+                    ng-model="ctrl.listInputLayersSelected"
+                    ng-options="value as value for (key, value) in ctrl.inputTableAttributes"
+                    ng-change="ctrl.onMultInputSelected(ctrl.listInputLayersSelected)" multiple>
+                  </select><br>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-1 col-xs-1" style="padding:33px" ng-show="ctrl.getTableName()">
+            <div class="row">
+                <button type="button" ng-disabled="ctrl.isDisable" data-toggle="tooltip" data-placement="right" title="{{ ctrl.loadAttributesLabel }}" ng-click="ctrl.loadAttributes()" class="btn btn-primary ng-binding align-buttons">
+                  <i class="fa fa-spinner"></i>
+                </button>
+
+                <button type="button" data-toggle="tooltip" data-placement="right" title="{{ ctrl.moveRightLabel }}" ng-click="ctrl.moveToRight()" class="btn btn-primary ng-binding align-buttons" style="margin-top:5px">
+                  <i class="fa fa-arrow-right"></i>
+                </button>
+
+                <button type="button" data-toggle="tooltip" data-placement="right" title="{{ ctrl.moveAllRightLabel }}" ng-click="ctrl.moveAllToRight()" class="btn btn-primary ng-binding align-buttons" style="margin-top:5px;width:38px">
+                  <i class="glyphicon glyphicon-fast-forward"></i>
+                </button>
+
+                <button type="button" data-toggle="tooltip" data-placement="right" title="{{ ctrl.moveLeftLabel }}" ng-click="ctrl.moveToLeft()" class="btn btn-primary ng-binding align-buttons" style="margin-top:5px">
+                  <i class="fa fa-arrow-left"></i>
+                </button>
+
+                <button type="button" data-toggle="tooltip" data-placement="right" title="{{ ctrl.moveAllLeftLabel }}" ng-click="ctrl.moveAllToLeft()" class="btn btn-primary ng-binding align-buttons" style="margin-top:5px;width:38px">
+                  <i class="glyphicon glyphicon-fast-backward"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="col-md-5" ng-if="ctrl.getTableName()">
+              <div class="form-group" terrama2-show-errors>
+                <label>{{ ctrl.outputAttributeLabel }}:</label>
+                <select style="height:250px"
+                  class="form-control"
+                  name="outputLayer"
+                  id="outputLayer"
+                  ng-model="outputLayer"
+                  ng-options="attributes for attributes in ctrl.listOutputLayersSelected"
+                  ng-change="ctrl.onMultOutputSelected(outputLayer)" multiple>
+                </select><br>
+              </div>
+            </div>
+          </div>
+
+          <div class="row" ng-if="ctrl.getTableName()">
+
+            <div class="col-md-2">
+              <label>{{ ctrl.attributeLabel }}</label>
+              <select 
+                class="form-control"
+                id="listAttributeId"
+                ng-model="ctrl.attributeFilter"
+                ng-options="item for item in ctrl.listTableAttributes"
+                ng-change="ctrl.changeAttribute()">
+              </select>
+            </div>
+
+            <div class="col-md-2">
+              <label>{{ ctrl.operatorLabel }}:</label>
+              <select class="form-control" id="operatorId" ng-click="ctrl.setOperatorValue(this)" ng-model="ctrl.operatorValue">
+                <option value="=" style="font-size:16px">=</option>
+                <option value=">" style="font-size:16px">></option>
+                <option value="<" style="font-size:16px"><</option>
+                <option value=">=" style="font-size:16px">>=</option>
+                <option value="<=" style="font-size:16px"><=</option>
+                <option value="<>" style="font-size:16px"><></option>
+                <option value="LIKE" style="font-size:16px">LIKE</option>
+              </select>
+              <span style="color:red;font-size:12px">{{ ctrl.msgValueErrorOperator }}</span>
+            </div>
+
+            <div class="col-md-1">
+              <label></label>
+              <button class="btn btn-primary" ng-click="ctrl.getValuesByColumn()" style="margin-top:25px">
+                <i class="fa fa-search fa-1x"></i>
+              </button>
+            </div>
+
+            <div class="col-md-2">
+              <label>{{ ctrl.valueLabel }}:</label>
+              <input type="text" name="attributeValue" id="attributeValue" ng-model="ctrl.attributeValue" ng-keypress="ctrl.complete(ctrl.attributeValue)" class="form-control" />
+              <span style="color:red;font-size:12px">{{ ctrl.msgValueError }}</span>
+              <ul class="col-md-10 attr-select" >
+                <li class="list-group-item" ng-repeat="attributeValue in ctrl.listAttributeValues" ng-click="ctrl.fillTextbox(attributeValue)">{{attributeValue}}</li>
+              </ul>
+            </div>
+
+            <div class="col-md-1">
+              <button class="btn btn-primary" style="margin-top:25px" ng-click="ctrl.makeQuery()">
+                <i class="fa fa-plus fa-1x"></i>
+              </button>
+            </div>
+
+            <div class="col-md-2">
+              <div class="row">
+                <button class="btn btn-primary" ng-click="ctrl.setClauseValue('and')" value="and" ng-model="ctrl.clauseValue" style="margin-top:25px">
+                AND
+                </button>
+                <button class="btn btn-primary" ng-click="ctrl.setClauseValue('or')" value="and" ng-model="ctrl.clauseValue" style="margin-top:25px">
+                OR
+                </button>
+                <button class="btn btn-primary" ng-click="ctrl.getSelectedText()" style="margin-top:25px">
+                ( )
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+      </div>
+
+      <div class="form-group {{form.htmlClass}}" ng-class="{'has-error': hasError(), 'has-success': hasSuccess(), 'has-feedback': form.feedback !== false}"
             ng-controller="QueryBuilderController as ctrl">
-        <div class="form-group">
           <query-builder-wrapper model="$$value$$"
-            ng-if="ctrl.getTableName()"
-            table-name="ctrl.getTableName()"
-            provider="ctrl.getProvider()"
-            ng-init=\"$$value$$=$$value$$||[];ctrl.init($$value$$)\"
-            on-change="ctrl.onChange(queryBuilder)">
+              ng-if="ctrl.getTableName()"
+              table-name="ctrl.getTableName()"
+              provider="ctrl.getProvider()"
+              ng-init=\"$$value$$=$$value$$||[];ctrl.init($$value$$)\"
+              on-change="ctrl.onChange(queryBuilder)">
           </query-builder-wrapper>
-        </div>
       </div>`);
   }
   runModule.$inject = ['$templateCache'];

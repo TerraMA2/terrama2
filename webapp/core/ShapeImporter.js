@@ -93,6 +93,42 @@ class ShapeImporter {
   }
 
   /**
+   * Get files of shapefile or geotif.
+   *
+   * @throws {Error} when no shapefile or more than one found
+   * @throws {any} when could not extract file as zip
+   *
+   * @param {string} filePath Path to the zip file
+   * @param {*} targetDir Path to extract. Default is temporary dir
+   * @returns {ShapeImporter} ShapeImporter instance
+   */
+  getFilesGeom(filePath,type, fileName, targetDir){
+
+    let extensionShape = ['.shp', '.dbf', '.shx', '.prj']
+    if (targetDir) {
+      this.temporaryDir = targetDir;
+    }
+
+    if(type == "vectorial"){
+      let path = filePath.replace(".shp", "");
+      var i = 0;
+      for(i = 0; i <4;i++){
+        var filePath = path + extensionShape[i];
+        if(fs.existsSync(filePath)){
+          fs.copyFileSync(filePath, this.temporaryDir + "/" + fileName.replace(".shp","") + extensionShape[i]);
+        }
+      }
+    }else{
+      if(fs.existsSync(filePath)){
+        fs.copyFileSync(filePath, this.temporaryDir + "/" + fileName);
+      }
+    }
+
+    return this;
+
+  }
+
+  /**
    * Tries to unzip the provided file in temporary directory.
    * Once extracted, checks if exists any shapefile.
    *
@@ -103,17 +139,20 @@ class ShapeImporter {
    * @param {*} targetDir Path to extract. Default is temporary dir
    * @returns {ShapeImporter} ShapeImporter instance
    */
-  unzip(filePath, targetDir) {
+  unzip(filePath, toPath, targetDir) {
     let numberOfShapeFiles = 0;
 
     if (targetDir) {
       this.temporaryDir = targetDir;
     }
+    if(!toPath){
+      toPath = this.temporaryDir;
+    }
 
-    this.files = FileExtract.unzip(filePath, this.temporaryDir).getEntries().map(entry => {
+    this.files = FileExtract.unzip(filePath, toPath).getEntries().map(entry => {
       if (entry.entryName.endsWith('.shp')) {
         ++numberOfShapeFiles;
-        this.shapeFile = path.join(this.temporaryDir, entry.entryName);
+        this.shapeFile = path.join(toPath, entry.entryName);
       }
       return entry.entryName;
     });

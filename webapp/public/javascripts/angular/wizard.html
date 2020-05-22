@@ -54,20 +54,24 @@
           <input type="radio" name="showBtn" ng-model="model['show_transfer']" class="form-check-input" id="choiceShapefile" value="option2" >
           <label class="form-check-label" for="choiceShapefile">{{ labelField2 }}</label>
         </div>
-        <form name="forms.parametersForm" sf-schema="schema" ng-if="!isDynamic && showCheckbox" sf-form="form" sf-model="model" sf-options="options">
+        <form name="forms.parametersForm" autocomplete="off" sf-schema="schema" ng-if="!isDynamic && showCheckbox" sf-form="form" sf-model="model" sf-options="options">
         </form>
+        <button ng-show="showFolderButton" style="margin-top:25px" type="button" id="openExplorer" class="btn btn-primary">
+          <i class="fa fa-folder"></i>
+        </button>
 
-        <!--<div class="form-check" style="margin-left:20px" ng-if="!isDynamic && !showCheckbox">
-          <input type="radio" name="show_view" ng-model="model['show_view']" class="form-check-input" id="choiceView" value="">
+        <div class="form-check" style="margin-left:20px" ng-show="!isDynamic && !showCheckbox">
+          <input type="radio" name="show_view" ng-model="model['show_view']" class="form-check-input" id="choiceView" value="" ng-checked="true">
           <label class="form-check-label" for="choiceView">{{ labelField1 }}</label>
         </div>
         <div class="form-check" style="margin-left:20px" ng-if="!isDynamic && !showCheckbox">
           <input type="radio" name="show_view" ng-model="model['show_view']" class="form-check-input" id="createView" value="show">
           <label class="form-check-label" for="createView">{{ labelField2 }}</label>
-        </div>-->
-        <form name="forms.parametersForm" ng-if="!isDynamic && !showCheckbox" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options">
+        </div>
+        <form name="forms.parametersForm" autocomplete="off" ng-if="!isDynamic && !showCheckbox" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options">
         </form>
-        <form name="forms.parametersForm" ng-if="isDynamic" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options">
+
+        <form name="forms.parametersForm" autocomplete="off" ng-if="isDynamic" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options">
         </form>
 
         <div ng-if="isDCP()">
@@ -82,9 +86,9 @@
 
       </div>
 
-      <div class="col-md-4" ng-show="$ctrl.isFilteredTable()">
+      <!-- <div class="col-md-4" ng-show="$ctrl.isFilteredTable()">
         <terrama2-map id="previewMap" hide></terrama2-map>
-      </div>
+      </div> -->
 
       <div class="col-md-12" ng-if="!isDynamic && (semanticsCode === 'STATIC_DATA-postgis' || (semanticsCode === 'STATIC_DATA-ogr' && isDataProviderFolder()))">
         <div class="col-md-12">
@@ -107,7 +111,7 @@
 
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
           <button class="btn btn-primary" type="submit" ng-show="isDynamic && (!wizard.store.disabled || !wizard.filter.disabled || !wizard.intersection.disabled || !wizard.csvFormatForm.disabled || !wizard.parameters)" ng-click="goToValidNextStep('parametersForm');" wz-next>{{ i18n.__('Next') }}</button>
-          <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save')" ng-show="!isDynamic" data-ng-click="save(false);"></button>
+          <button type="button" id="saveStaticData" class="btn btn-primary" ng-bind="i18n.__('Save')" ng-show="!isDynamic"></button>
           <div class="btn-group pull-right" style="margin-left: 3px;" ng-show="isDynamic && storager.format">
             <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="save(true);"></button>
             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -122,6 +126,27 @@
         </div>
       </div>
     </wz-step>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">{{ i18n.__('Attention') }}!</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-15px">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            {{ i18n.__('This view already exists!\n Do you want to update it?') }}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ i18n.__("Cancel") }}</button>
+            <button type="button" id="updateView" data-ng-click="save(false);" class="btn btn-primary">{{ i18n.__("Yes, update") }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <wz-step wz-title="{{ i18n.__('Attributes') }}" canexit="isSecondStepValid" wz-data="wizard.attributes" wz-disabled="{{isDynamic || model.table_name==undefined}}" canenter="!wizard.attributes.disabled">
         <form name="forms.attributesForm"></form>
