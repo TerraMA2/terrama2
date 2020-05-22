@@ -6,4 +6,5 @@ module.exports = function(app) {
 
   app.post(app.locals.BASE_URL + 'import-shapefile', multipartyMiddleware, controller.importShapefile);
   app.post(app.locals.BASE_URL + 'import-geotiff', multipartyMiddleware, controller.importGeoTIFF);
+  app.post(app.locals.BASE_URL + 'import-file', multipartyMiddleware, controller.importFile);
 };

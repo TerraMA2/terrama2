@@ -110,7 +110,7 @@ define([], function() {
 
             if($scope.dataProvider.protocol == "FILE") {
               var pathSelected = getPathFromTheList($scope.configuration.defaultFilePathList, tempCurrentPath);
-
+              pathSelected = '/home/jonatas/mydevel/terrama2'
               if(pathSelected == undefined || pathSelected == "")
               {
                 $scope.isChecking = false;
@@ -266,6 +266,8 @@ define([], function() {
 
             params.protocol = $scope.dataProvider.protocol;
             params.list = true;
+            params.getWithExtension = false;
+            params.extensionFile = '';
             params.pathname = pathToList;
             params.basePath = $scope.basePath;
 
@@ -285,7 +287,7 @@ define([], function() {
                 }
               }
             }
-
+            console.log(params)
             var request = $http({
               method: "POST",
               url: BASE_URL + "uri/",

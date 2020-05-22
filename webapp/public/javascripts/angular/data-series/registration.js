@@ -56,6 +56,7 @@ define([], function() {
     $scope.getTables = true;
     $scope.showButton = false;
     $scope.showCheckbox = true;
+    $scope.showFolderButton = false;
     $scope.attributesSelect = "";
     $scope.hasProjectPermission = configuration.hasProjectPermission;
     $scope.semantics = "";
@@ -553,10 +554,12 @@ define([], function() {
           case "GRID-static_gdal":
             $scope.labelField1 = i18n.__("Choose file on the data server");
             $scope.labelField2 = i18n.__("File transfer to data server");
+            $scope.showFolderButton = true;
             break;
           case "STATIC_DATA-ogr":
             $scope.labelField1 = i18n.__("Choose file on the data server");
             $scope.labelField2 = i18n.__("File transfer to data server");
+            $scope.showFolderButton = true;
             break;
           case "STATIC_DATA-VIEW-postgis":
             $scope.labelField1 = i18n.__("Choose view in the database");
@@ -1268,8 +1271,17 @@ define([], function() {
 
       $scope.$watch("model.show_transfer", function(val){
         if(val == 'option1'){
-          $scope.showButton = false;  
+          $scope.showButton = false;
+          if(($scope.dataSeries.semantics.code == 'STATIC_DATA-ogr') || ($scope.dataSeries.semantics.code == 'GRID-static_gdal')){
+            $(".control-label").html(i18n.__("File Name")); 
+          }
         }else if(val == 'option2'){
+          if($scope.dataSeries.semantics.code == 'STATIC_DATA-postgis'){
+            $("#button_file").css('margin-top','25px');
+          }
+          if(($scope.dataSeries.semantics.code == 'STATIC_DATA-ogr') || ($scope.dataSeries.semantics.code == 'GRID-static_gdal')){
+            $(".control-label").html(i18n.__("Folder Name"));
+          }
           $scope.showButton = true;
         }
       });
@@ -2173,7 +2185,6 @@ define([], function() {
 
         var dataToSend = Object.assign({}, $scope.dataSeries);
         dataToSend.data_series_semantics_id = $scope.dataSeries.semantics.id;
-
         var semantics = Object.assign({}, dataToSend.semantics);
         delete dataToSend.semantics;
 
@@ -2183,7 +2194,6 @@ define([], function() {
         dataToSend.dataSets = [];
 
         $scope.errorFound = false;
-
         switch(semantics.data_series_type_name) {
           case "DCP":
             var tempEditedDcps = [];
@@ -2325,6 +2335,16 @@ define([], function() {
       }
 
 
+      $("#saveStaticData").on('click',()=>{
+        if($scope.dataSeries.semantics.code == "STATIC_DATA-VIEW-postgis"){
+          if($scope.viewList.includes($scope.model.view_name)){
+            $("#exampleModalCenter").modal();
+          }else{
+            $scope.save(false);
+          }
+        }
+      });
+
       /**
        * Callback to display View Validation message
        */
@@ -2333,9 +2353,15 @@ define([], function() {
 
         const provider = $scope.dataSeries.data_provider_id;
         const { table_name, query_builder } = $scope.model;
+        try{
+          $scope.attributesSelect = $("#outputLayer")[0].innerText.split("\n");
+        }catch(e){
+          $scope.attributesSelect = "";
+        }
 
+        $scope.attributesSelect = $scope.attributesSelect == "" ? undefined: $scope.attributesSelect;
         try {
-          const result = await DataSeriesService.validateView(table_name, provider, query_builder);
+          const result = await DataSeriesService.validateView(table_name, provider, $scope.attributesSelect, query_builder);
           MessageBoxService.success(title, $scope.i18n.__(`View is valid, the query returned ${result.data.result} ${result.data.result > 1 ? "registers" : "register"}`));
           return true;
         } catch (err) {
@@ -2382,7 +2408,6 @@ define([], function() {
           MessageBoxService.danger(i18n.__("Data Registration"), i18n.__(serviceOfflineMessage));
           return;
         }
-
         if($scope.forms.generalDataForm.$invalid) {
           MessageBoxService.danger(i18n.__("Data Registration"), i18n.__("There are invalid fields on form"));
           return;
