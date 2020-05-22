@@ -416,7 +416,9 @@ define(
         const userLayers = USER_CONFIG.selectedLayers;
         for (let i = 0; i < userLayers.length; i++) {
           const layer = userLayers[i];
-          $("li[title='"+layer+"'] input").trigger('click');
+          if (!$("li[title='"+layer+"'] input").is(':checked')){
+            $("li[title='"+layer+"'] input").trigger('click');
+          }
         }
       });
 
@@ -1015,7 +1017,7 @@ define(
       }
 
       var gebcoUrl = "http://www.gebco.net/data_and_products/gebco_web_services/web_map_service/mapserv?request=getmap&service=wms";
-      if(TerraMA2WebComponents.MapDisplay.addTileWMSLayer("gebco_08_grid", "GEBCO", "GEBCO", gebcoUrl, "mapserver", false, false, "terrama2-layerexplorer", { version: "1.3.0", format: "image/jpeg" })){
+      if(TerraMA2WebComponents.MapDisplay.addTileWMSLayer("gebco_08_grid", "GEBCO", "GEBCO", gebcoUrl, "mapserver", false, false, "terrama2-layerexplorer", { version: "1.3.0", format: "image/jpeg" }, "GEBCO Compilation Group (2019) GEBCO 2019 Grid")){
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("gebco_08_grid", "template", null, "treeview unsortable terrama2-truncate-text sidebar-subitem template", null);
         var layerObject = Layers.createLayerObject({
           layers: ["gebco_08_grid"],
@@ -1026,9 +1028,8 @@ define(
         Layers.addLayer(layerObject);
         LayerStatus.addLayerStatusIcon("gebco_08_grid");
       }
-
       var sentinelURL = "https://b.s2maps-tiles.eu/wms?";
-      if(TerraMA2WebComponents.MapDisplay.addTileWMSLayer("s2cloudless", "Sentinel 2", "Sentinel 2", sentinelURL, "mapserver", false, false, "terrama2-layerexplorer", { version: "1.1.1", format: "image/jpeg" })){
+      if(TerraMA2WebComponents.MapDisplay.addTileWMSLayer("s2cloudless", "Sentinel 2", "Sentinel 2", sentinelURL, "mapserver", false, false, "terrama2-layerexplorer", { version: "1.1.1", format: "image/jpeg" }, "Sentinel-2 cloudless - <a href='https://s2maps.eu'>https://s2maps.eu</a> by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2017 & 2018)")){
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("s2cloudless", "template", null, "treeview unsortable terrama2-truncate-text sidebar-subitem template", null);
         var layerObject = Layers.createLayerObject({
           layers: ["s2cloudless"],
