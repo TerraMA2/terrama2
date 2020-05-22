@@ -416,7 +416,9 @@ define(
         const userLayers = USER_CONFIG.selectedLayers;
         for (let i = 0; i < userLayers.length; i++) {
           const layer = userLayers[i];
-          $("li[title='"+layer+"'] input").trigger('click');
+          if (!$("li[title='"+layer+"'] input").is(':checked')){
+            $("li[title='"+layer+"'] input").trigger('click');
+          }
         }
       });
 
