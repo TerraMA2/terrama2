@@ -409,15 +409,14 @@ define(
           }
         }
 
-        if(viewsData.initialRequest)
+        if(viewsData.initialRequest) {
           Layers.fillLayersData();
-
-        // Layers.addLayersToSort();
-        const userLayers = USER_CONFIG.selectedLayers;
-        for (let i = 0; i < userLayers.length; i++) {
-          const layer = userLayers[i];
-          if (!$("li[title='"+layer+"'] input").is(':checked')){
-            $("li[title='"+layer+"'] input").trigger('click');
+          const userLayers = USER_CONFIG.selectedLayers;
+          for (let i = 0; i < userLayers.length; i++) {
+            const layer = userLayers[i];
+            if (!$("li[title='"+layer+"'] input").is(':checked')){
+              $("li[title='"+layer+"'] input").trigger('click');
+            }
           }
         }
       });
