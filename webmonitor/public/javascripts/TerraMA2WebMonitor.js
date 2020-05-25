@@ -355,11 +355,6 @@ define(
             $('#projects').append($('<option></option>').attr('value', viewsData.projects[i].id).text(viewsData.projects[i].name));
         }
 
-        var defaultProject = USER_CONFIG.project;
-        if (defaultProject){
-          $("#projects").val($('#projects option').filter(function () { return $(this).html() == defaultProject; }).val());
-        }
-
         var currentProject = $("#projects").val();
         for(var i = 0, viewsLength = viewsData.views.length; i < viewsLength; i++) {
           const currentView = viewsData.views[i];
@@ -417,6 +412,11 @@ define(
             if (!$("li[title='"+layer+"'] input").is(':checked')){
               $("li[title='"+layer+"'] input").trigger('click');
             }
+          }
+
+          var defaultProject = USER_CONFIG.project;
+          if (defaultProject){
+            $("#projects").val($('#projects option').filter(function () { return $(this).html() == defaultProject; }).val());
           }
         }
       });
