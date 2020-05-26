@@ -21,7 +21,7 @@ define([], function(){
 
             // Second, we want it to show if someone have explicitly set the form type
             schemaFormDecoratorsProvider.addMapping('bootstrapDecorator', 'terrama2maskform',
-                BASE_URL + 'dist/templates/schema-form-plugin/mask-warn/templates/terrama2-mask-field5.html');
+                BASE_URL + 'dist/templates/schema-form-plugin/mask-warn/templates/terrama2-mask-field.html');
         }]);
 
     // Declare a controller, this is used in the camelcaseDirective below
