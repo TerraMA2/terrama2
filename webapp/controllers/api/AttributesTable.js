@@ -24,11 +24,9 @@
     return {
       getDataSetId: async (request, response) => {
         let {
-          tableName, viewId
+          tableName
         } = request.query
 
-        const view = await ViewFacade.retrieve(viewId)
-        
         const conn = new Connection(URI);
         await conn.connect();
         let sql = "";
@@ -46,22 +44,22 @@
 
       getAttributes: async (request, response) => {
         let {
-          dataSetid,viewId
+          dataSetid
         } = request.query
 
-        const view = await ViewFacade.retrieve(viewId)
-        
         const conn = new Connection(URI);
         await conn.connect();
+        let rows = [];
         let sql = "";
-        sql = `
-          SELECT value
-          FROM terrama2.data_set_formats
-          WHERE data_set_id = ${dataSetid} AND key = 'attributes';
-        `;
-
-        const result = await conn.execute(sql)
-        let rows = result.rows
+        if (dataSetid != "") {
+          sql = `
+            SELECT value
+            FROM terrama2.data_set_formats
+            WHERE data_set_id = ${dataSetid} AND key = 'attributes';
+          `;
+          const result = await conn.execute(sql)
+          rows = result.rows
+        }
         await conn.disconnect();
         response.json(rows)
       },

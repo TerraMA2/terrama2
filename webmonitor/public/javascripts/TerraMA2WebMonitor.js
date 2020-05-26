@@ -577,232 +577,233 @@ define(
           var layerType = layerData.parent;
 
           const tableName = layerData.exportation.table;
-          const viewId = layerData.viewId;
 
+          var columns = [];
           $.get(BASE_URL + 'get-columns', {
             layer: layerData.id,
             geoserverUri: layerData.uriGeoServer
           },
             function(response) {
-              if(response.fields.length > 0) {                
-                var fields = [];
-                response.fields.forEach(function(field){
-                  fields.push(field.name);
-                });
+              columns = response.fields;
+              var fields = [];
+              response.fields.forEach(function(field){
+                fields.push(field.name);
+              });
+              if (columns.length == 0) {
+                fields = Object.keys(featureInfo.features[0].properties);
+              }
 
-                $.get(ADMIN_URL + 'api/datasetid', {
-                  tableName: tableName,
-                  viewId: viewId
-                },
-                  function(response) {
-                    if(response[0].data_set_id){
-                      var dataSetid = response[0].data_set_id;
-                      $.get(ADMIN_URL + 'api/attributes', {
-                        dataSetid: dataSetid,
-                        viewId: viewId
-                      },
-                        function(response) {
-                          var attributesResponseStr = null;
-                          var attributesJson = null;                    
-      
-                          if(typeof response !== 'undefined' && response.length > 0 && response[0].value){
-                            var attributesResponseStr = response[0].value;
-                            var attributesJson = JSON.parse(attributesResponseStr);
+              $.get(ADMIN_URL + 'api/datasetid', {
+                tableName: tableName
+              },
+                function(response) {
+                  var dataSetid = null;
+                  if(response && response[0].data_set_id) {
+                    dataSetid = response[0].data_set_id;
+                  }
+                  $.get(ADMIN_URL + 'api/attributes', {
+                    dataSetid: dataSetid
+                  },
+                    function(response) {
+                      var attributesResponseStr = null;
+                      var attributesJson = null;                    
+  
+                      if(typeof response !== 'undefined' && response.length > 0 && response[0].value){
+                        var attributesResponseStr = response[0].value;
+                        var attributesJson = JSON.parse(attributesResponseStr);
 
-                            if (layerType == "static"){
+                        if (layerType == "static"){
 
-                              attributesJson.forEach(e => {
-                                  if(e.name == "gid"){
-                                    e.visible = false;
-                                  }
-                              });
+                          attributesJson.forEach(e => {
+                              if(e.name == "gid"){
+                                e.visible = false;
+                              }
+                          });
 
-                            }
-                          }
-                          
-                          if(featuresLength > 0) {
-                            var firesAttributes = "";
-                            for(var i = 0; i < featuresLength; i++) {
-                              var imageUrl = null;
-      
-                              firesAttributes += "<table class=\"table table-striped\"><tbody>";
-                              var firesAttributesRows = "";
-      
-                              if(attributesJson != null){
+                        }
+                      }
+                      
+                      if(featuresLength > 0) {
+                        var firesAttributes = "";
+                        for(var i = 0; i < featuresLength; i++) {
+                          var imageUrl = null;
+  
+                          firesAttributes += "<table class=\"table table-striped\"><tbody>";
+                          var firesAttributesRows = "";
+  
+                          if(attributesJson != null){
 
-                                if(attributesJson.length !== Object.keys(featureInfo.features[i].properties).length){
-                                  attributesJson.forEach(function(columnFilter){
-                                    if(Object.keys(featureInfo.features[i].properties).includes(columnFilter.name)){
-                                      if(featureInfo.features[i].properties[columnFilter.name] === "picture") {
-                                        imageUrl = featureInfo.features[i].properties[columnFilter.name];
+                            if(attributesJson.length !== Object.keys(featureInfo.features[i].properties).length){
+                              attributesJson.forEach(function(columnFilter){
+                                if(Object.keys(featureInfo.features[i].properties).includes(columnFilter.name)){
+                                  if(featureInfo.features[i].properties[columnFilter.name] === "picture") {
+                                    imageUrl = featureInfo.features[i].properties[columnFilter.name];
+                                  }else{
+                                    if(featureInfo.features[i].properties[columnFilter.name] != null && typeof featureInfo.features[i].properties[columnFilter.name] == 'object'){                                            
+                                      if(typeof featureInfo.features[i].properties[columnFilter.name].type !== 'undefined'){
+                                        if(columnFilter.alias != "" && columnFilter.visible == true){
+                                          firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter.name].type + "</td></tr>";
+                                        }else if(columnFilter.alias == "" && columnFilter.visible == true){
+                                          firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter.name].type + "</td></tr>";
+                                        }
                                       }else{
-                                        if(featureInfo.features[i].properties[columnFilter.name] != null && typeof featureInfo.features[i].properties[columnFilter.name] == 'object'){                                            
-                                          if(typeof featureInfo.features[i].properties[columnFilter.name].type !== 'undefined'){
-                                            if(columnFilter.alias != "" && columnFilter.visible == true){
-                                              firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter.name].type + "</td></tr>";
-                                            }else if(columnFilter.alias == "" && columnFilter.visible == true){
-                                              firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter.name].type + "</td></tr>";
-                                            }
-                                          }else{
-                                            if(columnFilter.alias != "" && columnFilter.visible == true){
-                                              let propertiesObj = featureInfo.features[i].properties[columnFilter.name];
-                                              for(let key in propertiesObj){
-                                                firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + propertiesObj[key] + "</td></tr>";
-                                                break;
-                                              }
-                                            }else if(columnFilter.alias == "" && columnFilter.visible == true){
-                                              let propertiesObj = featureInfo.features[i].properties[columnFilter.name];
-                                              for(let key in propertiesObj){
-                                                firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + propertiesObj[key] + "</td></tr>";
-                                                break;
-                                              }
-                                            }
+                                        if(columnFilter.alias != "" && columnFilter.visible == true){
+                                          let propertiesObj = featureInfo.features[i].properties[columnFilter.name];
+                                          for(let key in propertiesObj){
+                                            firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + propertiesObj[key] + "</td></tr>";
+                                            break;
                                           }
-                                        } else{
-                                          if(columnFilter.alias != "" && columnFilter.visible == true){
-                                            firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter.name] + "</td></tr>";
-                                          }else if(columnFilter.alias == "" && columnFilter.visible == true){
-                                            firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter.name] + "</td></tr>";
-                                          }                                        
+                                        }else if(columnFilter.alias == "" && columnFilter.visible == true){
+                                          let propertiesObj = featureInfo.features[i].properties[columnFilter.name];
+                                          for(let key in propertiesObj){
+                                            firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + propertiesObj[key] + "</td></tr>";
+                                            break;
+                                          }
                                         }
                                       }
                                     } else{
-                                      if(columnFilter.name !== "fid"){
-                                        if(layerType == "static" && featureInfo.features[i].geometry !== null){
-                                          if(columnFilter.alias != "" && columnFilter.visible == true){
-                                            firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
-                                          }else if(columnFilter.alias == "" && columnFilter.visible == true){
-                                            firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
-                                          }
-                                        }else{
-                                          if(typeof featureInfo.features[i].geometry_name !== 'undefined' && featureInfo.features[i].geometry_name !== null){
-                                            if(columnFilter.alias != "" && columnFilter.visible == true){
-                                              firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
-                                            }else if(columnFilter.alias == "" && columnFilter.visible == true){
-                                              firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
-                                            }
-                                          } else{
-                                            if(columnFilter.alias != "" && columnFilter.visible == true){
-                                              firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td> </td></tr>";
-                                            }else if(columnFilter.alias == "" && columnFilter.visible == true){
-                                              firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td> </td></tr>";
-                                            }
-                                          } 
-                                        }
-                                      }
-                                    }
-                                  });
-                                } else{
-                                  for(var key in featureInfo.features[i].properties) {
-                                    if(key === "picture") {
-                                      imageUrl = featureInfo.features[i].properties[key];
-                                    } else {
-                                      attributesJson.forEach(function(jsonElement){
-                                        if(key == jsonElement.name){
-                                          if(jsonElement.alias != "" && jsonElement.visible == true){
-                                            firesAttributesRows += "<tr><td><strong>" + jsonElement.alias + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
-                                          }else if(jsonElement.alias == "" && jsonElement.visible == true){
-                                            firesAttributesRows += "<tr><td><strong>" + key + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
-                                          }
-                                        }
-                                      });  
+                                      if(columnFilter.alias != "" && columnFilter.visible == true){
+                                        firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter.name] + "</td></tr>";
+                                      }else if(columnFilter.alias == "" && columnFilter.visible == true){
+                                        firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter.name] + "</td></tr>";
+                                      }                                        
                                     }
                                   }
-                                }      
-                              }else{
-                                if(fields.length !== Object.keys(featureInfo.features[i].properties).length){
-                                  fields.forEach(function(columnFilter){
-                                    if(Object.keys(featureInfo.features[i].properties).includes(columnFilter)){
-                                      if(featureInfo.features[i].properties[columnFilter.name] === "picture") {
-                                        imageUrl = featureInfo.features[i].properties[columnFilter.name];
-                                      }else{
-                                        if(featureInfo.features[i].properties[columnFilter] != null && typeof featureInfo.features[i].properties[columnFilter] == 'object'){                                            
-                                          if(typeof featureInfo.features[i].properties[columnFilter].type !== 'undefined'){
-                                            firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter].type + "</td></tr>";
-                                          }else{
-                                            let propertiesObj = featureInfo.features[i].properties[columnFilter];
-                                            for(let key in propertiesObj){
-                                              firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + propertiesObj[key] + "</td></tr>";
-                                              break;
-                                            }
-                                          }
-                                        } else{
-                                          firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter] + "</td></tr>";
-                                        }
-                                      }
-                                    } else{
-                                      if(columnFilter !== "fid"){
-                                        if(layerType == "static" && featureInfo.features[i].geometry !== null){
-                                          firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
-                                        }else{
-                                          if(typeof featureInfo.features[i].geometry_name !== 'undefined' && featureInfo.features[i].geometry_name !== null){
-                                            firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
-                                          } else{
-                                            firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td> </td></tr>";
-                                          } 
-                                        }
-                                      }
-                                    }
-                                  });
                                 } else{
-                                  for(var key in featureInfo.features[i].properties) {
-                                    if(key === "picture") {
-                                      imageUrl = featureInfo.features[i].properties[key];
-                                    } else {
-                                      firesAttributesRows += "<tr><td><strong>" + key + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
+                                  if(columnFilter.name !== "fid"){
+                                    if(layerType == "static" && featureInfo.features[i].geometry !== null){
+                                      if(columnFilter.alias != "" && columnFilter.visible == true){
+                                        firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
+                                      }else if(columnFilter.alias == "" && columnFilter.visible == true){
+                                        firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
+                                      }
+                                    }else{
+                                      if(typeof featureInfo.features[i].geometry_name !== 'undefined' && featureInfo.features[i].geometry_name !== null){
+                                        if(columnFilter.alias != "" && columnFilter.visible == true){
+                                          firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
+                                        }else if(columnFilter.alias == "" && columnFilter.visible == true){
+                                          firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
+                                        }
+                                      } else{
+                                        if(columnFilter.alias != "" && columnFilter.visible == true){
+                                          firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td> </td></tr>";
+                                        }else if(columnFilter.alias == "" && columnFilter.visible == true){
+                                          firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td> </td></tr>";
+                                        }
+                                      } 
                                     }
                                   }
                                 }
-                              }                         
-      
-                              if(imageUrl) {
-                                firesAttributes += "<tr><td colspan=\"2\"><a target=\"_blank\" href=\"" + imageUrl + "\"><img style=\"width: 100%;\" src=\"" + imageUrl + "\"/></a></td></tr>";
+                              });
+                            } else{
+                              for(var key in featureInfo.features[i].properties) {
+                                if(key === "picture") {
+                                  imageUrl = featureInfo.features[i].properties[key];
+                                } else {
+                                  attributesJson.forEach(function(jsonElement){
+                                    if(key == jsonElement.name){
+                                      if(jsonElement.alias != "" && jsonElement.visible == true){
+                                        firesAttributesRows += "<tr><td><strong>" + jsonElement.alias + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
+                                      }else if(jsonElement.alias == "" && jsonElement.visible == true){
+                                        firesAttributesRows += "<tr><td><strong>" + key + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
+                                      }
+                                    }
+                                  });  
+                                }
                               }
-                
-                              firesAttributes += firesAttributesRows + "</tbody></table>";
-                              if(featuresLength > (i + 1)) firesAttributes += "<hr/>";
-                            
+                            }      
+                          }else{
+                            if(fields.length !== Object.keys(featureInfo.features[i].properties).length){
+                              fields.forEach(function(columnFilter){
+                                if(Object.keys(featureInfo.features[i].properties).includes(columnFilter)){
+                                  if(featureInfo.features[i].properties[columnFilter.name] === "picture") {
+                                    imageUrl = featureInfo.features[i].properties[columnFilter.name];
+                                  }else{
+                                    if(featureInfo.features[i].properties[columnFilter] != null && typeof featureInfo.features[i].properties[columnFilter] == 'object'){                                            
+                                      if(typeof featureInfo.features[i].properties[columnFilter].type !== 'undefined'){
+                                        firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter].type + "</td></tr>";
+                                      }else{
+                                        let propertiesObj = featureInfo.features[i].properties[columnFilter];
+                                        for(let key in propertiesObj){
+                                          firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + propertiesObj[key] + "</td></tr>";
+                                          break;
+                                        }
+                                      }
+                                    } else{
+                                      firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter] + "</td></tr>";
+                                    }
+                                  }
+                                } else{
+                                  if(columnFilter !== "fid"){
+                                    if(layerType == "static" && featureInfo.features[i].geometry !== null){
+                                      firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
+                                    }else{
+                                      if(typeof featureInfo.features[i].geometry_name !== 'undefined' && featureInfo.features[i].geometry_name !== null){
+                                        firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
+                                      } else{
+                                        firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td> </td></tr>";
+                                      } 
+                                    }
+                                  }
+                                }
+                              });
+                            } else{
+                              for(var key in featureInfo.features[i].properties) {
+                                if(key === "picture") {
+                                  imageUrl = featureInfo.features[i].properties[key];
+                                } else {
+                                  firesAttributesRows += "<tr><td><strong>" + key + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
+                                }
+                              }
                             }
-      
-                            $('#feature-info-box').html(firesAttributes);
-      
-                            $('#feature-info-box').dialog({
-                              dialogClass: "feature-info-box",
-                              title: "",
-                              width: 400,
-                              height: 380,
-                              maxWidth: 600,
-                              modal: false,
-                              resizable: true,
-                              draggable: true,
-                              closeOnEscape: true,
-                              closeText: "",
-                              position: {
-                                my: 'top',
-                                at: 'top+75'
-                              },
-                              open: function() {
-                                $(this).parent().find('.ui-dialog-content').css('white-space', 'normal');
-                                $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
-                                $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', 'center');
-                                $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '20px');
-                                $(this).parent().find('.ui-dialog-title').append('<span id=\'feature-info-dialog-title-prefix\'></span>' + data.params.layerName);
-      
-                                Utils.setTagContent('.ui-dialog-title > #feature-info-dialog-title-prefix', 'ATTRIBUTES-OF-LAYER-COLON');
-                              },
-                              close: function() {
-                                $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', '');
-                                $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', '');
-                                $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '');
-                              }
-                            });
+                          }                         
+  
+                          if(imageUrl) {
+                            firesAttributes += "<tr><td colspan=\"2\"><a target=\"_blank\" href=\"" + imageUrl + "\"><img style=\"width: 100%;\" src=\"" + imageUrl + "\"/></a></td></tr>";
                           }
+            
+                          firesAttributes += firesAttributesRows + "</tbody></table>";
+                          if(featuresLength > (i + 1)) firesAttributes += "<hr/>";
+                        
                         }
-                      );  
-                    }             
-                  }
-                );
-              }
+  
+                        $('#feature-info-box').html(firesAttributes);
+  
+                        $('#feature-info-box').dialog({
+                          dialogClass: "feature-info-box",
+                          title: "",
+                          width: 400,
+                          height: 380,
+                          maxWidth: 600,
+                          modal: false,
+                          resizable: true,
+                          draggable: true,
+                          closeOnEscape: true,
+                          closeText: "",
+                          position: {
+                            my: 'top',
+                            at: 'top+75'
+                          },
+                          open: function() {
+                            $(this).parent().find('.ui-dialog-content').css('white-space', 'normal');
+                            $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
+                            $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', 'center');
+                            $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '20px');
+                            $(this).parent().find('.ui-dialog-title').append('<span id=\'feature-info-dialog-title-prefix\'></span>' + data.params.layerName);
+  
+                            Utils.setTagContent('.ui-dialog-title > #feature-info-dialog-title-prefix', 'ATTRIBUTES-OF-LAYER-COLON');
+                          },
+                          close: function() {
+                            $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', '');
+                            $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', '');
+                            $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '');
+                          }
+                        });
+                      }
+                    }
+                  );
+                }
+              );
           });
 
           
