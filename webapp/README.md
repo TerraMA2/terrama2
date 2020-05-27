@@ -7,7 +7,7 @@ TerraMA² Webapp is a free and open source component based web API for use in we
 
 ## Installation
 
-Before you start the installation, make sure you have installed Node.js version 8.12.0 LTS. You can download it from https://nodejs.org.
+Before you start the installation, make sure you have installed Node.js version 8.17.0 LTS. You can download it from https://nodejs.org.
 
 Bellow we show the steps to run TerraMA² Webapp:
 
@@ -35,7 +35,7 @@ TerraMA2 web application uses NodeJS Sequelize ORM for handling database manipul
 Make sure to edit `config/settings.json` the option `defaultFilePathList` which represents the default data provider path handling. You can also set `basePath` when you are running TerraMA² behind proxy server.
 
 ## Configuration File
-The TerraMA² Web settings can be found in [config/settings.json](https://raw.githubusercontent.com/TerraMA2/terrama2/master/webapp/config/settings.json).
+The TerraMA² Web settings can be found in [config/settings.json](config/settings.json).
 
 Set database configuration into `config/db.json`. By default, TerraMA² has two database config: `development` and `production` which indicates
 application state. You can customize and add own database credentials. Make sure to pass through `NODE_ENV` variable.
@@ -57,7 +57,7 @@ Key               | Description
 
 If you want to build yourself TerraMA² then you need to install some third-party libraries. Below we show the list of third-party libraries dependencies and its versions:
 
-- **Node.js (Mandatory):** Node.js is a JavaScript runtime for server side scripts. Make sure you have version 8.12.0 LTS installed. You can download it from: https://nodejs.org.
+- **Node.js (Mandatory):** Node.js is a JavaScript runtime for server side scripts. Make sure you have version 8.17.0 LTS installed. You can download it from: https://nodejs.org.
 
 - **AdminLTE (Mandatory):** TerraMA² web front-end is built on top of AdminLTE web template. You can download it from: https://github.com/almasaeed2010/AdminLTE.
 
