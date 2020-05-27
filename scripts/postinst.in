@@ -10,6 +10,9 @@ function valid()
   fi
 }
 
+chmod 755 -R @TERRAMA2_DESTINATION@
+chown $USER:$USER -R @TERRAMA2_DESTINATION@
+
 printf "Post-installation script...\n"
 
 # npm install yarn -g
@@ -72,6 +75,12 @@ printf "Post-installation script...\n"
   cd @TERRAMA2_DESTINATION@webapp/config
   if ! [ -f "settings.json" ]; then
     cp settings.json.example settings.json
+  fi
+)
+(
+  cd @TERRAMA2_DESTINATION@webapp/config
+  if ! [ -f "db.json" ]; then
+    cp db.json.example db.json
   fi
 )
 (
