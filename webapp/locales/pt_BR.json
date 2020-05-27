@@ -1147,7 +1147,7 @@
 	"Query Builder Expression": "Query Builder Expression",
 	"Invalid query builder": "Query inválida",
 	"Query Builder": "Query Builder",
-	"Remove attributes configuration": "Remove attributes configuration",
+	"Remove attributes configuration": "Remove configuração de atributos",
 	"Attribute name": "Nome do Atributo",
 	"Visible": "Visível",
 	"Static Data Series": "Série de Dados Estáticos",
@@ -1156,5 +1156,22 @@
 	"NetCDF ": {
 		"nc - GDAL": "NetCDF .nc - GDAL"
 	},
-	"WFS – Deter": "WFS – Deter"
+	"WFS – Deter": "WFS – Deter",
+	"Folder Name": "Nome da Pasta",
+	"Select the File": "Selecione o Arquivo",
+	"Add attributes configuration": "Adicionar configuração de atributos",
+	"Choose view in the database": "Escolher view no banco de dados",
+	"Create view from table": "Create view from table",
+	"Invalid view name": "Invalid view name",
+	"Invalid File": "Arquivo inválido",
+	"Load attributes": "Carregar atributos",
+	"View Validation": "Validação da View",
+	"View is valid, the query returned 703 registers": "View is valid, the query returned 703 registers",
+	"Yes, update":"Sim, atualizar",
+	"Attention":"Atenção",
+	"This view already exists!\n Do you want to update it?":"Esta view já existe!\n Deseja atualiza-la?",
+	"Move selected attributes to the right":"Mover atributos selecionados para direita",
+	"Move all selected attributes to the right":"Mover todos atributos para direita",
+	"Move selected attributes to the left":"Mover atributos selecionados para esquerda",
+	"Move all selected attributes to the left":"Mover todos atributos para esquerda"
 }

@@ -129,10 +129,10 @@ define([
   /**
    *
    */
-  DataSeriesService.prototype.validateView = async function(tableName, provider, queryBuilder) {
+  DataSeriesService.prototype.validateView = async function(tableName, provider, attributes, queryBuilder) {
     const { BaseService, url } = this;
 
-    const bodyData = { provider, tableName, whereCondition: queryBuilder };
+    const bodyData = { provider, tableName, attributes, whereCondition: queryBuilder };
 
     try {
       const response = await BaseService.$request(`${url}/validateView`, "POST", { data: bodyData });

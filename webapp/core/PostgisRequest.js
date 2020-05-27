@@ -90,7 +90,7 @@ PostgisRequest.prototype.get = function (){
               query = "SELECT DISTINCT " + self.params.columnName + " FROM public." + self.params.tableName + " WHERE "+ self.params.tableName + " IS NOT NULL order by " + self.params.columnName + ";";
               break;
           case PostGISObjects.VIEWS:
-              query = "SELECT table_name FROM information_schema.views WHERE table_name NOT IN ('geography_columns', 'geometry_columns') AND table_schema='public';";
+              query = "SELECT table_name FROM information_schema.views WHERE table_name NOT IN ('geography_columns', 'geometry_columns', 'raster_columns', 'raster_overviews') AND table_schema='public';";
               break;
           default:
             return reject(new GetObjectError("Invalid object to query"));

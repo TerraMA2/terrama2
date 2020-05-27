@@ -56,6 +56,10 @@ define([
     return this.BaseService.$request(this.url + "/listobjects", "POST", {data: dataToList});
   }
 
+  DataProviderService.prototype.listAll = function(dataToList){
+    return this.BaseService.$request(this.url , "GET", {data: dataToList});
+  }
+
   DataProviderService.$inject = ["BaseService"];
 
   var moduleName = "terrama2.providers.services";
