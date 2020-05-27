@@ -32,6 +32,7 @@ printf "Post-installation script...\n"
   valid $? "Error executing grunt.\n"
 
   chmod +x bin/webapp-stop.js
+  chmod 755 bin/webapp-stop.js
 )
 
 (
@@ -69,8 +70,8 @@ printf "Post-installation script...\n"
 #
 (
   cd @TERRAMA2_DESTINATION@webapp/config
-  if ! [ -d "instances" ]; then
-    cp -r sample_instances instances
+  if ! [ -f "settings.json" ]; then
+    cp settings.json.example settings.json
   fi
 )
 (
