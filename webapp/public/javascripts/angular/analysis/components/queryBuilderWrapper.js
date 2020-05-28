@@ -64,7 +64,8 @@ define([], () => {
                                   target="$ctrl.model"
                                   on-item-clicked="$ctrl.onOperatorClicked(item)">
         </terrama2-analysis-helpers>
-        <terrama2-analysis-helpers operators="$ctrl.queryOperators"
+        <terrama2-analysis-helpers ng-if="$ctrl.columns.length == 99" 
+                                  operators="$ctrl.queryOperators"
                                   target="$ctrl.model"
                                   on-item-clicked="$ctrl.onOperatorClicked(item)">
         </terrama2-analysis-helpers>

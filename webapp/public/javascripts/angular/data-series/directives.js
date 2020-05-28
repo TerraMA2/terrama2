@@ -809,19 +809,15 @@ define([], function() {
             let dp  = dataProviders.filter(function(element) {
               return element.id == $scope.dataSeries.data_provider_id;
             });
-
-            let semanticsCode = $scope.dataSeries.semantics.code;
-            switch(semanticsCode){
-              case "STATIC_DATA-ogr":
-                fileName = $scope.model['mask'].split('/').slice(-1).pop();
-                if(!fileName.endsWith(".shp") || !fileName.endsWith(".zip")){
-                  $scope.messageError = i18n.__("Invalid File");
-                  break;
-                }
-                $scope.messageError = "";
-                $scope.uploadFile(dp[0].uri.replace("file://", "") + "/" + $scope.model['mask']);
-              default:
-                $scope.save()
+            if($scope.model.show_transfer == "option1"){
+              fileName = $scope.model['mask'].split('/').slice(-1).pop();
+              if(!fileName.endsWith(".shp") || !fileName.endsWith(".zip")){
+                $scope.messageError = i18n.__("Invalid File");
+              }
+              $scope.messageError = "";
+              $scope.uploadFile(dp[0].uri.replace("file://", "") + "/" + $scope.model['mask']);
+            }else{
+              $scope.save();
             }
             
           });
@@ -1081,9 +1077,9 @@ define([], function() {
           $scope.selectPath = function(file) {
             var path = $scope.selectedDirectory.slice()
             $scope.model['mask'] = path.replace(pathSelected,"").replace(".zip",".shp");
-            if(hasFile){
-              $scope.uploadFile($scope.selectedDirectory);
-            }
+            // if(hasFile){
+            //   $scope.uploadFile($scope.selectedDirectory);
+            // }
           };
 
           // Fim file explorer
@@ -1101,7 +1097,6 @@ define([], function() {
             else
               MessageBoxService.danger(i18n.__("Error"), i18n.__($scope.semanticsCode === 'STATIC_DATA-ogr' ? "Enter the file name!" : "Enter the table name!"));
           };
-
           $scope.uploadFile = function(filePath){
             var file = Upload.upload({
               url: BASE_URL + 'import-file',
@@ -1160,8 +1155,7 @@ define([], function() {
                   if($scope.dataSeries.semantics.code != "STATIC_DATA-postgis"){
                     $scope.model['mask'] = $scope.model['mask'] + "/" + fileName.replace(".zip", ".shp");
                   }
-                  $scope.uploaded = true;
-                  $scope.save();
+                  // $scope.save();
                 });
 
                 file.upload.then(function(response) {
@@ -1245,19 +1239,15 @@ define([], function() {
               return element.id == $scope.dataSeries.data_provider_id;
             });
 
-            let semanticsCode = $scope.dataSeries.semantics.code;
-            switch(semanticsCode){
-              case "GRID-static_gdal":
-                  fileName = $scope.model['mask'].split('/').slice(-1).pop();
-                  if(!fileName.endsWith(".tif") && !$scope.showButton){
-                    $scope.messageError = i18n.__("Invalid File");
-                    break;
-                  }
-                  $scope.messageError = "";
-                  $scope.uploadFile(dp[0].uri.replace("file://", "") + "/" + $scope.model['mask']);
-                  break;
-              default:
-                $scope.save()
+            if($scope.model.show_transfer == "option1"){
+              fileName = $scope.model['mask'].split('/').slice(-1).pop();
+              if(!fileName.endsWith(".tif") && !$scope.showButton){
+                $scope.messageError = i18n.__("Invalid File");
+                $scope.messageError = "";
+                $scope.uploadFile(dp[0].uri.replace("file://", "") + "/" + $scope.model['mask']);
+              }
+            }else{
+              $scope.save();
             }
             
           });
@@ -1519,9 +1509,9 @@ define([], function() {
           $scope.selectPath = function(file) {
             var path = $scope.selectedDirectory.slice()
             $scope.model['mask'] = path.replace(pathSelected,"").replace(".zip",".tif");
-            if(hasFile){
-              $scope.uploadFile($scope.selectedDirectory);
-            }
+            // if(hasFile){
+            //   $scope.uploadFile($scope.selectedDirectory);
+            // }
           };
           //Fim FileExplorer
 
@@ -1590,18 +1580,25 @@ define([], function() {
               file.upload.then(function(value) {
                 $scope.messageError  = "";
                 $scope.model['mask'] = $scope.model['mask'] + "/" + fileName;
-                $scope.save();
+                if(!$("#geotif-import-loader").hasClass("hidden"))
+                  $("#geotif-import-loader").addClass("hidden");
+                // $scope.save();
                 return false;
               }, function(reason) {
                 if(reason.status == 404){
                   $scope.messageError = "Arquivo não encontrado!";
-                  return true;
                 }else{
                   $scope.messageError  = "";
-                  $scope.save();
-                  return false;
+                  // $scope.save();
+                  $("#geotiff-import-loader").removeClass("hidden");
                 }
+              })
+              // finally
+              .then(() => {
+                if(!$("#geotiff-import-loader").hasClass("hidden"))
+                  $("#geotiff-import-loader").addClass("hidden");
               });
+
 
             }
           };

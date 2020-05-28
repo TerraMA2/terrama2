@@ -17,11 +17,14 @@ define([
           z-index:99;
         }
       </style>
-      <div class="form-group {{form.htmlClass}}" ng-class="{'has-error': hasError(), 'has-success': hasSuccess(), 'has-feedback': form.feedback !== false}" ng-controller="QueryBuilderController as ctrl">
+      <div class="form-group {{form.htmlClass}}" ng-class="{'has-error': hasError(), 'has-success': hasSuccess(), 'has-feedback': form.feedback !== false}" sytle="margin-top:10px" ng-controller="QueryBuilderController as ctrl">
           <div ng-if="ctrl.getTableName()">
             <label class="control-label " ng-class="{'sr-only': !showTitle()}" for="view_name">{{ ctrl.viewNameLabel }}</label>
             <input ng-show="form.key" type="text" step="any" sf-changed="form" placeholder="" class="form-control  ng-empty ng-valid-schema-form ng-dirty ng-invalid ng-invalid-tv4-302 ng-touched" id="view_name" ng-model-options="form.ngModelOptions" ng-model="model['view_name']" ng-disabled="form.readonly" schema-validate="form" name="view_name" aria-describedby="view_nameStatus" required>
           </div>
+          <span style="top: 25px; margin-right: 20px !important" class="form-control-feedback" ng-class="evalInScope(form.feedback) || {'glyphicon': true, 'glyphicon-ok': hasSuccess(), 'glyphicon-remove': hasError() }" aria-hidden="true"></span>
+          <span id="{{form.key.slice(-1)[0] + 'Status'}}" class="sr-only">{{ hasSuccess() ? '(success)' : '(error)' }}</span>
+          <span class="help-block" ng-if="hasError() && errorMessage(schemaError())">{{ errorMessage(schemaError())}}</span>
           <div class="col-md-12 row" style="margin-left:5%">
             <div class="col-md-5" ng-if="ctrl.getTableName()">
               <div class="col-align-self-start">
@@ -80,7 +83,7 @@ define([
 
           <div class="row" ng-if="ctrl.getTableName()">
 
-            <div class="col-md-2">
+            <div class="col-md-4">
               <label>{{ ctrl.attributeLabel }}</label>
               <select 
                 class="form-control"
@@ -112,7 +115,7 @@ define([
               </button>
             </div>
 
-            <div class="col-md-2">
+            <div class="col-md-4">
               <label>{{ ctrl.valueLabel }}:</label>
               <input type="text" name="attributeValue" id="attributeValue" ng-model="ctrl.attributeValue" ng-keypress="ctrl.complete(ctrl.attributeValue)" class="form-control" />
               <span style="color:red;font-size:12px">{{ ctrl.msgValueError }}</span>
@@ -127,33 +130,32 @@ define([
               </button>
             </div>
 
-            <div class="col-md-2">
-              <div class="row">
-                <button class="btn btn-primary" ng-click="ctrl.setClauseValue('and')" value="and" ng-model="ctrl.clauseValue" style="margin-top:25px">
-                AND
-                </button>
-                <button class="btn btn-primary" ng-click="ctrl.setClauseValue('or')" value="and" ng-model="ctrl.clauseValue" style="margin-top:25px">
-                OR
-                </button>
-                <button class="btn btn-primary" ng-click="ctrl.getSelectedText()" style="margin-top:25px">
-                ( )
-                </button>
-              </div>
-            </div>
-
           </div>
 
       </div>
 
       <div class="form-group {{form.htmlClass}}" ng-class="{'has-error': hasError(), 'has-success': hasSuccess(), 'has-feedback': form.feedback !== false}"
             ng-controller="QueryBuilderController as ctrl">
-          <query-builder-wrapper model="$$value$$"
-              ng-if="ctrl.getTableName()"
-              table-name="ctrl.getTableName()"
-              provider="ctrl.getProvider()"
-              ng-init=\"$$value$$=$$value$$||[];ctrl.init($$value$$)\"
-              on-change="ctrl.onChange(queryBuilder)">
-          </query-builder-wrapper>
+          <div class="col-md-10">
+            <query-builder-wrapper model="$$value$$"
+                ng-if="ctrl.getTableName()"
+                table-name="ctrl.getTableName()"
+                provider="ctrl.getProvider()"
+                ng-init=\"$$value$$=$$value$$||[];ctrl.init($$value$$)\"
+                on-change="ctrl.onChange(queryBuilder)">
+            </query-builder-wrapper>
+          </div>
+          <div class="col-md-2" ng-if="ctrl.getTableName()">
+              <button class="btn btn-primary ng-binding align-buttons" ng-click="ctrl.setClauseValue('and')" value="and" ng-model="ctrl.clauseValue" style="margin-top:30px;width:48px">
+              AND
+              </button>
+              <button class="btn btn-primary ng-binding align-buttons" ng-click="ctrl.setClauseValue('or')" value="and" ng-model="ctrl.clauseValue" style="margin-top:2px;width:48px">
+              OR
+              </button>
+              <button class="btn btn-primary ng-binding align-buttons" ng-click="ctrl.getSelectedText()" style="margin-top:2px;width:48px">
+              (  )
+              </button>
+          </div>
       </div>`);
   }
   runModule.$inject = ['$templateCache'];

@@ -1160,8 +1160,8 @@
 	"Folder Name": "Nome da Pasta",
 	"Select the File": "Selecione o Arquivo",
 	"Add attributes configuration": "Adicionar configuração de atributos",
-	"Choose view in the database": "Escolher view no banco de dados",
-	"Create view from table": "Create view from table",
+	"Choose view in the database": "Escolher visão no banco de dados",
+	"Create view from table": "Criar visão a partir de uma tabela",
 	"Invalid view name": "Invalid view name",
 	"Invalid File": "Arquivo inválido",
 	"Load attributes": "Carregar atributos",
@@ -1173,5 +1173,6 @@
 	"Move selected attributes to the right":"Mover atributos selecionados para direita",
 	"Move all selected attributes to the right":"Mover todos atributos para direita",
 	"Move selected attributes to the left":"Mover atributos selecionados para esquerda",
-	"Move all selected attributes to the left":"Mover todos atributos para esquerda"
+	"Move all selected attributes to the left":"Mover todos atributos para esquerda",
+	"Name of the view to be created":"Nome da visão a ser criada"
 }

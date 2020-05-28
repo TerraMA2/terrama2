@@ -1225,11 +1225,14 @@
 	"Invalid File": "Invalid File",
 	"Load attributes": "Load attributes",
 	"View is valid, the query returned 703 registers": "View is valid, the query returned 703 registers",
-	"Yes, update":"Yes, update",
-	"Attention":"Attention",
-	"This view already exists!\n Do you want to update it?":"This view already exists!\n Do you want to update it?",
-	"Move selected attributes to the right":"Move selected attributes to the right",
-	"Move all selected attributes to the right":"Move all selected attributes to the right",
-	"Move selected attributes to the left":"Move selected attributes to the left",
-	"Move all selected attributes to the left":"Move all selected attributes to the left"
+	"Yes, update": "Yes, update",
+	"Attention": "Attention",
+	"This view already exists!\n Do you want to update it?": "This view already exists!\n Do you want to update it?",
+	"Move selected attributes to the right": "Move selected attributes to the right",
+	"Move all selected attributes to the right": "Move all selected attributes to the right",
+	"Move selected attributes to the left": "Move selected attributes to the left",
+	"Move all selected attributes to the left": "Move all selected attributes to the left",
+	"Animated Wind": "Animated Wind",
+	"The colors must have unique values": "The colors must have unique values",
+	"Name of the view to be created":"Name of the view to be created"
 }
