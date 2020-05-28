@@ -1,6 +1,6 @@
 #!/bin/bash
 
-INSTALL_COMMAND="${INSTALL_COMMAND}"
+INSTALL_COMMAND="npm"
 
 function valid()
 {
@@ -69,42 +69,6 @@ printf "Post-installation script...\n"
 
   ${INSTALL_COMMAND} run grunt
   valid $? "Error executing grunt."
-)
-
-# Check if pm2 is already installed
-${INSTALL_COMMAND} list pm2 -g
-if [ $? != 0 ]; then
-  printf "Configuring pm2...\n"
-  # Install pm2
-  ${INSTALL_COMMAND} install pm2 -g
-  valid $? "Error installing pm2."
-  pm2 install pm2-logrotate
-  valid $? "Error installing pm2-logrotate."
-  # Allows the service to start with the system
-  env PATH=$PATH:/usr/local/bin pm2 startup
-  valid $? "Error adding pm2 to startup."
-fi
-
-# Add webapp to pm2 startup
-(
-  cd @TERRAMA2_DESTINATION@webapp
-  pm2 delete webapp
-
-  pm2 start ${INSTALL_COMMAND} --name webapp -- start
-  valid $? "Error executing webapp."
-  pm2 save
-  valid $? "Error saving pm2 state."
-)
-
-# Add webmonitor to pm2 startup
-(
-  cd @TERRAMA2_DESTINATION@webmonitor
-  pm2 delete webmonitor
-
-  pm2 start ${INSTALL_COMMAND} --name webmonitor -- start
-  valid $? "Error executing webmonitor."
-  pm2 save
-  valid $? "Error saving pm2 state."
 )
 
 #
