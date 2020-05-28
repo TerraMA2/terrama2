@@ -10,14 +10,26 @@ function valid()
   fi
 }
 
+apt-get install curl
+
+curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+
+touch /etc/apt/sources.list.d/pgdg.list
+sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+
+apt-get update
+apt-get install -y cmake libquazip-dev unzip screen openssh-server doxygen supervisor locales nodejs libgsasl7 postgresql-11-postgis-2.5 postgis postgresql-server-dev-11
+mkdir $HOME/.ssh/id_rsa
+ssh-keygen -t rsa -b 4096 -C "terrama2-team@dpi.inpe.br" -N "" -f $HOME/.ssh/id_rsa
+
+sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres'"
+
+curl -o terralib-5.4.5-ubuntu-16.04.tar.gz -L http://www.dpi.inpe.br/jenkins-data/terrama2/3rdparty/terralib-5.4.5-ubuntu-16.04.tar.gz
+tar zxf terralib-5.4.5-ubuntu-16.04.tar.gz
+./install.sh
+
 chmod 755 -R @TERRAMA2_DESTINATION@
-
-# chown 1000:1000 -R @TERRAMA2_DESTINATION@
-
-# mkdir -p 755 /home/$(id -nu 1000)/.${INSTALL_COMMAND}
-
-# chown -R 1000:1000 /home/$(id -nu 1000)/.${INSTALL_COMMAND}
-
 
 printf "Post-installation script...\n"
 
