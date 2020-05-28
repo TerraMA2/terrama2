@@ -168,6 +168,10 @@ define([
     const dataSeriesTypeName = dataSeries.data_series_semantics.data_series_type_name;
     const { DataSeriesType } = this;
 
+      if(dataSeries.data_series_semantics.code == "GRID-static_gdal"){
+        return `${BASE_URL}images/static-data-series/grid/grid.png`;
+      }
+
     switch(dataSeriesTypeName) {
       case DataSeriesType.ANALYSIS_MONITORED_OBJECT:
         return `${BASE_URL}images/analysis/monitored-object/monitored-object_analysis.png`;

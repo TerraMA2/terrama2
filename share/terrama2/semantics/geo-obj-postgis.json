@@ -98,7 +98,7 @@
         "properties": {
           "table_name": {
             "type": "string",
-            "title": "Base Table/View Name",
+            "title": "View Name",
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
           },
           "query_builder": {

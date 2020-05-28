@@ -14,7 +14,7 @@ define([], () => {
       this.table_name = "";
       this.isDisable = false;
 
-      this.viewNameLabel = i18n.__('View Name');
+      this.viewNameLabel = i18n.__('Name of the view to be created');
       this.inputAttributeLabel = i18n.__('Input Attribute Layer');
       this.outputAttributeLabel = i18n.__('Output Attribute Layer');
       this.attributeLabel = i18n.__('Attribute');
@@ -54,7 +54,7 @@ define([], () => {
 
     getTableName() {
       const res = this.$scope.evalExpr('model.show_view');
-
+      
       if(this.$scope.model.listOutputLayersSelected !== undefined && this.loadAttr == true){
         const {listOutputLayersSelected, table_name } = this.$scope.model;
         var _this = this;
@@ -64,10 +64,10 @@ define([], () => {
         this.listOutputLayersSelected = listOutputLayersSelected.replace("[","").replace("]","").replace(/"/g,"").split(",");
         // this.listInputLayersSelected = this.listOutputLayersSelected.slice();
 
-        if(this.loadAttr){
-          _this.loadAttributes();
-          _this.loadAttr = false;
-        }
+      }
+      if(this.loadAttr && $("#table_name").val()){
+        this.loadAttributes();
+        this.loadAttr = false;
       }
       if(this.table_name !== $("#table_name").val()){
         this.isDisable = false;
