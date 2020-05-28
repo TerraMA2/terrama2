@@ -830,7 +830,9 @@ define([], function() {
             } else {
               var dataSetFormat = inputDataSeries.dataSets[0].format;
               $scope.model = $scope.prepareFormatToForm(inputDataSeries.dataSets[0].format);
-
+              if($scope.isUpdating){
+                $scope.model.show_transfer = "option1";
+              }
               if(inputDataSeries.data_series_semantics.custom_format) {
                 $scope.csvFormatData.fields = JSON.parse(dataSetFormat.fields)
                 $scope.csvFormatData.header_size = parseInt(dataSetFormat.header_size);
@@ -1270,17 +1272,18 @@ define([], function() {
       };
 
       $scope.$watch("model.show_transfer", function(val){
+
         if(val == 'option1'){
           $scope.showButton = false;
           if(($scope.dataSeries.semantics.code == 'STATIC_DATA-ogr') || ($scope.dataSeries.semantics.code == 'GRID-static_gdal')){
-            $(".control-label").html(i18n.__("File Name")); 
+            $(".control-label").html(i18n.__("File Name"));
           }
         }else if(val == 'option2'){
           if($scope.dataSeries.semantics.code == 'STATIC_DATA-postgis'){
             $("#button_file").css('margin-top','25px');
           }
           if(($scope.dataSeries.semantics.code == 'STATIC_DATA-ogr') || ($scope.dataSeries.semantics.code == 'GRID-static_gdal')){
-            $(".control-label").html(i18n.__("Folder Name"));
+            $(".control-label").html("Visão a ser criada");
           }
           $scope.showButton = true;
         }
@@ -1290,9 +1293,11 @@ define([], function() {
         if(val.length > 1){
           $scope.getTables = true;
           $scope.getViews = false;
+          $("#table_name").prop('labels')[0].textContent = i18n.__("Table Name");
         }else{
           $scope.getTables = false;
           $scope.getViews = true;
+          $("#table_name").prop('labels')[0].textContent = i18n.__("View Name");
         }
         $scope.$apply();
       });
