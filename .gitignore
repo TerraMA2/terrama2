@@ -21,7 +21,6 @@ webmonitor/bower_components
 webmonitor/config/monitor.json
 webmonitor/config/instances
 .vscode
-scripts/preinst
 scripts/postinst
 scripts/prerm
 scripts/postrm
