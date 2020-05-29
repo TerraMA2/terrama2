@@ -1,5 +1,7 @@
 {
   "basePath": "/",
+  "geoserverHost": "localhost",
+  "geoserverPort": 8080,
   "port": 36000,
   "defaultFilePathList": [
     "/home/<USER>/terrama2"
