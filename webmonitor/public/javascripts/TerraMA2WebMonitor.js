@@ -598,7 +598,7 @@ define(
               },
                 function(response) {
                   var dataSetid = null;
-                  if(response && response[0].data_set_id) {
+                  if(response && response.length > 0 && response[0].data_set_id) {
                     dataSetid = response[0].data_set_id;
                   }
                   $.get(ADMIN_URL + 'api/attributes', {
