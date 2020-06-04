@@ -37,6 +37,7 @@ define([], () => {
           data: this.columns,
           imagePath: "images/analysis/functions/monitored-object/attributes/attributes.png"
         }
+        console.log(this.attributes);
       })
     }
 

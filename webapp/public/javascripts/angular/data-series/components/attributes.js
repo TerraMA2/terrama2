@@ -20,19 +20,29 @@ define([],()=> {
 
         const {tableName, provider, dataProviderService} = this
 
+        var table = "";
+        var isView = false;
+        if(this.dataserie.semantics.code == "STATIC_DATA-VIEW-postgis" && $("#view_name").val() != undefined){
+          table = $("#view_name").val();
+          isView = true;
+        }else{
+          table = tableName
+        }
+
         $.ajax({
           url: BASE_URL + 'api/datasetidByDataSerie',
           type: "GET",
           async: false,
           data: {
             dataProviderid: dataProviderid,
-            dataSerieTableName: tableName
+            dataSerieTableName: table,
+            isView:isView
           }
         }).done(function(response){ 
 
           if(typeof response !== 'undefined' && typeof response[0] !== 'undefined'){
             var dataSetid = response[0].data_set_id;
-            
+
             $.ajax({
               url: BASE_URL + 'api/attributesByDataSerie',
               type: "GET",
@@ -49,6 +59,7 @@ define([],()=> {
             });
           }
         });
+
         dataProviderService.listPostgisObjects({providerId: provider, objectToGet: "column", tableName})
         .then(response=>{
           if (response.data.status == 400){

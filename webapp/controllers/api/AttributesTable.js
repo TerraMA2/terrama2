@@ -8,7 +8,6 @@
   const env = process.env.NODE_ENV.toLowerCase() ? process.env.NODE_ENV.toLowerCase() : 'production';
   const config = require('../../config/db')[env];
 
-
   const URI = `postgis://${config.username}:${config.password}@${config.host}:${config.port}/${config.database}`;
 
   // Facade
@@ -66,8 +65,15 @@
 
       getDataSetIdByDataSerie: async (request, response) => {
         let {
-          dataProviderid,dataSerieTableName
+          dataProviderid,dataSerieTableName,isView
         } = request.query
+        var key = "";
+
+        if(isView == "true"){
+          key = "view_name"
+        }else{
+          key = "table_name"
+        }
 
         const conn = new Connection(URI);
         await conn.connect();
@@ -75,7 +81,7 @@
         sql = `
           SELECT data_set_id
           FROM  terrama2.data_set_formats
-          WHERE key = 'table_name' AND value='${dataSerieTableName}';
+          WHERE key = '${key}' AND value='${dataSerieTableName}';
         `;
         const result = await conn.execute(sql)
         let rows = result.rows
@@ -102,5 +108,26 @@
         await conn.disconnect();
         response.json(rows)
       },
+
+      resetAttributes: async(request, reponse) => {
+        let {
+          datasetId
+        } = request.body
+
+        const conn = new Connection(URI);
+        await conn.connect();
+        var sql = `
+          UPDATE terrama2.data_set_formats
+          SET value = '[]'
+          WHERE data_set_id = '${datasetId}' AND key = 'attributes';
+          UPDATE terrama2.data_set_formats
+          SET value = 0
+          WHERE data_set_id = '${datasetId}' AND key = 'updated';
+        `;
+        await conn.execute(sql);
+        await conn.disconnect();
+        response.json({'status':200})
+      }
+
     }
 } ();

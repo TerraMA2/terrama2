@@ -8,5 +8,6 @@ module.exports = function (app) {
   
   app.get(app.locals.BASE_URL + 'api/attributesByDataSerie', controller.getAttributesByDataSerie);
   app.get(app.locals.BASE_URL + 'api/datasetidByDataSerie', controller.getDataSetIdByDataSerie);
+  app.post(app.locals.BASE_URL + 'api/resetAttributes', controller.resetAttributes);
 
 };

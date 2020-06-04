@@ -1577,11 +1577,14 @@ define([], function() {
                 }
               });
 
-              file.upload.then(function(value) {
+              file.upload.then(function(response) {
                 $scope.messageError  = "";
                 $scope.model['mask'] = $scope.model['mask'] + "/" + fileName;
                 if(!$("#geotif-import-loader").hasClass("hidden"))
                   $("#geotif-import-loader").addClass("hidden");
+                $timeout(function () {
+                  $scope.geotiffImport.success = true;
+                })
                 // $scope.save();
                 return false;
               }, function(reason) {
@@ -1589,8 +1592,10 @@ define([], function() {
                   $scope.messageError = "Arquivo não encontrado!";
                 }else{
                   $scope.messageError  = "";
-                  // $scope.save();
                   $("#geotiff-import-loader").removeClass("hidden");
+                  $timeout(function () {
+                    $scope.geotiffImport.success = true;
+                  })
                 }
               })
               // finally
