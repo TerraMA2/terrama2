@@ -84,8 +84,13 @@ define(
         TerraMA2WebComponents.MapDisplay.updateMapSize();
       });
 
-      changeLanguage(USER_CONFIG.language);
+      let language = USER_CONFIG.language;
 
+      if (!language) {
+        language = 'en';
+      }
+      changeLanguage(language);
+      
       // Language change events
 
       $("#language-pt").parent().on("click", function() {
