@@ -32,6 +32,7 @@ define([], () => {
 
       this.dataProvider = {};
       this.listTableAttributes = [];
+      this.listToUpdate = [];
       this.listValuesOfColumn = [];
       this.layerSelected = "";
       this.loadAttr = true;
@@ -40,6 +41,7 @@ define([], () => {
       this.operatorValue = "=";
       this.clauseValue = "";
       this.blockField = false;
+      this.geometryColumn = 0;
     }
 
     $onInit() {
@@ -61,8 +63,8 @@ define([], () => {
         this.blockField = true;
         this.layerSelected = table_name;
         this.table_name = table_name;
-        this.listOutputLayersSelected = listOutputLayersSelected.replace("[","").replace("]","").replace(/"/g,"").split(",");
-        // this.listInputLayersSelected = this.listOutputLayersSelected.slice();
+        this.listToUpdate = listOutputLayersSelected.replace("[","").replace("]","").replace(/"/g,"").split(",");
+        this.listToUpdate = this.listToUpdate.map(e => { return e.trim() });
 
       }
       if(this.loadAttr && $("#table_name").val()){
@@ -73,6 +75,10 @@ define([], () => {
         this.isDisable = false;
         this.inputTableAttributes = {};
         this.listOutputLayersSelected = [];
+      }
+
+      if(res){
+        $("#query-builder").css("resize","vertical");
       }
 
       return res;
@@ -250,77 +256,135 @@ define([], () => {
 
 
     // Wicket
+    
+    getBackAttrGeom(){
+      var index = this.inputTableAttributes.findIndex(x => x.type.startsWith("geom"));
+      var attr = this.inputTableAttributes[index];
+      this.listOutputLayersSelected.push(attr);
+      this.inputTableAttributes.splice(index, 1);
+    }
+
+    getAttrGeom(){
+      var index = this.listOutputLayersSelected.findIndex(x => x.type.startsWith("geom"));
+      var attr = this.listOutputLayersSelected[index];
+      this.inputTableAttributes.push(attr);
+      this.listOutputLayersSelected.splice(index, 1);
+    }
 
     updateInputAttributes(){
       let i = this.listInputLayersSelected.length;
       var j = 0;
       for(j=0; j<i; j++){
-        var currentValue = this.listInputLayersSelected[j];
-        var index = this.inputTableAttributes.indexOf(currentValue);
-        delete this.inputTableAttributes[index];
+        var currentValue = JSON.parse(this.listInputLayersSelected[j]);
+        var index = this.inputTableAttributes.findIndex(x => x.column_name === currentValue.column_name);
+        this.inputTableAttributes.splice(index, 1);
       }
     }
 
     updateOutputAttributes(){
       let i = this.listMoveToLeft.length;
       var j = 0;
+      var notInclude = ['pk', 'geom'];
+
       for(j=0; j<i; j++){
-        var currentValue = this.listMoveToLeft[j];
-        var index = this.listOutputLayersSelected.indexOf(currentValue);
-        this.listOutputLayersSelected.splice(index, 1);
-        // delete this.listOutputLayersSelected[index];
+        var currentValue = JSON.parse(this.listMoveToLeft[j]);
+        var index = this.listOutputLayersSelected.findIndex(x => x.column_name === currentValue.column_name);
+        
+        if(currentValue.type !== 'pk' && this.geometryColumn > 1){
+          this.listOutputLayersSelected.splice(index, 1);
+        }
+        if(!notInclude.includes(currentValue.type) && this.geometryColumn < 2){
+          this.listOutputLayersSelected.splice(index, 1);
+        }
       }
+    }
+
+    getPkGeom(){
+      var _this = this;
+      this.inputTableAttributes.map(e => {
+        if(e.type == 'pk' || e.type == 'geom'){
+          // if(this.listToUpdate.length > 0){
+          //   e.type = "pk";
+          // }
+          this.listInputLayersSelected.push(JSON.stringify(e));
+          this.listOutputLayersSelected.push(e);
+        }
+      });
+      if(this.listToUpdate.length > 0){
+        _this.inputTableAttributes.map(e => {
+          if(_this.listToUpdate.includes(e.column_name) && e.type != "geom" && e.type != "pk"){
+            var element = JSON.stringify(e);
+            _this.listInputLayersSelected.push(element);
+            _this.listOutputLayersSelected.push(e);
+          }
+        });
+      }
+      
+      this.updateInputAttributes();
     }
 
     moveToRight(){
 
-      if(this.inputTableAttributes.includes('geom') 
-         && !this.listInputLayersSelected.includes('geom')
-         || this.inputTableAttributes.includes('gid')
-         && !this.listInputLayersSelected.includes('gid')){
-
-        this.listInputLayersSelected.push('geom');
-        this.listInputLayersSelected.push('gid');
-
-      }else if(this.inputTableAttributes.includes('the_geom') 
-               && !this.listInputLayersSelected.includes('the_geom')
-               || this.inputTableAttributes.includes('id')
-               && !this.listInputLayersSelected.includes('id')){
-                 
-        this.listInputLayersSelected.push('the_geom');
-        this.listInputLayersSelected.push('id');
-      }
-
       this.listInputLayersSelected.map(e => {
-        this.listOutputLayersSelected.push(e);
+        var value = JSON.parse(e);
+        if(this.geometryColumn > 1 && value.type.startsWith("geom")){
+          this.getAttrGeom();
+        }
+        this.listOutputLayersSelected.push(value);
       });
       this.updateInputAttributes();
     }
 
     moveAllToRight(){
-
+      var listAux = [];
+      var isUpdate = false;
       this.inputTableAttributes.map(e =>{
+        if(this.geometryColumn > 1 && e.type.startsWith("geom") && !isUpdate){
+          var index = this.listOutputLayersSelected.findIndex(x => x.type.startsWith("geom"));
+          var attr = this.listOutputLayersSelected[index];
+          listAux.push(attr);
+          this.listOutputLayersSelected.splice(index, 1);
+          isUpdate = true;
+        }
         this.listOutputLayersSelected.push(e);
       });
-      this.inputTableAttributes = [];
+      this.inputTableAttributes = listAux;
       this.listInputLayersSelected = [];
     }
 
     moveToLeft(){
       this.listMoveToLeft.map(e => {
-        this.inputTableAttributes.push(e);
+        var element = JSON.parse(e);
+        var notInclude = ['pk', 'geom'];
+
+        if(this.geometryColumn > 1 && element.type.startsWith("geom")){
+          this.getBackAttrGeom();
+        }
+        if(element.type !== 'pk' && this.geometryColumn > 1){
+          this.inputTableAttributes.push(element);
+        }
+        if(!notInclude.includes(element.type) && this.geometryColumn < 2){
+          this.inputTableAttributes.push(element);
+        }
+
       });
       this.updateOutputAttributes();
     }
 
     moveAllToLeft(){
+      var listAux = [];
+      var notInclude = ['geom', 'pk', 'geom_1'];
+
       this.listOutputLayersSelected.map(e => {
-        this.inputTableAttributes.push(e);
+        if(!notInclude.includes(e.type)){
+          this.inputTableAttributes.push(e);
+        }else{
+          listAux.push(e);
+        }
       });
-      this.listOutputLayersSelected = [];
+      this.listOutputLayersSelected = listAux;
       this.listMoveToLeft = [];
     }
-
 
     async onMultOutputSelected(e){
       this.listMoveToLeft = e;
@@ -337,25 +401,51 @@ define([], () => {
       this.layerSelected = this.table_name;
       var data_provider = $( "div[name='data_provider_id']" ).text().trim();
       var providersList = this.DataProviderService.list();
+      var listIds = [];
 
       this.dataProvider = providersList.filter(function(element) {
         return element.name == data_provider;
       });
 
-      var result = this.$q.defer();
-      var _this = this;
-      this.DataProviderService.listPostgisObjects({providerId: this.dataProvider[0].id, objectToGet: "column", tableName: this.table_name})
-          .then(function(response){
-            if (response.data.status == 400){
-              return result.reject(response.data);
-            }
-            var attributes = response.data.data.map(function(item, index) {
-            return item.column_name;
-            }); // slice() for copy
-            _this.listTableAttributes = attributes.slice();
-            _this.inputTableAttributes = attributes;
-            _this.isDisable = true;
+      this.DataProviderService.listPostgisObjects({providerId: this.dataProvider[0].id, objectToGet: "idcolumn", tableName: this.table_name})
+        .then(function(response){
+          if (response.data.status == 400){
+            return result.reject(response.data);
+          }
+          listIds = response.data.data.map((e) => {
+            return e.column_name;
           });
+        });
+
+        var result = this.$q.defer();
+        var _this = this;
+        this.DataProviderService.listPostgisObjects({providerId: this.dataProvider[0].id, objectToGet: "gettypes", tableName: this.table_name})
+            .then(function(response){
+              if (response.data.status == 400){
+                return result.reject(response.data);
+              }
+  
+              var attributes = response.data.data.map((e) =>{
+                if(e.udt_name == 'geom' || e.udt_name == "geometry" || e.udt_name == "string:geom"){
+                  _this.geometryColumn++;
+                  if(_this.geometryColumn > 1){
+                    return {'column_name': e.column_name, 'icon':'fa fa-cubes', 'type':'geom_1'}
+                  }
+                  return {'column_name': e.column_name, 'icon':'fa fa-cubes', 'type':'geom'}
+                }else if(!listIds.includes(e.column_name)){
+                  return {'column_name': e.column_name, 'icon':'glyphicon glyphicon-text-background','type':'abc123'}
+                }else{
+                  return {'column_name': e.column_name, 'icon':'fa fa-key','type':'pk'}
+                }
+              });
+              
+              _this.listTableAttributes = attributes.slice();
+              _this.inputTableAttributes = attributes;
+              _this.isDisable = true;
+
+              _this.getPkGeom();
+            });
+
     }
 
     /**

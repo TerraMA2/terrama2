@@ -526,10 +526,17 @@ module.exports = function(app) {
               const viewName = dataSet.format.view_name;
               const tableName = dataSet.format.table_name;
               const whereCondition = dataSet.format.query_builder;
+              var attributes = []
+              try{
+                attributes = dataSet.format.listOutputLayersSelected.replace("[","").replace("]","").replace(/"/g,"").split(",");
+                attributes = attributes.map(e => { return e.trim() });
+              }catch(e){
+                attributes = [];
+              }
 
               const dataProvider = await DataManager.getDataProvider({ id: updatedDataSeries.data_provider_id });
 
-              await createView(dataProvider.uri, viewName, tableName, [], whereCondition);
+              await createView(dataProvider.uri, viewName, tableName, attributes, whereCondition);
             }
 
             //Checking if data series is used by analysis, to change the provider

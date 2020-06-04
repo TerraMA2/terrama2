@@ -35,8 +35,10 @@ define([
                     name="inputAttributesLayer"
                     id="inputAttributesLayer"
                     ng-model="ctrl.listInputLayersSelected"
-                    ng-options="value as value for (key, value) in ctrl.inputTableAttributes"
                     ng-change="ctrl.onMultInputSelected(ctrl.listInputLayersSelected)" multiple>
+                    <option ng-repeat="attribute in ctrl.inputTableAttributes" data-icon="fa fa-home" value="{{attribute}}" class="{{ attribute.icon }} align-buttons">
+                    {{attribute.column_name}}
+                    </option>
                   </select><br>
                 </div>
               </div>
@@ -44,23 +46,23 @@ define([
 
             <div class="col-md-1 col-xs-1" style="padding:33px" ng-show="ctrl.getTableName()">
             <div class="row">
-                <button type="button" ng-disabled="ctrl.isDisable" data-toggle="tooltip" data-placement="right" title="{{ ctrl.loadAttributesLabel }}" ng-click="ctrl.loadAttributes()" class="btn btn-primary ng-binding align-buttons">
+                <button type="button" ng-disabled="ctrl.isDisable" data-toggle="tooltip" data-placement="top" title="{{ ctrl.loadAttributesLabel }}" ng-click="ctrl.loadAttributes()" class="btn btn-primary ng-binding align-buttons">
                   <i class="fa fa-spinner"></i>
                 </button>
 
-                <button type="button" data-toggle="tooltip" data-placement="right" title="{{ ctrl.moveRightLabel }}" ng-click="ctrl.moveToRight()" class="btn btn-primary ng-binding align-buttons" style="margin-top:5px">
+                <button type="button" data-toggle="tooltip" data-placement="top" title="{{ ctrl.moveRightLabel }}" ng-click="ctrl.moveToRight()" class="btn btn-primary ng-binding align-buttons" style="margin-top:5px">
                   <i class="fa fa-arrow-right"></i>
                 </button>
 
-                <button type="button" data-toggle="tooltip" data-placement="right" title="{{ ctrl.moveAllRightLabel }}" ng-click="ctrl.moveAllToRight()" class="btn btn-primary ng-binding align-buttons" style="margin-top:5px;width:38px">
+                <button type="button" data-toggle="tooltip" data-placement="top" title="{{ ctrl.moveAllRightLabel }}" ng-click="ctrl.moveAllToRight()" class="btn btn-primary ng-binding align-buttons" style="margin-top:5px;width:38px">
                   <i class="glyphicon glyphicon-fast-forward"></i>
                 </button>
 
-                <button type="button" data-toggle="tooltip" data-placement="right" title="{{ ctrl.moveLeftLabel }}" ng-click="ctrl.moveToLeft()" class="btn btn-primary ng-binding align-buttons" style="margin-top:5px">
+                <button type="button" data-toggle="tooltip" data-placement="top" title="{{ ctrl.moveLeftLabel }}" ng-click="ctrl.moveToLeft()" class="btn btn-primary ng-binding align-buttons" style="margin-top:5px">
                   <i class="fa fa-arrow-left"></i>
                 </button>
 
-                <button type="button" data-toggle="tooltip" data-placement="right" title="{{ ctrl.moveAllLeftLabel }}" ng-click="ctrl.moveAllToLeft()" class="btn btn-primary ng-binding align-buttons" style="margin-top:5px;width:38px">
+                <button type="button" data-toggle="tooltip" data-placement="top" title="{{ ctrl.moveAllLeftLabel }}" ng-click="ctrl.moveAllToLeft()" class="btn btn-primary ng-binding align-buttons" style="margin-top:5px;width:38px">
                   <i class="glyphicon glyphicon-fast-backward"></i>
                 </button>
               </div>
@@ -74,8 +76,10 @@ define([
                   name="outputLayer"
                   id="outputLayer"
                   ng-model="outputLayer"
-                  ng-options="attributes for attributes in ctrl.listOutputLayersSelected"
                   ng-change="ctrl.onMultOutputSelected(outputLayer)" multiple>
+                  <option ng-repeat="attribute in ctrl.listOutputLayersSelected" data-icon="fa fa-home" value="{{attribute}}" class="{{ attribute.icon }} align-buttons">
+                  {{attribute.column_name}}
+                  </option>
                 </select><br>
               </div>
             </div>
@@ -89,8 +93,10 @@ define([
                 class="form-control"
                 id="listAttributeId"
                 ng-model="ctrl.attributeFilter"
-                ng-options="item for item in ctrl.listTableAttributes"
                 ng-change="ctrl.changeAttribute()">
+                <option ng-repeat="attribute in ctrl.listTableAttributes" data-icon="fa fa-home" value="{{attribute.column_name}}" class="{{ attribute.icon }} align-buttons">
+                  {{attribute.column_name}}
+                </option>
               </select>
             </div>
 
@@ -110,7 +116,7 @@ define([
 
             <div class="col-md-1">
               <label></label>
-              <button class="btn btn-primary" ng-click="ctrl.getValuesByColumn()" style="margin-top:25px">
+              <button class="btn btn-primary" ng-click="ctrl.getValuesByColumn()" style="display:flow-root">
                 <i class="fa fa-search fa-1x"></i>
               </button>
             </div>

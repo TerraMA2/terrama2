@@ -437,7 +437,11 @@ module.exports = {
     COLUMN: "column",
     VALUES: "values",
     ALLVALUES :"allvalues",
-    VIEWS: "views"
+    VIEWS: "views",
+    COLUMNVIEW:"columnview",
+    VALUEVIEW:"valueview",
+    IDCOLUMN:"idcolumn",
+    GETTYPES:"gettypes"
   },
 
   /**
