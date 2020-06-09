@@ -70,8 +70,8 @@ Application.prototype.setCurrentContext = function(context) {
  * 
  * @returns {Object}
  */
-Application.prototype.getContextConfig = function() {
-  return _settings[_context];
+Application.prototype.getContextConfig = function(context = "default") {
+  return _settings[context];
 };
 
 

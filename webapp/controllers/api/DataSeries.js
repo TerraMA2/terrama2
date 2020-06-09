@@ -30,6 +30,12 @@ module.exports = function(app) {
       var intersection = request.body.intersection;
       var active = request.body.active;
       var shouldRun = request.body.run;
+      var attributes = [];
+      try{
+        attributes = dataSeriesObject.dataSets[0].format.listOutputLayersSelected;
+      }catch(e){
+        attributes = [];
+      }
 
       DataManager.orm.transaction(function(t) {
         var options = {
@@ -80,13 +86,13 @@ module.exports = function(app) {
                   dataSeriesResult.semantics.code === 'STATIC_DATA-VIEW-postgis') {
                 const dataSet = dataSeriesResult.dataSets[0];
 
-                const viewName = dataSet.format.view_name;
+                const viewName = dataSet.format.view_name == undefined ? dataSeriesResult.name:dataSet.format.view_name;
                 const tableName = dataSet.format.table_name;
                 const whereCondition = dataSet.format.query_builder;
 
                 const dataProvider = await DataManager.getDataProvider({ id: dataSeriesResult.data_provider_id });
 
-                await createView(dataProvider.uri, viewName, tableName, [], whereCondition);
+                await createView(dataProvider.uri, viewName, tableName, attributes, whereCondition);
               }
 
               logger.debug("OUTPUT: ", JSON.stringify(output));
@@ -520,10 +526,17 @@ module.exports = function(app) {
               const viewName = dataSet.format.view_name;
               const tableName = dataSet.format.table_name;
               const whereCondition = dataSet.format.query_builder;
+              var attributes = []
+              try{
+                attributes = dataSet.format.listOutputLayersSelected.replace("[","").replace("]","").replace(/"/g,"").split(",");
+                attributes = attributes.map(e => { return e.trim() });
+              }catch(e){
+                attributes = [];
+              }
 
               const dataProvider = await DataManager.getDataProvider({ id: updatedDataSeries.data_provider_id });
 
-              await createView(dataProvider.uri, viewName, tableName, [], whereCondition);
+              await createView(dataProvider.uri, viewName, tableName, attributes, whereCondition);
             }
 
             //Checking if data series is used by analysis, to change the provider

@@ -60,6 +60,7 @@ define(
     };
 
     var setState = function(state) {
+      
       $("#projects").val(state.project);
 
       var allLayers = Layers.getAllLayers();

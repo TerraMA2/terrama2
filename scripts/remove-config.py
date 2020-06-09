@@ -7,7 +7,7 @@ import psycopg2
 # On purge remove the TerraMA2 database and terrama2 folder
 #
 
-config = '../webapp/config/webapp.json'
+config = '../webapp/config/db.json'
 if os.path.isfile(config):
     with open(config) as data_file:
         data = json.load(data_file)

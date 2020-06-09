@@ -1147,7 +1147,7 @@
 	"Query Builder Expression": "Query Builder Expression",
 	"Invalid query builder": "Query inválida",
 	"Query Builder": "Query Builder",
-	"Remove attributes configuration": "Remove attributes configuration",
+	"Remove attributes configuration": "Remove configuração de atributos",
 	"Attribute name": "Nome do Atributo",
 	"Visible": "Visível",
 	"Static Data Series": "Série de Dados Estáticos",
@@ -1156,5 +1156,41 @@
 	"NetCDF ": {
 		"nc - GDAL": "NetCDF .nc - GDAL"
 	},
-	"WFS – Deter": "WFS – Deter"
+	"WFS – Deter": "WFS – Deter",
+	"Folder Name": "Nome da Pasta",
+	"Select the File": "Selecione o Arquivo",
+	"Add attributes configuration": "Adicionar configuração de atributos",
+	"Choose view in the database": "Escolher visão no banco de dados",
+	"Create view from table": "Criar visão a partir de uma tabela",
+	"Invalid view name": "Invalid view name",
+	"Invalid File": "Arquivo inválido",
+	"Load attributes": "Carregar atributos",
+	"View Validation": "Validação da View",
+	"View is valid, the query returned 703 registers": "View is valid, the query returned 703 registers",
+	"Yes, update": "Sim, atualizar",
+	"Attention": "Atenção",
+	"This view already exists!\n Do you want to update it?": "Esta visão já existe!\n Deseja atualiza-la?",
+	"Move selected attributes to the right": "Mover atributos selecionados para direita",
+	"Move all selected attributes to the right": "Mover todos atributos para direita",
+	"Move selected attributes to the left": "Mover atributos selecionados para esquerda",
+	"Move all selected attributes to the left": "Mover todos atributos para esquerda",
+	"Name of the view to be created": "Nome da visão a ser criada",
+	"View is valid, the query returned 26 registers": "View is valid, the query returned 26 registers",
+	"views": "views",
+	"View is valid, the query returned 51 registers": "View is valid, the query returned 51 registers",
+	"Column value is invalid": "Column value is invalid",
+	"View is valid, the query returned 8 registers": "View is valid, the query returned 8 registers",
+	"Assignment to constant variable": {
+		"": "Assignment to constant variable."
+	},
+	"View is valid, the query returned 706 registers": "View is valid, the query returned 706 registers",
+	"View Error": " Error in query execution. syntax error at end of input",
+	"View is valid, the query returned 3 registers": "View is valid, the query returned 3 registers",
+	"View is valid, the query returned 1 register": "View is valid, the query returned 1 register",
+	"View is valid, the query returned 10 registers": "View is valid, the query returned 10 registers",
+	"View is valid, the query returned 1552 registers": "View is valid, the query returned 1552 registers",
+	"View is valid, the query returned 1541 registers": "View is valid, the query returned 1541 registers",
+	"e": {
+		"data is null": "e.data is null"
+	}
 }

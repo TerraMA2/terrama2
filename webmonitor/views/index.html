@@ -4,23 +4,6 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="shortcut icon" href="{[ BASE_URL ]}favicon.ico" type="image/x-icon" />
-    <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="TerraMA² Monitor">
-    <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-57.png" sizes="57x57">
-    <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-60.png" sizes="60x60">
-    <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-72.png" sizes="72x72">
-    <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-76.png" sizes="76x76">
-    <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-114.png" sizes="114x114">
-    <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-120.png" sizes="120x120">
-    <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-144.png" sizes="144x144">
-    <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-152.png" sizes="152x152">
-    <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-180.png" sizes="180x180">
-    <link rel="apple-touch-icon" href="{[ BASE_URL ]}images/icons/iOS/Icon-256.png" sizes="256x256">
-    <meta name="msapplication-TileImage" content="{[ BASE_URL ]}images/icons/iOS/Icon-144.png">
-    <meta name="msapplication-TileColor" content="#222d32">
-    <meta name="theme-color" content="#222d32">
     <title>TerraMA² Monitor</title>
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/bootstrap/dist/css/bootstrap.min.css">
@@ -35,23 +18,34 @@
     <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/datatables/media/css/jquery.dataTables.css">
     <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/bootstrap-daterangepicker/daterangepicker.css">
     <link rel="stylesheet" type="text/css" href="{[ BASE_URL ]}externals/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css">
+    <script>
+      var USER_CONFIG = {[ userConfig|json|safe ]};
+    </script>
   </head>
   <body class="hold-transition skin-black sidebar-mini">
     <div class="wrapper">
-      <!-- <div data-toggle="offcanvas" class="sidebar-toggle-fixed">
+      <div data-toggle="offcanvas" class="sidebar-toggle-fixed">
           <a id="collapseButton" role="button">
             <span class="fa fa-bars"></span>
           </a>
-      </div> -->
+      </div>
       <aside class="main-sidebar custom-scrollbar-light" style="width: 300px">
         <section class="sidebar">
           <div id="main-header" class="main-header" role="navigation">
             <div class="header-logo">
-              <a class="logo-container" href="{[ BASE_URL ]}">
-                <img src="{[ BASE_URL ]}images/terrama2_logo2.png" class="img-square logo-img" alt="User Image">
-                <span class="logo-text">TerraMA²</span>
-              </a>
-              <!-- <a class="sidebar-toggle" data-toggle="offcanvas" role="button" id="collapseButton"></a> -->
+
+              {% if userConfig.logo %}
+                <a class="logo-container" href="{[ userConfig.logoLink ]}">
+                  <img src="{[ BASE_URL ]}images/{[ userConfig.logo ]}" class="img-square logo-img" alt="Logo Image">
+                </a>
+              {% else %}
+                <a class="logo-container" href="{[ BASE_URL ]}">
+                  <img src="{[ BASE_URL ]}images/terrama2_logo2.png" class="img-square logo-img" alt="Logo Image">
+                  <span class="logo-text">TerraMA²</span>
+                </a>
+              {% endif %}
+
+              <a class="sidebar-toggle" data-toggle="offcanvas" role="button" id="collapseButton"></a>
             </div>
           </div>
           <div class="sidebar-body">
@@ -114,18 +108,26 @@
           </div>
           <div class="sidebar-footer">
             <div class="institutions-logos">
-              <a href="http://www.inpe.br/" target="_blank">
-                <img id="inpe-image" src="{[ BASE_URL ]}images/inpe.png">
-              </a>
-              <a href="http://www.inpe.br/queimadas/" target="_blank">
-                <img id="programa-queimadas-image" src="{[ BASE_URL ]}images/programa_queimadas.png">
-              </a>
-              <a href="https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs" target="_blank">
-                <img id="defra-image" src="{[ BASE_URL ]}images/defra.png">
-              </a>
-              <a href="http://www.worldbank.org/" target="_blank">
-                <img id="world-bank-image" src="{[ BASE_URL ]}images/banco_mundial.png">
-              </a>
+              {% if userConfig.logoFooter && userConfig.logoFooter.length > 0 %}
+                {% for lf in userConfig.logoFooter %}
+                  <a href="{[lf.link]}" target="_blank">
+                    <img id="world-bank-image" src="{[ BASE_URL ]}images/{[lf.path]}">
+                  </a>
+                {% endfor %}
+              {% else %}
+                <a href="http://www.inpe.br/" target="_blank">
+                  <img id="inpe-image" src="{[ BASE_URL ]}images/inpe.png">
+                </a>
+                <a href="http://www.inpe.br/queimadas/" target="_blank">
+                  <img id="programa-queimadas-image" src="{[ BASE_URL ]}images/programa_queimadas.png">
+                </a>
+                <a href="https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs" target="_blank">
+                  <img id="defra-image" src="{[ BASE_URL ]}images/defra.png">
+                </a>
+                <a href="http://www.worldbank.org/" target="_blank">
+                  <img id="world-bank-image" src="{[ BASE_URL ]}images/banco_mundial.png">
+                </a>
+              {% endif %}
             </div>
           </div>
         </section>
@@ -378,8 +380,6 @@
     <script type="text/javascript" src="{[ BASE_URL ]}externals/i18next-xhr-backend/i18nextXHRBackend.min.js"></script>
     <script type="text/javascript" src="https://www.amcharts.com/lib/4/core.js"></script>
     <script type="text/javascript" src="https://www.amcharts.com/lib/4/charts.js"></script>
-    <!-- <script type="text/javascript" src="https://www.amcharts.com/lib/4/maps.js"></script> -->
-    <!-- <script type="text/javascript" src="https://www.amcharts.com/lib/4/geodata/worldLow.js"></script>
     <script type="text/javascript" src="https://www.amcharts.com/lib/4/geodata/brazilLow.js"></script> -->
     <script type="text/javascript" src="https://www.amcharts.com/lib/4/themes/material.js"></script>
     <script type="text/javascript" src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
@@ -393,7 +393,6 @@
       $(".dropdown-btn." + defaultLanguage + "-img + span").text($("#language-"+defaultLanguage).text());
     </script>
     <script type="text/javascript" src="{[ BASE_URL ]}dist/TerraMA2WebMonitor.min.js"></script>
-    <!--<script type="text/javascript" data-main="{[ BASE_URL ]}javascripts/Startup.js" src="{[ BASE_URL ]}externals/requirejs/require.js"></script>-->
     <iframe id="exportation-iframe" class="hidden"></iframe>
     <div id="translation-div" class="hidden"></div>
   </body>

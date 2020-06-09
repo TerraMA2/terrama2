@@ -113,7 +113,8 @@ define([], function() {
       $templateCache.put(
         "importShapefile.html",
         "<div id=\"shapefile-import-loader\" class=\"hidden\"><img src=\"" + BASE_URL + "images/loader.gif\"/></div>" +
-        "<button class=\"btn btn-default\" ng-show=\"showButton\" ng-click=\"openImportShapefileModal()\">{{ i18n.__('Transfer Shapefile') }}</button>" +
+        "<p style=\"color:red;margin-top:-15px\">{{ messageError }}</p>" +
+        "<button id=\"button_file\" class=\"btn btn-default\" ng-show=\"showButton\" ng-click=\"openImportShapefileModal()\">{{ i18n.__('Transfer Shapefile') }}</button>" +
         "<div class=\"modal fade\" id=\"shapefileModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"shapefileModalLabel\">" +
           "<div class=\"modal-dialog modal-md\" role=\"document\">" +
             "<div class=\"modal-content\">" +
@@ -166,13 +167,51 @@ define([], function() {
               "</div>" +
             "</div>" +
           "</div>" +
+        "</div>" + // Modal of File Explorer
+        "<div class=\"modal fade\" id=\"filesExplorerModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"filesExplorerModalLabel\">" +
+          "<div class=\"modal-dialog modal-md\" role=\"document\">" +
+            "<div class=\"modal-content\">" +
+              "<div class=\"holder-div\" ng-show=\"loadingDirectories\"></div>" +
+              "<div class=\"modal-header\">" +
+                "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>" +
+                "<h4 class=\"modal-title\" ng-if=\"!showButton\" id=\"dataSeriesModalLabel\">{{ i18n.__('Select the File') }}</h4>" +
+                "<h4 class=\"modal-title\" ng-if=\"showButton\" id=\"dataSeriesModalLabel\">{{ i18n.__('Select the Directory') }}</h4>" +
+              "</div>" +
+              "<div class=\"modal-body\">" +
+                "<div>" +
+                  "<span style=\"font-size: 16px;\">{{ i18n.__('TerraMA² data directory') + ': ' + terrama2DefaultFilePath }}</span>" +
+                  "<hr/>" +
+                "</div>" +
+                "<div ng-show=\"!rootDirectories.children || rootDirectories.children.length == 0\">{{ i18n.__('No directories to show.') }}</div>" +
+                "<script type=\"text/ng-template\" id=\"files-explorer.html\">" +
+                  "<div class=\"name-div\" ng-click=\"setDirectoryStatus(directory.fullPath)\" ng-class=\"{ 'selected-directory': directory.fullPath == selectedDirectory }\">" +
+                    "<i class=\"fa fa-folder\" ng-show=\"pathLoading != directory.fullPath && !directory.childrenVisible\"></i>" +
+                    "<i class=\"fa fa-folder-open\" ng-show=\"pathLoading != directory.fullPath && directory.childrenVisible\"></i>" +
+                    "<img ng-show=\"pathLoading == directory.fullPath\" src=\"" + BASE_URL + "images/loader.gif\">" +
+                    "{{ directory.name }}" +
+                  "</div>" +
+                  "<ul class=\"file-explorer-ul\" ng-if=\"directory.children && directory.children.length > 0 && directory.childrenVisible\">" +
+                    "<li ng-repeat=\"directory in directory.children\" ng-include=\"'files-explorer.html'\"></li>" +
+                  "</ul>" +
+                "</script>" +
+                "<ul class=\"file-explorer-ul\">" +
+                  "<li ng-repeat=\"directory in rootDirectories.children\" ng-include=\"'files-explorer.html'\"></li>" +
+                "</ul>" +
+              "</div>" +
+              "<div class=\"modal-footer\">" +
+                "<button type=\"button\" class=\"btn btn-primary\" data-dismiss=\"modal\">{{ i18n.__('Cancel') }} </button>" +
+                "<button type=\"button\" class=\"btn btn-primary\" data-dismiss=\"modal\" ng-click=\"selectPath()\">{{ i18n.__('Select') }}</button>" +
+              "</div>" +
+            "</div>" +
+          "</div>" +
         "</div>"
       );
 
       $templateCache.put(
         "importGeotiff.html",
         "<div id=\"geotiff-import-loader\" class=\"hidden\"><img src=\"" + BASE_URL + "images/loader.gif\"/></div>" +
-        "<button class=\"btn btn-default\" ng-click=\"openImportGeotiffModal()\">{{ i18n.__('Transfer GeoTIFF') }}</button>" +
+        "<p style=\"color:red;margin-top:-15px\">{{ messageError }}</p>" +
+        "<button class=\"btn btn-default\" ng-show=\"showButton\" ng-click=\"openImportGeotiffModal()\">{{ i18n.__('Transfer GeoTIFF') }}</button>" +
         "<div class=\"modal fade\" id=\"geotiffModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"geotiffModalLabel\">" +
           "<div class=\"modal-dialog modal-md\" role=\"document\">" +
             "<div class=\"modal-content\">" +
@@ -205,6 +244,43 @@ define([], function() {
                     "</div>" +
                   "</div>" +
                 "</div>" +
+              "</div>" +
+            "</div>" +
+          "</div>" +
+        "</div>" + // Modal of File Explorer
+        "<div class=\"modal fade\" id=\"filesExplorerModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"filesExplorerModalLabel\">" +
+          "<div class=\"modal-dialog modal-md\" role=\"document\">" +
+            "<div class=\"modal-content\">" +
+              "<div class=\"holder-div\" ng-show=\"loadingDirectories\"></div>" +
+              "<div class=\"modal-header\">" +
+                "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>" +
+                "<h4 class=\"modal-title\" ng-if=\"!showButton\" id=\"dataSeriesModalLabel\">{{ i18n.__('Select the File') }}</h4>" +
+                "<h4 class=\"modal-title\" ng-if=\"showButton\" id=\"dataSeriesModalLabel\">{{ i18n.__('Select the Directory') }}</h4>" +
+              "</div>" +
+              "<div class=\"modal-body\">" +
+                "<div>" +
+                  "<span style=\"font-size: 16px;\">{{ i18n.__('TerraMA² data directory') + ': ' + terrama2DefaultFilePath }}</span>" +
+                  "<hr/>" +
+                "</div>" +
+                "<div ng-show=\"!rootDirectories.children || rootDirectories.children.length == 0\">{{ i18n.__('No directories to show.') }}</div>" +
+                "<script type=\"text/ng-template\" id=\"files-explorer.html\">" +
+                  "<div class=\"name-div\" ng-click=\"setDirectoryStatus(directory.fullPath)\" ng-class=\"{ 'selected-directory': directory.fullPath == selectedDirectory }\">" +
+                    "<i class=\"fa fa-folder\" ng-show=\"pathLoading != directory.fullPath && !directory.childrenVisible\"></i>" +
+                    "<i class=\"fa fa-folder-open\" ng-show=\"pathLoading != directory.fullPath && directory.childrenVisible\"></i>" +
+                    "<img ng-show=\"pathLoading == directory.fullPath\" src=\"" + BASE_URL + "images/loader.gif\">" +
+                    "{{ directory.name }}" +
+                  "</div>" +
+                  "<ul class=\"file-explorer-ul\" ng-if=\"directory.children && directory.children.length > 0 && directory.childrenVisible\">" +
+                    "<li ng-repeat=\"directory in directory.children\" ng-include=\"'files-explorer.html'\"></li>" +
+                  "</ul>" +
+                "</script>" +
+                "<ul class=\"file-explorer-ul\">" +
+                  "<li ng-repeat=\"directory in rootDirectories.children\" ng-include=\"'files-explorer.html'\"></li>" +
+                "</ul>" +
+              "</div>" +
+              "<div class=\"modal-footer\">" +
+                "<button type=\"button\" class=\"btn btn-primary\" data-dismiss=\"modal\">{{ i18n.__('Cancel') }} </button>" +
+                "<button type=\"button\" class=\"btn btn-primary\" data-dismiss=\"modal\" ng-click=\"selectPath()\">{{ i18n.__('Select') }}</button>" +
               "</div>" +
             "</div>" +
           "</div>" +
@@ -581,7 +657,6 @@ define([], function() {
 
               for(var j = 0, fieldsLength = $scope.dataSeries.semantics.metadata.form.length; j < fieldsLength; j++) {
                 var value = null;
-                console.log($scope.dataSeries.semantics);
                 var key = $scope.dataSeries.semantics.metadata.form[j].key;
 
                 if (key instanceof Array)
@@ -663,15 +738,20 @@ define([], function() {
       return {
         restrict: 'EA',
         templateUrl: 'importShapefile.html',
-        controller: ['$scope', 'MessageBoxService', 'DataProviderService','Upload', '$timeout', 'i18n', '$http', function($scope, MessageBoxService, DataProviderService,Upload, $timeout, i18n, $http) {
+        controller: ['$scope', 'MessageBoxService', 'DataProviderService','Upload', '$timeout', 'i18n', '$q', '$http', function($scope, MessageBoxService, DataProviderService,Upload, $timeout, i18n, $q, $http) {
           $scope.shpImport = {
-            srid: null,
+            srid: 4326,
             encoding: "latin1",
             error: null,
             success: false
           };
+          var title = "Data Server Registration";
+          $scope.rootDirectories = {
+            children: []
+          };
 
           $scope.uploaded = false;
+          $scope.messageError = "";
 
           const modal = $("#shapefileModal");
           // Remove previous listenet to avoid call function save twice
@@ -714,6 +794,297 @@ define([], function() {
             }
           });
 
+          // Inicio File Explorer
+          var dataProviders = {};
+          var hasFile = false;
+          var fileName = "";
+          var extension = "";
+          var pathSelected = "";
+
+          DataProviderService.listAll({ id:$scope.dataSeries.data_provider_id })
+          .then((data) =>{
+            dataProviders=data.data;
+          });
+          $("#saveStaticData").on("click",()=>{
+            let dp  = dataProviders.filter(function(element) {
+              return element.id == $scope.dataSeries.data_provider_id;
+            });
+            if($scope.model.show_transfer == "option1"){
+              fileName = $scope.model['mask'].split('/').slice(-1).pop();
+              if(!fileName.endsWith(".shp") || !fileName.endsWith(".zip")){
+                $scope.messageError = i18n.__("Invalid File");
+              }
+              $scope.messageError = "";
+              $scope.uploadFile(dp[0].uri.replace("file://", "") + "/" + $scope.model['mask']);
+            }else{
+              $scope.save();
+            }
+            
+          });
+          $scope.openFileExplorer = function() {
+            var dataProvider  = dataProviders.filter(function(element) {
+              return element.id == $scope.dataSeries.data_provider_id;
+            });
+            $scope.loadingDirectories = false;
+            $scope.pathLoading = null;
+
+            $scope.isChecking = true;
+
+            var tempCurrentPath = ($scope.model['pathname'] == undefined || $scope.model['pathname'] == "" ? "/" : $scope.model['pathname']).replace(/\\/g, '/');
+
+            setBasePath(tempCurrentPath);
+
+            if($scope.isWindows)
+              tempCurrentPath = tempCurrentPath.substring(3);
+
+            if($scope.dataSeries.access) {
+              pathSelected = dataProvider[0].uri.replace("file://", "");
+
+              if(pathSelected == undefined || pathSelected == "")
+              {
+                $scope.isChecking = false;
+                return MessageBoxService.danger(i18n.__(title), i18n.__("Invalid path. This path can not be listed."));
+              }
+
+              tempCurrentPath = $scope.basePath + tempCurrentPath;
+              var isWindowsPathResult = true;
+              var terrama2DataPath = pathSelected.replace(/\\/g, '/');
+              $scope.basePath = terrama2DataPath;
+
+              $scope.terrama2DefaultFilePath = (isWindowsPathResult ? pathSelected.replace(/\//g, '\\') : pathSelected);
+
+              if(tempCurrentPath.indexOf(terrama2DataPath) !== -1)
+                $scope.currentPath = tempCurrentPath.replace(terrama2DataPath, '').split('/').filter(function(a) { return a != '' });
+              else
+                $scope.currentPath = [];
+            } else {
+              $scope.currentPath = tempCurrentPath.split('/').filter(function(a) { return a != $scope.basePath.replace(/\//g, '') && a != '' });
+            }
+
+            listDirectories($scope.basePath).then(function(data) {
+              if(data.error) {
+                $scope.isChecking = false;
+                return MessageBoxService.danger(i18n.__(title), ($scope.dataProvider.protocol == "FILE" ? i18n.__("Invalid configuration for the TerraMA² data directory") : data.error));
+              }
+
+              $scope.rootDirectories.children = data.directories;
+              $scope.rootDirectories.childrenVisible = true;
+
+              if($scope.currentPath.length === 0 || data.directories.length === 0) {
+                $scope.isChecking = false;
+                $('#filesExplorerModal').modal();
+              } else {
+                navigateToDirectory($scope.currentPath, $scope.basePath, [$scope.currentPath[0]], 0).then(function(lele) {
+                  $scope.isChecking = false;
+                  $('#filesExplorerModal').modal();
+                }).catch(function(err) {
+                  $scope.isChecking = false;
+                  MessageBoxService.danger(i18n.__(title), err.message);
+                });
+              }
+            }).catch(function(err) {
+              $scope.isChecking = false;
+              return MessageBoxService.danger(i18n.__(title), ("FILE" == "FILE" ? i18n.__("Invalid configuration for the TerraMA² data directory") : err.error));
+            });
+          };
+
+          $("#openExplorer").on('click',()=>{
+            $scope.openFileExplorer();
+          });
+
+          var verifyPath = function(pathList) {
+
+            let isValidPath = true;
+
+            pathList.forEach((path) => {
+              if(!isWindowsPath(path))
+                isValidPath = false;
+            });
+
+            return isValidPath;
+          };
+
+
+          var setBasePath = function(path) {
+            var isWindowsPathResult = isWindowsPath(path);
+
+            if(isWindowsPathResult) {
+              $scope.basePath = isWindowsPathResult;
+              $scope.isWindows = true;
+            } else {
+              $scope.basePath = "/";
+              $scope.isWindows = false;
+            }
+          };
+
+          var isWindowsPath = function(path) {
+            var letter = "A";
+            var isWindows = false;
+            var driveLetter = null;
+
+            for(var i = 0; i < 26; i++) {
+              if((letter + ":/") == path.substr(0, 3).toUpperCase()) {
+                driveLetter = (letter + ":/");
+                isWindows = true;
+                break;
+              }
+
+              letter = String.fromCharCode(letter.charCodeAt() + 1);
+            }
+
+            return (isWindows ? driveLetter : false);
+          };
+
+          var getPathFromTheList = function(pathList, currentPath) {
+            let selectedPath = "";
+
+            pathList.forEach((path) => {
+              if(path && currentPath.startsWith(path))
+                selectedPath = path;
+            });
+
+            return selectedPath;
+          };
+
+          var listDirectories = function(pathToList) {
+            var promiser = $q.defer();
+            var timeOut = $q.defer();
+
+            var params = angular.copy($scope.model);
+
+            params.protocol = 'FILE';
+            params.list = true;
+            params.getWithExtension = !$scope.showButton;
+
+            let semanticsCode = $scope.dataSeries.semantics.code;
+            switch(semanticsCode){
+              case "GRID-static_gdal":
+                params.extensionFile = ['tif','zip'];
+                break;
+              default:
+                params.extensionFile = ['shp','zip'];
+            }
+
+            params.pathname = pathToList;
+            params.basePath = $scope.basePath;
+
+            $scope.timeOutSeconds = 8;
+
+            var expired = false;
+
+            setTimeout(function() {
+              expired = true;
+              timeOut.resolve();
+            }, 1000 * $scope.timeOutSeconds);
+
+            var request = $http({
+              method: "POST",
+              url: BASE_URL + "uri/",
+              data: params,
+              timeout: timeOut.promise
+            });
+
+            request.then(function(data) {
+              if(data.message)
+                return promiser.reject({ error: i18n.__(data.message) });
+              else
+                return promiser.resolve({ error: null, directories: data.data.data.list });
+            }).catch(function(err) {
+              if(expired)
+                return promiser.reject({ error: i18n.__("Timeout: Request took longer than ") + $scope.timeOutSeconds + i18n.__(" seconds.") });
+              else
+                return promiser.reject({ error: i18n.__(err.data.message) });
+            });
+
+            return promiser.promise;
+          };
+
+          $scope.setDirectoryStatus = function(path) {
+            var tempPath = path;
+            var pathItems = tempPath.replace($scope.basePath, '').split('/');
+            pathItems = pathItems.filter(function(a) { return a != '' });
+
+            fileName = pathItems.slice(-1).pop();
+            extension = fileName.split(".").slice(-1).pop();
+
+            if(path.endsWith(".zip") || path.endsWith(".shp")){
+              hasFile = true;
+            }else{
+              hasFile = false;
+            }
+
+            try {
+              var lastDirectory = getLastDirectory($scope.rootDirectories, pathItems, 0);
+            } catch(err) {
+              $('#filesExplorerErrorModal .modal-body > p').text(i18n.__("Invalid path"));
+              $('#filesExplorerErrorModal').modal();
+              return;
+            }
+
+            if(!lastDirectory) {
+              $('#filesExplorerErrorModal .modal-body > p').text(i18n.__("Invalid path"));
+              $('#filesExplorerErrorModal').modal();
+              return;
+            }
+
+            if(lastDirectory.childrenVisible) {
+              lastDirectory.childrenVisible = false;
+
+              if($scope.selectedDirectory == lastDirectory.fullPath)
+                $scope.selectedDirectory = null;
+            } else if(!hasFile) {
+              $scope.loadingDirectories = true;
+              $scope.pathLoading = path;
+
+              listDirectories(path).then(function(data) {
+                if(data.error) {
+                  $scope.loadingDirectories = false;
+                  $scope.pathLoading = null;
+                  $('#filesExplorerErrorModal .modal-body > p').text(data.error);
+                  $('#filesExplorerErrorModal').modal();
+                }
+
+                $scope.selectedDirectory = path;
+
+                lastDirectory.childrenVisible = true;
+                lastDirectory.children = data.directories;
+
+                $scope.loadingDirectories = false;
+                $scope.pathLoading = null;
+              }).catch(function(err) {
+                $scope.loadingDirectories = false;
+                $scope.pathLoading = null;
+                $('#filesExplorerErrorModal .modal-body > p').text(err.error);
+                $('#filesExplorerErrorModal').modal();
+              });
+            }else{
+              $scope.selectedDirectory = path;
+            }
+          };
+
+          var getLastDirectory = function(item, pathDirectories, i) {
+            if(i < pathDirectories.length) {
+              for(var j = 0, childrenLength = item.children.length; j < childrenLength; j++) {
+                if(item.children[j].name == pathDirectories[i]) {
+                  return getLastDirectory(item.children[j], pathDirectories, (i + 1));
+                }
+              }
+            } else {
+              return item;
+            }
+          };
+
+          $scope.selectPath = function(file) {
+            var path = $scope.selectedDirectory.slice()
+            $scope.model['mask'] = path.replace(pathSelected,"").replace(".zip",".shp");
+            // if(hasFile){
+            //   $scope.uploadFile($scope.selectedDirectory);
+            // }
+          };
+
+          // Fim file explorer
+
+
           $scope.openImportShapefileModal = function() {
             $scope.shpImport.srid = null;
             $scope.shpImport.encoding = "latin1";
@@ -721,22 +1092,57 @@ define([], function() {
             $scope.clearShapefileImportError();
             $scope.closeShapefileSuccessMessage();
 
-            if(($scope.semanticsCode === 'STATIC_DATA-ogr' && $scope.model['mask'] !== undefined && $scope.model['mask'] !== null && $scope.model['mask'] != "") || ($scope.semanticsCode === 'STATIC_DATA-postgis' && $scope.model['table_name'] !== undefined && $scope.model['table_name'] !== null && $scope.model['table_name'] != ""))
+            if(($scope.semanticsCode === 'STATIC_DATA-ogr') || ($scope.semanticsCode === 'STATIC_DATA-postgis' && $scope.model['table_name'] !== undefined && $scope.model['table_name'] !== null && $scope.model['table_name'] != ""))
               $("#shapefileModal").modal();
             else
               MessageBoxService.danger(i18n.__("Error"), i18n.__($scope.semanticsCode === 'STATIC_DATA-ogr' ? "Enter the file name!" : "Enter the table name!"));
           };
+          $scope.uploadFile = function(filePath){
+            var file = Upload.upload({
+              url: BASE_URL + 'import-file',
+              data: {
+                filePath: filePath,
+                fileName: fileName,
+                semantics: $scope.semanticsCode,
+                srid: $scope.shpImport.srid,
+                encoding: $scope.shpImport.encoding,
+                tableName: $scope.model['table_name'],
+                mask: $scope.model['mask'].replace(".zip",".shp"),
+                dataProviderId: $scope.dataSeries.data_provider_id
+              }
+            });
+
+            file.then(function(value) {
+              $scope.messageError  = "";
+              $scope.save();
+              return false;
+            }, function(reason) {
+              if(reason.status == 404){
+                $scope.messageError = "Arquivo não encontrado!";
+                return true;
+              }else{
+                $scope.messageError  = "";
+                $scope.save();
+                return false;
+              }
+            });
+          }
 
           $scope.uploadShapefile = function(file, errFiles) {
             $scope.clearShapefileImportError();
             $scope.closeShapefileSuccessMessage();
-
+            let dataProvider  = dataProviders.filter(function(element) {
+              return element.id == $scope.dataSeries.data_provider_id;
+            });
+            var basePath = dataProvider[0].uri.replace("file://", "").endsWith("/") ? dataProvider[0].uri.replace("file://", ""):dataProvider[0].uri.replace("file://", "")+"/";
+            var fileName = file.name;
             if(file) {
               var performUpload = function() {
                 file.upload = Upload.upload({
                   url: BASE_URL + 'import-shapefile',
                   file: file,
                   data: {
+                    basePath:basePath,
                     semantics: $scope.semanticsCode,
                     srid: $scope.shpImport.srid,
                     encoding: $scope.shpImport.encoding,
@@ -746,7 +1152,10 @@ define([], function() {
                   }
                 })
                 .then(() => {
-                  $scope.uploaded = true;
+                  if($scope.dataSeries.semantics.code != "STATIC_DATA-postgis"){
+                    $scope.model['mask'] = $scope.model['mask'] + "/" + fileName.replace(".zip", ".shp");
+                  }
+                  // $scope.save();
                 });
 
                 file.upload.then(function(response) {
@@ -800,11 +1209,311 @@ define([], function() {
       return {
         restrict: 'EA',
         templateUrl: 'importGeotiff.html',
-        controller: ['$scope', 'MessageBoxService', 'Upload', '$timeout', 'i18n', function($scope, MessageBoxService, Upload, $timeout, i18n) {
+        controller: ['$scope', 'MessageBoxService', 'Upload', 'DataProviderService', '$timeout', '$q', 'i18n', '$http', function($scope, MessageBoxService, Upload, DataProviderService, $timeout, $q, i18n, $http) {
           $scope.geotiffImport = {
             error: null,
             success: false
           };
+
+          var title = "Data Server Registration";
+          $scope.rootDirectories = {
+            children: []
+          };
+
+          $scope.uploaded = false;
+          $scope.messageError = "";
+
+          // Inicio File Explorer
+          var dataProviders = {};
+          var hasFile = false;
+          var fileName = "";
+          var extension = "";
+          var pathSelected = "";
+
+          DataProviderService.listAll({ id:$scope.dataSeries.data_provider_id })
+          .then((data) =>{
+            dataProviders=data.data;
+          });
+          $("#saveStaticData").on("click",()=>{
+            let dp  = dataProviders.filter(function(element) {
+              return element.id == $scope.dataSeries.data_provider_id;
+            });
+
+            if($scope.model.show_transfer == "option1"){
+              fileName = $scope.model['mask'].split('/').slice(-1).pop();
+              if(!fileName.endsWith(".tif") && !$scope.showButton){
+                $scope.messageError = i18n.__("Invalid File");
+                $scope.messageError = "";
+                $scope.uploadFile(dp[0].uri.replace("file://", "") + "/" + $scope.model['mask']);
+              }
+            }else{
+              $scope.save();
+            }
+            
+          });
+
+          $scope.openFileExplorer = function() {
+            var dataProvider  = dataProviders.filter(function(element) {
+              return element.id == $scope.dataSeries.data_provider_id;
+            });
+            $scope.loadingDirectories = false;
+            $scope.pathLoading = null;
+
+            $scope.isChecking = true;
+
+            var tempCurrentPath = ($scope.model['pathname'] == undefined || $scope.model['pathname'] == "" ? "/" : $scope.model['pathname']).replace(/\\/g, '/');
+
+            setBasePath(tempCurrentPath);
+
+            if($scope.isWindows)
+              tempCurrentPath = tempCurrentPath.substring(3);
+
+            if($scope.dataSeries.access) {
+              pathSelected = dataProvider[0].uri.replace("file://", "");
+
+              if(pathSelected == undefined || pathSelected == "")
+              {
+                $scope.isChecking = false;
+                return MessageBoxService.danger(i18n.__(title), i18n.__("Invalid path. This path can not be listed."));
+              }
+
+              tempCurrentPath = $scope.basePath + tempCurrentPath;
+              var isWindowsPathResult = true;
+              var terrama2DataPath = pathSelected.replace(/\\/g, '/');
+              $scope.basePath = terrama2DataPath;
+
+              $scope.terrama2DefaultFilePath = (isWindowsPathResult ? pathSelected.replace(/\//g, '\\') : pathSelected);
+
+              if(tempCurrentPath.indexOf(terrama2DataPath) !== -1)
+                $scope.currentPath = tempCurrentPath.replace(terrama2DataPath, '').split('/').filter(function(a) { return a != '' });
+              else
+                $scope.currentPath = [];
+            } else {
+              $scope.currentPath = tempCurrentPath.split('/').filter(function(a) { return a != $scope.basePath.replace(/\//g, '') && a != '' });
+            }
+
+            listDirectories($scope.basePath).then(function(data) {
+              if(data.error) {
+                $scope.isChecking = false;
+                return MessageBoxService.danger(i18n.__(title), ($scope.dataProvider.protocol == "FILE" ? i18n.__("Invalid configuration for the TerraMA² data directory") : data.error));
+              }
+
+              $scope.rootDirectories.children = data.directories;
+              $scope.rootDirectories.childrenVisible = true;
+
+              if($scope.currentPath.length === 0 || data.directories.length === 0) {
+                $scope.isChecking = false;
+                $('#filesExplorerModal').modal();
+              } else {
+                navigateToDirectory($scope.currentPath, $scope.basePath, [$scope.currentPath[0]], 0).then(function(lele) {
+                  $scope.isChecking = false;
+                  $('#filesExplorerModal').modal();
+                }).catch(function(err) {
+                  $scope.isChecking = false;
+                  MessageBoxService.danger(i18n.__(title), err.message);
+                });
+              }
+            }).catch(function(err) {
+              $scope.isChecking = false;
+              return MessageBoxService.danger(i18n.__(title), ("FILE" == "FILE" ? i18n.__("Invalid configuration for the TerraMA² data directory") : err.error));
+            });
+          };
+
+          $("#openExplorer").on('click',()=>{
+            $scope.openFileExplorer();
+          });
+
+          var verifyPath = function(pathList) {
+
+            let isValidPath = true;
+
+            pathList.forEach((path) => {
+              if(!isWindowsPath(path))
+                isValidPath = false;
+            });
+
+            return isValidPath;
+          };
+
+
+          var setBasePath = function(path) {
+            var isWindowsPathResult = isWindowsPath(path);
+
+            if(isWindowsPathResult) {
+              $scope.basePath = isWindowsPathResult;
+              $scope.isWindows = true;
+            } else {
+              $scope.basePath = "/";
+              $scope.isWindows = false;
+            }
+          };
+
+          var isWindowsPath = function(path) {
+            var letter = "A";
+            var isWindows = false;
+            var driveLetter = null;
+
+            for(var i = 0; i < 26; i++) {
+              if((letter + ":/") == path.substr(0, 3).toUpperCase()) {
+                driveLetter = (letter + ":/");
+                isWindows = true;
+                break;
+              }
+
+              letter = String.fromCharCode(letter.charCodeAt() + 1);
+            }
+
+            return (isWindows ? driveLetter : false);
+          };
+
+          var getPathFromTheList = function(pathList, currentPath) {
+            let selectedPath = "";
+
+            pathList.forEach((path) => {
+              if(path && currentPath.startsWith(path))
+                selectedPath = path;
+            });
+
+            return selectedPath;
+          };
+
+          var listDirectories = function(pathToList) {
+            var promiser = $q.defer();
+            var timeOut = $q.defer();
+
+            var params = angular.copy($scope.model);
+
+            params.protocol = 'FILE';
+            params.list = true;
+            params.getWithExtension = !$scope.showButton;
+
+            let semanticsCode = $scope.dataSeries.semantics.code;
+            switch(semanticsCode){
+              case "GRID-static_gdal":
+                params.extensionFile = ['tif'];
+                break;
+              default:
+                params.extensionFile = ['shp','zip'];
+            }
+
+            params.pathname = pathToList;
+            params.basePath = $scope.basePath;
+
+            $scope.timeOutSeconds = 8;
+
+            var expired = false;
+
+            setTimeout(function() {
+              expired = true;
+              timeOut.resolve();
+            }, 1000 * $scope.timeOutSeconds);
+
+            var request = $http({
+              method: "POST",
+              url: BASE_URL + "uri/",
+              data: params,
+              timeout: timeOut.promise
+            });
+
+            request.then(function(data) {
+              if(data.message)
+                return promiser.reject({ error: i18n.__(data.message) });
+              else
+                return promiser.resolve({ error: null, directories: data.data.data.list });
+            }).catch(function(err) {
+              if(expired)
+                return promiser.reject({ error: i18n.__("Timeout: Request took longer than ") + $scope.timeOutSeconds + i18n.__(" seconds.") });
+              else
+                return promiser.reject({ error: i18n.__(err.data.message) });
+            });
+
+            return promiser.promise;
+          };
+
+          $scope.setDirectoryStatus = function(path) {
+            var tempPath = path;
+            var extensions = ['shp', 'zip', 'tif','geotif']
+            var pathItems = tempPath.replace($scope.basePath, '').split('/');
+            pathItems = pathItems.filter(function(a) { return a != '' });
+
+            fileName = pathItems.slice(-1).pop();
+            extension = fileName.split(".").slice(-1).pop();
+
+            if(path.endsWith(".tif")){
+              hasFile = true;
+            }else{
+              hasFile = false;
+            }
+
+            try {
+              var lastDirectory = getLastDirectory($scope.rootDirectories, pathItems, 0);
+            } catch(err) {
+              $('#filesExplorerErrorModal .modal-body > p').text(i18n.__("Invalid path"));
+              $('#filesExplorerErrorModal').modal();
+              return;
+            }
+
+            if(!lastDirectory) {
+              $('#filesExplorerErrorModal .modal-body > p').text(i18n.__("Invalid path"));
+              $('#filesExplorerErrorModal').modal();
+              return;
+            }
+
+            if(lastDirectory.childrenVisible) {
+              lastDirectory.childrenVisible = false;
+
+              if($scope.selectedDirectory == lastDirectory.fullPath)
+                $scope.selectedDirectory = null;
+            } else if(!hasFile) {
+              $scope.loadingDirectories = true;
+              $scope.pathLoading = path;
+
+              listDirectories(path).then(function(data) {
+                if(data.error) {
+                  $scope.loadingDirectories = false;
+                  $scope.pathLoading = null;
+                  $('#filesExplorerErrorModal .modal-body > p').text(data.error);
+                  $('#filesExplorerErrorModal').modal();
+                }
+
+                $scope.selectedDirectory = path;
+
+                lastDirectory.childrenVisible = true;
+                lastDirectory.children = data.directories;
+
+                $scope.loadingDirectories = false;
+                $scope.pathLoading = null;
+              }).catch(function(err) {
+                $scope.loadingDirectories = false;
+                $scope.pathLoading = null;
+                $('#filesExplorerErrorModal .modal-body > p').text(err.error);
+                $('#filesExplorerErrorModal').modal();
+              });
+            }else{
+              $scope.selectedDirectory = path;
+            }
+          };
+
+          var getLastDirectory = function(item, pathDirectories, i) {
+            if(i < pathDirectories.length) {
+              for(var j = 0, childrenLength = item.children.length; j < childrenLength; j++) {
+                if(item.children[j].name == pathDirectories[i]) {
+                  return getLastDirectory(item.children[j], pathDirectories, (i + 1));
+                }
+              }
+            } else {
+              return item;
+            }
+          };
+
+          $scope.selectPath = function(file) {
+            var path = $scope.selectedDirectory.slice()
+            $scope.model['mask'] = path.replace(pathSelected,"").replace(".zip",".tif");
+            // if(hasFile){
+            //   $scope.uploadFile($scope.selectedDirectory);
+            // }
+          };
+          //Fim FileExplorer
 
           $scope.openImportGeotiffModal = function() {
             $scope.clearGeotiffImportError();
@@ -816,10 +1525,43 @@ define([], function() {
               MessageBoxService.danger(i18n.__("Error"), i18n.__("Enter the file name!"));
           };
 
+          $scope.uploadFile = function(filePath){
+            var file = Upload.upload({
+              url: BASE_URL + 'import-file',
+              data: {
+                filePath: filePath,
+                fileName: fileName,
+                semantics: $scope.semanticsCode,
+                tableName: $scope.model['table_name'],
+                mask: $scope.model['mask'].replace(".zip",".tif"),
+                dataProviderId: $scope.dataSeries.data_provider_id
+              }
+            });
+
+            file.then(function(value) {
+              $scope.messageError  = "";
+              $scope.save();
+              return false;
+            }, function(reason) {
+              if(reason.status == 404){
+                $scope.messageError = "Arquivo não encontrado!";
+                return true;
+              }else{
+                $scope.messageError  = "";
+                $scope.save();
+                return false;
+              }
+            });
+          }
+
           $scope.uploadGeotiff = function(file, errFiles) {
             $scope.clearGeotiffImportError();
             $scope.closeGeotiffSuccessMessage();
-
+            let dataProvider  = dataProviders.filter(function(element) {
+              return element.id == $scope.dataSeries.data_provider_id;
+            });
+            var basePath = dataProvider[0].uri.replace("file://", "").endsWith("/") ? dataProvider[0].uri.replace("file://", ""):dataProvider[0].uri.replace("file://", "")+"/";
+            var fileName = file.name;
             if(file) {
               if($("#geotiff-import-loader").hasClass("hidden"))
                 $("#geotiff-import-loader").removeClass("hidden");
@@ -828,23 +1570,41 @@ define([], function() {
                 url: BASE_URL + 'import-geotiff',
                 file: file,
                 data: {
+                  basePath:basePath,
+                  fileName:fileName,
                   mask: $scope.model['mask'],
                   dataProviderId: $scope.dataSeries.data_provider_id
                 }
               });
 
               file.upload.then(function(response) {
+                $scope.messageError  = "";
+                $scope.model['mask'] = $scope.model['mask'] + "/" + fileName;
+                if(!$("#geotif-import-loader").hasClass("hidden"))
+                  $("#geotif-import-loader").addClass("hidden");
                 $timeout(function () {
-                  if(!$("#geotiff-import-loader").hasClass("hidden"))
-                    $("#geotiff-import-loader").addClass("hidden");
-
-                  if(response.data.error) $scope.geotiffImport.error = i18n.__(response.data.error);
-                  else $scope.geotiffImport.success = true;
-                });
-              }, function(response) {
-                if(response.status > 0)
-                  $scope.geotiffImport.error = response.status + ': ' + response.data;
+                  $scope.geotiffImport.success = true;
+                })
+                // $scope.save();
+                return false;
+              }, function(reason) {
+                if(reason.status == 404){
+                  $scope.messageError = "Arquivo não encontrado!";
+                }else{
+                  $scope.messageError  = "";
+                  $("#geotiff-import-loader").removeClass("hidden");
+                  $timeout(function () {
+                    $scope.geotiffImport.success = true;
+                  })
+                }
+              })
+              // finally
+              .then(() => {
+                if(!$("#geotiff-import-loader").hasClass("hidden"))
+                  $("#geotiff-import-loader").addClass("hidden");
               });
+
+
             }
           };
 

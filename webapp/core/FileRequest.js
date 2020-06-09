@@ -45,13 +45,28 @@ FileRequest.prototype.request = function() {
                     var isDirectory = false;
                   }
 
-                  if(isDirectory && list[i].charAt(0) != '.')
+                  if(isDirectory && list[i].charAt(0) != '.' && !self.params.getWithExtension){
                     items.push({
                       name: list[i],
                       fullPath: fullPath,
                       children: [],
                       childrenVisible: false
                     });
+                  }
+                  
+                  if((self.params.getWithExtension  && isDirectory && list[i].charAt(0) != '.') || 
+                            ( self.params.getWithExtension && list[i].charAt(0) != '.' 
+                            && list[i].includes('.') 
+                            && self.params.extensionFile.includes(list[i].split(".")[1]))){
+
+                    items.push({
+                      name: list[i],
+                      fullPath: fullPath,
+                      children: [],
+                      childrenVisible: false
+                    });
+                  }
+
                 }
 
                 items.sort(function(a, b) {

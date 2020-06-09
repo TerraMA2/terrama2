@@ -391,7 +391,12 @@ define([], function() {
           if (internalDataSeries.data_series_semantics.format === "POSTGIS"){
             self.postgisData["dataProvider"] = internalDataSeries.data_provider;
             self.postgisData["tableName"] = internalDataSeries.dataSets[0].format.table_name;
-            listColumns(internalDataSeries.data_provider, internalDataSeries.dataSets[0].format.table_name);
+
+            if(internalDataSeries.data_series_semantics_code == "STATIC_DATA-VIEW-postgis"){
+              listColumns(internalDataSeries.data_provider, internalDataSeries.name);
+            }else{
+              listColumns(internalDataSeries.data_provider, internalDataSeries.dataSets[0].format.table_name);
+            }
           }
         }
       }

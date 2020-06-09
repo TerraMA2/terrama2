@@ -5,6 +5,7 @@
 <!DOCTYPE html>
 <html i18n-locale="{{ locale }}">
     <head>
+        
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <link rel="shortcut icon" href="{[ BASE_URL ]}favicon.ico" type="image/x-icon" />
@@ -72,7 +73,7 @@
                 <div class="login-box-msg">
                     <span></span>
                     <span ng-bind="i18n.__('Sign in to start your session')"></span>
-                    <terrama2-countries-list language="{{ '{[ userLocale ]}' || 'us' }}"></terrama2-countries-list>
+                    <terrama2-countries-list language="{{ '{[ userLocale ]}' || 'br' }}"></terrama2-countries-list>
                 </div>
 
                 <div class="alert alert-danger" style="display: {[ divDisplay ]}">

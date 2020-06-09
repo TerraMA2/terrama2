@@ -10,6 +10,9 @@ function valid()
   fi
 }
 
+chmod 755 -R @TERRAMA2_DESTINATION@
+chown $USER:$USER -R @TERRAMA2_DESTINATION@
+
 printf "Post-installation script...\n"
 
 # npm install yarn -g
@@ -32,6 +35,16 @@ printf "Post-installation script...\n"
   valid $? "Error executing grunt.\n"
 
   chmod +x bin/webapp-stop.js
+  chmod 755 bin/webapp-stop.js
+
+  #
+  # Create default config files
+  #
+
+  cd @TERRAMA2_DESTINATION@webapp/config
+  if ! [ -f "settings.json" ]; then
+    cp -a settings.json.example settings.json
+  fi
 )
 
 (
@@ -45,6 +58,15 @@ printf "Post-installation script...\n"
   valid $? "Unable to install NodeJs dependencies."
   npm run grunt
   valid $? "Error executing grunt."
+
+  #
+  # Create default config files
+  #
+
+  cd @TERRAMA2_DESTINATION@webapp/config
+  if ! [ -f "db.json" ]; then
+    cp -a db.json.example db.json
+  fi
 )
 
 (
@@ -62,21 +84,14 @@ printf "Post-installation script...\n"
 
   npm run grunt
   valid $? "Error executing grunt."
-)
 
-#
-# Create default config files
-#
-(
-  cd @TERRAMA2_DESTINATION@webapp/config
-  if ! [ -d "instances" ]; then
-    cp -r sample_instances instances
-  fi
-)
-(
+  #
+  # Create default config files
+  #
+
   cd @TERRAMA2_DESTINATION@webmonitor/config
   if ! [ -d "instances" ]; then
-    cp -r sample_instances instances
+    cp -a sample_instances instances
   fi
 )
 

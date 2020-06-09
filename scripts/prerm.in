@@ -6,6 +6,8 @@
 
 (
   cd @TERRAMA2_DESTINATION@webapp/bin
+  chmod +x ./webapp-stop.js
+  chmod 755 webapp-stop.js
   ./webapp-stop.js
 )
 

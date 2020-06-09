@@ -90,7 +90,28 @@ PostgisRequest.prototype.get = function (){
               query = "SELECT DISTINCT " + self.params.columnName + " FROM public." + self.params.tableName + " WHERE "+ self.params.tableName + " IS NOT NULL order by " + self.params.columnName + ";";
               break;
           case PostGISObjects.VIEWS:
-              query = "SELECT table_name FROM information_schema.views WHERE table_name NOT IN ('geography_columns', 'geometry_columns') AND table_schema='public';";
+              query = "SELECT table_name FROM information_schema.views WHERE table_name NOT IN ('geography_columns', 'geometry_columns', 'raster_columns', 'raster_overviews') AND table_schema='public';";
+              break;
+          case PostGISObjects.COLUMNVIEW:
+              query = "SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='" + self.params.tableName + "';";
+              break;
+          case PostGISObjects.VALUEVIEW:
+              query = "SELECT DISTINCT " + self.params.columnName + " FROM public." + self.params.tableName + " WHERE "+ self.params.tableName + " IS NOT NULL order by " + self.params.columnName + ";";
+              break;
+          case PostGISObjects.IDCOLUMN:
+              query = "SELECT c.column_name FROM information_schema.key_column_usage AS c LEFT JOIN information_schema.table_constraints AS t ON t.constraint_name = c.constraint_name WHERE t.table_name = '"+ self.params.tableName +"' AND t.constraint_type = 'PRIMARY KEY';";
+              break;
+          case PostGISObjects.GETTYPES:
+              query = "SELECT DISTINCT \
+                          g.column_name, \
+                          g.udt_name \
+                      FROM \
+                          information_schema.columns as g JOIN \
+                          geometry_columns AS f \
+                              ON (g.table_schema = f.f_table_schema and g.table_name = f.f_table_name ) \
+                      WHERE \
+                          table_schema = 'public' and \
+                          table_name = '"+ self.params.tableName +"';"
               break;
           default:
             return reject(new GetObjectError("Invalid object to query"));
