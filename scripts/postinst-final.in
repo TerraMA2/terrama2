@@ -116,7 +116,7 @@ fi
 
   pm2 start npm --name webapp -- start
   valid $? "Error executing webapp."
-  save
+  pm2 save
   valid $? "Error saving pm2 state."
 )
 
