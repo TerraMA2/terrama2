@@ -10,6 +10,10 @@ function valid()
   fi
 }
 
+mkdir @TERRAMA2_DESTINATION@/webapp/node_modules
+mkdir @TERRAMA2_DESTINATION@/webcomponents/node_modules
+mkdir @TERRAMA2_DESTINATION@/webmonitor/node_modules
+
 chmod 755 -R @TERRAMA2_DESTINATION@
 chown 1000:1000 -R @TERRAMA2_DESTINATION@
 
@@ -25,7 +29,7 @@ printf "Post-installation script...\n"
   #
   # Install web dependencies
   #
-  ${INSTALL_COMMAND} add grunt
+  ${INSTALL_COMMAND} install grunt
   valid $? "Unable to install Grunt."
 
   ${INSTALL_COMMAND} install
@@ -130,6 +134,8 @@ fi
   pm2 save
   valid $? "Error saving pm2 state."
 )
+
+sudo chown -R 1000:1000 /home/$(id -gn 1000)/.config
 
 printf "End post-installation script...\n\n"
 
