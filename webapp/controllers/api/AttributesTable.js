@@ -113,17 +113,18 @@
         let {
           datasetId
         } = request.body
-
+        var res = "";
         const conn = new Connection(URI);
         await conn.connect();
         var sql = `
           UPDATE terrama2.data_set_formats
           SET value = '[]'
-          WHERE data_set_id = '${datasetId}' AND key = 'attributes';
-          UPDATE terrama2.data_set_formats
+          WHERE data_set_id = '${datasetId}' AND key = 'attributes';`;
+        await conn.execute(sql);
+
+        sql = `UPDATE terrama2.data_set_formats
           SET value = 0
-          WHERE data_set_id = '${datasetId}' AND key = 'updated';
-        `;
+          WHERE data_set_id = '${datasetId}' AND key = 'updated';`;
         await conn.execute(sql);
         await conn.disconnect();
         response.json({'status':200})
