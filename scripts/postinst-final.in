@@ -29,13 +29,11 @@ printf "Post-installation script...\n"
   #
   # Install web dependencies
   #
-  ${INSTALL_COMMAND} install grunt
-  valid $? "Unable to install Grunt."
 
-  ${INSTALL_COMMAND} install
+  sudo -u $(id -gn 1000) ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
 
-  npm run grunt
+  sudo -u $(id -gn 1000) npm run grunt
   valid $? "Error executing grunt.\n"
 
   chmod +x bin/webapp-stop.js
@@ -55,12 +53,9 @@ printf "Post-installation script...\n"
   printf "Webcomponents dependencies...\n"
   cd @TERRAMA2_DESTINATION@webcomponents
 
-  ${INSTALL_COMMAND} add grunt
-  valid $? "Unable to install Grunt."
-
-  ${INSTALL_COMMAND} install
+  sudo -u $(id -gn 1000) ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
-  npm run grunt
+  sudo -u $(id -gn 1000) npm run grunt
   valid $? "Error executing grunt."
 
   #
@@ -80,13 +75,11 @@ printf "Post-installation script...\n"
   #
   # Install web dependencies
   #
-  ${INSTALL_COMMAND} add grunt
-  valid $? "Unable to install Grunt."
 
-  ${INSTALL_COMMAND} install
+  sudo -u $(id -gn 1000) ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
 
-  npm run grunt
+  sudo -u $(id -gn 1000) npm run grunt
   valid $? "Error executing grunt."
 
   #
@@ -100,11 +93,11 @@ printf "Post-installation script...\n"
 )
 
 # Check if pm2 is already installed
-npm list pm2 -g
+sudo -u $(id -gn 1000) npm list pm2 -g
 if [ $? != 0 ]; then
   printf "Configuring pm2...\n"
   # Install pm2
-  npm install pm2 -g
+  sudo -u $(id -gn 1000) npm install pm2 -g
   valid $? "Error installing pm2."
   pm2 install pm2-logrotate
   valid $? "Error installing pm2-logrotate."
@@ -135,7 +128,7 @@ fi
   valid $? "Error saving pm2 state."
 )
 
-sudo chown -R 1000:1000 /home/$(id -gn 1000)/.config
+chown -R 1000:1000 /home/$(id -gn 1000)/.config
 
 printf "End post-installation script...\n\n"
 
