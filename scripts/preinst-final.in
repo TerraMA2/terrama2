@@ -15,8 +15,6 @@ apt-get install -y cmake git libquazip-dev unzip screen openssh-server doxygen s
 mkdir $HOME/.ssh
 ssh-keygen -t rsa -b 4096 -C "terrama2-team@dpi.inpe.br" -N "" -f $HOME/.ssh/id_rsa
 
-sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres'"
-
 printf "End pre-installation script...\n\n"
 
 exit 0
