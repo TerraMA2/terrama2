@@ -15,8 +15,6 @@ apt-get install -y cmake git libquazip-dev unzip screen openssh-server doxygen s
 mkdir $HOME/.ssh
 ssh-keygen -t rsa -b 4096 -C "terrama2-team@dpi.inpe.br" -N "" -f $HOME/.ssh/id_rsa
 
-chmod 755 -R @TERRAMA2_DESTINATION@
-
 printf "End pre-installation script...\n\n"
 
 exit 0
