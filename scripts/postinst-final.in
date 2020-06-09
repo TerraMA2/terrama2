@@ -101,6 +101,7 @@ if [ $? != 0 ]; then
   # Install pm2
   npm install pm2 -g
   valid $? "Error installing pm2."
+  chown 1000:1000 /home/$(id -gn 1000)/.pm2
   pm2 install pm2-logrotate
   valid $? "Error installing pm2-logrotate."
   # Allows the service to start with the system
@@ -111,22 +112,22 @@ fi
 # Add webapp to pm2 startup
 (
   cd @TERRAMA2_DESTINATION@webapp
-  sudo -u $(id -gn 1000) pm2 delete webapp
+  pm2 delete webapp
 
-  sudo -u $(id -gn 1000) pm2 start npm --name webapp -- start
+  pm2 start npm --name webapp -- start
   valid $? "Error executing webapp."
-  sudo -u $(id -gn 1000) pm2 save
+  save
   valid $? "Error saving pm2 state."
 )
 
 # Add webmonitor to pm2 startup
 (
   cd @TERRAMA2_DESTINATION@webmonitor
-  sudo -u $(id -gn 1000) pm2 delete webmonitor
+  delete webmonitor
 
-  sudo -u $(id -gn 1000) pm2 start npm --name webmonitor -- start
+  pm2 start npm --name webmonitor -- start
   valid $? "Error executing webmonitor."
-  sudo -u $(id -gn 1000) pm2 save
+  pm2 save
   valid $? "Error saving pm2 state."
 )
 
