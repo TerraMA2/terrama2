@@ -44,6 +44,7 @@
 #include "../../../core/utility/Timer.hpp"
 #include "../../../core/utility/TimeUtils.hpp"
 #include "../../../core/utility/Logger.hpp"
+#include "../../../core/utility/TimeUtils.hpp"
 #include "../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../core/utility/DataStoragerFactory.hpp"
 #include "../../../core/utility/ServiceManager.hpp"
@@ -344,7 +345,13 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
       logger->log(CollectorLogger::MessageType::WARNING_MESSAGE, finalAliasLost, executionPackage.registerId);
     }
 
-    logger->result(status, lastDateTime, executionPackage.registerId);
+    std::string collectType = inputDataSeries->semantics.name;
+    if(collectType == "DCP - CSV custom"){
+       // CASO SEJA UM DADO DE DCP CUSTOM (VARIAS PCDS) SALVAR O HORARIO DA COLETA EM UTC
+       logger->result(status, processingStartTime, executionPackage.registerId);
+    } else{
+       logger->result(status, lastDateTime, executionPackage.registerId);
+    }
 
     QJsonObject jsonAnswer;
     // only execute linked automatic process if finished successfully
