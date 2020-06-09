@@ -2293,6 +2293,8 @@ define([], function() {
             format.updated = 0;
             if($scope.update){
               format.updated = 1;
+            }else{
+              format.attributes = [];
             }
 
             if ($scope.semanticsCode === 'STATIC_DATA-VIEW-postgis'){
