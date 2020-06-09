@@ -347,15 +347,17 @@ define([], function() {
 
       // update mode
       $scope.isUpdating = Object.keys(inputDataSeries).length > 0;
+      $scope.update = true;
       $scope.hasCollector = Object.keys(outputDataseries).length > 0;
       $scope.storeOptions.isUpdating = $scope.isUpdating;
       $scope.storeOptions.hasCollector = $scope.hasCollector;
 
       if($scope.isUpdating){
-        if(inputDataSeries.dataSets[0].format.hasOwnProperty('updated') && inputDataSeries.dataSets[0].format.updated == 1){
+        if(inputDataSeries.dataSets[0].format.hasOwnProperty('updated') && inputDataSeries.dataSets[0].format.updated === "1"){
           $scope.wizard.attributes.message = i18n.__("Remove attributes configuration");
           $scope.wizard.attributes.disabled = false;
           $scope.wizard.attributes.error = false;
+          $scope.update = false;
         }
       }
 
@@ -2289,7 +2291,7 @@ define([], function() {
             }
             
             format.updated = 0;
-            if($scope.isUpdating){
+            if($scope.update){
               format.updated = 1;
             }
 
