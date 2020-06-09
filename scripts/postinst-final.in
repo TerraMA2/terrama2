@@ -1,0 +1,136 @@
+#!/bin/bash
+
+INSTALL_COMMAND="npm"
+
+function valid()
+{
+  if [ $1 -ne 0 ]; then
+    printf "$2\n"
+    exit 1
+  fi
+}
+
+chmod 755 -R @TERRAMA2_DESTINATION@
+chown $USER:$USER -R @TERRAMA2_DESTINATION@
+
+printf "Post-installation script...\n"
+
+# npm install yarn -g
+# valid $? "Unable to install Yarn."
+
+(
+  printf "Webapp dependencies...\n"
+  cd @TERRAMA2_DESTINATION@webapp
+
+  #
+  # Install web dependencies
+  #
+  ${INSTALL_COMMAND} add grunt
+  valid $? "Unable to install Grunt."
+
+  ${INSTALL_COMMAND} install
+  valid $? "Unable to install NodeJs dependencies."
+
+  npm run grunt
+  valid $? "Error executing grunt.\n"
+
+  chmod +x bin/webapp-stop.js
+  chmod 755 bin/webapp-stop.js
+
+  #
+  # Create default config files
+  #
+
+  cd @TERRAMA2_DESTINATION@webapp/config
+  if ! [ -f "settings.json" ]; then
+    cp -a settings.json.example settings.json
+  fi
+)
+
+(
+  printf "Webcomponents dependencies...\n"
+  cd @TERRAMA2_DESTINATION@webcomponents
+
+  ${INSTALL_COMMAND} add grunt
+  valid $? "Unable to install Grunt."
+
+  ${INSTALL_COMMAND} install
+  valid $? "Unable to install NodeJs dependencies."
+  npm run grunt
+  valid $? "Error executing grunt."
+
+  #
+  # Create default config files
+  #
+
+  cd @TERRAMA2_DESTINATION@webapp/config
+  if ! [ -f "db.json" ]; then
+    cp -a db.json.example db.json
+  fi
+)
+
+(
+  printf "Webmonitor dependencies...\n"
+  cd @TERRAMA2_DESTINATION@webmonitor
+
+  #
+  # Install web dependencies
+  #
+  ${INSTALL_COMMAND} add grunt
+  valid $? "Unable to install Grunt."
+
+  ${INSTALL_COMMAND} install
+  valid $? "Unable to install NodeJs dependencies."
+
+  npm run grunt
+  valid $? "Error executing grunt."
+
+  #
+  # Create default config files
+  #
+
+  cd @TERRAMA2_DESTINATION@webmonitor/config
+  if ! [ -d "instances" ]; then
+    cp -a sample_instances instances
+  fi
+)
+
+# Check if pm2 is already installed
+npm list pm2 -g
+if [ $? != 0 ]; then
+  printf "Configuring pm2...\n"
+  # Install pm2
+  npm install pm2 -g
+  valid $? "Error installing pm2."
+  pm2 install pm2-logrotate
+  valid $? "Error installing pm2-logrotate."
+  # Allows the service to start with the system
+  env PATH=$PATH:/usr/local/bin pm2 startup
+  valid $? "Error adding pm2 to startup."
+fi
+
+# Add webapp to pm2 startup
+(
+  cd @TERRAMA2_DESTINATION@webapp
+  pm2 delete webapp
+
+  pm2 start npm --name webapp -- start
+  valid $? "Error executing webapp."
+  pm2 save
+  valid $? "Error saving pm2 state."
+)
+
+# Add webmonitor to pm2 startup
+(
+  cd @TERRAMA2_DESTINATION@webmonitor
+  pm2 delete webmonitor
+
+  pm2 start npm --name webmonitor -- start
+  valid $? "Error executing webmonitor."
+  pm2 save
+  valid $? "Error saving pm2 state."
+)
+
+printf "End post-installation script...\n\n"
+
+exit 0
