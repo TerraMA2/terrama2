@@ -551,7 +551,7 @@ if(APPLE)
 elseif(UNIX)
   configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/config_pm2.sh.in
                  ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/config_pm2.sh @ONLY)
-  if(EXISTS "${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/preinst")
+  if(EXISTS "${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/preinst.in")
     configure_file(${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/preinst.in
                   ${TERRAMA2_ABSOLUTE_ROOT_DIR}/scripts/preinst @ONLY)
   endif()
