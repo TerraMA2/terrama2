@@ -2291,6 +2291,7 @@ define([], function() {
             }
             
             format.updated = 0;
+            
             if($scope.update){
               format.updated = 1;
             }else{
