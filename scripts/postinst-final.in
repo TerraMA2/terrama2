@@ -101,7 +101,7 @@ if [ $? != 0 ]; then
   # Install pm2
   npm install pm2 -g
   valid $? "Error installing pm2."
-  sudo -u $(id -gn 1000) pm2 install pm2-logrotate
+  pm2 install pm2-logrotate
   valid $? "Error installing pm2-logrotate."
   # Allows the service to start with the system
   env PATH=$PATH:/usr/local/bin pm2 startup
@@ -131,6 +131,7 @@ fi
 )
 
 chown -R 1000:1000 /home/$(id -gn 1000)/.config
+chown -R 1000:1000 /home/$(id -gn 1000)/.npm
 
 printf "End post-installation script...\n\n"
 
