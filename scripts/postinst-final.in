@@ -11,7 +11,7 @@ function valid()
 }
 
 chmod 755 -R @TERRAMA2_DESTINATION@
-chown $USER:$USER -R @TERRAMA2_DESTINATION@
+chown 1000:1000 -R @TERRAMA2_DESTINATION@
 
 printf "Post-installation script...\n"
 
