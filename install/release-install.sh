@@ -9,7 +9,7 @@ sudo sh -c "echo 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main'
 wget -qO- https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
 
 sudo apt-get update
-sudo apt-get install -y cmake git libquazip-dev unzip screen openssh-server doxygen supervisor locales libgsasl7 postgresql-11-postgis-2.5 postgresql-server-dev-11 nodejs python-psycopg2 gdal-bin
+sudo apt-get install -y cmake git libquazip-dev unzip screen openssh-server doxygen supervisor locales libgsasl7 postgresql-11-postgis-2.5 postgresql-server-dev-11 nodejs python-psycopg2 gdal-bin openjdk-8-jdk
 mkdir $HOME/.ssh
 ssh-keygen -t rsa -b 4096 -C "terrama2-team@dpi.inpe.br" -N "" -f $HOME/.ssh/id_rsa
 
@@ -42,5 +42,3 @@ then
 fi
 
 sudo dpkg -i terrama2-doc-4.1.0.deb
-
-sudo apt install -f

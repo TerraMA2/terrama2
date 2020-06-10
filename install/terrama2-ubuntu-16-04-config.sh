@@ -50,37 +50,43 @@ echo "* Installing packages *"
 echo "***********************"
 echo ""
 
-sudo apt-get install -y curl libcurl3-dev
+sudo apt-get install -y apt-transport-https software-properties-common ca-certificates gnupg-agent
 
 if type -P psql >/dev/null; then
     echo "Postgresql already installed"
 else
-    sudo touch /etc/apt/sources.list.d/pgdg.list
     sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-    curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+    wget -qO- https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+    sudo apt-get update
+    sudo apt-get install -y postgresql-server-dev-11 postgresql-11-postgis-2.5 pgadmin4
 fi
 
 if type -P code >/dev/null; then
     echo "VS Code already installed"
 else
-    curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+    wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
     sudo install -o root -g root -m 644 microsoft.gpg /etc/apt/trusted.gpg.d/
     sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
     rm -f microsoft.gpg
+    sudo apt-get update
+    sudo apt-get install -y code
 fi
 
 if type -P node >/dev/null; then
     echo "Nodejs already installed"
 else
-    curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+    wget -qO- https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo apt-key add -
+    sudo sh -c "echo 'deb https://deb.nodesource.com/node_8.x xenial main' > /etc/apt/sources.list.d/nodesource.list"
+    sudo sh -c "echo 'deb-src https://deb.nodesource.com/node_8.x xenial main' >> /etc/apt/sources.list.d/nodesource.list"
+    sudo apt-get update
+    sudo apt-get install -y nodejs
 fi
 
 sudo apt-get update
 
-sudo apt-get install -y qtcreator curl unzip locales supervisor libcurl3-dev nodejs libpython2.7-dev libproj-dev libgeos++-dev \
+sudo apt-get install -y qtcreator curl unzip locales supervisor libcurl3-dev libpython2.7-dev libproj-dev libgeos++-dev \
 libssl-dev libxerces-c-dev screen doxygen graphviz gnutls-bin gsasl libgsasl7 libghc-gsasl-dev libgnutls-dev zlib1g-dev \
-debhelper devscripts git ssh openssh-server libpq-dev code openjdk-8-jdk build-essential \
-postgresql-11-postgis-2.5 postgis postgresql-server-dev-11 pgadmin4 python-psycopg2
+debhelper devscripts git ssh openssh-server libpq-dev openjdk-8-jdk build-essential python-psycopg2
 
 export PATH=$PATH:/usr/lib/node_modules/npm/bin
 
@@ -91,6 +97,8 @@ sudo chmod 755 -R /home/$USER/.npm
 sudo chown $USER:$USER -R /home/$USER/.npm
 
 export PATH=$PATH:/usr/lib/node_modules/grunt-cli/bin
+
+sudo service postgresql start
 
 sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres'"
 
@@ -179,8 +187,8 @@ cd $TERRAMA_CODEBASE_PATH/webapp/
 npm install
 grunt
 cd config
-cp db.json.example db.json
-cp settings.json.example settings.json
+cp -a db.json.example db.json
+cp -a settings.json.example settings.json
 
 echo "### Webcomponents... ###"
 
@@ -194,7 +202,7 @@ cd $TERRAMA_CODEBASE_PATH/webmonitor/
 npm install
 grunt
 cd config/
-cp -r sample_instances instances/
+cp -a sample_instances instances/
 
 echo "### Installing Geoserver... ###"
 
@@ -203,7 +211,7 @@ cd /home/${USER}
 if test -d "geoserver-2.12.5"; then
     echo "Geoserver already installed"
 else 
-    wget -c https://ufpr.dl.sourceforge.net/project/geoserver/GeoServer/2.12.5/geoserver-2.12.5-bin.zip
+    wget -O geoserver-2.12.5-bin.zip -L https://ufpr.dl.sourceforge.net/project/geoserver/GeoServer/2.12.5/geoserver-2.12.5-bin.zip
     unzip geoserver-2.12.5-bin.zip
     rm -f geoserver-2.12.5-bin.zip
 fi
@@ -215,7 +223,7 @@ alias monitor-start=\"cd ~/mydevel/terrama2/codebase/webmonitor;npm start\"" >> 
 
 source ~/.bashrc
 
-cp -r $CURRENT_DIR/.vscode/ $TERRAMA_CODEBASE_PATH
+cp -a $CURRENT_DIR/.vscode/ $TERRAMA_CODEBASE_PATH
 
 sudo apt-get autoremove
 

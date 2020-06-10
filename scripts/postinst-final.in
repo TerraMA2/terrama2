@@ -10,6 +10,11 @@ function valid()
   fi
 }
 
+cd @TERRAMA2_DESTINATION@
+
+sudo wget -qO geoserver-2.12.5-bin.zip -L https://ufpr.dl.sourceforge.net/project/geoserver/GeoServer/2.12.5/geoserver-2.12.5-bin.zip
+sudo unzip geoserver-2.12.5-bin.zip
+
 mkdir @TERRAMA2_DESTINATION@/webapp/node_modules
 mkdir @TERRAMA2_DESTINATION@/webcomponents/node_modules
 mkdir @TERRAMA2_DESTINATION@/webmonitor/node_modules
@@ -17,12 +22,9 @@ mkdir @TERRAMA2_DESTINATION@/webmonitor/node_modules
 chmod 755 -R @TERRAMA2_DESTINATION@
 chown 1000:1000 -R @TERRAMA2_DESTINATION@
 
-sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres'"
-
 printf "Post-installation script...\n"
 
-# npm install yarn -g
-# valid $? "Unable to install Yarn."
+sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres'"
 
 (
   printf "Webapp dependencies...\n"
@@ -123,7 +125,7 @@ fi
 # Add webmonitor to pm2 startup
 (
   cd @TERRAMA2_DESTINATION@webmonitor
-  delete webmonitor
+  pm2 delete webmonitor
 
   pm2 start npm --name webmonitor -- start
   valid $? "Error executing webmonitor."
@@ -131,8 +133,21 @@ fi
   valid $? "Error saving pm2 state."
 )
 
+# Add geoserver to pm2 startup
+
+(
+  cd @TERRAMA2_DESTINATION@geoserver-2.12.5/bin
+  pm2 delete geoserver
+
+  pm2 start startup.sh --name geoserver -- start
+  valid $? "Error executing geoserver."
+  pm2 save
+  valid $? "Error saving pm2 state."
+)
+
 chown -R 1000:1000 /home/$(id -gn 1000)/.config
 chown -R 1000:1000 /home/$(id -gn 1000)/.npm
+sudo chown -R 1000:1000 /home/marcelo/.pm2
 
 printf "End post-installation script...\n\n"
 
