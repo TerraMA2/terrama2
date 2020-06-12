@@ -147,7 +147,6 @@ fi
 
 chown -R 1000:1000 /home/$(id -gn 1000)/.config
 chown -R 1000:1000 /home/$(id -gn 1000)/.npm
-sudo chown -R 1000:1000 /home/marcelo/.pm2
 
 printf "End post-installation script...\n\n"
 
