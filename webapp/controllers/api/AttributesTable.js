@@ -29,14 +29,17 @@
         const conn = new Connection(URI);
         await conn.connect();
         let sql = "";
-        sql = `
-          SELECT data_set_id
-          FROM  terrama2.data_set_formats
-          WHERE key = 'table_name' AND value='${tableName}';
-        `;
+        let rows = [];
+        if (tableName != "") {
+          sql = `
+            SELECT data_set_id
+            FROM  terrama2.data_set_formats
+            WHERE key = 'table_name' AND value='${tableName}';
+          `;
+          const result = await conn.execute(sql)
+          rows = result.rows
+        }
 
-        const result = await conn.execute(sql)
-        let rows = result.rows
         await conn.disconnect();
         response.json(rows)
       },
