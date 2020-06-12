@@ -25,11 +25,13 @@ printf "Post-installation script...\n"
   #
   # Install web dependencies
   #
+  ${INSTALL_COMMAND} add grunt
+  valid $? "Unable to install Grunt."
 
-  sudo -u $(id -gn 1000) ${INSTALL_COMMAND} install
+  ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
 
-  sudo -u $(id -gn 1000) npm run grunt
+  npm run grunt
   valid $? "Error executing grunt.\n"
 
   chmod +x bin/webapp-stop.js
@@ -49,9 +51,12 @@ printf "Post-installation script...\n"
   printf "Webcomponents dependencies...\n"
   cd @TERRAMA2_DESTINATION@webcomponents
 
-  sudo -u $(id -gn 1000) ${INSTALL_COMMAND} install
+  ${INSTALL_COMMAND} add grunt
+  valid $? "Unable to install Grunt."
+
+  ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
-  sudo -u $(id -gn 1000) npm run grunt
+  npm run grunt
   valid $? "Error executing grunt."
 
   #
@@ -71,11 +76,13 @@ printf "Post-installation script...\n"
   #
   # Install web dependencies
   #
+  ${INSTALL_COMMAND} add grunt
+  valid $? "Unable to install Grunt."
 
-  sudo -u $(id -gn 1000) ${INSTALL_COMMAND} install
+  ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
 
-  sudo -u $(id -gn 1000) npm run grunt
+  npm run grunt
   valid $? "Error executing grunt."
 
   #
@@ -87,9 +94,6 @@ printf "Post-installation script...\n"
     cp -a sample_instances instances
   fi
 )
-
-chmod 755 -R @TERRAMA2_DESTINATION@
-chown 1000:1000 -R @TERRAMA2_DESTINATION@
 
 printf "End post-installation script...\n\n"
 
