@@ -11,7 +11,7 @@ function valid()
 }
 
 chmod 755 -R @TERRAMA2_DESTINATION@
-chown terrama2:terrama2 -R @TERRAMA2_DESTINATION@
+chown 1000:1000 -R @TERRAMA2_DESTINATION@
 
 printf "Post-installation script...\n"
 
@@ -25,13 +25,11 @@ printf "Post-installation script...\n"
   #
   # Install web dependencies
   #
-  ${INSTALL_COMMAND} add grunt
-  valid $? "Unable to install Grunt."
 
-  ${INSTALL_COMMAND} install
+  sudo -u $(id -gn 1000) ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
 
-  npm run grunt
+  sudo -u $(id -gn 1000) npm run grunt
   valid $? "Error executing grunt.\n"
 
   chmod +x bin/webapp-stop.js
@@ -51,12 +49,9 @@ printf "Post-installation script...\n"
   printf "Webcomponents dependencies...\n"
   cd @TERRAMA2_DESTINATION@webcomponents
 
-  ${INSTALL_COMMAND} add grunt
-  valid $? "Unable to install Grunt."
-
-  ${INSTALL_COMMAND} install
+  sudo -u $(id -gn 1000) ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
-  npm run grunt
+  sudo -u $(id -gn 1000) npm run grunt
   valid $? "Error executing grunt."
 
   #
@@ -76,13 +71,11 @@ printf "Post-installation script...\n"
   #
   # Install web dependencies
   #
-  ${INSTALL_COMMAND} add grunt
-  valid $? "Unable to install Grunt."
 
-  ${INSTALL_COMMAND} install
+  sudo -u $(id -gn 1000) ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
 
-  npm run grunt
+  sudo -u $(id -gn 1000) npm run grunt
   valid $? "Error executing grunt."
 
   #
@@ -94,6 +87,9 @@ printf "Post-installation script...\n"
     cp -a sample_instances instances
   fi
 )
+
+chmod 755 -R @TERRAMA2_DESTINATION@
+chown 1000:1000 -R @TERRAMA2_DESTINATION@
 
 printf "End post-installation script...\n\n"
 
