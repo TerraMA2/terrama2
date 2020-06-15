@@ -13,6 +13,9 @@ function valid()
 chmod 755 -R @TERRAMA2_DESTINATION@
 chown 1000:1000 -R @TERRAMA2_DESTINATION@
 
+chown -R 1000:1000 /home/$(id -gn 1000)/.config
+chown -R 1000:1000 /home/$(id -gn 1000)/.npm
+
 printf "Post-installation script...\n"
 
 # npm install yarn -g
@@ -25,9 +28,6 @@ printf "Post-installation script...\n"
   #
   # Install web dependencies
   #
-  ${INSTALL_COMMAND} add grunt
-  valid $? "Unable to install Grunt."
-
   ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
 
