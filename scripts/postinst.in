@@ -10,16 +10,7 @@ function valid()
   fi
 }
 
-chmod 755 -R @TERRAMA2_DESTINATION@
-chown 1000:1000 -R @TERRAMA2_DESTINATION@
-
-chown -R 1000:1000 /home/$(id -gn 1000)/.config
-chown -R 1000:1000 /home/$(id -gn 1000)/.npm
-
 printf "Post-installation script...\n"
-
-# npm install yarn -g
-# valid $? "Unable to install Yarn."
 
 (
   printf "Webapp dependencies...\n"
@@ -28,7 +19,7 @@ printf "Post-installation script...\n"
   #
   # Install web dependencies
   #
-  sudo -u $(id -gn 1000) ${INSTALL_COMMAND} install
+  ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
 
   npm run grunt
@@ -51,7 +42,7 @@ printf "Post-installation script...\n"
   printf "Webcomponents dependencies...\n"
   cd @TERRAMA2_DESTINATION@webcomponents
 
-  sudo -u $(id -gn 1000) ${INSTALL_COMMAND} install
+  ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
   
   npm run grunt
@@ -74,7 +65,7 @@ printf "Post-installation script...\n"
   #
   # Install web dependencies
   #
-  sudo -u $(id -gn 1000) ${INSTALL_COMMAND} install
+  ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
 
   npm run grunt
