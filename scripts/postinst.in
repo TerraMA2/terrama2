@@ -28,7 +28,7 @@ printf "Post-installation script...\n"
   #
   # Install web dependencies
   #
-  ${INSTALL_COMMAND} install
+  sudo -u $(id -gn 1000) ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
 
   npm run grunt
@@ -51,11 +51,9 @@ printf "Post-installation script...\n"
   printf "Webcomponents dependencies...\n"
   cd @TERRAMA2_DESTINATION@webcomponents
 
-  ${INSTALL_COMMAND} add grunt
-  valid $? "Unable to install Grunt."
-
-  ${INSTALL_COMMAND} install
+  sudo -u $(id -gn 1000) ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
+  
   npm run grunt
   valid $? "Error executing grunt."
 
@@ -76,10 +74,7 @@ printf "Post-installation script...\n"
   #
   # Install web dependencies
   #
-  ${INSTALL_COMMAND} add grunt
-  valid $? "Unable to install Grunt."
-
-  ${INSTALL_COMMAND} install
+  sudo -u $(id -gn 1000) ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
 
   npm run grunt
