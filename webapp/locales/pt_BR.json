@@ -1028,7 +1028,7 @@
 	"View": "Visualização",
 	"View Data Series": "Séries de Dados de Visualizações",
 	"View Description": "Descrição da Visualização",
-	"View Name": "Nome da Visualização",
+	"View Name": "Nome da Visão",
 	"View Registration": "Registro de Visualização",
 	"View Service": "Serviço de Visualização",
 	"View Service is required": "Serviço de Visualização é obrigatório",
@@ -1192,5 +1192,17 @@
 	"View is valid, the query returned 1541 registers": "View is valid, the query returned 1541 registers",
 	"e": {
 		"data is null": "e.data is null"
-	}
+	},
+	"Máscara": "Máscara",
+	"Fuso horário": "Fuso horário",
+	"Projeção (SRID)": "Projeção (SRID)",
+	"Número de Camadas": "Número de Camadas",
+	"Intervalo de tempo": "Intervalo de tempo",
+	"Unidade de tempo": "Unidade de tempo",
+	"Máscara inválida": "Máscara inválida",
+	"Preenchimento obrigatório": "Preenchimento obrigatório",
+	"O valor não é um número válido": "O valor não é um número válido",
+	"Minutos": "Minutos",
+	"Horas": "Horas",
+	"Dias": "Dias"
 }

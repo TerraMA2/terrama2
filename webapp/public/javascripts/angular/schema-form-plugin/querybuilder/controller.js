@@ -67,14 +67,19 @@ define([], () => {
         this.listToUpdate = this.listToUpdate.map(e => { return e.trim() });
 
       }
+
       if(this.loadAttr && $("#table_name").val()){
         this.loadAttributes();
         this.loadAttr = false;
       }
+
       if(this.table_name !== $("#table_name").val()){
         this.isDisable = false;
         this.inputTableAttributes = {};
+        this.listInputLayersSelected = [];
         this.listOutputLayersSelected = [];
+        this.geometryColumn = 0;
+        this.loadAttributes();
       }
 
       if(res){
@@ -319,7 +324,6 @@ define([], () => {
           }
         });
       }
-      
       this.updateInputAttributes();
     }
 
@@ -424,19 +428,42 @@ define([], () => {
               if (response.data.status == 400){
                 return result.reject(response.data);
               }
-  
+
+              var listNumbersType = ['numeric', 'bigint', 'integer', 'int', 'int2', 'int4', 'int8', 'float4', 'float8', 'serial', 'serial2', 'serial8'];
+              var listGeomType = ['geom', 'geometry', 'string:geom'];
+              var listTextType = ['varchar', 'text', 'char', 'cstring'];
+              var listDateType = ['date', 'timestamptz', 'timestamp', 'timetz']
+
               var attributes = response.data.data.map((e) =>{
-                if(e.udt_name == 'geom' || e.udt_name == "geometry" || e.udt_name == "string:geom"){
+
+                if(listGeomType.includes(e.udt_name)){
                   _this.geometryColumn++;
                   if(_this.geometryColumn > 1){
                     return {'column_name': e.column_name, 'icon':'fa fa-cubes', 'type':'geom_1'}
                   }
                   return {'column_name': e.column_name, 'icon':'fa fa-cubes', 'type':'geom'}
-                }else if(!listIds.includes(e.column_name)){
-                  return {'column_name': e.column_name, 'icon':'glyphicon glyphicon-text-background','type':'abc123'}
-                }else{
+                }
+
+                else if(listIds.includes(e.column_name)){
                   return {'column_name': e.column_name, 'icon':'fa fa-key','type':'pk'}
                 }
+
+                else if(listNumbersType.includes(e.udt_name)){
+                  return {'column_name': e.column_name, 'icon':'fa fa-sort-numeric-desc','type':'abc123'}
+                }
+
+                else if(listTextType.includes(e.udt_name)){
+                  return {'column_name': e.column_name, 'icon':'glyphicon glyphicon-text-background','type':'abc123'}
+                }
+
+                else if(listDateType.includes(e.udt_name)){
+                  return {'column_name': e.column_name, 'icon':'glyphicon glyphicon-calendar','type':'abc123'}
+                }
+
+                else {
+                  return {'column_name': e.column_name, 'icon':'glyphicon glyphicon-text-background','type':'abc123'}
+                }
+                
               });
               
               _this.listTableAttributes = attributes.slice();

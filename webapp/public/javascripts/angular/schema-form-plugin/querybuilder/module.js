@@ -14,7 +14,12 @@ define([
           padding:0px;
           position:absolute;
           margin-top:-20px;
-          z-index:99;
+          z-index:99; 
+        }
+        @font-face{
+          font-family: icomoon;
+          src: url('../../../../fonts/icomoon.woff2') format('woff2'),
+               url('../../../../fonts/icomoon.woff') format('woff');
         }
       </style>
       <div class="form-group {{form.htmlClass}}" ng-class="{'has-error': hasError(), 'has-success': hasSuccess(), 'has-feedback': form.feedback !== false}" sytle="margin-top:10px" ng-controller="QueryBuilderController as ctrl">
@@ -46,9 +51,9 @@ define([
 
             <div class="col-md-1 col-xs-1" style="padding:33px" ng-show="ctrl.getTableName()">
             <div class="row">
-                <button type="button" ng-disabled="ctrl.isDisable" data-toggle="tooltip" data-placement="top" title="{{ ctrl.loadAttributesLabel }}" ng-click="ctrl.loadAttributes()" class="btn btn-primary ng-binding align-buttons">
+                <!--<button type="button" ng-disabled="ctrl.isDisable" data-toggle="tooltip" data-placement="top" title="{{ ctrl.loadAttributesLabel }}" ng-click="ctrl.loadAttributes()" class="btn btn-primary ng-binding align-buttons">
                   <i class="fa fa-spinner"></i>
-                </button>
+                </button>-->
 
                 <button type="button" data-toggle="tooltip" data-placement="top" title="{{ ctrl.moveRightLabel }}" ng-click="ctrl.moveToRight()" class="btn btn-primary ng-binding align-buttons" style="margin-top:5px">
                   <i class="fa fa-arrow-right"></i>
@@ -95,7 +100,7 @@ define([
                 ng-model="ctrl.attributeFilter"
                 ng-change="ctrl.changeAttribute()">
                 <option ng-repeat="attribute in ctrl.listTableAttributes" data-icon="fa fa-home" value="{{attribute.column_name}}" class="{{ attribute.icon }} align-buttons">
-                  {{attribute.column_name}}
+                {{attribute.column_name}}
                 </option>
               </select>
             </div>
