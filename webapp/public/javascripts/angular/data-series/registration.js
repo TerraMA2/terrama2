@@ -1253,9 +1253,39 @@ define([], function() {
           url: BASE_URL + 'api/resetAttributes',
           type: "POST",
           data: {
-            'datasetId': inputDataSeries.dataSets[0].id
+            'datasetId': inputDataSeries.dataSets[0].id,
+            'dataProviderId': $scope.dataSeries.data_provider_id,
+            'tableName': $scope.model.table_name
           }
-        }) 
+        });
+
+        $.ajax({
+          url: BASE_URL + 'api/attributesByDataSerie',
+          type: "GET",
+          async: false,
+          data: {
+            dataProviderid: $scope.dataSeries.data_provider_id,
+            dataSetid: inputDataSeries.dataSets[0].id
+          }
+        }).done(function(response){
+          if(typeof response !== 'undefined' && typeof response[0] !== 'undefined'){
+            var attributesResponseStr = response[0].value;
+            var attributesJson = JSON.parse(attributesResponseStr);
+            var attr = [];
+            attributesJson.map(element => {
+              attr.push(
+                {
+                  name:element.name,
+                  visible: true,
+                  alias: element.name
+                }
+              );
+    
+            });
+            $scope.model.attributes = attr;
+          } 
+        });
+        
       }
 
       $scope.removeAttribute = function(selected, attributeValue) {
@@ -2294,10 +2324,7 @@ define([], function() {
             
             if($scope.update){
               format.updated = 1;
-            }else{
-              format.attributes = [];
             }
-
             if ($scope.semanticsCode === 'STATIC_DATA-VIEW-postgis'){
               format.listOutputLayersSelected = $scope.attributesSelect;
             }
