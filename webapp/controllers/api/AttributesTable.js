@@ -4,6 +4,7 @@
   var TokenCode = require('../../core/Enums').TokenCode;
   var Utils = require('../../core/Utils');
   var DataManager = require('../../core/DataManager');
+  var DataProvider = require('./DataProvider');
   var {Connection} = require('../../core/utility/connection');
   const env = process.env.NODE_ENV.toLowerCase() ? process.env.NODE_ENV.toLowerCase() : 'production';
   const config = require('../../config/db')[env];
@@ -114,12 +115,17 @@
 
       resetAttributes: async(request, reponse) => {
         let {
-          datasetId
+          datasetId,
+          dataProviderId,
+          tableName
         } = request.body
         var res = "";
+        
         const conn = new Connection(URI);
+
         await conn.connect();
-        var sql = `
+
+        let sql = `
           UPDATE terrama2.data_set_formats
           SET value = '[]'
           WHERE data_set_id = '${datasetId}' AND key = 'attributes';`;
@@ -129,6 +135,7 @@
           SET value = 0
           WHERE data_set_id = '${datasetId}' AND key = 'updated';`;
         await conn.execute(sql);
+
         await conn.disconnect();
         response.json({'status':200})
       }
