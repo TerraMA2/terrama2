@@ -347,15 +347,17 @@ define([], function() {
 
       // update mode
       $scope.isUpdating = Object.keys(inputDataSeries).length > 0;
+      $scope.update = true;
       $scope.hasCollector = Object.keys(outputDataseries).length > 0;
       $scope.storeOptions.isUpdating = $scope.isUpdating;
       $scope.storeOptions.hasCollector = $scope.hasCollector;
 
       if($scope.isUpdating){
-        if(inputDataSeries.dataSets[0].format.hasOwnProperty('updated') && inputDataSeries.dataSets[0].format.updated == 1){
+        if(inputDataSeries.dataSets[0].format.hasOwnProperty('updated') && inputDataSeries.dataSets[0].format.updated === "1"){
           $scope.wizard.attributes.message = i18n.__("Remove attributes configuration");
           $scope.wizard.attributes.disabled = false;
           $scope.wizard.attributes.error = false;
+          $scope.update = false;
         }
       }
 
@@ -1251,9 +1253,39 @@ define([], function() {
           url: BASE_URL + 'api/resetAttributes',
           type: "POST",
           data: {
-            'datasetId': inputDataSeries.dataSets[0].id
+            'datasetId': inputDataSeries.dataSets[0].id,
+            'dataProviderId': $scope.dataSeries.data_provider_id,
+            'tableName': $scope.model.table_name
           }
-        }) 
+        });
+
+        $.ajax({
+          url: BASE_URL + 'api/attributesByDataSerie',
+          type: "GET",
+          async: false,
+          data: {
+            dataProviderid: $scope.dataSeries.data_provider_id,
+            dataSetid: inputDataSeries.dataSets[0].id
+          }
+        }).done(function(response){
+          if(typeof response !== 'undefined' && typeof response[0] !== 'undefined'){
+            var attributesResponseStr = response[0].value;
+            var attributesJson = JSON.parse(attributesResponseStr);
+            var attr = [];
+            attributesJson.map(element => {
+              attr.push(
+                {
+                  name:element.name,
+                  visible: true,
+                  alias: element.name
+                }
+              );
+    
+            });
+            $scope.model.attributes = attr;
+          } 
+        });
+        
       }
 
       $scope.removeAttribute = function(selected, attributeValue) {
@@ -2289,10 +2321,10 @@ define([], function() {
             }
             
             format.updated = 0;
-            if($scope.isUpdating){
+            
+            if($scope.update){
               format.updated = 1;
             }
-
             if ($scope.semanticsCode === 'STATIC_DATA-VIEW-postgis'){
               format.listOutputLayersSelected = $scope.attributesSelect;
             }

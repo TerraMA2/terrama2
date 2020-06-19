@@ -4,6 +4,7 @@
   var TokenCode = require('../../core/Enums').TokenCode;
   var Utils = require('../../core/Utils');
   var DataManager = require('../../core/DataManager');
+  var DataProvider = require('./DataProvider');
   var {Connection} = require('../../core/utility/connection');
   const env = process.env.NODE_ENV.toLowerCase() ? process.env.NODE_ENV.toLowerCase() : 'production';
   const config = require('../../config/db')[env];
@@ -29,14 +30,17 @@
         const conn = new Connection(URI);
         await conn.connect();
         let sql = "";
-        sql = `
-          SELECT data_set_id
-          FROM  terrama2.data_set_formats
-          WHERE key = 'table_name' AND value='${tableName}';
-        `;
+        let rows = [];
+        if (tableName != "") {
+          sql = `
+            SELECT data_set_id
+            FROM  terrama2.data_set_formats
+            WHERE key = 'table_name' AND value='${tableName}';
+          `;
+          const result = await conn.execute(sql)
+          rows = result.rows
+        }
 
-        const result = await conn.execute(sql)
-        let rows = result.rows
         await conn.disconnect();
         response.json(rows)
       },
@@ -111,20 +115,27 @@
 
       resetAttributes: async(request, reponse) => {
         let {
-          datasetId
+          datasetId,
+          dataProviderId,
+          tableName
         } = request.body
-
+        var res = "";
+        
         const conn = new Connection(URI);
+
         await conn.connect();
-        var sql = `
+
+        let sql = `
           UPDATE terrama2.data_set_formats
           SET value = '[]'
-          WHERE data_set_id = '${datasetId}' AND key = 'attributes';
-          UPDATE terrama2.data_set_formats
-          SET value = 0
-          WHERE data_set_id = '${datasetId}' AND key = 'updated';
-        `;
+          WHERE data_set_id = '${datasetId}' AND key = 'attributes';`;
         await conn.execute(sql);
+
+        sql = `UPDATE terrama2.data_set_formats
+          SET value = 0
+          WHERE data_set_id = '${datasetId}' AND key = 'updated';`;
+        await conn.execute(sql);
+
         await conn.disconnect();
         response.json({'status':200})
       }

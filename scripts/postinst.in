@@ -10,13 +10,7 @@ function valid()
   fi
 }
 
-chmod 755 -R @TERRAMA2_DESTINATION@
-chown $USER:$USER -R @TERRAMA2_DESTINATION@
-
 printf "Post-installation script...\n"
-
-# npm install yarn -g
-# valid $? "Unable to install Yarn."
 
 (
   printf "Webapp dependencies...\n"
@@ -25,9 +19,6 @@ printf "Post-installation script...\n"
   #
   # Install web dependencies
   #
-  ${INSTALL_COMMAND} add grunt
-  valid $? "Unable to install Grunt."
-
   ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
 
@@ -51,11 +42,9 @@ printf "Post-installation script...\n"
   printf "Webcomponents dependencies...\n"
   cd @TERRAMA2_DESTINATION@webcomponents
 
-  ${INSTALL_COMMAND} add grunt
-  valid $? "Unable to install Grunt."
-
   ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
+  
   npm run grunt
   valid $? "Error executing grunt."
 
@@ -76,9 +65,6 @@ printf "Post-installation script...\n"
   #
   # Install web dependencies
   #
-  ${INSTALL_COMMAND} add grunt
-  valid $? "Unable to install Grunt."
-
   ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
 

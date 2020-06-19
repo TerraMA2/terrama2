@@ -424,6 +424,28 @@ define(
             $("#projects").val($('#projects option').filter(function () { return $(this).html() == defaultProject; }).val());
           }
         }
+        $(document).ready(function(){
+          $('[data-toggle="popover"]').popover({
+            delay: {
+              "show": 1000,
+              "hide": 200 
+            },
+            trigger: "hover",
+            placement: "auto",
+            container: "body"
+          });
+          $('[data-toggle="tooltip"]').tooltip();
+        });
+        var links = document.getElementsByClassName("layer");
+        for (var i = 0; i < links.length; i++) {
+          links[i]._title = links[i].title;
+          links[i].onmouseover = function() { 
+              this.title = '';
+          }
+          links[i].onmouseout = function() { 
+              this.title = this._title;
+          }
+        }
       });
 
       // Checking map server connection response
@@ -941,6 +963,15 @@ define(
     };
 
     var init = function() {
+
+        $('[data-toggle="popover"]').popover({
+          delay: {
+            "show": 1000,
+            "hide": 200 
+          },
+          trigger: "hover"
+        });
+        $('[data-toggle="tooltip"]').tooltip();
 
       if(message != "") {
         $("#terrama2Alert > p > strong").text('');
