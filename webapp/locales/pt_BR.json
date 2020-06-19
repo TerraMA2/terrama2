@@ -305,6 +305,7 @@
 	"DataProviderError: Could not save data provider due: project_id must be unique; name must be unique;  project_id: project_id must be unique,\nname: name must be unique": "Não foi possível salvar o servidor de dados, já existe um registro com o nome inserido, e o nome deve ser único.",
 	"Date": "Data",
 	"Date (local time)": "Data (horário local)",
+	"Date (GMT time)": "Data (horário GMT)",
 	"Date Time": "Data Hora",
 	"Days": "Dias",
 	"Days Without Rain": "Dias sem chuva",
@@ -1192,5 +1193,17 @@
 	"View is valid, the query returned 1541 registers": "View is valid, the query returned 1541 registers",
 	"e": {
 		"data is null": "e.data is null"
-	}
+	},
+	"Máscara": "Máscara",
+	"Fuso horário": "Fuso horário",
+	"Projeção (SRID)": "Projeção (SRID)",
+	"Número de Camadas": "Número de Camadas",
+	"Intervalo de tempo": "Intervalo de tempo",
+	"Unidade de tempo": "Unidade de tempo",
+	"Máscara inválida": "Máscara inválida",
+	"Preenchimento obrigatório": "Preenchimento obrigatório",
+	"O valor não é um número válido": "O valor não é um número válido",
+	"Minutos": "Minutos",
+	"Horas": "Horas",
+	"Dias": "Dias"
 }

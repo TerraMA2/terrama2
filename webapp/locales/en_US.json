@@ -302,6 +302,7 @@
 	"DataProviderError: Could not save data provider due: project_id must be unique; name must be unique;  project_id: project_id must be unique,\nname: name must be unique": "DataProviderError: Could not save data provider due: name must be unique;  name: name must be unique",
 	"Date": "Date",
 	"Date (local time)": "Date (local time)",
+	"Date (GMT time)": "Date (GMT time)",
 	"Date Time": "Date Time",
 	"Days": "Days",
 	"Days Without Rain": "Days Without Rain",
