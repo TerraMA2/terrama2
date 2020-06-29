@@ -1205,5 +1205,6 @@
 	"O valor não é um número válido": "O valor não é um número válido",
 	"Minutos": "Minutos",
 	"Horas": "Horas",
-	"Dias": "Dias"
+	"Dias": "Dias",
+	"Cannot read property 'semantics' of undefined": "Cannot read property 'semantics' of undefined"
 }
