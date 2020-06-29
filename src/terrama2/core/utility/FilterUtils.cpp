@@ -297,8 +297,20 @@ bool terrama2::core::isValidTimestamp(const Filter& filter, const std::shared_pt
             return false;
         }
         else{
-          if(filter.lastFileTimestamp)
-            return false;
+          if(filter.lastFileTimestamp){
+            auto lastFileTimestampUtcString = terrama2::core::TimeUtils::getISOString(filter.lastFileTimestamp);
+            if(discarAfterUtcString != lastFileTimestampUtcString)
+            {
+              if(*filter.lastFileTimestamp > *filter.discardAfter)
+              {
+                return false;
+              }
+            }
+            else
+            {
+              return false;
+            }
+          }
         }
       }
     }

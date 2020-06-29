@@ -148,6 +148,8 @@ namespace terrama2
       TMCOREEXPORT std::string getISOString(std::shared_ptr<te::dt::TimeInstantTZ> timeinstant);
 
       TMCOREEXPORT bool isValid(std::shared_ptr<te::dt::TimeInstantTZ> timeinstant);
+
+      TMCOREEXPORT std::shared_ptr<te::dt::TimeInstantTZ> buildUtcDate(std::shared_ptr<te::dt::TimeInstantTZ> date);
     }
   }
 }

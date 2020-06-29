@@ -2385,8 +2385,13 @@ define([], function() {
         }
 
         if(filterValues.date.beforeDate){
-          let beforeDateUtcStr = moment.parseZone(filterValues.date.beforeDate).utc().format();
-          let beforeDateUtc = moment(beforeDateUtcStr);
+          let dateFromFilter = new Date(filterValues.date.beforeDate);
+          dateFromFilter.get
+          let changeDateforUtcTime = new Date(Date.UTC(dateFromFilter.getFullYear(), dateFromFilter.getMonth(), dateFromFilter.getDate(), dateFromFilter.getHours(), dateFromFilter.getMinutes(), dateFromFilter.getSeconds()));
+          let beforeDateUtcStr = new Date(changeDateforUtcTime).toUTCString();
+          let beforeDateUtcIsoStr = new Date(beforeDateUtcStr).toISOString();
+
+          let beforeDateUtc = moment(beforeDateUtcIsoStr);
           filterValues.date.beforeDate = beforeDateUtc;
         }
 
