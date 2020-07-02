@@ -94,9 +94,6 @@ namespace terrama2
       std::string monitoredIdentifier; //! Monitored attribute name to execute SQL JOIN while performing operation
       std::string additionalIdentifier; //! Additional attribute name to execute SQL join while performing operation
       bool isReprocessingHistoricalData = false;
-      bool hasAfterFilter = false;
-      bool hasBeforeFilter = false;
-      std::shared_ptr<te::dt::TimeInstantTZ> lastFileTimestamp = nullptr;
 
       //operator bool() const { return dataSetId != 0; }
     };
