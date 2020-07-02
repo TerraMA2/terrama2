@@ -335,18 +335,9 @@ void terrama2::core::Service::addReprocessingToQueue(ProcessPtr process) noexcep
       ss << schedule.frequencyStartTime;
 
       executionDate = terrama2::core::TimeUtils::stringToTimestamp(ss.str(), terrama2::core::TimeUtils::webgui_timefacet);
-
-    }
-    //TRANSFORM EXECUTION DATE IN GMT TIME
-    else
-    {
-
-      executionDate = terrama2::core::TimeUtils::buildUtcDate(executionDate);
-
     }
 
-    auto endDateBuildUtc = terrama2::core::TimeUtils::buildUtcDate(reprocessingHistoricalData->endDate);
-    auto endDate = endDateBuildUtc->getTimeInstantTZ();
+    auto endDate = reprocessingHistoricalData->endDate->getTimeInstantTZ();
     boost::local_time::local_date_time titz = executionDate->getTimeInstantTZ();
 
     RegisterId registerId = logger_->start(processId);
