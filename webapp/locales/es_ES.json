@@ -699,7 +699,6 @@
 	"Must have a valid store values to create an intersection": "Debe tener valores de tienda válidos para crear una intersección",
 	"Filter by static data": "Filtrar por datos estáticos",
 	"Date (local time)": "Fecha (hora local)",
-	"Date (GMT time)": "Fecha (hora GMT)",
 	"Search": "Buscar",
 	"Database": "Base de datos",
 	"Grid - Grib2": "Rejilla - Grib2",

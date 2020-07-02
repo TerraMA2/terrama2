@@ -2377,19 +2377,6 @@ define([], function() {
             break;
         }
 
-        
-        if(filterValues.date.afterDate){
-          let afterDateUtcStr = moment.parseZone(filterValues.date.afterDate).utc().format();
-          let afterDateUtc = moment(afterDateUtcStr);
-          filterValues.date.afterDate = afterDateUtc;
-        }
-
-        if(filterValues.date.beforeDate){
-          let beforeDateUtcStr = moment.parseZone(filterValues.date.beforeDate).utc().format();
-          let beforeDateUtc = moment(beforeDateUtcStr);
-          filterValues.date.beforeDate = beforeDateUtc;
-        }
-
         return {
           dataSeries: dataToSend,
           schedule: scheduleValues,
