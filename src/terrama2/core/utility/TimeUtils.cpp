@@ -336,23 +336,6 @@ std::string terrama2::core::TimeUtils::getISOString(std::shared_ptr<te::dt::Time
   return boost::posix_time::to_iso_extended_string(localTime.utc_time())+"Z";
 }
 
-std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::TimeUtils::buildUtcDate(std::shared_ptr<te::dt::TimeInstantTZ> date){
-  std::stringstream ss;
-
-  ss.exceptions(std::ios_base::failbit);
-  boost::gregorian::date_facet* facet = new boost::gregorian::date_facet();
-  facet->format("%Y-%m-%d");
-  ss.imbue(std::locale(ss.getloc(), facet));
-
-  ss << date->getTimeInstantTZ().date();
-  ss << "T";
-  ss << date->getTimeInstantTZ().time_of_day();
-
-  auto dateReturn = terrama2::core::TimeUtils::stringToTimestamp(ss.str(), terrama2::core::TimeUtils::webgui_timefacet);
-
-  return dateReturn;
-}
-
 bool terrama2::core::TimeUtils::isValid(std::shared_ptr<te::dt::TimeInstantTZ> timeinstant) {
   if(!timeinstant) {
     return false;
