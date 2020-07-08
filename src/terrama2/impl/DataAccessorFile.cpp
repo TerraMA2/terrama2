@@ -149,33 +149,60 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::mem::Da
   * DiscardBefore can be the last file date readed or
   * can be declared in filter
   */
+    std::string lastDateTimeString = terrama2::core::TimeUtils::getISOString(this->lastDateTime_);
     if(filter.discardBefore.get())
     {
-      if((*this->lastDateTime_) > (*filter.discardBefore))
+      std::string discarBeforeString = terrama2::core::TimeUtils::getISOString(filter.discardBefore);
+      if(lastDateTimeString != discarBeforeString)
       {
-        if(filter.discardAfter.get())
+        if((*this->lastDateTime_) > (*filter.discardBefore))
         {
-          if((*this->lastDateTime_) < (*filter.discardAfter))
+          if(filter.discardAfter.get())
+          {
+            std::string discarAfterStringIn = terrama2::core::TimeUtils::getISOString(filter.discardAfter);
+            if(lastDateTimeString != discarAfterStringIn)
+            {
+              if((*this->lastDateTime_) < (*filter.discardAfter))
+              {
+                dateIsCompatible = true;
+              }else
+              {
+                dateIsCompatible = false;
+              }
+            }
+            else
+            {
+              dateIsCompatible = true;
+            }
+          } else
           {
             dateIsCompatible = true;
-          }else
-          {
-            dateIsCompatible = false;
           }
-        } else
-        {
-          dateIsCompatible = true;
         }
       }
-    } else if(filter.discardAfter.get())
-    {
-      if((*this->lastDateTime_) < (*filter.discardAfter))
+      else
       {
         dateIsCompatible = true;
-      } else
+      } 
+      
+    } else if(filter.discardAfter.get())
+    {
+      std::string discarAfterString = terrama2::core::TimeUtils::getISOString(filter.discardAfter);
+      if(lastDateTimeString != discarAfterString)
       {
-        dateIsCompatible = false;
+        if((*this->lastDateTime_) < (*filter.discardAfter))
+        {
+          dateIsCompatible = true;
+        } else
+        {
+          dateIsCompatible = false;
+        }
       }
+      else
+      {
+        dateIsCompatible = true;
+      }
+
     } else
     {
       dateIsCompatible = true;
