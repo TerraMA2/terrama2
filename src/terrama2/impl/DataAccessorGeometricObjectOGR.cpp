@@ -83,39 +83,29 @@ te::dt::AbstractData* terrama2::core::DataAccessorGeometricObjectOGR::numberToTi
 
   try
   {
+    std::string strDateTime = dataset->getAsString(indexes[0]);
+    boost::posix_time::ptime boostDate;
+
+    std::istringstream stream(strDateTime);//create stream
+
     if(dateType != "date") {
-        std::string strDateTime = dataset->getAsString(indexes[0]);
-        boost::posix_time::ptime boostDate;
+      auto boostTimeFacet = TimeUtils::terramaDateMask2BoostFormat(timestampMask);
 
-        auto boostTimeFacet = TimeUtils::terramaDateMask2BoostFormat(timestampMask);
-        //mask to convert DateTime string to Boost::ptime
-        std::locale format(std::locale(), new boost::posix_time::time_input_facet(boostTimeFacet));
+      //mask to convert DateTime string to Boost::ptime
+      std::locale format(std::locale(), new boost::posix_time::time_input_facet(boostTimeFacet));
 
-        std::istringstream stream(strDateTime);//create stream
-        stream.imbue(format);//set format
-        stream >> boostDate;//convert to boost::ptime
-
-        assert(boostDate != boost::posix_time::ptime());
-
-        boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(timezone));
-        boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
-
-        te::dt::TimeInstantTZ *dt = new te::dt::TimeInstantTZ(date);
-        return dt;
-    } else {
-        std::string strDateTime = dataset->getAsString(indexes[0]);
-        std::istringstream stream(strDateTime);//create stream
-        boost::posix_time::ptime boostDate;
-        stream >> boostDate;//convert to boost::ptime
-
-        assert(boostDate != boost::posix_time::ptime());
-
-        boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(timezone));
-        boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
-
-        te::dt::TimeInstantTZ *dt = new te::dt::TimeInstantTZ(date);
-        return dt;
+      stream.imbue(format);//set format
     }
+
+    stream >> boostDate;//convert to boost::ptime
+
+    assert(boostDate != boost::posix_time::ptime());
+
+    boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(timezone));
+    boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
+
+    te::dt::TimeInstantTZ *dt = new te::dt::TimeInstantTZ(date);
+    return dt;
   }
   catch(const boost::exception& e)
   {
