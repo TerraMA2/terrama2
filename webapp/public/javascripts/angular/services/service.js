@@ -274,9 +274,7 @@ define([], function() {
           checked: true
         }
       ],
-
       advancedFilterField: "type",
-
       removeOperationCallback: function(err, data) {
         if(err) {
           MessageBoxService.danger(i18n.__($scope.title), i18n.__(err.message));
@@ -284,7 +282,6 @@ define([], function() {
         }
         MessageBoxService.success(i18n.__($scope.title), data.name + i18n.__(" removed"));
       },
-
       service: {
         starting: false,
         stoping: false,
