@@ -1205,5 +1205,9 @@
 	"O valor não é um número válido": "O valor não é um número válido",
 	"Minutos": "Minutos",
 	"Horas": "Horas",
-	"Dias": "Dias"
+	"Dias": "Dias",
+	"Date/Time property": "Propriedade Data/Hora",
+	"Date/Time mask": "Máscara Data/Hora",
+	"string": "string",
+	"date": "date"
 }
