@@ -230,24 +230,10 @@ bool terrama2::core::isValidTimestamp(const Filter& filter, const std::shared_pt
   std::string fileTimestampUtcString = terrama2::core::TimeUtils::getISOString(fileTimestamp);
   if(filter.discardBefore)
   {
-    if(filter.hasBeforeFilter)
+    std::string discarBeforeUtcString = terrama2::core::TimeUtils::getISOString(filter.discardBefore);
+    if(filter.isCollector)
     {
-      std::string discarBeforeUtcString = terrama2::core::TimeUtils::getISOString(filter.discardBefore);
-      // For reprocessing historical data
-      if (filter.isReprocessingHistoricalData)
-      {
-        if(fileTimestampUtcString != discarBeforeUtcString)
-        {
-          if(*fileTimestamp < *filter.discardBefore)
-            return false;
-        }
-        else
-        {
-          if(filter.lastFileTimestamp)
-            return false;
-        }
-      }
-      else
+      if(filter.hasBeforeFilter)
       {
         if(fileTimestampUtcString != discarBeforeUtcString)
         {
@@ -259,37 +245,32 @@ bool terrama2::core::isValidTimestamp(const Filter& filter, const std::shared_pt
           if(filter.lastFileTimestamp)
             return false;
         }
-      }
+        
+      }  
     }
     else
     {
-      // For reprocessing historical data
       if (filter.isReprocessingHistoricalData)
       {
-        if(*fileTimestamp < *filter.discardBefore)
+        if(fileTimestampUtcString != discarBeforeUtcString)
+        {
+          if(*fileTimestamp < *filter.discardBefore)
+            return false;
+        }
+      }
+      else
+      {
+        if(!(*fileTimestamp > *filter.discardBefore))
           return false;
       }
     }
   }
   if(filter.discardAfter)
   {
-    if(filter.hasAfterFilter)
+    auto discarAfterUtcString = terrama2::core::TimeUtils::getISOString(filter.discardAfter);
+    if(filter.isCollector)
     {
-      auto discarAfterUtcString = terrama2::core::TimeUtils::getISOString(filter.discardAfter);
-      if (filter.isReprocessingHistoricalData)
-      {
-        if(fileTimestampUtcString != discarAfterUtcString)
-        {
-          if(*fileTimestamp > *filter.discardAfter)
-            return false;
-        }
-        else
-        {
-          if(filter.lastFileTimestamp)
-            return false;
-        }
-      }
-      else
+      if(filter.hasAfterFilter)
       {
         if(fileTimestampUtcString != discarAfterUtcString)
         {
@@ -320,8 +301,14 @@ bool terrama2::core::isValidTimestamp(const Filter& filter, const std::shared_pt
     {
       if (filter.isReprocessingHistoricalData)
       {
-        if(*fileTimestamp > *filter.discardAfter)
+        if(fileTimestampUtcString != discarAfterUtcString)
+        {
+          if(*fileTimestamp > *filter.discardAfter)
+            return false;
+        }
+        else{
           return false;
+        }
       }
       else
       {
@@ -329,6 +316,7 @@ bool terrama2::core::isValidTimestamp(const Filter& filter, const std::shared_pt
           return false;
       }
     }
+
   }
 
   return true;
