@@ -336,14 +336,23 @@ void terrama2::core::Service::addReprocessingToQueue(ProcessPtr process) noexcep
 
       executionDate = terrama2::core::TimeUtils::stringToTimestamp(ss.str(), terrama2::core::TimeUtils::webgui_timefacet);
     }
-    else
-    {
-      executionDate = terrama2::core::TimeUtils::buildUtcDate(executionDate);
-    }
+    //else
+    //{
+    //  std::cout << "execution date antes - " << executionDate->toString() << std::endl;
+    // executionDate = terrama2::core::TimeUtils::buildUtcDate(executionDate);
 
-    auto endDateBuildUtc = terrama2::core::TimeUtils::buildUtcDate(reprocessingHistoricalData->endDate);
-    auto endDate = endDateBuildUtc->getTimeInstantTZ();
+    //  std::cout << "execution date depois - " << executionDate->toString() << std::endl;
+    //}
+
+    //std::cout << "execution end date antes - " << reprocessingHistoricalData->endDate->toString() << std::endl;
+    //auto endDateBuildUtc = terrama2::core::TimeUtils::buildUtcDate(reprocessingHistoricalData->endDate);
+    //auto endDate = endDateBuildUtc->getTimeInstantTZ();
+    //std::cout << "execution end date antes - " << endDate.to_string() << std::endl;
+
+
+    auto endDate = reprocessingHistoricalData->endDate->getTimeInstantTZ();
     boost::local_time::local_date_time titz = executionDate->getTimeInstantTZ();
+    std::cout << "titz antes - " << titz.to_string() << std::endl;
 
     RegisterId registerId = logger_->start(processId);
 
@@ -356,7 +365,7 @@ void terrama2::core::Service::addReprocessingToQueue(ProcessPtr process) noexcep
       return;
     }
 
-    while(titz <= endDate)
+    while(titz < endDate)
     {
       terrama2::core::ExecutionPackage executionPackage;
       executionPackage.processId = processId;
@@ -371,6 +380,9 @@ void terrama2::core::Service::addReprocessingToQueue(ProcessPtr process) noexcep
       titz += boost::posix_time::seconds(static_cast<long>(scheduleSeconds));
 
       executionDate.reset(new te::dt::TimeInstantTZ(titz));
+
+      std::cout << "titz antes - " << titz.to_string() << std::endl;
+      std::cout << "executionDate->toString() - " << executionDate->toString() << std::endl;
     }
 
     auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), processId);

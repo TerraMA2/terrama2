@@ -31,6 +31,7 @@ var Enums = require('./Enums');
 var Database = require('./utility/Database');
 var logger = require("./Logger");
 var Filters = require("./filters");
+var moment = require('moment');
 const models = require('../models');
 
 // data model
@@ -2455,6 +2456,19 @@ var DataManager = module.exports = {
           if (_.isEmpty(scheduleObject.historical) || (!scheduleObject.historical.startDate || !scheduleObject.historical.endDate)) {
             return null;
           }
+
+          if(scheduleObject.historical.startDate){
+            let historicalStartDate0Second = moment(scheduleObject.historical.startDate).set("second", 0);
+            let historicalStartDateFormat = moment.parseZone(historicalStartDate0Second).format();
+            scheduleObject.historical.startDate = historicalStartDateFormat;
+          }
+
+          if(scheduleObject.historical.endDate){
+            let historicalEndDate0Second = moment(scheduleObject.historical.endDate).set("second", 0);
+            let historicalEndDateFormat = moment.parseZone(historicalEndDate0Second).format();
+            scheduleObject.historical.endDate = historicalEndDateFormat;
+          }
+
           return self.addHistoricalData(schedule.id, scheduleObject.historical, options);
 
         }).then(function(historicalResult){
