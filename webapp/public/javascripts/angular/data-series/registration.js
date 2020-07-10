@@ -2424,7 +2424,7 @@ define([], function() {
 
       var getAliasFromCsvFields = function(fieldType, fields){
         var fieldAlias;
-	for (var field in fields){
+	    for (var field in fields){
           if (fields[field].type == fieldType){
             fieldAlias = fields[field].alias;
         	break;
