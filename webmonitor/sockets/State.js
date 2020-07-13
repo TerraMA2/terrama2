@@ -1,12 +1,11 @@
 "use strict";
 
 var State = function(io) {
+  var Application = require('./../core/Application');
+
+  var isSSL = Application.getContextConfig().ssl;
 
   var memberSockets = io.sockets;
-  // 'fs' module
-  var memberFs = require('fs');
-  // 'path' module
-  var memberPath = require('path');
   // 'request' module
   var memberRequest = require('request');
   // WebMonitor configuration
@@ -25,7 +24,8 @@ var State = function(io) {
         form: {
           userToken: userToken.getToken(),
           state: json.state
-        }
+        },
+        rejectUnauthorized: false
       };
 
       memberRequest.post(options, function(err, httpResponse, body) {
@@ -50,7 +50,8 @@ var State = function(io) {
         url: memberConfig.webadmin.protocol + memberConfig.webadmin.host + ":" + memberConfig.webadmin.port + memberConfig.webadmin.basePath + "get-state",
         form: {
           userToken: userToken.getToken()
-        }
+        },
+        rejectUnauthorized: false
       };
 
       memberRequest.post(options, function(err, httpResponse, body) {
