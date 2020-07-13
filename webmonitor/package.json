@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "NODE_ENV=PRODUCTION node ./bin/www",
+    "start2": "NODE_ENV=PRODUCTION NODE_TLS_REJECT_UNAUTHORIZED=0 node ./bin/www",
     "dev": "grunt && NODE_ENV=DEVELOPMENT node --inspect=0.0.0.0:5859 ./bin/www",
     "grunt": "grunt"
   },

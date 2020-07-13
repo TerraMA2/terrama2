@@ -242,7 +242,7 @@ define(
           if (!description) {
             description = "";
           }
-          descriptionReduced = description.substr(0, 100);
+          let descriptionReduced = description.substr(0, 100);
           if (description.length > 100) {
             descriptionReduced = descriptionReduced + "...";
           }
