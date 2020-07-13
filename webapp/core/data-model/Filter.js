@@ -36,8 +36,8 @@ Filter.prototype.toObject = function() {
   return Object.assign(AbstractClass.prototype.toObject.call(this), {
     frequency: this.frequency,
     frequency_unit: this.frequency_unit,
-    discard_before: this.discard_before instanceof Date ? Utils.formatDateToTimezone(this.discard_before) : this.discard_before,
-    discard_after: this.discard_after instanceof Date ? Utils.formatDateToTimezone(this.discard_after) : this.discard_after,
+    discard_before: this.discard_before instanceof Date ? this.discard_before : this.discard_before,
+    discard_after: this.discard_after instanceof Date ? this.discard_after : this.discard_after,
     region: this.region_wkt || this.region,
     by_value: this.by_value,
     crop_raster: this.crop_raster,

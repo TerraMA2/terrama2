@@ -49,12 +49,12 @@ terrama2::services::collector::core::CollectorPtr terrama2::services::collector:
   }
 
   if(!(json.contains("id")
-   && json.contains("project_id")
-    && json.contains("service_instance_id")
-     && json.contains("input_data_series")
-      && json.contains("output_data_series")
-       && json.contains("input_output_map")
-         && json.contains("active")))
+    && json.contains("project_id")
+      && json.contains("service_instance_id")
+        && json.contains("input_data_series")
+          && json.contains("output_data_series")
+            && json.contains("input_output_map")
+              && json.contains("active")))
   {
     QString errMsg = QObject::tr("Invalid Collector JSON object.");
     TERRAMA2_LOG_ERROR() << errMsg;
