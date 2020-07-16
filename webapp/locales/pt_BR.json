@@ -1209,5 +1209,8 @@
 	"Date/Time property": "Propriedade Data/Hora",
 	"Date/Time mask": "Máscara Data/Hora",
 	"string": "string",
-	"date": "date"
+	"date": "date",
+	"Append": "Acrescentar",
+	"Replace": "Substituir",
+	"Storange": "Armazenamento"
 }
