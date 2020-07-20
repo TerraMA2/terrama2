@@ -89,6 +89,8 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
   filter.discardAfter = context->getStartTime();
   filter.lastValues = std::make_shared<size_t>(1);
 
+  filter.isPythonAnalysis = true;
+
   return operatorImpl(statisticOperation, dataSeriesName, filter, band, buffer, context, cache, removeCondition);
 }
 
@@ -144,6 +146,7 @@ double terrama2::services::analysis::core::grid::zonal::operatorImpl(terrama2::s
 
     auto dataSeries = context->findDataSeries(dataSeriesName);
     auto datasets = dataSeries->datasetList;
+
     for(const auto& dataset : datasets)
     {
       auto rasterList = context->getRasterList(dataSeries, dataset->id, filter);
