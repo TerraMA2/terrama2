@@ -248,6 +248,13 @@ bool terrama2::core::isValidTimestamp(const Filter& filter, const std::shared_pt
         
       }  
     }
+    else if (filter.isPythonAnalysis)
+    {
+      if(fileTimestampUtcString != discarBeforeUtcString){
+        if(!(*fileTimestamp > *filter.discardBefore))
+          return false;
+      }
+    }
     else
     {
       if (filter.isReprocessingHistoricalData)
@@ -295,6 +302,16 @@ bool terrama2::core::isValidTimestamp(const Filter& filter, const std::shared_pt
             }
           }
         }
+      }
+    }
+    else if (filter.isPythonAnalysis)
+    {
+      if(fileTimestampUtcString != discarAfterUtcString)
+      {
+        if(!(*fileTimestamp < *filter.discardAfter))
+          return false;
+      } else{
+          return false;
       }
     }
     else

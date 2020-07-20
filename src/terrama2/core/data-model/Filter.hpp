@@ -96,6 +96,7 @@ namespace terrama2
       bool isReprocessingHistoricalData = false;
       bool hasAfterFilter = false;
       bool hasBeforeFilter = false;
+      bool isPythonAnalysis = false;
       bool isCollector = false;
       std::shared_ptr<te::dt::TimeInstantTZ> lastFileTimestamp = nullptr;
 
