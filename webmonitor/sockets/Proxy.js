@@ -1,31 +1,40 @@
 "use strict";
 
 var Proxy = function(io){
-  var memberSockets = io.sockets;
+  var Application = require('./../core/Application');
+
+  var isSSL = Application.getContextConfig().ssl;
+
+  // 'http' module
   var memberHttp = require('http');
+  // 'https' module
+  var memberHttps = require('https');
+
+  var memberSockets = io.sockets;
   var memberXmlParser = require('../utils/XmlParser');
 
   // Socket connection event
   memberSockets.on('connection', function(client) {
-
     // check connection event
     client.on('checkConnection', function(json) {
+      const http = isSSL ? memberHttps : memberHttp;
       // Http request to check connection
-      memberHttp.get(json.url, function(resp) {
+      http.get({url: json.url, rejectUnauthorized: false}, function(resp) {
         // If success to access the url, send an object with connected propertie with true value
         client.emit('connectionResponse', { connected: true, requestId: json.requestId, url: json.url});
       })
-      // if an error occurs, send a object with connected propertie with false value
-      .on("error", function(e) {
-        client.emit('connectionResponse', { connected: false, requestId: json.requestId, url: json.url});
-      });
+          // if an error occurs, send a object with connected propertie with false value
+          .on("error", function(e) {
+            client.emit('connectionResponse', { connected: false, requestId: json.requestId, url: json.url});
+          });
     });
 
     // Proxy request event
     client.on('proxyRequest', function(json) {
       // Http request to the received url
       try {
-        memberHttp.get(json.url, function(resp) {
+        const http = isSSL ? memberHttps : memberHttp;
+        http.get({url: json.url, rejectUnauthorized: false}, function(resp) {
           var body = '';
           // Data receiving event
           resp.on('data', function(chunk) {
@@ -55,8 +64,9 @@ var Proxy = function(io){
 
     // Proxy request event
     client.on('proxyRequestCapabilities', function(json) {
+      const http = isSSL ? memberHttps : memberHttp;
       // Http request to the received url
-      memberHttp.get(json.url, function(resp) {
+      http.get({url: json.url, rejectUnauthorized: false}, function(resp) {
         var body = '';
         // Data receiving event
         resp.on('data', function(chunk) {
@@ -74,14 +84,14 @@ var Proxy = function(io){
             }
           }
           // Socket response
-          client.emit('proxyResponseCapabilities', { 
-            msg: body, 
-            requestId: json.requestId, 
-            layerId: json.layerId, 
-            parent: json.parent, 
+          client.emit('proxyResponseCapabilities', {
+            msg: body,
+            requestId: json.requestId,
+            layerId: json.layerId,
+            parent: json.parent,
             layerName: json.layerName,
             update: json.update
-           });
+          });
         });
 
       }).on("error", function(e) {

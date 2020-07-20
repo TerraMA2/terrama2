@@ -24,7 +24,6 @@ var ViewsHandlers = function(io) {
           var action = 'retrieve-views';
           break;
       };
-
       var options = {
         url: memberConfig.webadmin.protocol + memberConfig.webadmin.host + ":" + memberConfig.webadmin.port + memberConfig.webadmin.basePath + action,
         form: {
@@ -33,7 +32,8 @@ var ViewsHandlers = function(io) {
           initialRequest: json.initialRequest,
           onlyPrivate: json.onlyPrivate,
           views: (json.views ? json.views : null)
-        }
+        },
+        rejectUnauthorized: false
       };
 
       memberRequest.post(options, function(err, httpResponse, body) {
