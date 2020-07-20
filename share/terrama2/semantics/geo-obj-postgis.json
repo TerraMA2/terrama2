@@ -26,6 +26,11 @@
             "type": "string",
             "title": "Geometry property",
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+          },
+          "storage_option": {
+            "type": "string",
+            "title": "Storange",
+            "default": "append"
           }
         },
         "required": ["table_name", "timestamp_property", "geometry_property"]
@@ -51,6 +56,15 @@
           "validationMessage": {
             "202": "Invalid column name"
           }
+        },
+        {
+          "key": "storage_option",
+          "htmlClass": "col-md-12 terrama2-schema-form table-column",
+          "type": "radios",
+          "titleMap": [
+            {"name": "Append", "value": "append"},
+            {"name": "Replace", "value": "replace"}
+          ]
         }
       ]
     }

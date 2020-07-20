@@ -305,6 +305,7 @@
 	"DataProviderError: Could not save data provider due: project_id must be unique; name must be unique;  project_id: project_id must be unique,\nname: name must be unique": "Não foi possível salvar o servidor de dados, já existe um registro com o nome inserido, e o nome deve ser único.",
 	"Date": "Data",
 	"Date (local time)": "Data (horário local)",
+	"Date (GMT time)": "Data (horário GMT)",
 	"Date Time": "Data Hora",
 	"Days": "Dias",
 	"Days Without Rain": "Dias sem chuva",
@@ -1207,8 +1208,6 @@
 	"Dias": "Dias",
 	"Bands (semicolon separated)": "Bands (semicolon separated)",
 	"Isobaric surface (ISBL)": "Isobaric surface (ISBL)",
-	"Date/Time property": "Date/Time property",
-	"Date/Time mask": "Date/Time mask",
 	"Nome da tabela": "Nome da tabela",
 	"Propriedade de tempo": "Propriedade de tempo",
 	"Propriedade geométrica": "Propriedade geométrica",
@@ -1218,5 +1217,12 @@
 	"Error in query execution": {
 		" relation \"focos_inpe2\" does not exist": "Error in query execution. relation \"focos_inpe2\" does not exist"
 	},
-	"Cannot read property 'code' of undefined": "Cannot read property 'code' of undefined"
+	"Cannot read property 'code' of undefined": "Cannot read property 'code' of undefined",
+	"Date/Time property": "Propriedade Data/Hora",
+	"Date/Time mask": "Máscara Data/Hora",
+	"string": "string",
+	"date": "date",
+	"Append": "Acrescentar",
+	"Replace": "Substituir",
+	"Storange": "Armazenamento"
 }

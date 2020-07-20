@@ -2500,6 +2500,44 @@ define([], function() {
             break;
         }
 
+        if(filterValues.date.afterDate){
+
+          let afterDateVerifyFormat = moment.parseZone(filterValues.date.afterDate).format();
+          let afterDateVerifyFormatUtc = moment.parseZone(filterValues.date.afterDate).utc().format();
+
+          if(afterDateVerifyFormat == afterDateVerifyFormatUtc){
+            let afterDateUtcStr = moment.parseZone(filterValues.date.afterDate).utc().format();
+            let afterDateUtc = moment(afterDateUtcStr).set("second", 0);
+            filterValues.date.afterDate = afterDateUtc;            
+          }else{
+            let dateAfterFilter = new Date(filterValues.date.afterDate);
+            let changeDateAfterforUtcTime = new Date(Date.UTC(dateAfterFilter.getFullYear(), dateAfterFilter.getMonth(), dateAfterFilter.getDate(), dateAfterFilter.getHours(), dateAfterFilter.getMinutes(), dateAfterFilter.getSeconds()));
+            let afterDateAfterUtcStr = new Date(changeDateAfterforUtcTime).toUTCString();
+            let afterDateUtcIsoStr = new Date(afterDateAfterUtcStr).toISOString();
+            let afterDateUtc = moment(afterDateUtcIsoStr).set("second", 0);
+            filterValues.date.afterDate = afterDateUtc;
+          }
+        }
+
+        if(filterValues.date.beforeDate){
+
+          let beforeDateVerifyFormat = moment.parseZone(filterValues.date.beforeDate).format();
+          let beforeDateVerifyFormatUtc = moment.parseZone(filterValues.date.beforeDate).utc().format();
+
+          if(beforeDateVerifyFormat == beforeDateVerifyFormatUtc){
+            let beforeDateUtcStr = moment.parseZone(filterValues.date.beforeDate).utc().format();
+            let beforeDateUtc = moment(beforeDateUtcStr).set("second", 0);
+            filterValues.date.beforeDate = beforeDateUtc;
+          }else{          
+            let dateFromFilter = new Date(filterValues.date.beforeDate);
+            let changeDateforUtcTime = new Date(Date.UTC(dateFromFilter.getFullYear(), dateFromFilter.getMonth(), dateFromFilter.getDate(), dateFromFilter.getHours(), dateFromFilter.getMinutes(), dateFromFilter.getSeconds()));
+            let beforeDateUtcStr = new Date(changeDateforUtcTime).toUTCString();
+            let beforeDateUtcIsoStr = new Date(beforeDateUtcStr).toISOString();
+            let beforeDateUtc = moment(beforeDateUtcIsoStr).set("second", 0);
+            filterValues.date.beforeDate = beforeDateUtc;
+          }
+        }
+
         return {
           dataSeries: dataToSend,
           schedule: scheduleValues,
@@ -2509,7 +2547,7 @@ define([], function() {
 
       var getAliasFromCsvFields = function(fieldType, fields){
         var fieldAlias;
-	for (var field in fields){
+	    for (var field in fields){
           if (fields[field].type == fieldType){
             fieldAlias = fields[field].alias;
         	break;

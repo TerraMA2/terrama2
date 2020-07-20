@@ -38,6 +38,14 @@
 #include <terralib/datatype/DateTimeProperty.h>
 // QT
 #include <QObject>
+#include <QString>
+#include <QDir>
+#include <QUrl>
+#include <QFileInfoList>
+#include <QDebug>
+#include <QTemporaryFile>
+#include <QTemporaryDir>
+#include <QTextStream>
 
 #include <boost/algorithm/string/replace.hpp>
 
@@ -68,21 +76,27 @@ te::dt::AbstractData* terrama2::core::DataAccessorGeometricObjectOGR::numberToTi
                                                                                         const std::vector<std::size_t>& indexes,
                                                                                         int /*dstType*/,
                                                                                         const std::string& timezone,
-                                                                                        const std::string& timestampMask)
+                                                                                        const std::string& timestampMask,
+                                                                                        const std::string& dateType)
 {
   assert(indexes.size() == 1);
 
   try
   {
-    std::string dateTime = dataset->getAsString(indexes[0]);
+    std::string strDateTime = dataset->getAsString(indexes[0]);
     boost::posix_time::ptime boostDate;
 
-    auto boostTimeFacet = TimeUtils::terramaDateMask2BoostFormat(timestampMask);
-    //mask to convert DateTime string to Boost::ptime
-    std::locale format(std::locale(), new boost::posix_time::time_input_facet(boostTimeFacet));
+    std::istringstream stream(strDateTime);//create stream
 
-    std::istringstream stream(dateTime);//create stream
-    stream.imbue(format);//set format
+    if(dateType != "date") {
+      auto boostTimeFacet = TimeUtils::terramaDateMask2BoostFormat(timestampMask);
+
+      //mask to convert DateTime string to Boost::ptime
+      std::locale format(std::locale(), new boost::posix_time::time_input_facet(boostTimeFacet));
+
+      stream.imbue(format);//set format
+    }
+
     stream >> boostDate;//convert to boost::ptime
 
     assert(boostDate != boost::posix_time::ptime());
@@ -90,8 +104,7 @@ te::dt::AbstractData* terrama2::core::DataAccessorGeometricObjectOGR::numberToTi
     boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone(timezone));
     boost::local_time::local_date_time date(boostDate.date(), boostDate.time_of_day(), zone, true);
 
-    te::dt::TimeInstantTZ* dt = new te::dt::TimeInstantTZ(date);
-
+    te::dt::TimeInstantTZ *dt = new te::dt::TimeInstantTZ(date);
     return dt;
   }
   catch(const boost::exception& e)
@@ -112,7 +125,12 @@ te::dt::AbstractData* terrama2::core::DataAccessorGeometricObjectOGR::numberToTi
 
 std::string terrama2::core::DataAccessorGeometricObjectOGR::getTimestampMask(DataSetPtr dataSet, bool logErrors) const
 {
-  return getProperty(dataSet, dataSeries_, "timestamp_mask", logErrors);
+    return getProperty(dataSet, dataSeries_, "timestamp_mask", logErrors);
+}
+
+std::string terrama2::core::DataAccessorGeometricObjectOGR::getDateType(DataSetPtr dataSet, bool logErrors) const
+{
+    return getProperty(dataSet, dataSeries_, "type", logErrors);
 }
 
 void terrama2::core::DataAccessorGeometricObjectOGR::retrieveDataCallback (const DataRetrieverPtr dataRetriever,
@@ -201,19 +219,24 @@ void terrama2::core::DataAccessorGeometricObjectOGR::adapt(DataSetPtr dataSet, s
 
   te::dt::DateTimeProperty* dtProperty = new te::dt::DateTimeProperty(outputTimestampPropertyName, te::dt::TIME_INSTANT_TZ);
   auto timezone = DataAccessorFile::getTimeZone(dataSet);
-  auto timestampMask = getTimestampMask(dataSet);
+  auto dateType = getDateType(dataSet);
+
+  std::string timestampMask = "";
+  if (dateType != "date") {
+    timestampMask = getTimestampMask(dataSet);
+  }
 
   //Find the rigth column to adapt
   std::vector<te::dt::Property*> properties = converter->getConvertee()->getProperties();
   for(size_t i = 0, size = properties.size(); i < size; ++i)
   {
     te::dt::Property* property = properties.at(i);
-    if(property->getName() == timestampPropertyName)
+    if((property->getName() == timestampPropertyName))
     {
       // datetime column found
-      converter->add(i, dtProperty, [timezone, timestampMask](te::da::DataSet* teDataset, const std::vector<std::size_t>& indexes, int dstType)
+      converter->add(i, dtProperty, [timezone, timestampMask, dateType](te::da::DataSet* teDataset, const std::vector<std::size_t>& indexes, int dstType)
       {
-        return terrama2::core::DataAccessorGeometricObjectOGR::numberToTimestamp(teDataset, indexes, dstType, timezone, timestampMask);
+        return terrama2::core::DataAccessorGeometricObjectOGR::numberToTimestamp(teDataset, indexes, dstType, timezone, timestampMask, dateType);
       });
     }
     else if(property->getName() == geometryPropertyName)

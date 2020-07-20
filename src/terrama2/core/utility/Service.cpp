@@ -337,6 +337,7 @@ void terrama2::core::Service::addReprocessingToQueue(ProcessPtr process) noexcep
       executionDate = terrama2::core::TimeUtils::stringToTimestamp(ss.str(), terrama2::core::TimeUtils::webgui_timefacet);
     }
 
+
     auto endDate = reprocessingHistoricalData->endDate->getTimeInstantTZ();
     boost::local_time::local_date_time titz = executionDate->getTimeInstantTZ();
 
@@ -351,7 +352,7 @@ void terrama2::core::Service::addReprocessingToQueue(ProcessPtr process) noexcep
       return;
     }
 
-    while(titz <= endDate)
+    while(titz < endDate)
     {
       terrama2::core::ExecutionPackage executionPackage;
       executionPackage.processId = processId;
@@ -499,6 +500,10 @@ void terrama2::core::Service::notifyWaitQueue(ProcessId processId)
 void terrama2::core::Service::updateFilterDiscardDates(terrama2::core::Filter& filter, std::shared_ptr<ProcessLogger> logger, ProcessId processId) const
 {
   std::shared_ptr<te::dt::TimeInstantTZ> lastCollectedDataTimestamp = logger->getDataLastTimestamp(processId);
+  if(lastCollectedDataTimestamp)
+  {
+    filter.lastFileTimestamp = lastCollectedDataTimestamp;
+  }
   if(lastCollectedDataTimestamp && filter.discardBefore)
   {
     if(*filter.discardBefore < *lastCollectedDataTimestamp)

@@ -58,6 +58,7 @@
 #include <QJsonParseError>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <boost/format.hpp>
 
 std::unique_ptr<te::dt::Property> terrama2::core::DataStoragerTable::copyProperty(te::dt::Property* property) const
 {
@@ -256,6 +257,9 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
   series.syncDataSet->setDataSet(updateAttributeNames(series.syncDataSet->dataset(), datasetType, outputDataSet));
 
   std::shared_ptr<te::da::DataSetType> newDataSetType;
+
+  std::string storageOption = getStorageOption(outputDataSet, dataSeries_);
+
   if (!transactorDestination->dataSetExists(destinationDataSetName))
   {
     // create and save datasettype in the datasource destination
@@ -303,7 +307,15 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
   }
   else
   {
-    newDataSetType = transactorDestination->getDataSetType(destinationDataSetName);
+
+        if (storageOption == "replace") {
+            boost::format query("TRUNCATE TABLE " + destinationDataSetName);
+            transactorDestination->execute(query.str());
+
+            transactorDestination->commit();
+        }
+
+        newDataSetType = transactorDestination->getDataSetType(destinationDataSetName);
   }
 
   adapt(series, outputDataSet);
@@ -348,3 +360,8 @@ bool terrama2::core::DataStoragerTable::isPropertyEqual(te::dt::Property* newPro
 
   return true;
 }
+
+std::string terrama2::core::DataStoragerTable::getStorageOption(terrama2::core::DataSetPtr dataSet, terrama2::core::DataSeriesPtr dataSeries) const {
+  return getProperty(dataSet, dataSeries_, "storage_option", false);
+}
+

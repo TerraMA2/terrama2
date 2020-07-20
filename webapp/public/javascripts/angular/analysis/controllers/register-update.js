@@ -1217,7 +1217,6 @@ define([], function() {
 
           // preparing data to send
           var analysisToSend = Object.assign({}, self.analysis);
-          console.log("Vector processing");
           if(self.semanticsSelected == "Vector Processing"){
             analysisToSend.script = queryResult.replace(/'/g, "\\'");
           }
@@ -1264,7 +1263,7 @@ define([], function() {
             case "minutes":
             case "hours":
               scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
-              scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? moment(scheduleValues.frequency_start_time).utc().format("HH:mm:ssZ") : "";
+              scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? moment(scheduleValues.frequency_start_time).format("HH:mm:ss") : "";
               break;
             case "weeks":
             case "monthly":
@@ -1341,7 +1340,6 @@ define([], function() {
                */
               var request;
               
-              console.log(objectToSend);
               if (self.isUpdating) { request = AnalysisService.update(config.analysis.id, objectToSend); }
               else { request = AnalysisService.create(objectToSend); }
 

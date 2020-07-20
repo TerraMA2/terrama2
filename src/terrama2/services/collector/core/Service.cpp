@@ -124,6 +124,18 @@ void terrama2::services::collector::core::Service::collect(terrama2::core::Execu
       throw terrama2::core::NoDataException() << ErrorDescription(errMsg);
     }
 
+    filter.isCollector = true;
+
+    if(filter.discardAfter)
+    {
+      filter.hasAfterFilter = true;
+    }
+
+    if(filter.discardBefore)
+    {
+      filter.hasBeforeFilter = true;
+    }
+
     //update filter based on last collected data timestamp
     updateFilterDiscardDates(filter, logger, executionPackage.processId);
 
