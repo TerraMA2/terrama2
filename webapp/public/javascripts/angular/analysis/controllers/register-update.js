@@ -30,6 +30,11 @@ define([], function() {
 
     self.columnsList = [];
 
+    $scope.$watch("model.table_name", function(val) {
+
+      console.log(val);
+    });
+
     var hasProjectPermission = config.hasProjectPermission;
 
     // Flag to verify if can not save if the service is not running

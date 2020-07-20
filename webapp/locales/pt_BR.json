@@ -1204,5 +1204,19 @@
 	"O valor não é um número válido": "O valor não é um número válido",
 	"Minutos": "Minutos",
 	"Horas": "Horas",
-	"Dias": "Dias"
+	"Dias": "Dias",
+	"Bands (semicolon separated)": "Bands (semicolon separated)",
+	"Isobaric surface (ISBL)": "Isobaric surface (ISBL)",
+	"Date/Time property": "Date/Time property",
+	"Date/Time mask": "Date/Time mask",
+	"Nome da tabela": "Nome da tabela",
+	"Propriedade de tempo": "Propriedade de tempo",
+	"Propriedade geométrica": "Propriedade geométrica",
+	"Nome da tabela inválido": "Nome da tabela inválido",
+	"Nome da coluna inválido": "Nome da coluna inválido",
+	"Features List": "Features List",
+	"Error in query execution": {
+		" relation \"focos_inpe2\" does not exist": "Error in query execution. relation \"focos_inpe2\" does not exist"
+	},
+	"Cannot read property 'code' of undefined": "Cannot read property 'code' of undefined"
 }

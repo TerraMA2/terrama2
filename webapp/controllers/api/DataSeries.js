@@ -519,8 +519,9 @@ module.exports = function(app) {
 
         return promiseHandler
           .then(async updatedDataSeries => {
-            if (updatedDataSeries.semantics && updatedDataSeries.semantics.temporality === DataSeriesTemporality.STATIC &&
-              updatedDataSeries.semantics.code === 'STATIC_DATA-VIEW-postgis') {
+            if (updatedDataSeries.semantics && 
+                updatedDataSeries.semantics.temporality === DataSeriesTemporality.STATIC &&
+                updatedDataSeries.semantics.code === 'STATIC_DATA-VIEW-postgis') {
               const dataSet = updatedDataSeries.dataSets[0];
 
               const viewName = dataSet.format.view_name;
