@@ -362,6 +362,12 @@ bool terrama2::core::DataStoragerTable::isPropertyEqual(te::dt::Property* newPro
 }
 
 std::string terrama2::core::DataStoragerTable::getStorageOption(terrama2::core::DataSetPtr dataSet, terrama2::core::DataSeriesPtr dataSeries) const {
-  return getProperty(dataSet, dataSeries_, "storage_option", false);
+  std::string storageOption = "";
+  try {
+    storageOption = getProperty(dataSet, dataSeries_, "storage_option", false);
+  } catch (UndefinedTagException& /*e*/) {
+    storageOption = "append";
+  }
+  return storageOption;
 }
 
