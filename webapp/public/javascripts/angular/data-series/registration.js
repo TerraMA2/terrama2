@@ -1,5 +1,5 @@
 define([], function() {
-  function RegisterDataSeries($scope, $http, i18n, $window, $state, $httpParamSerializer,
+  function RegisterDataSeries($scope, $rootScope, $http, i18n, $window, $state, $httpParamSerializer,
                               DataSeriesSemanticsService, DataProviderService, DataSeriesService,
                               Service, $timeout, WizardHandler, UniqueNumber,
                               FilterForm, MessageBoxService, $q, GeoLibs, $compile, DateParser, FormTranslator, Socket, CemadenService) {
@@ -56,6 +56,8 @@ define([], function() {
     $scope.getTables = true;
     $scope.showButton = false;
     $scope.showCheckbox = true;
+    $scope.showDynamicAttributes = false;
+    $scope.showMessageAttributes = false;
     $scope.showFolderButton = false;
     $scope.attributesSelect = "";
     $scope.hasProjectPermission = configuration.hasProjectPermission;
@@ -354,6 +356,7 @@ define([], function() {
 
       if($scope.isUpdating){
         if(inputDataSeries.dataSets[0].format.hasOwnProperty('updated') && inputDataSeries.dataSets[0].format.updated === "1"){
+          $scope.showMessageAttributes = false;
           $scope.wizard.attributes.message = i18n.__("Remove attributes configuration");
           $scope.wizard.attributes.disabled = false;
           $scope.wizard.attributes.error = false;
@@ -552,12 +555,73 @@ define([], function() {
 
       $scope.getDataProvider = getDataProvider;
 
+      //start tabs
+      function maxWidth(elem) {
+        var $elem = $(elem);
+        var allWidth = 0;
+        $elem.children().each(function() {
+          allWidth += $(this)[0].getBoundingClientRect().width
+        });
+        $elem.css('width', allWidth);
+      }
+  
+      //Display timeline nav if necessary
+      function getNav(elem) {
+        var $elem = $(elem);
+        if($elem.siblings().width() < $elem.parent().width()){
+          $elem.addClass('hide');	
+        } else {
+          $elem.removeClass('hide');
+        }
+      }
+  
+      function scrollPos() {
+        var maxScrollLeft = $("#tab-div")[0].scrollWidth - $("#tab-div")[0].clientWidth;
+        console.log($("#tab-div")[0].scrollWidth);
+        console.log($("#tab-div")[0].clientWidth);
+        var scrollPos = $("#tab-div").scrollLeft();
+        console.log(scrollPos);
+        scrollPos === 0 ? $(".dynamic-nav-prev").css('color','#ccc') : $(".dynamic-nav-prev").css('color','inherit');
+        scrollPos === maxScrollLeft ? $(".dynamic-nav-next").css('color','#ccc') : $(".dynamic-nav-next").css('color','inherit');
+      }
+  
+      maxWidth(".dynamic-list");
+  
+      $scope.init = function(){
+        getNav(".dynamic-nav");
+        tabWidth = $("#tab-div").width()-$(".dynamic-item").width();
+        scrollPos();
+      };
+  
+      $("#tab-div").scroll(function(){ 
+        scrollPos();
+      });
+  
+      $(".dynamic-nav-next").click(function(){
+        $("#tab-div").stop(true,false).animate({
+                scrollLeft: '+='+$(".dynamic-item").width() }, 500 );
+              return false;
+      });
+      $(".dynamic-nav-prev").click(function(){
+        $("#tab-div").stop(true,false).animate({
+                scrollLeft: '-='+$(".dynamic-item").width() }, 500 );
+              return false;
+      });
+      //end tabs
+
       // it defines when data change combobox has changed and it will adapt the interface
       $scope.onDataSemanticsChange = function() {
         if(!$scope.semanticsSelected)
           $scope.semanticsSelected = true;
-        
+        let dynamicsType = ["Occurrence-generic", "OCCURRENCE-wfp", "OCCURRENCE-postgis", "GRID-static_gdal", "WFS-DETER", "GEOMETRIC_OBJECT-ogr", "GEOMETRIC_OBJECT-wfe"];
         let semanticsCode = $scope.dataSeries.semantics.code;
+        if(dynamicsType.includes(semanticsCode))
+        {
+          $scope.showDynamicAttributes = true;
+        }else{
+          $scope.showDynamicAttributes = false;
+        }
+        
         switch(semanticsCode){
           case "STATIC_DATA-postgis":
             $scope.labelField1 = i18n.__("Choose table in the database");
@@ -842,6 +906,7 @@ define([], function() {
             } else {
               var dataSetFormat = inputDataSeries.dataSets[0].format;
               $scope.model = $scope.prepareFormatToForm(inputDataSeries.dataSets[0].format);
+              
               if($scope.isUpdating){
                 $scope.model.show_transfer = "option1";
               }
@@ -1193,13 +1258,54 @@ define([], function() {
 
         return result.promise;
       }
+      
+      // When watch not working
+      $(document).on('keyup', '#table_name', function (val) {
+        
+        try{
+          var storagerId = $("#storager_data_provider_id")[0].attributes.value.value;
+          listTables({'id':storagerId});
+  
+          var dataProvider = $scope.providersList.filter(function(element) {
+            return element.id == storagerId;
+          });
+  
+          
+          var output=[];
+          if($scope.showButton == false){
+            angular.forEach($scope.listOfTables,function(value){
+              if(value.toLowerCase().indexOf(val.target.value.toLowerCase())>=0){
+                output.push(value);
+              }
+            });
+            $scope.tableList = output;
+          }else{
+            $scope.tableList = output;
+          }
+  
+          if($scope.tableList.length == 0)
+          {
+            $scope.showMessageAttributes = true;
+          }else{
+            $scope.showMessageAttributes = false;
+          }
+  
+          // $scope.model.table_name = val.target.value;
+          // $scope.tableName = val.target.value;
+  
+          if(dataProvider.length > 0 && dataProvider[0].data_provider_type.id == 4)
+            listParamsColumns(dataProvider[0], val);
+        }catch(e){
+          
+        }
+      });
 
-      $scope.$watch("model.table_name", function(val) {
+      $rootScope.$watch("model.table_name", function(val) {
 
         var dataProvider = $scope.providersList.filter(function(element) {
           return element.id == $scope.dataSeries.data_provider_id;
         });
-
+        
         var output=[];
         if($scope.showButton == false){
           angular.forEach($scope.listOfTables,function(value){
@@ -1211,10 +1317,18 @@ define([], function() {
         }else{
           $scope.tableList = output;
         }
+        $scope.dataSeries.data_provider_id = 8;
+        if($scope.tableList.length === 0)
+        {
+          $scope.showMessageAttributes = true;
+        }else{
+          $scope.showMessageAttributes = false;
+        }
 
         if(dataProvider.length > 0 && dataProvider[0].data_provider_type.id == 4)
           listParamsColumns(dataProvider[0], val);
       });
+
 
       $scope.isIntersectionEmpty = function() {
         return Object.keys($scope.intersection).length === 0;
@@ -1283,6 +1397,7 @@ define([], function() {
     
             });
             $scope.model.attributes = attr;
+            $scope.update = false;
           } 
         });
         
@@ -2310,6 +2425,7 @@ define([], function() {
           case "OCCURRENCE":
           case "GRID":
           case "GEOMETRIC_OBJECT":
+
             var format = Object.assign({}, $scope.model);
             angular.merge(format, semantics.metadata.metadata);
             if (semantics.custom_format){
@@ -2321,7 +2437,14 @@ define([], function() {
             }
             
             format.updated = 0;
-            
+
+            format.table_name = $("#table_name").val();
+            try{
+              format.provider = $("#storager_data_provider_id")[0].attributes.value.value;
+            }catch(e){
+
+            }
+
             if($scope.update){
               format.updated = 1;
             }
@@ -2673,7 +2796,8 @@ define([], function() {
     }
   };
 
-  RegisterDataSeries.$inject = ["$scope", "$http", "i18n", "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsService", "DataProviderService", "DataSeriesService", "Service", "$timeout", "WizardHandler", "UniqueNumber", "FilterForm", "MessageBoxService", "$q", "GeoLibs", "$compile", "DateParser", "FormTranslator", "Socket", "CemadenService"];
+  RegisterDataSeries.$inject = ["$scope","$rootScope", "$http", "i18n", "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsService", "DataProviderService", "DataSeriesService", "Service", "$timeout", "WizardHandler", "UniqueNumber", "FilterForm", "MessageBoxService", "$q", "GeoLibs", "$compile", "DateParser", "FormTranslator", "Socket", "CemadenService"];
 
   return { "RegisterDataSeries": RegisterDataSeries };
+
 })
