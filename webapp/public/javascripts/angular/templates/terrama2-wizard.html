@@ -1,53 +1,38 @@
-<div> 
-  <style>
-    .nav-tabs6 {
-      overflow-x: auto;
-      overflow-y: hidden;
-      display: -webkit-box;
-      display: -moz-box;
-    }
-    .nav-tabs6>li {
-      float: none;
-    }
-  </style>
-  <div class="col-md-10  col-md-offset-1" style="padding-bottom: 35px;">
-    <div class="tabbable">
-      <ul class="nav nav-tabs" id="myTab" role="tablist" ng-if="!hideIndicators">
-        <li style="z-index:99"
-            ng-class="{'active': step.selected}" 
-            ng-repeat="step in getEnabledSteps()"
-            class="nav-i"
-            role="presentation" >
-  
-          <a class="btn" ng-click="goTo(step)" ng-disabled="step.wzData.disabled" role="tab" data-toggle="tab">
-            <span ng-if="step.wzData.required" 
-                  ng-class="{'terrama2-font-black': step.wzData.required}">
-                  <i class="fa fa-asterisk"></i>
-            </span>
-            {{ step.title || step.wzTitle }}
-  
-            <span ng-class="{'terrama2-font-red': step.wzData.error, 'terrama2-font-green': step.wzData.error === false}">
-              <i class="fa" ng-class="{'fa-times': step.wzData.error, 'fa-check': step.wzData.error === false}"></i>
-            </span>
-            <span ng-if="step.wzData.optional && step.wzData.disabled"
-                id="remove-configuration"
-                ng-class="terrama2-font-black"
-                class="button pull-right enable-button-click"
-                ng-click="step.wzData.enableForm()"
-                data-toggle="tooltip" title="{{step.wzData.message}}">
-              <i class="fa fa-plus-circle"></i>
-            </span>
-            <span ng-if="step.wzData.optional && !step.wzData.disabled"
-                ng-class="terrama2-font-black"
-                class="button pull-right enable-button-click"
-                ng-click="step.wzData.disabled = true; goTo(getEnabledSteps()[0]); step.wzData.clearForm()"
-                data-toggle="tooltip" title="{{step.wzData.message}}">
-              <i class="fa fa-minus-circle"></i>
-            </span>
-          </a>
-        </li>
-      </ul>
-    </div>
+<div>
+  <div class="col-md-10 col-md-offset-1" style="padding-bottom: 35px;">
+    <ul class="nav nav-tabs" ng-if="!hideIndicators">
+      <li style="width: calc(100%/{{ getEnabledSteps().length }});" 
+          ng-class="{'active': step.selected}" 
+          ng-repeat="step in getEnabledSteps()">
+
+        <a class="btn" ng-click="goTo(step)" ng-disabled="step.wzData.disabled">
+          <span ng-if="step.wzData.required" 
+                ng-class="{'terrama2-font-black': step.wzData.required}">
+                <i class="fa fa-asterisk"></i>
+          </span>
+          {{ step.title || step.wzTitle }}
+
+          <span ng-class="{'terrama2-font-red': step.wzData.error, 'terrama2-font-green': step.wzData.error === false}">
+            <i class="fa" ng-class="{'fa-times': step.wzData.error, 'fa-check': step.wzData.error === false}"></i>
+          </span>
+          <span ng-if="step.wzData.optional && step.wzData.disabled"
+              id="remove-configuration"
+              ng-class="terrama2-font-black"
+              class="button pull-right enable-button-click"
+              ng-click="step.wzData.enableForm()"
+              data-toggle="tooltip" title="{{step.wzData.message}}">
+            <i class="fa fa-plus-circle"></i>
+          </span>
+          <span ng-if="step.wzData.optional && !step.wzData.disabled"
+              ng-class="terrama2-font-black"
+              class="button pull-right enable-button-click"
+              ng-click="step.wzData.disabled = true; goTo(getEnabledSteps()[0]); step.wzData.clearForm()"
+              data-toggle="tooltip" title="{{step.wzData.message}}">
+            <i class="fa fa-minus-circle"></i>
+          </span>
+        </a>
+      </li>
+    </ul>
   </div>
 
   <div style='padding-top: 50px; padding-bottom: 30px;'>
@@ -57,9 +42,4 @@
   <div class="steps" ng-transclude>
 
   </div>
-
-  <script>
-    $('.nav-tabs').scrollingTabs();
-  </script>
-
 </div>
