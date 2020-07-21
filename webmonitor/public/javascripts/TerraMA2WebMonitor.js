@@ -603,8 +603,6 @@ define(
           var layerData = Layers.getLayerById(layerId);
           var layerType = layerData.parent;
 
-          console.log(layerData);
-
           const tableName = layerData.exportation.table;
 
           var columns = [];
@@ -659,9 +657,7 @@ define(
   
                           firesAttributes += "<table class=\"table table-striped\"><tbody>";
                           var firesAttributesRows = "";
-                          
-                          console.log(attributesJson);
-
+  
                           if(attributesJson != null){
 
                             if(attributesJson.length !== Object.keys(featureInfo.features[i].properties).length){

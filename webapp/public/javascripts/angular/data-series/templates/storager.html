@@ -23,7 +23,7 @@
     <div class="form-group" terrama2-show-errors>
       <label ng-bind="$ctrl.i18n.__('Data Store')">:</label>
       <ui-select name="storager_data_provider_id" ng-model="$ctrl.storager_data_provider_id" required>
-        <ui-select-match value="{{$select.selected.id}}" id="storager_data_provider_id">
+        <ui-select-match>
           <img ng-src="{{$ctrl.getImageUrl($select.selected)}}" style="width: 20px; margin-top: -13px"/>
           <span ng-bind="$select.selected.name"></span>
         </ui-select-match>
