@@ -218,6 +218,10 @@ module.exports = {
     WFS: {
       name: "WFS",
       value: 6
+    },
+    HTTPS: {
+      name: "HTTPS",
+      value: 7
     }
   },
 
