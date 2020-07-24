@@ -121,5 +121,6 @@ app.directive("terrama2BoundedBox", ["i18n", "Polygon", "FilterForm", function(i
     }
   };
 }]);
+
   return moduleName;
 })

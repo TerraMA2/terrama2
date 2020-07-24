@@ -130,12 +130,12 @@ std::string terrama2::core::DataAccessorGeometricObjectOGR::getTimestampMask(Dat
 
 std::string terrama2::core::DataAccessorGeometricObjectOGR::getDateType(DataSetPtr dataSet, bool logErrors) const
 {
-  std::string dateType = "";
+  std::string dateType = "string";
   try {
     dateType = getProperty(dataSet, dataSeries_, "type", logErrors);
-  } catch(UndefinedTagException& /*e*/)
+  } catch(UndefinedTagException&)
   {
-    dateType = "string";
+    // TYPE is an optional parameter, DEFAULT = string
   }
 
   return dateType;

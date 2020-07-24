@@ -1,13 +1,13 @@
 define([],()=> {
   class AttributesComponent {
     constructor(i18n, dataProviderService, $timeout) {
-      this.saveBtnTitle=i18n.__("Save");
-      this.attributeNameLabel = i18n.__("Attribute Name");
+      this.saveBtnTitle=i18n.__("Save")
+      this.attributeNameLabel = i18n.__("Attribute Name")
       this.aliasLabel = i18n.__("Alias")
-      this.visibleLabel = i18n.__("Visible");
-      this.dataProviderService=dataProviderService;
-      this.$timeout=$timeout;
-      this.onListColumns();
+      this.visibleLabel = i18n.__("Visible")
+      this.dataProviderService=dataProviderService
+      this.$timeout=$timeout
+      this.onListColumns()
     }
 
     onListColumns(){
@@ -17,15 +17,8 @@ define([],()=> {
         
         const dataProviderid = this.dataserie.data_provider_id;
         var attributesJson = [];
-        var providerId;
 
-        const {tableName, provider, dataProviderService} = this;
-
-        if(this.model.hasOwnProperty("provider")){
-          providerId = this.model.provider;
-        }
-
-        providerId = provider;
+        const {tableName, provider, dataProviderService} = this
 
         var table = "";
         var isView = false;
@@ -49,6 +42,7 @@ define([],()=> {
 
           if(typeof response !== 'undefined' && typeof response[0] !== 'undefined'){
             var dataSetid = response[0].data_set_id;
+
             $.ajax({
               url: BASE_URL + 'api/attributesByDataSerie',
               type: "GET",
@@ -71,7 +65,6 @@ define([],()=> {
           if (response.data.status == 400){
             return result.reject(response.data);
           }
-          this.model = [];
           response.data.data.map(element => {
             var visibleOp = true;
             var aliasOp = element.column_name;
@@ -95,7 +88,6 @@ define([],()=> {
         });
       })
     }
-
   }
 
   AttributesComponent.$inject = ["i18n", "DataProviderService", "$timeout"];
