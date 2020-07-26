@@ -47,6 +47,14 @@ define(
         var dragBoxExtent = TerraMA2WebComponents.MapDisplay.getZoomDragBoxExtent();
         TerraMA2WebComponents.MapDisplay.zoomToExtent(dragBoxExtent);
       });
+      var latLong = USER_CONFIG.latLong;
+      if (latLong && latLong.length != 0) {
+        TerraMA2WebComponents.MapDisplay.setCenter(latLong);
+      }
+      var zoom = USER_CONFIG.zoom;
+      if (zoom) {
+        TerraMA2WebComponents.MapDisplay.setZoom(zoom);
+      }
     };
 
     var init = function() {

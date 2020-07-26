@@ -85,6 +85,8 @@ define(
         TerraMA2WebComponents.MapDisplay.updateMapSize();
       });
 
+      changeLanguage(USER_CONFIG.language);
+
       // Language change events
 
       $("#language-pt").parent().on("click", function() {
@@ -389,10 +391,21 @@ define(
           }
         }
 
-        if(viewsData.initialRequest)
+        if(viewsData.initialRequest) {
           Layers.fillLayersData();
+          const userLayers = USER_CONFIG.selectedLayers;
+          for (let i = 0; i < userLayers.length; i++) {
+            const layer = userLayers[i];
+            if (!$("li[title='"+layer+"'] input").is(':checked')){
+              $("li[title='"+layer+"'] input").trigger('click');
+            }
+          }
 
-        // Layers.addLayersToSort();
+          var defaultProject = USER_CONFIG.project;
+          if (defaultProject){
+            $("#projects").val($('#projects option').filter(function () { return $(this).html() == defaultProject; }).val());
+          }
+        }
       });
 
       // Checking map server connection response
@@ -529,6 +542,10 @@ define(
               }
             };
 
+            const zoomToLayer = USER_CONFIG.zoomToLayer;
+            if (layerCapabilities[layerIndex].title == zoomToLayer) {
+              TerraMA2WebComponents.MapDisplay.zoomToExtent(layerCapabilities[layerIndex].boundingBox);
+            }
             Utils.getSocket().emit('proxyRequest', jsonData);
           }
         } catch(e) {
@@ -995,7 +1012,7 @@ define(
       }
 
       var gebcoUrl = "http://www.gebco.net/data_and_products/gebco_web_services/web_map_service/mapserv?request=getmap&service=wms";
-      if(TerraMA2WebComponents.MapDisplay.addTileWMSLayer("gebco_08_grid", "GEBCO", "GEBCO", gebcoUrl, "mapserver", false, false, "terrama2-layerexplorer", { version: "1.3.0", format: "image/jpeg" })){
+      if(TerraMA2WebComponents.MapDisplay.addTileWMSLayer("gebco_08_grid", "GEBCO", "GEBCO", gebcoUrl, "mapserver", false, false, "terrama2-layerexplorer", { version: "1.3.0", format: "image/jpeg" }, "GEBCO Compilation Group (2019) GEBCO 2019 Grid")){
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("gebco_08_grid", "template", null, "treeview unsortable terrama2-truncate-text sidebar-subitem template", null);
         var layerObject = Layers.createLayerObject({
           layers: ["gebco_08_grid"],
@@ -1008,7 +1025,7 @@ define(
       }
 
       var sentinelURL = "https://b.s2maps-tiles.eu/wms?";
-      if(TerraMA2WebComponents.MapDisplay.addTileWMSLayer("s2cloudless", "Sentinel 2", "Sentinel 2", sentinelURL, "mapserver", false, false, "terrama2-layerexplorer", { version: "1.1.1", format: "image/jpeg" })){
+      if(TerraMA2WebComponents.MapDisplay.addTileWMSLayer("s2cloudless", "Sentinel 2", "Sentinel 2", sentinelURL, "mapserver", false, false, "terrama2-layerexplorer", { version: "1.1.1", format: "image/jpeg" }, "Sentinel-2 cloudless - <a href='https://s2maps.eu'>https://s2maps.eu</a> by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2017 & 2018)")){
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("s2cloudless", "template", null, "treeview unsortable terrama2-truncate-text sidebar-subitem template", null);
         var layerObject = Layers.createLayerObject({
           layers: ["s2cloudless"],
@@ -1057,7 +1074,18 @@ define(
       loadSocketsListeners();
       loadEvents();
       loadLayout();
+
       $("#osm input").trigger("click");
+      var defaultTemplate = 'osm';
+      var userConfigTemplate = USER_CONFIG.template;
+      if (userConfigTemplate == 'osm') {
+        defaultTemplate = 'osm';
+      } else if (userConfigTemplate == 'gebco') {
+        defaultTemplate = 'gebco_08_grid';
+      } else if (userConfigTemplate == 'sentinel') {
+        defaultTemplate = 's2cloudless';
+      }
+      $("#"+defaultTemplate+" input").trigger("click");
 
       Utils.isAuthenticated()
         .then(flag => {

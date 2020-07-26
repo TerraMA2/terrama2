@@ -467,7 +467,7 @@ define(
      * @memberof MapDisplay
      * @inner
      */
-    var createTileWMSLayer = function(layerId, layerName, layerTitle, url, type, layerVisible, disabled, params) {
+    var createTileWMSLayer = function(layerId, layerName, layerTitle, url, type, layerVisible, disabled, params, attribution="") {
       params = params !== undefined && params !== null ? params : {};
 
       var sourceParams = params.sourceParams !== undefined && params.sourceParams !== null ? params.sourceParams : {};
@@ -490,7 +490,12 @@ define(
       var layerSourceOptions = {
         url: url,
         serverType: type,
-        params: sourceParams
+        params: sourceParams,
+        attributions: [
+          new ol.Attribution({
+            html: attribution
+          })
+        ]
       };
 
       if(params.tileGrid !== undefined && params.tileGrid !== null && params.tileGrid !== '')
@@ -758,7 +763,7 @@ define(
      * @memberof MapDisplay
      * @inner
      */
-    var addTileWMSLayer = function(layerId, layerName, layerTitle, url, type, layerVisible, disabled, parentGroup, params) {
+    var addTileWMSLayer = function(layerId, layerName, layerTitle, url, type, layerVisible, disabled, parentGroup, params, attribution = "") {
       var layerGroup = findBy(memberOlMap.getLayerGroup(), 'id', parentGroup);
       var layerGroupExists = layerGroup !== null;
 
@@ -766,7 +771,7 @@ define(
         var layers = layerGroup.getLayers();
 
         layers.push(
-          createTileWMSLayer(layerId, layerName, layerTitle, url, type, layerVisible, disabled, params)
+          createTileWMSLayer(layerId, layerName, layerTitle, url, type, layerVisible, disabled, params, attribution)
         );
 
         layerGroup.setLayers(layers);
@@ -1364,6 +1369,14 @@ define(
       memberOlMap.getView().fit(extent, { size: memberOlMap.getSize(), constrainResolution: false });
     };
 
+    var setCenter = function(latLong) {
+      memberOlMap.getView().setCenter([latLong[1], latLong[0]]);
+    }
+
+    var setZoom = function(zoom) {
+      memberOlMap.getView().setZoom(zoom);
+    }
+
     /**
      * Returns the current map resolution.
      * @returns {float} resolution - Map resolution
@@ -1671,6 +1684,8 @@ define(
       init: init,
       updateLayerOpacity: updateLayerOpacity,
       getLayerOpacity: getLayerOpacity,
+      setCenter: setCenter,
+      setZoom: setZoom,
       updateLayerLength
     };
   }

@@ -362,7 +362,7 @@ img[src=""] {
 .map-tool-button {
   padding: 3px;
   max-height: 350px;
-  background-color: rgba(0, 0, 0, .4)
+  background-color: rgba(255, 255, 255, .4)
 }
 
 .slider-content>div {
@@ -599,17 +599,6 @@ img[src=""] {
 
 .cursor-pointer {
   cursor: pointer!important
-}
-
-.ol-control,
-.ol-control:hover,
-.ol-overlaycontainer,
-.ol-overlaycontainer:hover,
-.ol-unselectable,
-.ol-unselectable:hover,
-.ol-zoom,
-.ol-zoom:hover {
-  background-color: rgba(0, 0, 0, .4)!important
 }
 
 #table-div {
@@ -1369,12 +1358,12 @@ img[src=""] {
   top: unset;
   left: unset;
   right: 15px !important;
-  bottom: 15px !important;
+  bottom: 60px !important;
   position: fixed !important
 }
 
 .ol-attribution {
-  display: none !important;
+  /* display: none !important; */
 }
 
 .ol-rotate {
