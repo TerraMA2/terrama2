@@ -163,13 +163,13 @@ cd /home/USER/mydevel/terrama2/codebase/packages/deb-package
 ./deb-terrama2.sh
 ```
 
-**Note:** the script will assume that you installed terralib (and dependencies) at `/opt/terralib/5.4.2`.
+**Note:** the script will assume that you installed terralib (and dependencies) at `/opt/terralib/5.4.5`.
 
 1.3. When finished the generated package will be located in the `build-package` folder in the same directory as your codebase.
 
 1.4. To install TerraMA² debian package in the shell command line change the current directory to the `build-package` folder and run the following command:
 ```
-sudo dpkg -i TerraMA2-4.1.0-release-linux-x64-Ubuntu-16.04.deb
+sudo dpkg -i TerraMA2-4.1.1-release-linux-x64-Ubuntu-16.04.deb
 ```
 
 ### Quick Notes for Developers
