@@ -49,7 +49,7 @@ echo ""
 echo "Making Package..."
 echo ""
 
-LD_LIBRARY_PATH=`pwd`/bin make package -j 8
+LD_LIBRARY_PATH=`pwd`/bin make package -j 4
 
 echo "* ---------- *"
 echo "* Finished ! *"
