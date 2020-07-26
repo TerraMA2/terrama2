@@ -187,8 +187,10 @@ define(
 
       $('#about-btn').on('click', function() {
         $('#about-dialog').dialog({
-          resizable: false,
-          draggable: false,
+          resizable: true,
+          draggable: true,
+          width: 600,
+          height: 500,
           title: "",
           closeOnEscape: true,
           closeText: "",
@@ -232,6 +234,7 @@ define(
       var isAutoUpdate = $('#auto-update-off').hasClass("hidden");
       var isVisible = $("#" + layer.htmlId + " input").is(":checked");
       if (isAutoUpdate && isVisible){
+        $("#" + layer.htmlId + " .checkbox input").trigger("click");
         $("#" + layer.htmlId + " .checkbox input").trigger("click");
         Layers.changeLayerStatus(layer.id, LayerStatusEnum.NEW);
         Layers.changeParentLayerStatus(layer.parent, LayerStatusEnum.NEW);
