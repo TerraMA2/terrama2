@@ -7,6 +7,7 @@
  * @author Jean Souza [jean.souza@funcate.org.br]
  *
  * @property {object} memberHttp - 'http' module.
+ * @property {object} memberHttps - 'https' module.
  * @property {string} memberDescribeFeatureTypeTemplateURL - Url template for the GeoServer 'DescribeFeatureType' request.
  * @property {string} memberGetFeatureTemplateURL - Url template for the GeoServer 'GetFeature' request.
  * @property {string} memberGetLegendGraphicTemplateURL - Url template for the GeoServer 'GetLegendGraphic' request.
@@ -16,6 +17,8 @@ var GetAttributesTableController = function(app) {
 
   // 'http' module
   var memberHttp = require('http');
+  // 'http' module
+  var memberHttps = require('https');
   // Url template for the GeoServer 'DescribeFeatureType' request
   var memberDescribeFeatureTypeTemplateURL = "/wms?service=WFS&version=1.0.0&request=DescribeFeatureType&outputFormat=application/json&typename={{LAYER_NAME}}";
   // Url template for the GeoServer 'GetFeature' request
@@ -44,9 +47,12 @@ var GetAttributesTableController = function(app) {
    * @inner
    */
   var getValidProperties = function(layer, geoserverUri, callback) {
+    const http = isSSL ? memberHttps : memberHttp;
+    http.get({
 
-    memberHttp.get(geoserverUri + memberDescribeFeatureTypeTemplateURL.replace('{{LAYER_NAME}}', layer), function(resp) {
-
+      url: geoserverUri + memberDescribeFeatureTypeTemplateURL.replace('{{LAYER_NAME}}', layer),
+      rejectUnauthorized: false},
+    function(resp) {
       var body = '';
       var fields = [];
 
@@ -89,6 +95,7 @@ var GetAttributesTableController = function(app) {
    */
   var getAttributesTable = function(request, response) {
     getValidProperties(request.body.layer, request.body.geoserverUri, function(fields) {
+      const http = isSSL ? memberHttps : memberHttp;
       var properties = "";
       var search = (request.body['search[value]'] !== "" ? "&cql_filter=(" : "");
       var dateTimeField = null;
@@ -140,7 +147,7 @@ var GetAttributesTableController = function(app) {
         url += "&cql_filter=(execution_date='" + request.body.analysisTime + "')";
       }
 
-      memberHttp.get(url, function(resp) {
+      http.get({url: url, rejectUnauthorized: false}, function(resp) {
         var body = '';
         var fields = [];
 
@@ -281,13 +288,22 @@ var GetAttributesTableController = function(app) {
    * @inner
    */
   var getLegend = function(request, response) {
-    memberHttp.get(request.query.geoserverUri + memberGetLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer).replace('{{STYLE_NAME}}', request.query.layer+'_style'), function(resp) {
+    const http = isSSL ? memberHttps : memberHttp;
+
+    http.get({
+          url: request.query.geoserverUri + memberGetLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer).replace('{{STYLE_NAME}}', request.query.layer+'_style'),
+          rejectUnauthorized: false
+        },
+        function(resp) {
       if(resp.headers['content-type'].startsWith('image')) {
         resp.pipe(response, {
           end: true
         });
       } else {
-        memberHttp.get(request.query.geoserverUri + memberGetLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer).replace('{{STYLE_NAME}}', request.query.layer+'_style_legend'), function(resp) {
+        http.get({
+          url :request.query.geoserverUri + memberGetLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer).replace('{{STYLE_NAME}}', request.query.layer+'_style_legend'),
+          rejectUnauthorized: false},
+        function(resp) {
           if(resp.headers['content-type'].startsWith('image')) {
             resp.pipe(response, {
               end: true

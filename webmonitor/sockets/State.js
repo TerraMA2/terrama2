@@ -3,15 +3,13 @@
 var State = function(io) {
 
   var memberSockets = io.sockets;
-  // 'fs' module
-  var memberFs = require('fs');
-  // 'path' module
-  var memberPath = require('path');
   // 'request' module
   var memberRequest = require('request');
   // WebMonitor configuration
   var Application = require('./../core/Application');
   var memberConfig = Application.getContextConfig();
+
+  var isSSL = Application.getContextConfig().ssl;
 
   var userToken = require('../config/UserToken');
 
@@ -25,7 +23,8 @@ var State = function(io) {
         form: {
           userToken: userToken.getToken(),
           state: json.state
-        }
+        },
+        rejectUnauthorized: false
       };
 
       memberRequest.post(options, function(err, httpResponse, body) {
@@ -50,7 +49,8 @@ var State = function(io) {
         url: memberConfig.webadmin.protocol + memberConfig.webadmin.host + ":" + memberConfig.webadmin.port + memberConfig.webadmin.basePath + "get-state",
         form: {
           userToken: userToken.getToken()
-        }
+        },
+        rejectUnauthorized: false
       };
 
       memberRequest.post(options, function(err, httpResponse, body) {

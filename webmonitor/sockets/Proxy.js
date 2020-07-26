@@ -1,8 +1,16 @@
 "use strict";
 
 var Proxy = function(io){
+  var Application = require('./../core/Application');
+
+  var isSSL = Application.getContextConfig().ssl;
+
+  // 'http' module
+  var memberHttp = require('http');	  var memberHttp = require('http');
+  // 'https' module
+  var memberHttps = require('https');
+
   var memberSockets = io.sockets;
-  var memberHttp = require('http');
   var memberXmlParser = require('../utils/XmlParser');
 
   // Socket connection event
@@ -10,8 +18,9 @@ var Proxy = function(io){
 
     // check connection event
     client.on('checkConnection', function(json) {
+      const http = isSSL ? memberHttps : memberHttp;
       // Http request to check connection
-      memberHttp.get(json.url, function(resp) {
+      http.get({url: json.url, rejectUnauthorized: false}, function(resp) {
         // If success to access the url, send an object with connected propertie with true value
         client.emit('connectionResponse', { connected: true, requestId: json.requestId, url: json.url});
       })
@@ -25,7 +34,8 @@ var Proxy = function(io){
     client.on('proxyRequest', function(json) {
       // Http request to the received url
       try {
-        memberHttp.get(json.url, function(resp) {
+        const http = isSSL ? memberHttps : memberHttp;
+        http.get({url: json.url, rejectUnauthorized: false}, function(resp) {
           var body = '';
           // Data receiving event
           resp.on('data', function(chunk) {
@@ -55,8 +65,9 @@ var Proxy = function(io){
 
     // Proxy request event
     client.on('proxyRequestCapabilities', function(json) {
+      const http = isSSL ? memberHttps : memberHttp;
       // Http request to the received url
-      memberHttp.get(json.url, function(resp) {
+      http.get({url: json.url, rejectUnauthorized: false}, function(resp) {
         var body = '';
         // Data receiving event
         resp.on('data', function(chunk) {
