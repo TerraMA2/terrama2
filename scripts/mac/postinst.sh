@@ -77,8 +77,8 @@ echo "Post-installation script..."
 # Create default config files
 (
   cd ${TERRAMA2_APP_DIR}/webapp/config
-  if ! [ -d "instances" ]; then
-    cp -r sample_instances instances
+  if ! [ -f "settings.json" ]; then
+    cp settings.json.example settings.json
   fi
 )
 (
