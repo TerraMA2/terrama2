@@ -164,9 +164,9 @@
           <div class="form-group" terrama2-show-errors>
             <label><span ng-bind="i18n.__('View Data Series')"></span>:</label>
             <div class="pull-right">
-              <span><input type="checkbox" ng-model="ctrl.filter['isAnalysis']"> {{ i18n.__('Analysis') }} &nbsp</span> 
-              <span><input type="checkbox" ng-model="ctrl.filter['DYNAMIC']"> {{ i18n.__('Dynamic') }} &nbsp</span> 
-              <span><input type="checkbox" ng-model="ctrl.filter['STATIC']"> {{ i18n.__('Static') }}</span> 
+              <span><input type="checkbox" ng-model="ctrl.filter['isAnalysis']"> {{ i18n.__('Analysis') }} &nbsp</span>
+              <span><input type="checkbox" ng-model="ctrl.filter['DYNAMIC']"> {{ i18n.__('Dynamic') }} &nbsp</span>
+              <span><input type="checkbox" ng-model="ctrl.filter['STATIC']"> {{ i18n.__('Static') }}</span>
             </div>
             <ui-select
                     name="dataSeries"
@@ -199,10 +199,27 @@
     </terrama2-box>
 
     <terrama2-box title="i18n.__('Style')" css="ctrl.css">
-      <form name="forms.styleForm" novalidate>
-        <!-- Vectorial -->
-        <terrama2-style-legend form-ctrl="forms.styleForm" type="ctrl.targetDataSeriesType" is-dynamic="ctrl.isDynamic" is-updating="ctrl.isUpdating" columns-list="ctrl.columnsList" postgis-data="ctrl.postgisData" model="ctrl.legend"></terrama2-style-legend>
-      </form>
+      <div class="nav-tabs-custom">
+      <ul class="nav nav-tabs">
+        <li class="active"><a href="#tabMap" data-toggle="tab" aria-expanded="true">{{ i18n.__('Map') }}</a></li>
+        <li><a href="#tabChart" data-toggle="tab" aria-expanded="false">{{ i18n.__('Chart') }}</a></li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane active" id="tabMap">
+          <form name="forms.styleForm" novalidate>
+            <!-- Vectorial -->
+            <terrama2-style-legend form-ctrl="forms.styleForm" type="ctrl.targetDataSeriesType" is-dynamic="ctrl.isDynamic" is-updating="ctrl.isUpdating" columns-list="ctrl.columnsList" postgis-data="ctrl.postgisData" model="ctrl.legend"></terrama2-style-legend>
+          </form>
+          <div style="clear: both;"></div>
+        </div>
+        <div class="tab-pane" id="tabChart">
+          <form name="forms.chartForm">
+            <chart ng-if="ctrl.isViewDataSeriesNull()" chart-form="forms.chartForm" table-name="ctrl.viewDataSeries.dataSets[0].format.table_name" model="ctrl.view" provider="ctrl.viewDataSeries.data_provider_id"></chart>
+          </form>
+          <div style="clear: both;"></div>
+        </div>
+      </div>
+    </div>
     </terrama2-box>
 
     <div class="box-footer">
@@ -219,7 +236,7 @@
       <a href="{[ BASE_URL ]}configuration/views/" class="btn btn-primary pull-left"><span ng-bind="i18n.__('Cancel')"></span></a>
     </div>
   </terrama2-box>
-  
+
 </div> <!-- end col md 12 -->
 
 {% endblock %}

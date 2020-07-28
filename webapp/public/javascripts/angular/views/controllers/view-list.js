@@ -110,7 +110,7 @@ define([], function() {
           targetMethod = MessageBoxService.warning; // setting warning method to display message
           delete config.extra;
           delete config.message;
-        } 
+        }
         else {
           targetMethod = MessageBoxService.danger;
         }
@@ -153,7 +153,6 @@ define([], function() {
 
           self.servicesInstances[response.service] = false;
         }
-        console.log(self.servicesInstances);
       }
     });
 
@@ -170,7 +169,6 @@ define([], function() {
         self.model = ViewService.list(viewRestriction);
 
         self.model.forEach(function(instance) {
-          console.log(instance);
           Socket.emit("status", { service: instance.service_instance_id });
           self.servicesInstances[instance.service_instance_id] = false;
         });
@@ -216,23 +214,17 @@ define([], function() {
           switch (semantics.data_series_type_name){
             case "OCCURRENCE":
               return BASE_URL + "images/view/dynamic_data_series/occurrence/large_occurrence_view.png";
-              break;
             case "GEOMETRIC_OBJECT":
             case "STATIC_DATA":
               return BASE_URL + "images/view/static_data_series/vetor/large_vector_view.png";
-              break;
             case "GRID":
               return BASE_URL + "images/view/static_data_series/grid/large_grid_view.png";
-              break;
             case "DCP":
               return BASE_URL + "images/view/dynamic_data_series/dcp/large_dcp_view.png";
-              break;
             case "ANALYSIS_MONITORED_OBJECT":
               return BASE_URL + "images/view/analysis/large_analysis_view.png";
-              break;
             default:
               return BASE_URL + "images/view/dynamic_data_series/grid/large_grid_view.png";
-              break;
           }
         };
 
@@ -276,7 +268,7 @@ define([], function() {
                 var errorWhenDeleteMessage = i18n.__("Can not delete the view if the service is not running. ");
                 if(err.service && err.service.instance_name)
                   errorWhenDeleteMessage += i18n.__("Service") + ": " + err.service.instance_name;
-                return MessageBoxService.danger(i18n.__("View"), errorWhenDeleteMessage);            
+                return MessageBoxService.danger(i18n.__("View"), errorWhenDeleteMessage);
               } else {
                 MessageBoxService.danger(i18n.__("View"), i18n.__(err.message));
                 return;

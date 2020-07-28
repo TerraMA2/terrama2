@@ -6,6 +6,7 @@ module.exports = function(app) {
   var ScheduleType = require("./../../core/Enums").ScheduleType;
   var ViewSourceType = require("./../../core/Enums").ViewSourceType;
   var makeTokenParameters = require('../../core/Utils').makeTokenParameters;
+  const ViewFacade = require('../../core/facade/View');
 
   return {
     get: function(request, response) {
@@ -15,13 +16,13 @@ module.exports = function(app) {
       response.render("configuration/views", parameters);
     },
     new: function(request, response) {
-      return response.render("configuration/view", {ScheduleType: ScheduleType, ViewSourceType: ViewSourceType});
+      return response.render("configuration/view", {ScheduleType, ViewSourceType});
     },
     edit: function(request, response) {
       var hasProjectPermission = request.session.activeProject.hasProjectPermission;
-      DataManager.getView({id: parseInt(request.params.id)})
+      ViewFacade.retrieve(parseInt(request.params.id))
         .then(function(view) {
-          return response.render("configuration/view", {view: view.rawObject(), ScheduleType: ScheduleType, ViewSourceType: ViewSourceType, hasProjectPermission: hasProjectPermission});
+          return response.render("configuration/view", {view, ScheduleType, ViewSourceType, hasProjectPermission});
         }).catch(function(err) {
           return response.render("base/404");
         });

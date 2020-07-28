@@ -25,9 +25,7 @@ var Utils = require("./../../Utils");
 var TcpManager = require("./../../TcpManager");
 
 // TerraMA2 Enums
-var ServiceType = require("./../../Enums").ServiceType;
-var StatusLog = require("./../../Enums").StatusLog;
-var MessageType = require("./../../Enums").MessageType;
+const { MessageType, ServiceType, StatusLog, Uri } = require('./../../Enums');
 
 // DataManager
 var DataManager = require("./../../DataManager");
@@ -47,6 +45,8 @@ var Application = require("./../../Application");
  */
 var webapp = Application.get("metadata");
 var versionData = require("../../../../share/terrama2/version.json");
+
+const loadDatabaseFunctions = require('./../../utility/loadDatabaseFunctions');
 
 /**
  * It handles TCP service manipulation. Use  it to be pipe between front-end and back-end application
@@ -453,40 +453,21 @@ TcpService.prototype.stop = function(json) {
  * @param {DataProviders[]} data.DataProviders - A list of DataProviders to send
  * @param {number} service - A TerraMA² service instance to send. When typed, it send only for this.
  */
-TcpService.prototype.send = function(data, serviceId) {
-  var self = this;
-  return new PromiseClass(function(resolve, reject) {
-    /**
-     * Target promiser to expose Database Retriever. It might be listServiceInstances or getServiceInstance
-     * @type {Promise<Service|Services[]>}
-     */
-    var promiser;
-    if (serviceId) {
-      promiser = DataManager.getServiceInstance({id: serviceId});
-    } else {
-      promiser = DataManager.listServiceInstances();
-    }
+TcpService.prototype.send = async function(data, serviceId) {
+  let services = [];
 
-    return promiser
-      .then(function(services) {
-        var _sendData = function(service) {
-          try {
-            TcpManager.emit('sendData', service, data);
-          } catch(err) { }
-        };
-        if (services instanceof Array) { // listServiceInstances
-          services.forEach(function(service) {
-            _sendData(service);
-          });
-        } else { // getServiceInstance
-          _sendData(services);
-        }
-        return resolve();
-      })
-      .catch(function(err) {
-        return reject(err);
-      });
-  });
+  if (serviceId) {
+    const service = await DataManager.getServiceInstance({ id: serviceId });
+    services.push(service);
+  } else {
+    services = await DataManager.listServiceInstances();
+  }
+
+  for(let service of services) {
+    TcpManager.emit('sendData', service, data);
+  }
+
+  return;
 };
 
 /**
@@ -708,10 +689,14 @@ const repeatStatus = (service, times) => {
  * @param {boolean} response.service_loaded - Identifier if service was loaded before
  * @param {boolean} response.shutting_down - Identifier if service is shutting down
  */
-function onStatusReceived(service, response) {
+async function onStatusReceived(service, response) {
   if (!response.service_loaded) {
     // send updateService and Data
     TcpManager.updateService(service);
+
+    const { user, host, password, database, port } = service.log;
+    const logURI = `postgis://${user}:${password}@${host}:${port}/${database}`;
+    await loadDatabaseFunctions(logURI);
 
     delay(1000)
       .then(() => Utils.prepareAddSignalMessage(DataManager))

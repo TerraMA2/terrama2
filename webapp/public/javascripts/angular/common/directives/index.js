@@ -1,21 +1,18 @@
 define([
   "TerraMA2WebApp/common/directives/box",
-  "TerraMA2WebApp/common/directives/button",
   "TerraMA2WebApp/common/directives/content",
   "TerraMA2WebApp/common/directives/datetime",
   "TerraMA2WebApp/common/directives/datetime-formatter",
-  "TerraMA2WebApp/common/directives/fluid",
   "TerraMA2WebApp/common/directives/show-errors",
   "TerraMA2WebApp/common/directives/compare-to",
   "TerraMA2WebApp/common/directives/text-select"
-], function(terrama2Box, terrama2Button, terrama2Content, terrama2Datetime, terrama2DateTimeFormatter, terrama2Fluid, terrama2ShowErrors, terrama2CompareTo, terrama2TextSelect) {
+], function(terrama2Box, terrama2Content, terrama2Datetime, terrama2DateTimeFormatter, terrama2ShowErrors, terrama2CompareTo, terrama2TextSelect) {
   var moduleName = "terrama2.common.directives";
   angular.module(moduleName, [])
     .directive("terrama2Box", terrama2Box)
     .directive("terrama2Content", terrama2Content)
     .directive("terrama2Datetime", terrama2Datetime)
     .directive("formatDatetime", terrama2DateTimeFormatter)
-    .directive("terrama2Fluid", terrama2Fluid)
     .directive("terrama2ShowErrors", terrama2ShowErrors)
     .directive("terrama2CompareTo", terrama2CompareTo)
     .directive("terrama2TextSelect", terrama2TextSelect)
@@ -54,6 +51,6 @@ define([
         '</div>' +
       '</div>');
     }]);
-  
+
   return moduleName;
 });

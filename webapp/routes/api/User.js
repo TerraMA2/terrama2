@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function(app) {
-  var passport = require('./../../config/Passport');
+  var passport = require('./../../core/utility/Passport');
   var controller = app.controllers.api.User;
 
   app.get(app.locals.BASE_URL + "api/users", passport.isAuthenticated, controller.get);

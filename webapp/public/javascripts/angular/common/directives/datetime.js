@@ -2,7 +2,7 @@ define(
   function() {
     /**
      * A generic directive for handling datetime field
-     * 
+     *
      */
     function terrama2Datetime($timeout) {
       return {

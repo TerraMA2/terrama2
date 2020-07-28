@@ -67,6 +67,7 @@
 
 <!-- Moment Datetime JS -->
 <script type="text/javascript" src="{[ BASE_URL ]}externals/moment/moment.js"></script>
+<script type="text/javascript" src="{[ BASE_URL ]}externals/moment-timezone/builds/moment-timezone-with-data.js"></script>
 <!-- Angular tree control -->
 <script type="text/javascript" src="{[ BASE_URL ]}externals/angular-tree-control/angular-tree-control.js"></script>
 <!-- Ace editor -->
@@ -176,6 +177,7 @@
                   <option value="{[ Enums.AnalysisType.DCP ]}">{{ i18n.__('DCP') }}</option>
                   <option value="{[ Enums.AnalysisType.MONITORED ]}">{{ i18n.__('Monitored Object') }}</option>
                   <option value="{[ Enums.AnalysisType.GRID ]}">{{ i18n.__('Grid') }}</option>
+                  <option value="{[ Enums.AnalysisType.VP ]}">{{ i18n.__('Vector Processing') }}</option>
                 </select>
 
                 <span class="help-block"
@@ -261,7 +263,7 @@
             </div>
           </div>
 
-          <div class="col-md-4" ng-show="ctrl.analysis.type_id == ctrl.AnalysisService.types.GRID">
+          <div class="col-md-4" ng-if="ctrl.analysis.type_id == ctrl.AnalysisService.types.GRID">
             <div class="form-group" terrama2-show-errors>
               <label>{{ i18n.__('Data Store') }}:</label>
               <ui-select name="storager_data_provider_id" ng-model="ctrl.analysis.data_provider_id" ng-required="ctrl.storager.format.name" required>
@@ -281,6 +283,7 @@
             </div>
           </div>
         </form>
+
         <div class="col-md-12 terrama2-nopadding-box">
           <!-- schema form -->
           <div class="col-md-12 terrama2-nopadding-box" ng-show="ctrl.showStoragerForm">
@@ -307,12 +310,21 @@
     <terrama2-box title="i18n.__(ctrl.semanticsSelected + ' Data Series')"
                   css="ctrl.css"
                   ng-show="ctrl.analysis.type_id !== '{[ Enums.AnalysisType.GRID ]}'  && forms.generalDataForm.type.$valid">
+
       <div class="row">
         <div class="col-md-12">
           <form name="forms.targetDataSeriesForm">
-            <div class="col-md-6">
+
+            <vector-processing css="ctrl.css"
+                  model="ctrl.analysis.metadata"
+                  target-data-series="ctrl.targetDataSeries"
+                  metadata="ctrl.metadata"
+                  ng-if="ctrl.analysis.type_id === '{[ Enums.AnalysisType.VP ]}' && forms.generalDataForm.type.$valid">
+            </vector-processing>
+
+            <div class="col-md-6" ng-show="ctrl.analysis.type_id === '{[ Enums.AnalysisType.MONITORED ]}'">
               <div class="form-group has-feedback" terrama2-show-errors>
-                <label>{{ i18n.__("DataSeries") }}:</label>
+                <label>{{ i18n.__(ctrl.analysis.type_id === '{[ Enums.AnalysisType.VP ]}' ? 'Monitored DataSeries' : 'DataSeries') }}:</label>
                 <select class="form-control"
                         name="targetDataSeries"
                         ng-disabled="ctrl.isUpdating"
@@ -336,7 +348,7 @@
                 <label>{{ i18n.__("Attribute Identifier") }}:</label>
 
                 <!-- Input text with optional selection directive-->
-                <terrama2-text-select selected-item="ctrl.identifier" items="ctrl.columnsList"></terrama2-text-select>
+                <terrama2-text-select selected-item="ctrl.analysis.metadata.identifier" items="ctrl.columnsList"></terrama2-text-select>
                 <!-- required -->
                 <span class="help-block"
                       ng-show="forms.targetDataSeriesForm.identifier.$dirty && forms.targetDataSeriesForm.identifier.$error.required">
@@ -351,7 +363,8 @@
     </terrama2-box>
 
     <terrama2-box title="i18n.__(ctrl.analysis.type_id !== '{[ Enums.AnalysisType.GRID ]}' ? 'Additional Data' : 'Grid Data Series')"
-                  css="ctrl.css" ng-show="forms.generalDataForm.type.$valid">
+                  css="ctrl.css"
+                  ng-show="ctrl.analysis.type_id !== '{[ Enums.AnalysisType.VP ]}'  && forms.generalDataForm.type.$valid">
       <div class="col-md-12 terrama2-nopadding-box">
         <div class="col-md-12">
           <button type="button" class="btn btn-default pull-right" data-toggle="modal" data-target="#dataSeriesModal" style="margin-bottom: 15px">
@@ -359,38 +372,40 @@
           </button>
           <!-- metadata form handler -->
           <form name="forms.metadataForm">
-            <table class="table table-bordered table-hover">
-              <tbody>
-              <tr>
-                <th>{{ i18n.__('Name') }}</th>
-                <th>{{ i18n.__('Format') }}</th>
-                <th>{{ i18n.__('Alias') }}</th>
-                <th></th>
-              </tr>
-              <tr style="cursor:pointer;"
-                  ng-repeat="dataSeries in ctrl.selectedDataSeriesList"
-                  data-ng-click="onDataSeriesClick(dataSeries);"
-                  ng-class="{'active': ctrl.selectedDataSeries && ctrl.selectedDataSeries.name == dataSeries.name}">
-                <td><img style="margin-right: 5px;" ng-src="{{ ctrl.getDataSeriesIcon(dataSeries) }}" alt="" max-width="20" height="20"> {{ dataSeries.name }}</td>
-                <td>{{ dataSeries.data_series_semantics.name }}</td>
-                <td>
-                  <input type="text" class="form-control" name="name" ng-model="ctrl.metadata[dataSeries.name].alias" required>
-                </td>
-                <td class="pull-cell-left">
-                  <button type="button" class="btn btn-danger btn-sm" ng-click="ctrl.removeDataSeries(dataSeries)">
-                    <i class="fa fa-times">
-                      <span class="hidden-xs">{{ i18n.__("Remove") }}</span>
-                    </i>
-                  </button>
-                </td>
-              </tr>
-              <tr ng-if="ctrl.selectedDataSeriesList.length == 0">
-                <td colspan="3">
-                  {{ i18n.__('No data series selected') }}
-                </td>
-              </tr>
-              </tbody>
-            </table>
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover">
+                <tbody>
+                <tr>
+                  <th>{{ i18n.__('Name') }}</th>
+                  <th>{{ i18n.__('Format') }}</th>
+                  <th>{{ i18n.__('Alias') }}</th>
+                  <th></th>
+                </tr>
+                <tr style="cursor:pointer;"
+                    ng-repeat="dataSeries in ctrl.selectedDataSeriesList"
+                    data-ng-click="onDataSeriesClick(dataSeries);"
+                    ng-class="{'active': ctrl.selectedDataSeries && ctrl.selectedDataSeries.name == dataSeries.name}">
+                  <td><img style="margin-right: 5px;" ng-src="{{ ctrl.getDataSeriesIcon(dataSeries) }}" alt="" max-width="20" height="20"> {{ dataSeries.name }}</td>
+                  <td>{{ dataSeries.data_series_semantics.name }}</td>
+                  <td>
+                    <input type="text" class="form-control" name="name" ng-model="ctrl.metadata[dataSeries.name].alias" required>
+                  </td>
+                  <td class="pull-cell-left">
+                    <button type="button" class="btn btn-danger btn-sm" ng-click="ctrl.removeDataSeries(dataSeries)">
+                      <i class="fa fa-times">
+                        <span class="hidden-xs">{{ i18n.__("Remove") }}</span>
+                      </i>
+                    </button>
+                  </td>
+                </tr>
+                <tr ng-if="ctrl.selectedDataSeriesList.length == 0">
+                  <td colspan="3">
+                    {{ i18n.__('No data series selected') }}
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
             <!--./table-->
           </form>
           <!--todo: open box-->
@@ -676,7 +691,7 @@
       </div>
     </terrama2-box>
 
-    <terrama2-box title="i18n.__('Script')" css="ctrl.css" ng-show="forms.generalDataForm.type.$valid">
+    <terrama2-box title="i18n.__('Script')" css="ctrl.css" ng-show="((ctrl.analysis.type_id !== '{[ Enums.AnalysisType.VP ]}') && forms.generalDataForm.type.$valid)">
       <div class="col-md-12 terrama2-nopadding-box">
 
         <div class="col-md-12">

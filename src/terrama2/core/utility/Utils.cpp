@@ -250,6 +250,8 @@ terrama2::core::DataSeriesType terrama2::core::dataSeriesTypeFromString(const st
     return terrama2::core::DataSeriesType::GEOMETRIC_OBJECT;
   else if(type == "ANALYSIS_MONITORED_OBJECT")
     return terrama2::core::DataSeriesType::ANALYSIS_MONITORED_OBJECT;
+  else if(type == "VECTOR_PROCESSING_OBJECT")
+    return terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT;
   else
   {
     QString errMsg = QObject::tr("Unknown DataSeriesType: %1.").arg(QString::fromStdString(type));

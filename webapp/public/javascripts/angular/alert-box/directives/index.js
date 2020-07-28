@@ -11,7 +11,7 @@ define([
     .run(["$templateCache", function($templateCache) {
       // <terrama2-alert-box>
       $templateCache.put('message-box.html',
-      '<div ng-if="display" class="alert alert-dismissible" ng-class="alertLevel" terrama2-fluid ng-transclude>' +
+      '<div ng-if="display" class="alert alert-dismissible terrama2-fluid" ng-class="alertLevel" ng-transclude>' +
         '<button type="button" class="close" ng-click="close()">×</button>' +
         '<h4><i class="icon fa" ng-class="alertIcon()"></i> {{ title }}</h4>' +
         '<div class="row">' +

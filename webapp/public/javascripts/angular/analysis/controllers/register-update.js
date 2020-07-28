@@ -81,7 +81,8 @@ define([], function() {
      */
     self.scheduleOptions = {
       showHistoricalOption: true,
-      showAutomaticOption: true
+      showAutomaticOption: true,
+      showFileNameOnTimeUnit: false
     };
     /**
      * It defines a helper messages associated a components. For example, there is no active service... The validate button will be disabled with
@@ -224,13 +225,6 @@ define([], function() {
         self.targetDataSeries = {};
 
         /**
-         * It used to add identifier in Analysis Data Series result
-         *
-         * @type {string}
-         */
-        self.identifier = "";
-
-        /**
          * Function to get image based in provider type
          */
         self.getImageUrl = getImageUrl;
@@ -246,6 +240,8 @@ define([], function() {
             case "FTP":
               return BASE_URL + "images/data-server/ftp/ftp.png";
               break;
+            case "WFS":
+              return BASE_URL + "images/data-server/wfs/datasource-wfs.svg";
             case "SFTP":
               return BASE_URL + "images/data-server/sftp/sftp.png";
               break;
@@ -374,11 +370,6 @@ define([], function() {
                   self.targetDataSeries = filteredDs;
                   self.onTargetDataSeriesChange();
 
-                  /**
-                   * Defines target analysis data series identifier
-                   * @type {string}
-                   */
-                  self.identifier = analysisDs.metadata.identifier;
                   return true;
                 }
               });
@@ -386,6 +377,8 @@ define([], function() {
 
             self.metadata[ds.name] = Object.assign({id: analysisDs.id, alias: analysisDs.alias}, analysisDs.metadata);
           });
+
+          self.analysis.metadata = analysisInstance.metadata;
 
           if (analysisInstance.type.id === Globals.enums.AnalysisType.GRID) {
             // fill interpolation
@@ -426,6 +419,8 @@ define([], function() {
               };
             }
           } else { // if  monitored object or dcp
+            self.analysis.metadata.operationType = !isNaN(Number(analysisInstance.metadata.operationType)) ? Number(analysisInstance.metadata.operationType) : undefined;
+            self.analysis.metadata.dynamicDataSeries = analysisInstance.metadata.dynamicDataSeries;
             self.analysis.metadata.INFLUENCE_TYPE = analysisInstance.metadata.INFLUENCE_TYPE;
             self.analysis.metadata.INFLUENCE_RADIUS = !isNaN(Number(analysisInstance.metadata.INFLUENCE_RADIUS)) ? Number(analysisInstance.metadata.INFLUENCE_RADIUS) : undefined;
             self.analysis.metadata.INFLUENCE_RADIUS_UNIT = analysisInstance.metadata.INFLUENCE_RADIUS_UNIT;
@@ -672,6 +667,7 @@ define([], function() {
           if (self.analysis.grid) {
             delete self.analysis.grid;
           }
+          self.scheduleOptions.showFileNameOnTimeUnit = false;
 
           self.dataSeriesBoxName = i18n.__("Additional Data");
           switch(intTypeId) {
@@ -687,10 +683,18 @@ define([], function() {
               self.dataSeriesBoxName = i18n.__("Grid Data Series");
               dataseriesFilterType = 'GRID';
               delete self.operators.attributes.data;
+
+              self.scheduleOptions.showFileNameOnTimeUnit = true;
               break;
             case AnalysisService.types.MONITORED:
               semanticsType = DataSeriesService.DataSeriesType.ANALYSIS_MONITORED_OBJECT;
               self.semanticsSelected = "Object Monitored";
+              dataseriesFilterType = 'GEOMETRIC_OBJECT';
+              break;
+            case AnalysisService.types.VP:
+              semanticsType = DataSeriesService.DataSeriesType.VECTOR_PROCESSING_OBJECT;
+              self.semanticsSelected = "Vector Processing";
+              self.dataSeriesBoxName = i18n.__("Vector Processing");
               dataseriesFilterType = 'GEOMETRIC_OBJECT';
               break;
             default:
@@ -710,16 +714,22 @@ define([], function() {
 
           self.onTargetDataSeriesChange = function() {
             if (self.targetDataSeries && self.targetDataSeries.name) {
-              if(parseInt(self.analysis.type_id) === AnalysisService.types.MONITORED || parseInt(self.analysis.type_id) === AnalysisService.types.DCP)
+              if(parseInt(self.analysis.type_id) !== AnalysisService.types.GRID)
                 self.analysis.data_provider_id = self.targetDataSeries.data_provider_id;
 
               self.metadata[self.targetDataSeries.name] = {
                 alias: self.targetDataSeries.name
               };
+
               var dataProvider = DataProviderService.list().filter(function(dProvider){
                 return dProvider.id == self.targetDataSeries.data_provider_id;
               });
-              if (dataProvider.length > 0 && dataProvider[0].data_provider_type.id == 4 && parseInt(self.analysis.type_id) === AnalysisService.types.MONITORED ){
+
+              const parsedAnalysisType = parseInt(self.analysis.type_id);
+
+              if (dataProvider.length > 0 &&
+                  dataProvider[0].data_provider_type.id == 4 &&
+                  (parsedAnalysisType === AnalysisService.types.MONITORED || parsedAnalysisType === AnalysisService.types.VP) ){
                 var table_name = self.targetDataSeries.dataSets[0].format.table_name;
                 listColumns(dataProvider[0], table_name);
               }
@@ -1020,33 +1030,45 @@ define([], function() {
            * It retrieves a dom element #scriptCheckResult in order to append script feedback message
            * @type {DOM}
            */
-          var checkResult = angular.element("#scriptCheckResult");
 
-          var hasScriptError = function(expression, message) {
-            var output = false;
-            if (!self.analysis.script || self.analysis.script.indexOf(expression) < 0) {
-              self.analysis_script_error = true;
-              self.analysis_script_error_message = i18n.__("Analysis will not able to generate a output data. ") + message;
-              output = true;
+          if (typeId !== AnalysisService.types.VP)
+          {
+            var checkResult = angular.element("#scriptCheckResult");
+
+            var hasScriptError = function(expression, message) {
+              var output = false;
+              if (!self.analysis.script || self.analysis.script.indexOf(expression) < 0) {
+                self.analysis_script_error = true;
+                self.analysis_script_error_message = i18n.__("Analysis will not able to generate a output data. ") + message;
+                output = true;
+              } else {
+                self.analysis_script_error_message = "";
+                self.analysis_script_error = false;
+              }
+              checkResult.html(self.analysis_script_error_message);
+              return output;
+            };
+
+            var expression, message;
+
+            if (typeId === AnalysisService.types.GRID) {
+              expression = "return";
+              message = "Grid analysis script must end with 'return' statement";
             } else {
-              self.analysis_script_error_message = "";
-              self.analysis_script_error = false;
+              expression = "add_value";
+              message = "Please fill at least a add_value() in script field.";
             }
-            checkResult.html(self.analysis_script_error_message);
-            return output;
-          };
-
-          var expression, message;
-
-          if (typeId === AnalysisService.types.GRID) {
-            expression = "return";
-            message = "Grid analysis script must end with 'return' statement";
+            if (hasScriptError(expression, i18n.__(message))) {
+              throw new Error(self.analysis_script_error_message);
+            }
           } else {
-            expression = "add_value";
-            message = "Please fill at least a add_value() in script field.";
-          }
-          if (hasScriptError(expression, i18n.__(message))) {
-            throw new Error(self.analysis_script_error_message);
+            const { operationType } = self.analysis.metadata;
+
+            if (!operationType) {
+              throw new Error('The field "OperationType" is required');
+            }
+
+            self.analysis.metadata.operationType = operationType.toString();
           }
 
           // checking dataseries analysis
@@ -1110,11 +1132,25 @@ define([], function() {
               analysisTypeId = Globals.enums.AnalysisDataSeriesType.DATASERIES_GRID_TYPE;
               break;
             case Globals.enums.AnalysisType.MONITORED:
+            case Globals.enums.AnalysisType.VP:
               analysisTypeId = Globals.enums.AnalysisDataSeriesType.DATASERIES_MONITORED_OBJECT_TYPE;
-              self.metadata[self.targetDataSeries.name]['identifier'] = self.identifier;
+
+              const { metadata } = self.analysis;
+
+              if (typeId === Globals.enums.AnalysisType.VP) {
+                if (metadata.data_provider_id) {
+                  self.analysis.data_provider_id = metadata.data_provider_id;
+                }
+
+                let additionalIds = self.selectedDataSeriesList.map(selectedDataSeries => selectedDataSeries.id);
+
+                self.modelStorager.additional_object_ids = additionalIds.join(",");
+                self.modelStorager.dynamic_object_id = metadata.dynamicDataSeries;
+              }
+
               // setting monitored object id in output data series format
               self.modelStorager.monitored_object_id = self.targetDataSeries.id;
-              self.modelStorager.monitored_object_pk = self.identifier;
+              self.modelStorager.monitored_object_pk = self.analysis.metadata.identifier;
               break;
           }
 
@@ -1163,7 +1199,7 @@ define([], function() {
             case "minutes":
             case "hours":
               scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
-              scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? moment(scheduleValues.frequency_start_time).format("HH:mm:ssZ") : "";
+              scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? moment(scheduleValues.frequency_start_time).utc().format("HH:mm:ssZ") : "";
               break;
             case "weeks":
             case "monthly":
@@ -1172,6 +1208,9 @@ define([], function() {
               var dt = scheduleValues.schedule_time;
               scheduleValues.schedule_unit = scheduleValues.scheduleHandler;
               scheduleValues.schedule_time = moment(dt).format("HH:mm:ss");
+              break;
+            case 'file':
+              scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
               break;
             default:
               if (scheduleValues.scheduleType == "4"){

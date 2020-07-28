@@ -33,6 +33,7 @@
 // Boost
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/python.hpp>
+#include <boost/python/module.hpp>
 
 struct StateLock
 {
@@ -205,6 +206,67 @@ void terrama2::core::PythonInterpreter::runScript(const std::string& script)
                                        Py_file_input,
                                        nspace.ptr(),
                                        nspace.ptr() ) ));
+    }
+    catch(const error_already_set&)
+    {
+      auto errMsg = extractException();
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::core::InterpreterException() << ErrorDescription(QString::fromStdString(errMsg));
+    }
+  }
+}
+
+void terrama2::core::PythonInterpreter::runScript(const std::string& script, const std::map<std::string, std::string> &parameters)
+{
+  {
+    auto lock = holdState();
+
+    using namespace boost::python;
+
+    try
+    {
+      dict pythonParameters;
+
+      pythonParameters["host"] = parameters.at("host");
+      pythonParameters["version"] = parameters.at("version");
+      pythonParameters["feature"] = parameters.at("feature");
+      pythonParameters["xmin"] = parameters.at("xmin");
+      pythonParameters["ymin"] = parameters.at("ymin");
+      pythonParameters["xmax"] = parameters.at("xmax");
+      pythonParameters["ymax"] = parameters.at("ymax");
+      pythonParameters["projection"] = parameters.at("projection");
+      pythonParameters["tempFolder"] = parameters.at("tempFolder");
+
+      PyObject* pCompiledFn = Py_CompileString(script.c_str() , "" , Py_file_input) ;
+
+      if(pCompiledFn == NULL)
+        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription("pCompiledFn NULL");
+
+      Py_INCREF(pCompiledFn);
+
+      // create a module
+      PyObject* pModule = PyImport_ExecCodeModule((char*)"getwfslayer", pCompiledFn);
+
+      if(pModule == NULL)
+      {
+//        auto p = extractException();
+
+//        std::cout << p << std::endl;
+
+//        std::string errMsg = QObject::tr("Could not register the getwfslayer function.").toStdString();
+        throw terrama2::InvalidArgumentException() << terrama2::ErrorDescription("pModule is NULL");
+      }
+
+      Py_INCREF(pModule);
+
+      boost::python::object getwfslayerModule = boost::python::import("getwfslayer");
+      boost::python::object getwfslayerFunction = getwfslayerModule.attr("getwfslayer");
+
+      auto result = getwfslayerFunction(pythonParameters);
+
+      auto resultado = boost::python::extract<std::string>(boost::python::str(result))();
+
+//      std::cout << resultado << std::endl;
     }
     catch(const error_already_set&)
     {

@@ -1,4 +1,4 @@
-var passport = require('../../config/Passport');
+var passport = require('../../core/utility/Passport');
 
 module.exports = function (app) {
   var controller = app.controllers.api.DataSeries;
@@ -13,4 +13,7 @@ module.exports = function (app) {
   app.post(app.locals.BASE_URL + 'api/DataSeries/duplicate', passport.isAuthenticated, controller.duplicate);
   app.get(app.locals.BASE_URL + "api/DataSeries/static/changeStatus/:id", passport.isAuthenticated, controller.changeStatusStatic);
   app.get(app.locals.BASE_URL + "api/DataSeries/dynamic/changeStatus/:id", passport.isAuthenticated, controller.changeStatusDynamic);
+  app.post(app.locals.BASE_URL + 'api/DataSeries/validateView', passport.isAuthenticated, controller.validateViewCreation);
+
+  app.get(app.locals.BASE_URL + 'api/DataSeries/format/wkt', passport.isAuthenticated, controller.retrieveAsWKT);
 };

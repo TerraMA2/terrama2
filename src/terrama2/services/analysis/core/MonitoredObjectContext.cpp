@@ -61,6 +61,22 @@
 
 #include <utility>
 
+std::string getIdentifierProperty(const terrama2::services::analysis::core::AnalysisDataSeries& analysisDataSeries)
+{
+  std::string identifier;
+  try
+  {
+    identifier = analysisDataSeries.metadata.at("identifier");
+  }
+  catch (...)
+  {
+    /* code */
+  }
+
+  return identifier;
+}
+
+
 terrama2::services::analysis::core::MonitoredObjectContext::MonitoredObjectContext(terrama2::services::analysis::core::DataManagerPtr dataManager, terrama2::services::analysis::core::AnalysisPtr analysis, std::shared_ptr<te::dt::TimeInstantTZ> startTime)
   : BaseContext(dataManager, analysis, startTime)
 {
@@ -82,9 +98,11 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
   {
     auto dataSeriesPtr = dataManagerPtr->findDataSeries(analysisDataSeries.dataSeriesId);
     auto datasets = dataSeriesPtr->datasetList;
+
     if(analysisDataSeries.type == AnalysisDataSeriesType::DATASERIES_MONITORED_OBJECT_TYPE)
     {
-      if(analysis->type == AnalysisType::MONITORED_OBJECT_TYPE)
+      if(analysis->type == AnalysisType::MONITORED_OBJECT_TYPE ||
+         analysis->type == AnalysisType::VECTORIAL_PROCESSING_TYPE)
       {
         assert(datasets.size() == 1);
         auto dataset = datasets[0];
@@ -98,16 +116,6 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
         terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeriesPtr);
         auto seriesMap = accessor->getSeries(filter, remover_);
         auto series = seriesMap[dataset];
-
-        std::string identifier;
-        try
-        {
-          identifier = analysisDataSeries.metadata.at("identifier");
-        }
-        catch (...)
-        {
-          /* code */
-        }
 
         std::shared_ptr<ContextDataSeries> dataSeriesContext(new ContextDataSeries);
 
@@ -126,7 +134,10 @@ void terrama2::services::analysis::core::MonitoredObjectContext::loadMonitoredOb
         std::size_t geomPropertyPosition = te::da::GetFirstPropertyPos(series.syncDataSet->dataset().get(), te::dt::GEOMETRY_TYPE);
 
         dataSeriesContext->series = series;
-        dataSeriesContext->identifier = identifier;
+
+        if(analysis->type == AnalysisType::MONITORED_OBJECT_TYPE)
+          dataSeriesContext->identifier = getIdentifierProperty(analysisDataSeries);
+
         dataSeriesContext->geometryPos = geomPropertyPosition;
 
         monitoredObjectDataSeries_ = dataSeriesContext;

@@ -42,6 +42,14 @@
 #include "../../../core/utility/Utils.hpp"
 #include "utility/JSonUtils.hpp"
 
+
+#include "../../../core/data-access/DataAccessor.hpp"
+#include "../../../core/data-access/DataAccessorGrid.hpp"
+#include "../../../core/data-access/GridSeries.hpp"
+#include "../../../core/data-model/DataSetGrid.hpp"
+#include "../../../core/utility/DataAccessorFactory.hpp"
+#include "../../../core/utility/FilterUtils.hpp"
+
 #include <ThreadPool.h>
 
 terrama2::services::analysis::core::Service::Service(std::weak_ptr<terrama2::core::DataManager> dataManager)
@@ -101,6 +109,127 @@ void terrama2::services::analysis::core::Service::removeAnalysis(AnalysisId anal
     // exception guard, slots should never emit exceptions.
     TERRAMA2_LOG_ERROR() << QObject::tr("Unknown exception...");
     TERRAMA2_LOG_INFO() << tr("Could not remove analysis: %1.").arg(analysisId);
+    }
+}
+
+void terrama2::services::analysis::core::Service::addReprocessingToQueue(terrama2::core::ProcessPtr process) noexcept
+{
+  try
+  {
+    auto dataManager = std::static_pointer_cast<terrama2::services::analysis::core::DataManager>(dataManager_.lock());
+
+    auto analysisPtr = dataManager->findAnalysis(process->id);
+
+    auto schedule = analysisPtr->schedule;
+
+    // When frequency is hour,seconds,weeks, use parent add reprocessing scope
+    if (schedule.frequencyUnit != "file")
+    {
+      terrama2::core::Service::addReprocessingToQueue(process);
+      return;
+    }
+
+    for(const auto& analysisDataSeries : analysisPtr->analysisDataSeriesList)
+    {
+      auto dataSeriesPtr = dataManager->findDataSeries(analysisDataSeries.dataSeriesId);
+      auto datasets = dataSeriesPtr->datasetList;
+
+      if(analysisDataSeries.type == AnalysisDataSeriesType::ADDITIONAL_DATA_TYPE &&
+         analysisPtr->type == AnalysisType::GRID_TYPE)
+      {
+        assert(datasets.size() == 1);
+        auto dataset = datasets[0];
+
+        auto dataProvider = dataManager->findDataProvider(dataSeriesPtr->dataProviderId);
+        terrama2::core::Filter filter;
+        filter.discardBefore = process->schedule.reprocessingHistoricalData->startDate;
+        filter.discardAfter = process->schedule.reprocessingHistoricalData->endDate;
+
+        //accessing data
+        terrama2::core::DataAccessorPtr accessor = terrama2::core::DataAccessorFactory::getInstance().make(dataProvider, dataSeriesPtr);
+        std::shared_ptr<terrama2::core::DataAccessorGrid> accessorGrid = std::dynamic_pointer_cast<terrama2::core::DataAccessorGrid>(accessor);
+        if(!accessorGrid)
+        {
+          QString errMsg = QObject::tr("Could not create a DataAccessor to the data series: %1.").arg(dataSeriesPtr->id);
+          throw terrama2::InvalidArgumentException() << ErrorDescription(errMsg);
+        }
+
+        auto remover = std::make_shared<terrama2::core::FileRemover>();
+        auto seriesMap = accessorGrid->getGridSeries(filter, remover);
+
+        // Get Map of Rasters found
+        auto gridMap = seriesMap->gridMap();
+
+        // Get data set mask to retrieve timestamp
+        auto dataSetMask = terrama2::core::getMask(dataset);
+
+        try
+        {
+          auto processId = process->id;
+
+          RegisterId registerId = logger_->start(processId);
+
+          std::for_each(gridMap.cbegin(), gridMap.cend(), [
+                        dataset,
+                        dataSetMask,
+                        dataProvider,
+                        process,
+                        processId,
+                        registerId,
+                        this
+                       ](std::unordered_multimap<terrama2::core::DataSetGridPtr, std::shared_ptr<te::rst::Raster>>::const_reference it)
+          {
+            if (it.first->id == dataset->id)
+            {
+              auto rasterInfo = it.second->getInfo();
+              auto rasterURI = rasterInfo["URI"];
+              // Get data provider Path fragment
+              auto providerURIpath = QUrl(dataProvider->uri.c_str()).path();
+              // Removes provider path fragment from Raster URI
+              auto maskPathWithoutProviderURI = QString(rasterURI.c_str()).replace(providerURIpath, "").toStdString();
+              // Get file timestamp and use it to enqueue analysis
+              auto fileTimeStamp = terrama2::core::getFileTimestamp(dataSetMask, "UTC+00", maskPathWithoutProviderURI);
+
+              if (fileTimeStamp)
+              {
+                // It should never reach here
+                QString errMsg = QObject::tr("No datetime in file URI '%1'").arg(maskPathWithoutProviderURI.c_str());
+                throw InvalidFrequencyException() << ErrorDescription(errMsg);
+              }
+
+              terrama2::core::ExecutionPackage executionPackage;
+              executionPackage.processId = processId;
+              executionPackage.executionDate = std::move(fileTimeStamp);
+              executionPackage.registerId = registerId;
+
+              erasePreviousResult(process, executionPackage.executionDate);
+
+              waitQueue_[processId].push(executionPackage);
+            }
+          });
+
+          auto pqIt = std::find(processingQueue_.begin(), processingQueue_.end(), processId);
+          if(pqIt == processingQueue_.end())
+          {
+            notifyWaitQueue(processId);
+          }
+        }
+        catch(const terrama2::core::FunctionNotImplementedException&)
+        {
+          //error already logged
+        }
+        catch(...)
+        {
+          TERRAMA2_LOG_ERROR() << "Unknown error in reprocessing historical data enqueue";
+        }
+
+        break;
+      }
+    }
+  }
+  catch(const std::exception& e)
+  {
+    TERRAMA2_LOG_ERROR() << e.what();
   }
 }
 

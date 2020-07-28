@@ -176,151 +176,153 @@
   </div>
 
   <div class="col-md-12 col-xs-12">
-    <table class="table table-hover">
-      <tbody id="searchList">
-        <!-- header -->
-        <tr style="font-weight: bold;">
-          <td ng-show="isFunction(icon()) && model.length > 0"></td>
-          <td ng-repeat="field in displayFields">{{ i18n.__(field) }}</td>
-          <td ng-if="changeStatus"></td>
-          <td ng-if="extra.service"></td>
-          <td ng-if="extra.service">Status</td>
-          <td ng-if="extra.export"></td>
-          <td ng-if="isFunction(remove)">
-        </tr>
-        <tr ng-repeat="element in filteredModel = (model | filter:searchInput | filter:showInTableFilter) | pagingToolLimit: 10 | orderBy: orderElementby track by $index">
-          <td ng-show="isFunction(icon())" style="width: 50px;">
-            <img style="margin-left: 5px;" ng-if="iconProperties.type === 'img'" ng-src="{{ icon()(element) }}" alt="" max-width="{{ width }}" height="{{ height }}"/>
-            <span ng-if="iconProperties.type === 'icon'" class="label">
-              <i class="terrama2-alert-icon {{ icon()(element) }}"></i>
-            </span>
-          </td>
-          <td ng-repeat="field in identityFields ">
-            <a ng-href="{{ makeLink(element) }}" ng-if="link" ng-bind="processField(field, element)"></a>
-          </td>
-
-          <td ng-if="element.active.toString() === 'true' || element.active.toString() === 'false'" class="pull-cell-left status-change-button">
-            <span ng-if="!servicesInstances || servicesInstances[element.service_instance_id].toString() === 'true'" class="fa" ng-class="{ 'fa-toggle-on': element.active.toString() === 'true', 'fa-toggle-off': element.active.toString() === 'false' }" ng-click="changeStatus($event, makeLinkStatusChange(element))"></span>
-            <span ng-if="servicesInstances && servicesInstances[element.service_instance_id].toString() !== 'true'" class="status-change-disabled fa" ng-class="{ 'fa-toggle-on': element.active.toString() === 'true', 'fa-toggle-off': element.active.toString() === 'false' }"></span>
-          </td>
-
-          <td ng-if="extra.project" class="pull-cell-left">
-            <a ng-href="{{ extra.canEdit(element) ? extra.project.edit(element) : ''}}" 
-                class="btn btn-default btn-sm" 
-                ng-disabled="!extra.canEdit(element)">
-              <i class="fa fa-pencil"></i> {{ i18n.__("Edit") }}
-            </button>
-          </td>
-
-          <td ng-if="extra.service">
-            <button ng-show="element.showErrorButton && element.hasError" ng-click="showErrorInfo(element)" class="btn btn-default btn-sm pull-right" style="color: red; border-color: red; width: 34px; height: 30px;"> 
-              <i class="fa fa-warning"></i>
-            </button>
-            <button ng-show="element.online" ng-click="showInfo(element)" class="btn btn-default btn-sm pull-right" style="width: 34px; height: 30px;" ng-class="{'service-warning': !element.logger_online || element.maps_server_connection === false}"> 
-              <i ng-class="{ 'fa fa-info': element.logger_online && element.maps_server_connection !== false && element.different_versions !== true, 'fa fa-warning': !element.logger_online || element.maps_server_connection === false || element.different_versions === true }" ></i>
-            </button>
-          </td>
-
-          <td ng-if="extra.service" class="pull-cell-left">
-            <!-- loading  -->
-            <span ng-if="element.loading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
-
-            <i ng-show="!element.loading"
-               title="{{ element.online ? element.requestingForClose ? 'Finalizing...' : 'Online' : 'Offline' }}"
-               class="fa fa-circle"
-               style="color: {{ element.online ? 'green' : 'red' }}"></i>
-
-            <button class="btn btn-primary btn-sm"
-                    ng-show="!element.checking && !element.online && !element.loading"
-                    style="margin-left: 20px;"
-                    ng-click="extra.service.handler(element)"
-                    ng-disabled="element.loading">
-              <i class="fa fa-magic" style="margin-right: 5px;"></i>{{ i18n.__('Start') }}
-            </button>
-            <button type="button"
-                    ng-if="element.loading && !element.online"
-                    class="btn btn-primary btn-sm"
-                    ng-disabled="element.loading"
-                    style="margin-left: 19px">
-              <i class="fa fa-magic" style="margin-right: 5px;"></i>
-              {{ i18n.__("Starting...") }}
-            </button>
-            <button type="button"
-                    ng-if="element.checking"
-                    class="btn btn-primary btn-sm"
-                    ng-disabled="element.checking"
-                    style="margin-left: 19px">
-              <i class="glyphicon glyphicon-info-sign" style="margin-right: 5px;"></i>
-              {{ i18n.__("Checking...") }}
-            </button>
-
-            <button class="btn btn-danger btn-sm"
-                    ng-show="!element.checking && element.online && !element.loading"
-                    style="margin-left: 20px;"
-                    ng-click="extra.service.handler(element)"
-                    ng-disabled="element.loading">
-              <i class="fa fa-power-off" style="margin-right: 5px;"></i>{{ i18n.__('Stop') }}
-            </button>
-            <button type="button"
-                    ng-if="!element.checking && element.loading && element.online"
-                    class="btn btn-danger btn-sm"
-                    ng-disabled="element.loading"
-                    style="margin-left: 19px">
-              <i class="fa fa-power-off" style="margin-right: 5px;"></i>
-              {{ i18n.__("Finalizing...") }}
-            </button>
-          </td>
-
-          <td ng-if="extra.export" class="pull-cell-left">
-            <button class="btn btn-default btn-sm"
-                    data-toggle="tooltip"
-                    data-placement="top"
-                    ng-click="extra.openExportModal(element)"
-                    ng-disabled="extra.isExporting"
-                    title='{{ i18n.__("Export") }}'>
-              <span class="loading ng-hide" ng-show="extra.isExporting">
-                <i class="fa fa-refresh fa-spin"></i>
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <tbody id="searchList">
+          <!-- header -->
+          <tr style="font-weight: bold;">
+            <td ng-show="isFunction(icon()) && model.length > 0"></td>
+            <td ng-repeat="field in displayFields">{{ i18n.__(field) }}</td>
+            <td ng-if="changeStatus"></td>
+            <td ng-if="extra.service"></td>
+            <td ng-if="extra.service">Status</td>
+            <td ng-if="extra.export"></td>
+            <td ng-if="isFunction(remove)">
+          </tr>
+          <tr ng-repeat="element in filteredModel = (model | filter:searchInput | filter:showInTableFilter) | pagingToolLimit: 10 | orderBy: orderElementby track by $index">
+            <td ng-show="isFunction(icon())" style="width: 50px;">
+              <img style="margin-left: 5px;" ng-if="iconProperties.type === 'img'" ng-src="{{ icon()(element) }}" alt="" max-width="{{ width }}" height="{{ height }}"/>
+              <span ng-if="iconProperties.type === 'icon'" class="label">
+                <i class="terrama2-alert-icon {{ icon()(element) }}"></i>
               </span>
-              <i class="fa fa-upload" ng-show="!extra.isExporting"></i>
-            </button>
-          </td>
+            </td>
+            <td ng-repeat="field in identityFields ">
+              <a ng-href="{{ makeLink(element) }}" ng-if="link" ng-bind="processField(field, element)"></a>
+            </td>
 
-          <td ng-disabled class="pull-cell-left">
-            <a ng-if="extra.canInterpolate(element)" class="btn btn-default btn-sm" ng-href="{{extra.linkToInterpolate(element)}}">
-              <span></span>
-              <span class="hidden-xs">{{ i18n.__("Interpolate") }}</span>
-            </a>
-          </td>
+            <td ng-if="element.active.toString() === 'true' || element.active.toString() === 'false'" class="pull-cell-left status-change-button">
+              <span ng-if="!servicesInstances || servicesInstances[element.service_instance_id].toString() === 'true'" class="fa" ng-class="{ 'fa-toggle-on': element.active.toString() === 'true', 'fa-toggle-off': element.active.toString() === 'false' }" ng-click="changeStatus($event, makeLinkStatusChange(element))"></span>
+              <span ng-if="servicesInstances && servicesInstances[element.service_instance_id].toString() !== 'true'" class="status-change-disabled fa" ng-class="{ 'fa-toggle-on': element.active.toString() === 'true', 'fa-toggle-off': element.active.toString() === 'false' }"></span>
+            </td>
 
-          <td ng-if="extra.showRunButton" ng-disabled class="pull-cell-left">
-            <button ng-disabled="!extra.canRun(element) || extra.disabledButtons(element) || !extra.canRemove"
-                    class="btn btn-default btn-sm"
-                    ng-class="{ 'loading-button': extra.disabledButtons(element) }"
-                    ng-click="extra.run(element)">
-              <span class="glyphicon glyphicon-play"></span>
-              <span class="hidden-xs" ng-bind="i18n.__('Run')"></span>
-            </button>
-          </td>
+            <td ng-if="extra.project" class="pull-cell-left">
+              <a ng-href="{{ extra.canEdit(element) ? extra.project.edit(element) : ''}}" 
+                  class="btn btn-default btn-sm" 
+                  ng-disabled="!extra.canEdit(element)">
+                <i class="fa fa-pencil"></i> {{ i18n.__("Edit") }}
+              </button>
+            </td>
 
-          <td ng-if="isFunction(remove)" class="pull-cell-left"
-              data-toggle="tooltip"
-              data-placement="top"
-              title="{{ extra.canRemove ? i18n.__('Remove data') : i18n.__('User is not allowed') }}">
-            <button class="btn btn-sm btn-danger"
-                    ng-click="confirmRemoval(element)"
-                    ng-disabled="isFunction(extra.canRemove) ? !extra.canRemove(element) : !extra.canRemove">
-              <span class="glyphicon glyphicon-remove"></span>
-              <span class="hidden-xs"></span>
-              <span ng-bind="i18n.__('Remove')"></span>
-            </button>
-          </td>
-        </tr>
+            <td ng-if="extra.service">
+              <button ng-show="element.showErrorButton && element.hasError" ng-click="showErrorInfo(element)" class="btn btn-default btn-sm pull-right" style="color: red; border-color: red; width: 34px; height: 30px;"> 
+                <i class="fa fa-warning"></i>
+              </button>
+              <button ng-show="element.online" ng-click="showInfo(element)" class="btn btn-default btn-sm pull-right" style="width: 34px; height: 30px;" ng-class="{'service-warning': !element.logger_online || element.maps_server_connection === false}"> 
+                <i ng-class="{ 'fa fa-info': element.logger_online && element.maps_server_connection !== false && element.different_versions !== true, 'fa fa-warning': !element.logger_online || element.maps_server_connection === false || element.different_versions === true }" ></i>
+              </button>
+            </td>
 
-        <tr ng-show="!filteredModel.length">
-          <td colspan="2" ng-bind="i18n.__(emptyMessage)"></td>
-        </tr>
-      </tbody>
-    </table>
+            <td ng-if="extra.service" class="pull-cell-left">
+              <!-- loading  -->
+              <span ng-if="element.loading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+
+              <i ng-show="!element.loading"
+                title="{{ element.online ? element.requestingForClose ? 'Finalizing...' : 'Online' : 'Offline' }}"
+                class="fa fa-circle"
+                style="color: {{ element.online ? 'green' : 'red' }}"></i>
+
+              <button class="btn btn-primary btn-sm"
+                      ng-show="!element.checking && !element.online && !element.loading"
+                      style="margin-left: 20px;"
+                      ng-click="extra.service.handler(element)"
+                      ng-disabled="element.loading">
+                <i class="fa fa-magic" style="margin-right: 5px;"></i>{{ i18n.__('Start') }}
+              </button>
+              <button type="button"
+                      ng-if="element.loading && !element.online"
+                      class="btn btn-primary btn-sm"
+                      ng-disabled="element.loading"
+                      style="margin-left: 19px">
+                <i class="fa fa-magic" style="margin-right: 5px;"></i>
+                {{ i18n.__("Starting...") }}
+              </button>
+              <button type="button"
+                      ng-if="element.checking"
+                      class="btn btn-primary btn-sm"
+                      ng-disabled="element.checking"
+                      style="margin-left: 19px">
+                <i class="glyphicon glyphicon-info-sign" style="margin-right: 5px;"></i>
+                {{ i18n.__("Checking...") }}
+              </button>
+
+              <button class="btn btn-danger btn-sm"
+                      ng-show="!element.checking && element.online && !element.loading"
+                      style="margin-left: 20px;"
+                      ng-click="extra.service.handler(element)"
+                      ng-disabled="element.loading">
+                <i class="fa fa-power-off" style="margin-right: 5px;"></i>{{ i18n.__('Stop') }}
+              </button>
+              <button type="button"
+                      ng-if="!element.checking && element.loading && element.online"
+                      class="btn btn-danger btn-sm"
+                      ng-disabled="element.loading"
+                      style="margin-left: 19px">
+                <i class="fa fa-power-off" style="margin-right: 5px;"></i>
+                {{ i18n.__("Finalizing...") }}
+              </button>
+            </td>
+
+            <td ng-if="extra.export" class="pull-cell-left">
+              <button class="btn btn-default btn-sm"
+                      data-toggle="tooltip"
+                      data-placement="top"
+                      ng-click="extra.openExportModal(element)"
+                      ng-disabled="extra.isExporting"
+                      title='{{ i18n.__("Export") }}'>
+                <span class="loading ng-hide" ng-show="extra.isExporting">
+                  <i class="fa fa-refresh fa-spin"></i>
+                </span>
+                <i class="fa fa-upload" ng-show="!extra.isExporting"></i>
+              </button>
+            </td>
+
+            <td ng-disabled class="pull-cell-left">
+              <a ng-if="extra.canInterpolate(element)" class="btn btn-default btn-sm" ng-href="{{extra.linkToInterpolate(element)}}">
+                <span></span>
+                <span class="hidden-xs">{{ i18n.__("Interpolate") }}</span>
+              </a>
+            </td>
+
+            <td ng-if="extra.showRunButton" ng-disabled class="pull-cell-left">
+              <button ng-disabled="!extra.canRun(element) || extra.disabledButtons(element) || !extra.canRemove"
+                      class="btn btn-default btn-sm"
+                      ng-class="{ 'loading-button': extra.disabledButtons(element) }"
+                      ng-click="extra.run(element)">
+                <span class="glyphicon glyphicon-play"></span>
+                <span class="hidden-xs" ng-bind="i18n.__('Run')"></span>
+              </button>
+            </td>
+
+            <td ng-if="isFunction(remove)" class="pull-cell-left"
+                data-toggle="tooltip"
+                data-placement="top"
+                title="{{ extra.canRemove ? i18n.__('Remove data') : i18n.__('User is not allowed') }}">
+              <button class="btn btn-sm btn-danger"
+                      ng-click="confirmRemoval(element)"
+                      ng-disabled="isFunction(extra.canRemove) ? !extra.canRemove(element) : !extra.canRemove">
+                <span class="glyphicon glyphicon-remove"></span>
+                <span class="hidden-xs"></span>
+                <span ng-bind="i18n.__('Remove')"></span>
+              </button>
+            </td>
+          </tr>
+
+          <tr ng-show="!filteredModel.length">
+            <td colspan="2" ng-bind="i18n.__(emptyMessage)"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <div class="col-md-offset-4 col-md-6 col-xs-12">
       <terrama2-paging-tool max-pages="10" size="filteredModel.length" on-change=""></terrama2-paging-tool>

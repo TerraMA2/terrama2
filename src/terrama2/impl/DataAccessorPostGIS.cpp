@@ -293,6 +293,14 @@ void terrama2::core::DataAccessorPostGIS::updateLastTimestamp(DataSetPtr dataSet
   {
     lastDateTimeTz = std::dynamic_pointer_cast<te::dt::TimeInstantTZ>(lastDateTime);
   }
+  else if(lastDateTime->getDateTimeType() == te::dt::DATE)
+  {
+    auto dateString = lastDateTime->toString();
+    boost::posix_time::ptime boostDate(boost::posix_time::time_from_string(dateString +" 23:59:59"));
+    boost::local_time::local_date_time boostLocalTime(boostDate, nullptr);
+
+    lastDateTimeTz = std::make_shared<te::dt::TimeInstantTZ>(boostLocalTime);
+  }
   else
   {
     //This method expects a valid Date/Time, other formats are not valid.

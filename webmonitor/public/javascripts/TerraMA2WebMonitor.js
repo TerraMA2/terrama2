@@ -66,6 +66,8 @@ define(
         $.post(BASE_URL + "languages", { locale: language }, function() {
           $(".dropdown-btn").css("display", "none");
           $(".dropdown-btn." + language + "-img").css("display", "");
+          $(".dropdown-btn ~ span").text("");
+          $(".dropdown-btn." + language + "-img + span").text($("#language-"+language).text());
 
           $(".close-slider").click();
 
@@ -76,6 +78,7 @@ define(
     };
 
     var loadEvents = function() {
+
       $('#projects').on('change', changeProjects);
 
       $('#mini-toggle').click(function() {
@@ -84,15 +87,15 @@ define(
 
       // Language change events
 
-      $("#language-pt").on("click", function() {
+      $("#language-pt").parent().on("click", function() {
         changeLanguage("pt");
       });
 
-      $("#language-es").on("click", function() {
+      $("#language-es").parent().on("click", function() {
         changeLanguage("es");
       });
 
-      $("#language-en").on("click", function() {
+      $("#language-en").parent().on("click", function() {
         changeLanguage("en");
       });
 
@@ -107,11 +110,6 @@ define(
         $("#content").height(memberWindowHeight + "px");
         $(".content-wrapper").css('min-height', memberWindowHeight + "px");
 
-        window.setTimeout(function() {
-          $("#terrama2-map").width(($("body").hasClass('full_screen') ? "100%" : $("#content").width() + "px"));
-          TerraMA2WebComponents.MapDisplay.updateMapSize();
-        }, 100);
-
         $(".sidebar-menu").height((memberWindowHeight - 195) + "px");
       });
 
@@ -120,7 +118,7 @@ define(
         alertDiv.addClass('hide');
       });
 
-      $('#terrama2-layerexplorer').on('click', 'input.terrama2-layerexplorer-checkbox', function() {
+      $('#terrama2-layerexplorer').on('click', '.checkbox input', function() {
 
         var layerid = $(this).closest('li').data('layerid');
         var layerObject = Layers.getLayerById(layerid);
@@ -131,6 +129,12 @@ define(
         } else {
           $('#terrama2-sortlayers').find('li#' + layerObject.htmlId).removeClass('hide');
           Layers.changeLayerVisible(layerObject.id, true);
+
+          if (layerObject.subLayers) {
+            for(let subLayer of layerObject.subLayers) {
+              TerraMA2WebComponents.MapDisplay.addImageWMSLayer(subLayer.id, subLayer.name, subLayer.name, subLayer.uriGeoServer + '/ows', subLayer.serverType, true, false, "terrama2-layerexplorer", { version: "1.1.0" })
+            }
+          }
         }
 
         $("#terrama2-map").trigger("setGetFeatureInfoToolSelect");
@@ -172,22 +176,6 @@ define(
         }
       });
 
-      $("#inpe-image").on('click', function() {
-        window.open('http://www.inpe.br/', '_blank');
-      });
-
-      $("#programa-queimadas-image").on('click', function() {
-        window.open('http://www.inpe.br/queimadas/', '_blank');
-      });
-
-      $("#defra-image").on('click', function() {
-        window.open('https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs', '_blank');
-      });
-
-      $("#world-bank-image").on('click', function() {
-        window.open('http://www.worldbank.org/', '_blank');
-      });
-
       $("#loginButton").on("click", function() {
         if($('#authentication-div').hasClass('hidden'))
           $('#authentication-div').removeClass('hidden');
@@ -197,12 +185,12 @@ define(
 
       $('#about-btn').on('click', function() {
         $('#about-dialog').dialog({
-          width: 800,
-          height: $(window).outerHeight() - 30,
+          resizable: false,
+          draggable: false,
           title: "",
           closeOnEscape: true,
           closeText: "",
-          position: { my: 'top', at: 'top+15' },
+          position: { my: 'center', at: "center", of: $("#content") },
           open: function() {
             $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
             $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', 'center');
@@ -218,12 +206,12 @@ define(
         });
       });
 
-      $('.template input').mousedown(function() {
+      $('.template .checkbox').mousedown(function() {
         if(!$(this).is(':checked')) {
-          var checked = $(".template input:checked");
-
-          for(var i = 0, checkedLength = checked.length; i < checkedLength; i++)
+          var checked = $(".template .checkbox input:checked");
+          for(var i = 0, checkedLength = checked.length; i < checkedLength; i++){
             checked[i].click();
+          }
         }
       });
 
@@ -242,8 +230,7 @@ define(
       var isAutoUpdate = $('#auto-update-off').hasClass("hidden");
       var isVisible = $("#" + layer.htmlId + " input").is(":checked");
       if (isAutoUpdate && isVisible){
-        $("#" + layer.htmlId + " input.terrama2-layerexplorer-checkbox").trigger("click");
-        $("#" + layer.htmlId + " input.terrama2-layerexplorer-checkbox").trigger("click");
+        $("#" + layer.htmlId + " .checkbox input").trigger("click");
         Layers.changeLayerStatus(layer.id, LayerStatusEnum.NEW);
         Layers.changeParentLayerStatus(layer.parent, LayerStatusEnum.NEW);
       }
@@ -355,36 +342,57 @@ define(
         var currentProject = $("#projects").val();
 
         for(var i = 0, viewsLength = viewsData.views.length; i < viewsLength; i++) {
-          var layerName = (viewsData.views[i].workspace ? viewsData.views[i].workspace + ":" + viewsData.views[i].layers[0] : viewsData.views[i].layers[0]);
+          const currentView = viewsData.views[i];
 
-          viewsData.views[i].properties = [
-            {
-              key: "Layer Name",
-              value: layerName
-            }
-          ];
+          for(let layer of currentView.layers) {
+            const workspace = viewsData.views[i].workspace;
 
-          var layerObject = Layers.createLayerObject(viewsData.views[i]);
-          var newLayer = Layers.getLayerById(layerObject.id) == null ? true : false;
+            const layerName = workspace ? `${workspace}:${layer}` : layer;
 
-          if(newLayer) {
-            Layers.addLayer(layerObject);
+            viewsData.views[i].properties = [
+              {
+                key: "Layer Name",
+                value: layerName
+              }
+            ];
 
-            if(!viewsData.initialRequest && layerObject.projectId == currentProject) {
-              Layers.fillLayersData([layerObject]);
+            var layerObject = Layers.createLayerObject(currentView);
+            var createdLayer = Layers.getLayerById(layerObject.id);
+
+            if(!createdLayer) {
+              Layers.addLayer(layerObject);
+
+              if(!viewsData.initialRequest && layerObject.projectId == currentProject) {
+                Layers.fillLayersData([layerObject]);
+                Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
+                Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
+              }
+            } else if(layerObject.projectId == currentProject) {
+              if (!createdLayer.subLayers)
+                createdLayer.subLayers = [];
+
+              const { subLayers } = createdLayer;
+              const foundSubLayer = subLayers.find(internalLayer => internalLayer.id === layerObject.id);
+              if (!foundSubLayer) {
+                const subLayer = Layers.createLayerObject(currentView, layerName);
+                subLayer.id = layerName;
+                subLayer.name = layerName;
+                subLayers.push(subLayer);
+                currentView.subLayers = subLayers;
+              }
+
               Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
               Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
+              Layers.getLayerCapabilities(layerObject.uriGeoServer, layerObject.workspace, layerObject.nameId, layerObject.id, layerObject.parent, true);
+              checkIfAutoUpdate(layerObject);
             }
-          } else if(layerObject.projectId == currentProject) {
-            Layers.changeLayerStatus(layerObject.id, LayerStatusEnum.NEW);
-            Layers.changeParentLayerStatus(layerObject.parent, LayerStatusEnum.NEW);
-            Layers.getLayerCapabilities(layerObject.uriGeoServer, layerObject.workspace, layerObject.nameId, layerObject.id, layerObject.parent, true);
-            checkIfAutoUpdate(layerObject);
           }
         }
 
         if(viewsData.initialRequest)
           Layers.fillLayersData();
+
+        // Layers.addLayersToSort();
       });
 
       // Checking map server connection response
@@ -450,10 +458,10 @@ define(
             var span = "";
 
             if(layerCapabilities[layerIndex].extent instanceof Array) {
-              if(layerCapabilities[layerIndex].extent.length > 1 && (!data.update || !$(li).has("#terrama2-slider").length)) {
+              if(layerCapabilities[layerIndex].extent.length >= 1 && (!data.update || !$(li).has("#terrama2-slider").length)) {
                 var sliderDiv = "<div class='slider-content' style='display:none;'><label></label><button type='button' class='close close-slider'>×</button><div id='slider" + $(li).attr("data-layerid").replace(':', '') + "'></div></div>";
                 $(li).append(sliderDiv);
-                span += "<span id='terrama2-slider' class='terrama2-datepicker-icon'> <i class='fa fa-sliders'></i></span>";
+                span += "<i id='terrama2-slider' class='fa fa-sliders'></i>";
               }
               dateObject.initialDateIndex = dateObject.dates.length - 1;
 
@@ -471,9 +479,9 @@ define(
               }
 
             } else if(layerCapabilities[layerIndex].extent instanceof Object) {
-              if(!data.update || !$(li).has("#terrama2-calendar").length)
-                span += "<span id='terrama2-calendar' class='terrama2-datepicker-icon'> <i class='fa fa-calendar'></i></span>";
-
+              if(!data.update || !$(li).has("#terrama2-calendar").length){
+                span += "<i id='terrama2-calendar' class='fa fa-calendar'></i>";
+              }
               if (data.update){
                 if ($('#auto-update-off').hasClass("hidden")){
                   dateObject.startFilterDate = getInitialDateToCalendar(layerCapabilities[layerIndex].extent);
@@ -491,8 +499,8 @@ define(
               }
 
             }
-
-            $(li).append($(span));
+            $("li[data-layerid='" + data.layerId + "'] .dropdown-layer-tools ul").append(span);
+            // $(li).append($(span));
             Layers.updateDateInfo(dateObject, data.layerId);
           }
 
@@ -534,65 +542,231 @@ define(
           var featureInfo = data.msg;
           var featuresLength = featureInfo.features.length;
 
-          if(featuresLength > 0) {
-            var firesAttributes = "";
+          var features = featureInfo.features[0].properties;
+          var layerId = data.params.layerId;
+          var layerData = Layers.getLayerById(layerId);
+          var layerType = layerData.parent;
 
-            for(var i = 0; i < featuresLength; i++) {
-              var imageUrl = null;
+          const tableName = layerData.exportation.table;
+          const viewId = layerData.viewId;
 
-              firesAttributes += "<table class=\"table table-striped\"><tbody>";
+          $.get(BASE_URL + 'get-columns', {
+            layer: layerData.id,
+            geoserverUri: layerData.uriGeoServer
+          },
+            function(response) {
+              if(response.fields.length > 0) {                
+                var fields = [];
+                response.fields.forEach(function(field){
+                  fields.push(field.name);
+                });
 
-              var firesAttributesRows = "";
+                $.get(ADMIN_URL + 'api/datasetid', {
+                  tableName: tableName,
+                  viewId: viewId
+                },
+                  function(response) {
+                    if(response[0].data_set_id){
+                      var dataSetid = response[0].data_set_id;
+                      $.get(ADMIN_URL + 'api/attributes', {
+                        dataSetid: dataSetid,
+                        viewId: viewId
+                      },
+                        function(response) {
+                          var attributesResponseStr = null;
+                          var attributesJson = null;                    
+      
+                          if(typeof response !== 'undefined' && response.length > 0 && response[0].value){
+                            var attributesResponseStr = response[0].value;
+                            var attributesJson = JSON.parse(attributesResponseStr);
+                          }
+                          
+                          if(featuresLength > 0) {
+                            var firesAttributes = "";
+                            for(var i = 0; i < featuresLength; i++) {
+                              var imageUrl = null;
+      
+                              firesAttributes += "<table class=\"table table-striped\"><tbody>";
+                              var firesAttributesRows = "";
+      
+                              if(attributesJson != null){
 
-              for(var key in featureInfo.features[i].properties) {
-                if(key === "picture") {
-                  imageUrl = featureInfo.features[i].properties[key];
-                } else {
-                  firesAttributesRows += "<tr><td><strong>" + key + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
-                }
+                                if(attributesJson.length !== Object.keys(featureInfo.features[i].properties).length){
+                                  attributesJson.forEach(function(columnFilter){
+                                    if(Object.keys(featureInfo.features[i].properties).includes(columnFilter.name)){
+                                      if(featureInfo.features[i].properties[columnFilter.name] === "picture") {
+                                        imageUrl = featureInfo.features[i].properties[columnFilter.name];
+                                      }else{
+                                        if(featureInfo.features[i].properties[columnFilter.name] != null && typeof featureInfo.features[i].properties[columnFilter.name] == 'object'){                                            
+                                          if(typeof featureInfo.features[i].properties[columnFilter.name].type !== 'undefined'){
+                                            if(columnFilter.alias != "" && columnFilter.visible == true){
+                                              firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter.name].type + "</td></tr>";
+                                            }else if(columnFilter.alias == "" && columnFilter.visible == true){
+                                              firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter.name].type + "</td></tr>";
+                                            }
+                                          }else{
+                                            if(columnFilter.alias != "" && columnFilter.visible == true){
+                                              let propertiesObj = featureInfo.features[i].properties[columnFilter.name];
+                                              for(let key in propertiesObj){
+                                                firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + propertiesObj[key] + "</td></tr>";
+                                                break;
+                                              }
+                                            }else if(columnFilter.alias == "" && columnFilter.visible == true){
+                                              let propertiesObj = featureInfo.features[i].properties[columnFilter.name];
+                                              for(let key in propertiesObj){
+                                                firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + propertiesObj[key] + "</td></tr>";
+                                                break;
+                                              }
+                                            }
+                                          }
+                                        } else{
+                                          if(columnFilter.alias != "" && columnFilter.visible == true){
+                                            firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter.name] + "</td></tr>";
+                                          }else if(columnFilter.alias == "" && columnFilter.visible == true){
+                                            firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter.name] + "</td></tr>";
+                                          }                                        
+                                        }
+                                      }
+                                    } else{
+                                      if(columnFilter.name !== "fid"){
+                                        if(layerType == "static" && featureInfo.features[i].geometry !== null){
+                                          if(columnFilter.alias != "" && columnFilter.visible == true){
+                                            firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
+                                          }else if(columnFilter.alias == "" && columnFilter.visible == true){
+                                            firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
+                                          }
+                                        }else{
+                                          if(typeof featureInfo.features[i].geometry_name !== 'undefined' && featureInfo.features[i].geometry_name !== null){
+                                            if(columnFilter.alias != "" && columnFilter.visible == true){
+                                              firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
+                                            }else if(columnFilter.alias == "" && columnFilter.visible == true){
+                                              firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
+                                            }
+                                          } else{
+                                            if(columnFilter.alias != "" && columnFilter.visible == true){
+                                              firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td> </td></tr>";
+                                            }else if(columnFilter.alias == "" && columnFilter.visible == true){
+                                              firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td> </td></tr>";
+                                            }
+                                          } 
+                                        }
+                                      }
+                                    }
+                                  });
+                                } else{
+                                  for(var key in featureInfo.features[i].properties) {
+                                    if(key === "picture") {
+                                      imageUrl = featureInfo.features[i].properties[key];
+                                    } else {
+                                      attributesJson.forEach(function(jsonElement){
+                                        if(key == jsonElement.name){
+                                          if(jsonElement.alias != "" && jsonElement.visible == true){
+                                            firesAttributesRows += "<tr><td><strong>" + jsonElement.alias + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
+                                          }else if(jsonElement.alias == "" && jsonElement.visible == true){
+                                            firesAttributesRows += "<tr><td><strong>" + key + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
+                                          }
+                                        }
+                                      });  
+                                    }
+                                  }
+                                }      
+                              }else{
+                                if(fields.length !== Object.keys(featureInfo.features[i].properties).length){
+                                  fields.forEach(function(columnFilter){
+                                    if(Object.keys(featureInfo.features[i].properties).includes(columnFilter)){
+                                      if(featureInfo.features[i].properties[columnFilter.name] === "picture") {
+                                        imageUrl = featureInfo.features[i].properties[columnFilter.name];
+                                      }else{
+                                        if(featureInfo.features[i].properties[columnFilter] != null && typeof featureInfo.features[i].properties[columnFilter] == 'object'){                                            
+                                          if(typeof featureInfo.features[i].properties[columnFilter].type !== 'undefined'){
+                                            firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter].type + "</td></tr>";
+                                          }else{
+                                            let propertiesObj = featureInfo.features[i].properties[columnFilter];
+                                            for(let key in propertiesObj){
+                                              firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + propertiesObj[key] + "</td></tr>";
+                                              break;
+                                            }
+                                          }
+                                        } else{
+                                          firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter] + "</td></tr>";
+                                        }
+                                      }
+                                    } else{
+                                      if(columnFilter !== "fid"){
+                                        if(layerType == "static" && featureInfo.features[i].geometry !== null){
+                                          firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
+                                        }else{
+                                          if(typeof featureInfo.features[i].geometry_name !== 'undefined' && featureInfo.features[i].geometry_name !== null){
+                                            firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
+                                          } else{
+                                            firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td> </td></tr>";
+                                          } 
+                                        }
+                                      }
+                                    }
+                                  });
+                                } else{
+                                  for(var key in featureInfo.features[i].properties) {
+                                    if(key === "picture") {
+                                      imageUrl = featureInfo.features[i].properties[key];
+                                    } else {
+                                      firesAttributesRows += "<tr><td><strong>" + key + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
+                                    }
+                                  }
+                                }
+                              }                         
+      
+                              if(imageUrl) {
+                                firesAttributes += "<tr><td colspan=\"2\"><a target=\"_blank\" href=\"" + imageUrl + "\"><img style=\"width: 100%;\" src=\"" + imageUrl + "\"/></a></td></tr>";
+                              }
+                
+                              firesAttributes += firesAttributesRows + "</tbody></table>";
+                              if(featuresLength > (i + 1)) firesAttributes += "<hr/>";
+                            
+                            }
+      
+                            $('#feature-info-box').html(firesAttributes);
+      
+                            $('#feature-info-box').dialog({
+                              dialogClass: "feature-info-box",
+                              title: "",
+                              width: 400,
+                              height: 380,
+                              maxWidth: 600,
+                              modal: false,
+                              resizable: true,
+                              draggable: true,
+                              closeOnEscape: true,
+                              closeText: "",
+                              position: {
+                                my: 'top',
+                                at: 'top+75'
+                              },
+                              open: function() {
+                                $(this).parent().find('.ui-dialog-content').css('white-space', 'normal');
+                                $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
+                                $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', 'center');
+                                $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '20px');
+                                $(this).parent().find('.ui-dialog-title').append('<span id=\'feature-info-dialog-title-prefix\'></span>' + data.params.layerName);
+      
+                                Utils.setTagContent('.ui-dialog-title > #feature-info-dialog-title-prefix', 'ATTRIBUTES-OF-LAYER-COLON');
+                              },
+                              close: function() {
+                                $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', '');
+                                $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', '');
+                                $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '');
+                              }
+                            });
+                          }
+                        }
+                      );  
+                    }             
+                  }
+                );
               }
+          });
 
-              if(imageUrl) {
-                firesAttributes += "<tr><td colspan=\"2\"><a target=\"_blank\" href=\"" + imageUrl + "\"><img style=\"width: 100%;\" src=\"" + imageUrl + "\"/></a></td></tr>";
-              }
-
-              firesAttributes += firesAttributesRows + "</tbody></table>";
-              if(featuresLength > (i + 1)) firesAttributes += "<hr/>";
-            }
-
-            $('#feature-info-box').html(firesAttributes);
-
-            $('#feature-info-box').dialog({
-              dialogClass: "feature-info-box",
-              title: "",
-              width: 400,
-              height: 380,
-              maxWidth: 600,
-              modal: false,
-              resizable: true,
-              draggable: true,
-              closeOnEscape: true,
-              closeText: "",
-              position: {
-                my: 'top',
-                at: 'top+75'
-              },
-              open: function() {
-                $(this).parent().find('.ui-dialog-content').css('white-space', 'normal');
-                $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
-                $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', 'center');
-                $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '20px');
-                $(this).parent().find('.ui-dialog-title').append('<span id=\'feature-info-dialog-title-prefix\'></span>' + data.params.layerName);
-
-                Utils.setTagContent('.ui-dialog-title > #feature-info-dialog-title-prefix', 'ATTRIBUTES-OF-LAYER-COLON');
-              },
-              close: function() {
-                $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', '');
-                $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', '');
-                $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '');
-              }
-            });
-          }
+          
         } else if(data.requestId == "GetFeature") {
           if(data.msg.hasOwnProperty("totalFeatures") && data.msg.totalFeatures > 0) {
             Layers.addProperty({
@@ -615,13 +789,9 @@ define(
     };
 
     var loadLayout = function() {
-      memberWindowHeight = $(window).height();
-      memberReducedHeight = memberWindowHeight - $(".footer-monitor").outerHeight();
-
       $.TerraMAMonitor = {};
 
       $.TerraMAMonitor.options = {
-        sidebarToggleSelector: "[full_screen='true']",
       };
 
       $(".custom-scrollbar-light").mCustomScrollbar({
@@ -631,32 +801,6 @@ define(
       $(".custom-scrollbar-dark").mCustomScrollbar({
         theme: "dark-thick"
       });
-
-      $.TerraMAMonitor.pushMenu = {
-        activate: function(toggleBtn) {
-          $(document).on('click', toggleBtn, function(e) {
-            e.preventDefault();
-
-            if($("body").hasClass('full_screen')) {
-              $("body").removeClass('full_screen');
-              $("body").addClass('sidebar-mini');
-
-              $("#terrama2-map").width(($("#terrama2-map").width() - 230) + "px");
-
-              $('.logo').css('margin-top', '');
-            } else {
-              $("body").addClass('full_screen');
-              $("body").removeClass('sidebar-mini');
-
-              $("#terrama2-map").width("100%");
-
-              $('.logo').css('margin-top', '-2px');
-            }
-
-            TerraMA2WebComponents.MapDisplay.updateMapSize();
-          })
-        }
-      };
 
       $.TerraMAMonitor.tree = function(menu) {
         var _this = this;
@@ -668,7 +812,7 @@ define(
           //Check if the next element is a menu and is visible
           if((checkElement.is('.treeview-menu')) && (checkElement.is(':visible')) && (!$('body').hasClass('sidebar-collapse'))) {
             //Close the menu
-            checkElement.slideUp(500, function() {
+            checkElement.slideUp(50, function() {
               checkElement.removeClass('menu-open');
             });
             checkElement.parent("li").removeClass("active");
@@ -697,91 +841,94 @@ define(
 
       var o = $.TerraMAMonitor.options;
 
-      $.TerraMAMonitor.pushMenu.activate(o.sidebarToggleSelector);
       $.TerraMAMonitor.tree('.sidebar');
 
-      $("#content").height(memberWindowHeight + "px");
-      $(".content-wrapper").css('min-height', memberWindowHeight + "px");
-      $("#terrama2-map").height(memberReducedHeight + "px");
-      $(".sidebar-menu").height((memberWindowHeight - 195) + "px");
+      $(document).on('click', "#collapseButton", function () {
+        if($(".main-sidebar").width == 0){
+          $("#terrama2-map").width("100vw");
+        }else {
+          $("#terrama2-map").width("100%");
+        }
+      })
 
       var mapWidthInterval = window.setInterval(function() {
-        $("#terrama2-map").width($("#content").width() + "px");
+        $("#terrama2-map").width("100vw");
       }, 100);
       window.setTimeout(function() {
         clearInterval(mapWidthInterval);
       }, 2000);
 
-      $("#dynamic").find("div").each(function() {
+      $("#dynamic > .group-name > .sidebar-item-text").find("div").each(function() {
         $(this).addClass("fa fa-clock-o");
       });
 
-      $("#static").find("div").each(function() {
+      $("#static > .group-name > .sidebar-item-text").find("div").each(function() {
         $(this).addClass("fa fa-folder");
       });
 
-      $("#analysis").find("div").each(function() {
+      $("#analysis > .group-name > .sidebar-item-text").find("div").each(function() {
         $(this).addClass("fa fa-search");
       });
 
-      $("#alert").find("div").each(function() {
+      $("#alert > .group-name > .sidebar-item-text").find("div").each(function() {
         $(this).addClass("fa fa-warning");
       });
 
-      $("#template").find("div").each(function() {
+      $("#template > .group-name > .sidebar-item-text").find("div").each(function() {
         $(this).addClass("fa fa-map");
       });
 
-      $("#custom").find("div").each(function() {
+      $("#custom > .group-name > .sidebar-item-text").find("div").each(function() {
         $(this).addClass("fa fa-link");
       });
 
-      var leftArrow = "<span class='pull-right-container'> <i class='fa fa-angle-left pull-right'></i> </span>";
+      var downArrow = "<i class='fa fa-angle-down'></i>";
 
-      $("#dynamic").children("span").each(function() {
-        $(this).append(leftArrow);
+      $("#dynamic > .group-name > .sidebar-item-icon").each(function() {
+        $(this).append(downArrow);
       });
 
-      $("#static").children("span").each(function() {
-        $(this).append(leftArrow);
+      $("#static > .group-name > .sidebar-item-icon").each(function() {
+        $(this).append(downArrow);
       });
 
-      $("#analysis").children("span").each(function() {
-        $(this).append(leftArrow);
+      $("#analysis > .group-name > .sidebar-item-icon").each(function() {
+        $(this).append(downArrow);
       });
 
-      $("#alert").children("span").each(function() {
-        $(this).append(leftArrow);
+      $("#alert > .group-name > .sidebar-item-icon").each(function() {
+        $(this).append(downArrow);
       });
 
-      $("#template").children("span").each(function() {
-        $(this).append(leftArrow);
+      $("#template > .group-name > .sidebar-item-icon").each(function() {
+        $(this).append(downArrow);
       });
 
-      $("#custom").children("span").each(function() {
-        $(this).append(leftArrow);
-        $(this).append("<span class='pull-right-container'> <i class='fa fa-plus pull-right' style='margin-top: 1px;'></i> </span>");
+      $("#custom > .group-name > .sidebar-item-icon").each(function() {
+        $(this).append(downArrow);
+        $(this).append("<i class='fa fa-plus' style='margin-top: 1px;'></i>");
       });
     };
 
     var init = function() {
+
       if(message != "") {
         $("#terrama2Alert > p > strong").text('');
         $("#terrama2Alert > p > span").text(message);
         $("#terrama2Alert").removeClass('hide');
       }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("custom", "", "terrama2-layerexplorer")) {
-        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("custom", "terrama2-layerexplorer", null, "treeview unsortable", null);
-        var layerObject = Layers.createLayerObject({
-          layers: ["custom"],
-          name: "Externals",
-          description: null
-        });
-        Layers.addLayer(layerObject);
-      }
+      // if(TerraMA2WebComponents.MapDisplay.addLayerGroup("custom", "", "terrama2-layerexplorer")) {
+      //   TerraMA2WebComponents.LayerExplorer.addLayersFromMap("custom", "terrama2-layerexplorer", null, "treeview unsortable", null);
+      //   var layerObject = Layers.createLayerObject({
+      //     layers: ["custom"],
+      //     name: "Externals",
+      //     description: null
+      //   });
+      //   Layers.addLayer(layerObject);
+      // }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("template", "", "terrama2-layerexplorer")) {
+      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("template", "Templates", "terrama2-layerexplorer")) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("template", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["template"],
@@ -791,7 +938,7 @@ define(
         Layers.addLayer(layerObject);
       }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("static", "", "terrama2-layerexplorer")) {
+      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("static", "Static data", "terrama2-layerexplorer")) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("static", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["static"],
@@ -801,7 +948,7 @@ define(
         Layers.addLayer(layerObject);
       }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("dynamic", "", "terrama2-layerexplorer")) {
+      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("dynamic", "Dynamic data", "terrama2-layerexplorer")) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("dynamic", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["dynamic"],
@@ -811,7 +958,7 @@ define(
         Layers.addLayer(layerObject);
       }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("analysis", "", "terrama2-layerexplorer")) {
+      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("analysis", "Analysis", "terrama2-layerexplorer")) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("analysis", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["analysis"],
@@ -821,7 +968,7 @@ define(
         Layers.addLayer(layerObject);
       }
 
-      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("alert", "", "terrama2-layerexplorer")) {
+      if(TerraMA2WebComponents.MapDisplay.addLayerGroup("alert", "Alerts", "terrama2-layerexplorer")) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("alert", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
           layers: ["alert"],
@@ -833,7 +980,7 @@ define(
 
       //Adding open map street
       if(TerraMA2WebComponents.MapDisplay.addOSMLayer("osm", "OpenStreetMap", "OpenStreetMap", false, "terrama2-layerexplorer", false)) {
-        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("osm", "template", null, "treeview unsortable terrama2-truncate-text template", null);
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("osm", "template", null, "treeview unsortable terrama2-truncate-text sidebar-subitem template", null);
         var layerObject = Layers.createLayerObject({
           layers: ["osm"],
           name: "OpenStreetMap",
@@ -846,7 +993,7 @@ define(
 
       var gebcoUrl = "http://www.gebco.net/data_and_products/gebco_web_services/web_map_service/mapserv?request=getmap&service=wms";
       if(TerraMA2WebComponents.MapDisplay.addTileWMSLayer("gebco_08_grid", "GEBCO", "GEBCO", gebcoUrl, "mapserver", false, false, "terrama2-layerexplorer", { version: "1.3.0", format: "image/jpeg" })){
-        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("gebco_08_grid", "template", null, "treeview unsortable terrama2-truncate-text template", null);
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("gebco_08_grid", "template", null, "treeview unsortable terrama2-truncate-text sidebar-subitem template", null);
         var layerObject = Layers.createLayerObject({
           layers: ["gebco_08_grid"],
           name: "GEBCO",
@@ -859,7 +1006,7 @@ define(
 
       var sentinelURL = "https://b.s2maps-tiles.eu/wms?";
       if(TerraMA2WebComponents.MapDisplay.addTileWMSLayer("s2cloudless", "Sentinel 2", "Sentinel 2", sentinelURL, "mapserver", false, false, "terrama2-layerexplorer", { version: "1.1.1", format: "image/jpeg" })){
-        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("s2cloudless", "template", null, "treeview unsortable terrama2-truncate-text template", null);
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("s2cloudless", "template", null, "treeview unsortable terrama2-truncate-text sidebar-subitem template", null);
         var layerObject = Layers.createLayerObject({
           layers: ["s2cloudless"],
           name: "Senrinel 2",
@@ -914,6 +1061,7 @@ define(
           Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, initialRequest: true, token: flag ? Utils.getToken() : "" });
         })
         .catch(error => console.error(error));
+    
     };
 
     return {

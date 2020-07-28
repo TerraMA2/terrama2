@@ -5,7 +5,7 @@
   position: absolute;
   height: 100%;
   width: 100%;
-  z-index: 1;
+  /* z-index: 1; */
 }
 
 #terrama2-map .ol-zoom {
@@ -17,7 +17,7 @@
 #terrama2-map .ol-zoom:hover { background-color: rgba(255,255,255,.4) !important; }
 
 #terrama2-map .ol-zoom > button {
-  background-color: rgba(241, 241, 241, 0.8); !important;
+  background-color: rgba(241, 241, 241, 0.8) !important;
   color: rgb(84,84,84);
   outline: none;
 }
@@ -25,7 +25,7 @@
 #terrama2-map .ol-zoom > button:hover { background-color: rgba(241, 241, 241, 1) !important; }
 
 #terrama2-map .ol-attribution > button {
-  background-color: rgba(241, 241, 241, 0.8); !important;
+  background-color: rgba(241, 241, 241, 0.8) !important;
   color: rgb(84,84,84);
   outline: none;
 }
@@ -72,11 +72,11 @@
 
 /* LayerExplorer style */
 
-#terrama2-layerexplorer ul {
+/* #terrama2-layerexplorer ul {
   padding-left: 15px;
   margin-bottom: 0px;
   margin-top: 0;
-}
+} */
 
 #terrama2-layerexplorer ul.layerstack { list-style: none; }
 
@@ -87,31 +87,29 @@
 
 #terrama2-layerexplorer ul.layerstack li.selected { background-color: #ddd; }
 
-#terrama2-layerexplorer li.parent_li ul li { cursor: default; }
-
-#terrama2-layerexplorer li {
+/* #terrama2-layerexplorer li {
   list-style-type: none;
   padding: 5px 0;
   position: relative;
   white-space: nowrap;
-}
+} */
 
 #terrama2-layerexplorer li.parent_li, #terrama2-layerexplorer li.parent_li > ul > li { margin: 0 !important; }
 
-#terrama2-layerexplorer li::before, #terrama2-layerexplorer li::after {
+/* #terrama2-layerexplorer li::before, #terrama2-layerexplorer li::after {
   content:'';
   left:-20px;
   position:absolute;
   right:auto;
-}
+} */
 
-#terrama2-layerexplorer li > span {
+/* #terrama2-layerexplorer li > span {
   display: block;
   padding: 5px 0 5px 0px;
   text-decoration: none;
-}
+} */
 
-.terrama2-layerexplorer-plus {
+/* .terrama2-layerexplorer-plus {
   background-image: url('images/plus.png');
   background-repeat: no-repeat;
   background-position: center;
@@ -135,7 +133,7 @@
   height: 13px;
   width: 13px;
   float: left;
-}
+} */
 
 #terrama2-layerexplorer li.parent_li>span { cursor: pointer; }
 
@@ -143,13 +141,13 @@
 
 #terrama2-layerexplorer li:last-child::before { height: 30px; }
 
-.terrama2-layerexplorer-checkbox {
+/* .terrama2-layerexplorer-checkbox {
   display: block;
   margin-bottom: -21px !important;
   margin-left: 0;
-}
+} */
 
-span.terrama2-layerexplorer-checkbox-span { margin-left: 15px !important; }
+/* span.terrama2-layerexplorer-checkbox-span { margin-left: 15px !important; } */
 
 #terrama2-layerexplorer ul.children > li.layer:active, #terrama2-layerexplorer > li.layer:active, #terrama2-layerexplorer > li.parent_li:active { cursor: move; }
 

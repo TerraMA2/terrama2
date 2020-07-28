@@ -49,6 +49,7 @@
 
 #include "DataAccessorStaticDataOGR.hpp"
 #include "DataAccessorStaticDataPostGIS.hpp"
+#include "DataAccessorStaticDataViewPostGIS.hpp"
 #include "DataAccessorStaticGDAL.hpp"
 
 #include "DataAccessorAnalysisPostGIS.hpp"
@@ -63,6 +64,8 @@
 #include "DataRetrieverHTTP.hpp"
 #include "DataRetrieverHTTPS.hpp"
 #include "DataRetrieverStaticHTTP.hpp"
+#include "DataRetrieverWFS.hpp"
+#include "DataAccessorWFS.hpp"
 
 #include "../core/utility/DataAccessorFactory.hpp"
 #include "../core/utility/DataStoragerFactory.hpp"
@@ -90,18 +93,21 @@ void terrama2::core::registerFactories()
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorWildFireEvent::dataAccessorType(), terrama2::core::DataAccessorWildFireEvent::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorDcpSingleTable::dataAccessorType(), terrama2::core::DataAccessorDcpSingleTable::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorJsonCemaden::dataAccessorType(), terrama2::core::DataAccessorJsonCemaden::make);
+  terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorWFS::dataAccessorType(), terrama2::core::DataAccessorWFS::make);
 
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorNetCDF::dataAccessorType(),
                                                          terrama2::core::DataAccessorNetCDF::make);
 
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorStaticDataOGR::dataAccessorType(), terrama2::core::DataAccessorStaticDataOGR::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorStaticDataPostGIS::dataAccessorType(), terrama2::core::DataAccessorStaticDataPostGIS::make);
+  terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorStaticDataViewPostGIS::dataAccessorType(), terrama2::core::DataAccessorStaticDataViewPostGIS::make);
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorStaticGDAL::dataAccessorType(), terrama2::core::DataAccessorStaticGDAL::make);
 
   terrama2::core::DataAccessorFactory::getInstance().add(terrama2::core::DataAccessorAnalysisPostGIS::dataAccessorType(), terrama2::core::DataAccessorAnalysisPostGIS::make);
   // Data storager
   terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerOccurrencePostGIS::dataStoragerType(), terrama2::core::DataStoragerOccurrencePostGIS::make);
   terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerAnalysisMonitoredObject::dataStoragerType(), terrama2::core::DataStoragerAnalysisMonitoredObject::make);
+  terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerVectorProcessingObject::dataStoragerType(), terrama2::core::DataStoragerVectorProcessingObject::make);
   terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerDCPPostGIS::dataStoragerType(), terrama2::core::DataStoragerDCPPostGIS::make);
   terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerDCPSingleTable::dataStoragerType(), terrama2::core::DataStoragerDCPSingleTable::make);
   terrama2::core::DataStoragerFactory::getInstance().add(terrama2::core::DataStoragerTiff::dataStoragerType(), terrama2::core::DataStoragerTiff::make);
@@ -113,6 +119,7 @@ void terrama2::core::registerFactories()
   terrama2::core::DataRetrieverFactory::getInstance().add(terrama2::core::DataRetrieverHTTP::dataRetrieverType(), terrama2::core::DataRetrieverHTTP::make);
   terrama2::core::DataRetrieverFactory::getInstance().add(terrama2::core::DataRetrieverHTTPS::dataRetrieverType(), terrama2::core::DataRetrieverHTTPS::make);
   terrama2::core::DataRetrieverFactory::getInstance().add(terrama2::core::DataRetrieverStaticHTTP::dataRetrieverType(), terrama2::core::DataRetrieverStaticHTTP::make);
+  terrama2::core::DataRetrieverFactory::getInstance().add(terrama2::core::DataRetrieverWFS::dataRetrieverType(), terrama2::core::DataRetrieverWFS::make);
 
   terrama2::core::InterpreterFactory::getInstance().add(terrama2::core::PythonInterpreter::interpreterType(), terrama2::core::PythonInterpreter::make, terrama2::core::PythonInterpreter::createInitializer);
 }

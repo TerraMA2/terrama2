@@ -22,6 +22,8 @@
         case "FTP":
           return BASE_URL + "images/data-server/ftp/ftp.png";
           break;
+        case "WFS":
+          return BASE_URL + "images/data-server/wfs/datasource-wfs.svg";
         case "SFTP":
           return BASE_URL + "images/data-server/sftp/sftp.png";
           break;
@@ -50,8 +52,8 @@
           <terrama2-alert-box2 handler="MessageBoxService.alertBox" close="close()"></terrama2-alert-box2>
         </div>
 
-        <terrama2-table fields="fields" model="model" link="link" status-change-link="statusChangeLink" icon-properties="iconProperties" 
-                        link-to-add="linkToAdd" icon="iconFn" context="'data provider'" 
+        <terrama2-table fields="fields" model="model" link="link" status-change-link="statusChangeLink" icon-properties="iconProperties"
+                        link-to-add="linkToAdd" icon="iconFn" context="'data provider'"
                         remove="remove(object);" extra="extra" order-by="'name'"></terrama2-table>
       </div>
     </div>

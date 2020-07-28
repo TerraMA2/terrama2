@@ -147,6 +147,9 @@ angular.module(moduleName, [])
               $scope.minSchedule = 1;
               $scope.maxSchedule = 366;
               break;
+            case 'file':
+              resetHelper(0);
+              break;
             default:
               $scope.minSchedule = 0;
               $scope.maxSchedule = 0;

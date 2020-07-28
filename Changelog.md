@@ -1,6 +1,6 @@
 # 4.0.11
 
-## Buffix:
+## Bug fix:
 
 - Revert commit 7b9f813 - Performance issues on specific rasters
 - Fix Temporal collector for HTTP files

@@ -103,7 +103,7 @@ namespace terrama2
             "name": STRING,
             "description": STRING,
             "additional_data": [
-              "dataseries_id": INT,
+              "data_series_id": INT,
               "dataset_id": INT,
               "referrer_attribute": STRING,
               "referred_attribute": STRING,
