@@ -1,0 +1,37 @@
+{
+  "name": "TerraMA²",
+  "short_name": "TerraMA²",
+  "scope": ".",
+  "start_url": "/mpmt/monitor/",
+  "display": "standalone",
+  "splash_pages": null,
+  "background_color": "#222d32",
+  "theme_color": "#222d32",
+  "icons": [
+    {
+      "src": "/images/icons/Android/Icon-48.png",
+      "type": "image/png",
+      "sizes": "48x48"
+    },
+    {
+      "src": "/images/icons/Android/Icon-96.png",
+      "type": "image/png",
+      "sizes": "96x96"
+    },
+    {
+      "src": "/images/icons/Android/Icon-144.png",
+      "type": "image/png",
+      "sizes": "144x144"
+    },
+    {
+      "src": "/images/icons/Android/Icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/icons/Android/Icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

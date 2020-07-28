@@ -44,7 +44,9 @@ var GetAttributesTableController = function(app) {
    * @inner
    */
   var getValidProperties = function(layer, geoserverUri, callback) {
+
     memberHttp.get(geoserverUri + memberDescribeFeatureTypeTemplateURL.replace('{{LAYER_NAME}}', layer), function(resp) {
+
       var body = '';
       var fields = [];
 
@@ -57,21 +59,17 @@ var GetAttributesTableController = function(app) {
           body = JSON.parse(body);
 
           for(var i = 0, propertiesLength = body.featureTypes[0].properties.length; i < propertiesLength; i++) {
-            var type = body.featureTypes[0].properties[i].type.split(':');
-
-            if(type[0] !== "gml") {
-              fields.push({
-                name: body.featureTypes[0].properties[i].name,
-                string: (body.featureTypes[0].properties[i].localType === "string" ? true : false),
-                dateTime: (body.featureTypes[0].properties[i].localType === "date-time" ? true : false),
-                date: (body.featureTypes[0].properties[i].localType === "date" ? true : false)
-              });
-            }
+            fields.push({
+              name: body.featureTypes[0].properties[i].name,
+              string: (body.featureTypes[0].properties[i].localType === "string" ? true : false),
+              dateTime: (body.featureTypes[0].properties[i].localType === "date-time" ? true : false),
+              date: (body.featureTypes[0].properties[i].localType === "date" ? true : false)
+            });
           }
+
         } catch(ex) {
           body = {};
         }
-
         callback(fields);
       });
     }).on("error", function(e) {
@@ -95,7 +93,9 @@ var GetAttributesTableController = function(app) {
       var search = (request.body['search[value]'] !== "" ? "&cql_filter=(" : "");
       var dateTimeField = null;
       var dateField = null;
-
+      var columnsFilter = request.body['columnsFilter[]'];
+      var layerType = request.body['layerData[parent]'];
+      
       for(var i = 0, fieldsLength = fields.length; i < fieldsLength; i++) {
         properties += fields[i].name + ",";
 
@@ -109,6 +109,16 @@ var GetAttributesTableController = function(app) {
       var order = fields[request.body['order[0][column]']].name + (request.body['order[0][dir]'] === "desc" ? "+D" : "+A");
 
       properties = (properties !== "" ? properties.substring(0, properties.length - 1) : properties);
+      
+      if(typeof columnsFilter !== 'undefined' && columnsFilter.length > 0){
+        properties = "";
+        for(var i = 0; i < columnsFilter.length; i++) {
+          properties += columnsFilter[i];
+          if(i+1 < columnsFilter.length){
+            properties += ",";
+          }
+        }
+      }
 
       var url = request.body.geoserverUri + memberGetFeatureTemplateURL.replace('{{LAYER_NAME}}', request.body.layer);
       url = url.replace('{{PROPERTIES}}', properties);
@@ -145,13 +155,55 @@ var GetAttributesTableController = function(app) {
           try {
             body = JSON.parse(body);
 
+            let columnsFiltered = properties.split(",");
+
             // Conversion of the result object to array
             body.features.forEach(function(val) {
               var temp = [];
-              for(var key in val.properties) temp.push(val.properties[key]);
+
+              if((columnsFiltered.length !== Object.keys(val.properties).length) || (columnsFiltered.length == Object.keys(val.properties).length && verifyEqualsColumns(columnsFiltered, val))){
+                columnsFiltered.forEach(function(columnFilter){
+                  if(Object.keys(val.properties).includes(columnFilter)){
+                    if(val.properties[columnFilter] != null && typeof val.properties[columnFilter] == 'object'){
+                      if(typeof val.properties[columnFilter].type !== 'undefined'){
+                        temp.push(val.properties[columnFilter].type);
+                      }else{
+                        let propertiesObj = val.properties[columnFilter];
+                        for(let key in propertiesObj){
+                          temp.push(propertiesObj[key]);
+                          break;
+                        }
+                      }                      
+                    } else{
+                      temp.push(val.properties[columnFilter]);
+                    }
+                  } else{
+                    if(layerType == "static" && val.geometry !== null){
+                      temp.push(val.geometry.type);
+                    }else{
+                      if(typeof val.geometry_name !== 'undefined' && val.geometry_name !== null){
+                        temp.push(val.geometry.type);
+                      } else{
+                        temp.push("");
+                      } 
+                    }                        
+                  }
+                });
+              } else{
+                for(var key in val.properties){
+                  temp.push(val.properties[key]);
+                } 
+  
+                if(layerType == "static" && val.geometry != null){
+                  temp.push(val.geometry.type);
+                }
+              }
+
               data.push(temp);
             });
+
           } catch(ex) {
+            console.log(ex);
             body = {};
           }
 
@@ -178,6 +230,7 @@ var GetAttributesTableController = function(app) {
             recordsFiltered: parseInt(memberCurrentLayer.numberOfFeatures),
             data: data
           });
+
         });
       }).on("error", function(e) {
         console.error(e.message);
@@ -185,6 +238,15 @@ var GetAttributesTableController = function(app) {
       });
     });
   };
+
+  var verifyEqualsColumns = function(filteredByGeoserver, object){
+    Object.keys(object.properties).forEach(function(property){
+      if(!filteredByGeoserver.includes(property)){
+        return false;
+      } 
+    });
+    return true;
+  }
 
   /**
    * Processes the request and returns a response.

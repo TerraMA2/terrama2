@@ -184,7 +184,6 @@ define([], function () {
         } else {
           self.model.metadata.creation_type = "default";
         }
-
         self.changeCreationType();
       }
     });

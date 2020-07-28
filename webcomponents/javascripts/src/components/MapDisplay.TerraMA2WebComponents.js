@@ -89,7 +89,7 @@ define(
       var layer = findBy(memberOlMap.getLayerGroup(), 'id', layerId);
       var source = layer.getSource();
       if(source.hasOwnProperty("params_")){
-        source.updateParams(params);  
+        source.updateParams(params);
       }
       if(refresh) layer.getSource().refresh();
     };
@@ -521,7 +521,7 @@ define(
         tile.setMaxResolution(params.maxResolution);
 
       return tile;
-    }; 
+    };
 
     /**
      * Creates a new image wms layer.

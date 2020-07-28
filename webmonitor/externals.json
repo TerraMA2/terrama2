@@ -66,5 +66,13 @@
   {
     "publicUrl": "externals/i18next-xhr-backend",
     "path": "node_modules/i18next-xhr-backend"
+  },
+  {
+    "publicUrl": "externals/@amcharts/amcharts4",
+    "path": "node_modules/@amcharts/amcharts4"
+  },
+  {
+    "publicUrl": "externals/@amcharts/amcharts4-geodata",
+    "path": "node_modules/@amcharts/amcharts4-geodata"
   }
 ]

@@ -60,7 +60,7 @@ QJsonObject terrama2::services::view::core::toJson(ViewPtr view)
   obj.insert("srid", static_cast<int32_t>(view->srid));
   obj.insert("schedule", terrama2::core::toJson(view->schedule));
 
-  obj.insert("dataseries_id", static_cast<int32_t>(view->dataSeriesID));
+  obj.insert("data_series_id", static_cast<int32_t>(view->dataSeriesID));
 
   obj.insert("legend", toJson(*view->legend.get()));
 
@@ -82,7 +82,7 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
      || !json.contains("project_id")
      || !json.contains("service_instance_id")
      || !json.contains("active")
-     || !json.contains("dataseries_id")
+     || !json.contains("data_series_id")
      || !json.contains("legend")
      || !json.contains("schedule"))
   {
@@ -100,7 +100,7 @@ terrama2::services::view::core::ViewPtr terrama2::services::view::core::fromView
   view->serviceInstanceId = static_cast<uint32_t>(json["service_instance_id"].toInt());
   view->active = json["active"].toBool();
 
-  uint32_t dataseriesID = static_cast<uint32_t>(json["dataseries_id"].toInt());
+  uint32_t dataseriesID = static_cast<uint32_t>(json["data_series_id"].toInt());
 
   view->dataSeriesID = dataseriesID;
 

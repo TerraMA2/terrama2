@@ -3,6 +3,7 @@
 define(
   ['components/Layers', 'components/Utils', 'TerraMA2WebComponents'],
   function(Layers, Utils, TerraMA2WebComponents) {
+
     var memberTable = null;
     var memberDefaultTableOptions = {
       "bAutoWidth": false,
@@ -42,7 +43,7 @@ define(
         $('#tableButton').removeClass('hidden');
     };
 
-    var setAttributesTable = function() {
+    var setAttributesTable = function() {  
       if($('#attributes-table-select > select').val() !== null) {
         var layerId = $('#attributes-table-select > select').val();
 
@@ -61,60 +62,166 @@ define(
           analysisTime = layerData.dateInfo.dates[layerData.dateInfo.initialDateIndex];
 
         if(layerData !== null && layerData.id !== undefined && layerData.uriGeoServer !== undefined) {
+
+          const tableName = layerData.exportation.table;
+          const viewId = layerData.viewId;
+
           $.get(BASE_URL + 'get-columns', {
-              layer: layerData.id,
-              geoserverUri: layerData.uriGeoServer
-            },
+            layer: layerData.id,
+            geoserverUri: layerData.uriGeoServer
+          },
             function(response) {
               if(response.fields.length > 0) {
-                var columns = response.fields;
-                var columnsLength = columns.length;
-                var columnsArray = [];
-                var titles = "";
+                var filterFields = response.fields;
 
-                for(var i = 0; i < columnsLength; i++) {
-                  columnsArray.push({
-                    "name": columns[i].name
-                  });
-                  titles += "<th>" + columns[i].name + "</th>";
-                }
+                $.get(ADMIN_URL + 'api/datasetid', {
+                  tableName: tableName,
+                  viewId: viewId
+                },
+                  function(response) {
+                    if(response[0].data_set_id){
+                      var dataSetid = response[0].data_set_id;
 
-                if(memberTable !== null)
-                  memberTable.destroy(true);
+                      $.get(ADMIN_URL + 'api/attributes', {
+                        dataSetid: dataSetid,
+                        viewId: viewId
+                      },
+                        function(response) {
+                           
+                          if(typeof response !== 'undefined' && response.length > 0 && response[0].value){
+                            var attributesResponseStr = response[0].value;
+                            var attributesJson = JSON.parse(attributesResponseStr);   
+                            
+                            var attributesJsonFiltered = [];
 
-                $("#attributes-table-div").empty().html("<table class=\"table table-bordered table-hover\" id=\"attributes-table\"><thead>" + titles + "</thead><tfoot>" + titles + "</tfoot></table>");
+                            filterFields.forEach(function(field){
+                              attributesJson.forEach(function(jsonElement){
+                                if(field.name == jsonElement.name){
+                                  attributesJsonFiltered.push(jsonElement);
+                                }
+                              });
+                            });
 
-                var tableOptions = $.extend(true, {}, memberDefaultTableOptions);
+                            var columnsLength = attributesJsonFiltered.length;
+                            var columnsArray = [];
+                            var columnsFilter = []
+                            var titles = "";
+      
+                            for(var i = 0; i < columnsLength; i++) {
+                              let nameAtt;
+                              let nameColumnsAtt;
+                              if(attributesJsonFiltered[i].alias != "" && attributesJsonFiltered[i].visible == true){
+                                nameAtt = attributesJsonFiltered[i].alias;
+                                nameColumnsAtt = attributesJsonFiltered[i].name;
+                              }else if(attributesJsonFiltered[i].alias == "" && attributesJsonFiltered[i].visible == true){
+                                nameAtt = attributesJsonFiltered[i].name;
+                                nameColumnsAtt = attributesJsonFiltered[i].name;
+                              } else{
+                                continue;
+                              } 
 
-                tableOptions.language = {
-                  "emptyTable": "<p class='text-center'>" + Utils.getTranslatedString("No data available in table") + "</p>",
-                  "info": Utils.getTranslatedString("Showing") + " _START_ " + Utils.getTranslatedString("to") + " _END_ " + Utils.getTranslatedString("of") + " _TOTAL_ " + Utils.getTranslatedString("entries"),
-                  "infoEmpty": Utils.getTranslatedString("Showing 0 to 0 of 0 entries"),
-                  "infoFiltered": Utils.getTranslatedString("(filtered from") + " _MAX_ " + Utils.getTranslatedString("total entries)"),
-                  "lengthMenu": Utils.getTranslatedString("Show") + " _MENU_ " + Utils.getTranslatedString("entries"),
-                  "loadingRecords": Utils.getTranslatedString("LOADING"),
-                  "processing": Utils.getTranslatedString("PROCESSING"),
-                  "search": Utils.getTranslatedString("SEARCH-COLON"),
-                  "zeroRecords": "<p class='text-center'>" + Utils.getTranslatedString("No matching records found") + "</p>",
-                  "paginate": {
-                    "first": Utils.getTranslatedString("First"),
-                    "last": Utils.getTranslatedString("Last"),
-                    "next": Utils.getTranslatedString("Next"),
-                    "previous": Utils.getTranslatedString("Previous")
+                              columnsFilter.push(nameColumnsAtt);     
+                              columnsArray.push({
+                                "name": nameColumnsAtt                         
+                              });
+                              titles += "<th>" + nameAtt + "</th>";
+                            }
+
+                            if(memberTable !== null)
+                              memberTable.destroy(true);
+
+                            $("#attributes-table-div").empty().html("<table class=\"table table-bordered table-hover\" id=\"attributes-table\"><thead>" + titles + "</thead><tfoot>" + titles + "</tfoot></table>");
+
+                            var tableOptions = $.extend(true, {}, memberDefaultTableOptions);
+
+                            tableOptions.language = {
+                              "emptyTable": "<p class='text-center'>" + Utils.getTranslatedString("No data available in table") + "</p>",
+                              "info": Utils.getTranslatedString("Showing") + " _START_ " + Utils.getTranslatedString("to") + " _END_ " + Utils.getTranslatedString("of") + " _TOTAL_ " + Utils.getTranslatedString("entries"),
+                              "infoEmpty": Utils.getTranslatedString("Showing 0 to 0 of 0 entries"),
+                              "infoFiltered": Utils.getTranslatedString("(filtered from") + " _MAX_ " + Utils.getTranslatedString("total entries)"),
+                              "lengthMenu": Utils.getTranslatedString("Show") + " _MENU_ " + Utils.getTranslatedString("entries"),
+                              "loadingRecords": Utils.getTranslatedString("LOADING"),
+                              "processing": Utils.getTranslatedString("PROCESSING"),
+                              "search": Utils.getTranslatedString("SEARCH-COLON"),
+                              "zeroRecords": "<p class='text-center'>" + Utils.getTranslatedString("No matching records found") + "</p>",
+                              "paginate": {
+                                "first": Utils.getTranslatedString("First"),
+                                "last": Utils.getTranslatedString("Last"),
+                                "next": Utils.getTranslatedString("Next"),
+                                "previous": Utils.getTranslatedString("Previous")
+                              }
+                            };
+
+                            tableOptions.ajax.data = function(data) {
+                              data.layer = $('#attributes-table-select > select').val();
+                              data.geoserverUri = layerData.uriGeoServer;
+                              data.timeStart = startDate;
+                              data.timeEnd = endDate;
+                              data.analysisTime = analysisTime;
+                              data.columnsFilter = columnsFilter;
+                              data.layerData = layerData;
+                            };
+            
+                            tableOptions.columns = columnsArray;
+            
+                            memberTable = $('#attributes-table').DataTable(tableOptions);
+
+                          } else{
+
+                            var titles = "";
+                            var columnsArray = [];
+
+                            for(var i = 0; i < filterFields.length; i++) {
+                              columnsArray.push({
+                                "name": filterFields[i].name
+                              });
+                              titles += "<th>" + filterFields[i].name + "</th>";
+                            }
+
+                            if(memberTable !== null)
+                              memberTable.destroy(true);
+
+                            $("#attributes-table-div").empty().html("<table class=\"table table-bordered table-hover\" id=\"attributes-table\"><thead>" + titles + "</thead><tfoot>" + titles + "</tfoot></table>");
+
+                            var tableOptions = $.extend(true, {}, memberDefaultTableOptions);
+
+                            tableOptions.language = {
+                              "emptyTable": "<p class='text-center'>" + Utils.getTranslatedString("No data available in table") + "</p>",
+                              "info": Utils.getTranslatedString("Showing") + " _START_ " + Utils.getTranslatedString("to") + " _END_ " + Utils.getTranslatedString("of") + " _TOTAL_ " + Utils.getTranslatedString("entries"),
+                              "infoEmpty": Utils.getTranslatedString("Showing 0 to 0 of 0 entries"),
+                              "infoFiltered": Utils.getTranslatedString("(filtered from") + " _MAX_ " + Utils.getTranslatedString("total entries)"),
+                              "lengthMenu": Utils.getTranslatedString("Show") + " _MENU_ " + Utils.getTranslatedString("entries"),
+                              "loadingRecords": Utils.getTranslatedString("LOADING"),
+                              "processing": Utils.getTranslatedString("PROCESSING"),
+                              "search": Utils.getTranslatedString("SEARCH-COLON"),
+                              "zeroRecords": "<p class='text-center'>" + Utils.getTranslatedString("No matching records found") + "</p>",
+                              "paginate": {
+                                "first": Utils.getTranslatedString("First"),
+                                "last": Utils.getTranslatedString("Last"),
+                                "next": Utils.getTranslatedString("Next"),
+                                "previous": Utils.getTranslatedString("Previous")
+                              }
+                            };
+
+                            tableOptions.ajax.data = function(data) {
+                              data.layer = $('#attributes-table-select > select').val();
+                              data.geoserverUri = layerData.uriGeoServer;
+                              data.timeStart = startDate;
+                              data.timeEnd = endDate;
+                              data.analysisTime = analysisTime;
+                              data.layerData = layerData;
+                            };
+
+                            tableOptions.columns = columnsArray;
+
+                            memberTable = $('#attributes-table').DataTable(tableOptions);
+                          }      
+                          
+                        }
+                      );  
+                    }             
                   }
-                };
-
-                tableOptions.ajax.data = function(data) {
-                  data.layer = $('#attributes-table-select > select').val();
-                  data.geoserverUri = layerData.uriGeoServer;
-                  data.timeStart = startDate;
-                  data.timeEnd = endDate;
-                  data.analysisTime = analysisTime;
-                };
-
-                tableOptions.columns = columnsArray;
-
-                memberTable = $('#attributes-table').DataTable(tableOptions);
+                );
               }
             }
           );

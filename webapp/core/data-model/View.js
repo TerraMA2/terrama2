@@ -5,7 +5,7 @@
   var AbstractClass = require("./AbstractData");
 
   /**
-   * It defines a TerraMA² View representation. 
+   * It defines a TerraMA² View representation.
    * @class View
    */
   function View(params) {
@@ -36,7 +36,7 @@
      * @type {string}
      */
     this.style = params.style;
-    /** 
+    /**
      * Registered view retrieved from tcp or database
      * @type {RegisteredView}
      */
@@ -89,6 +89,8 @@
      */
     this.source_type = params.source_type;
 
+    this.charts = params.charts;
+
     this.properties = params.properties || {};
   }
 
@@ -108,23 +110,13 @@
     } else {
       propertiesOutput = properties;
     }
-    
+
     this.properties = propertiesOutput;
   }
 
   /**
-   * It builds a database representation of View
-   */
-  View.prototype.rawObject = function() {
-    var obj = this.toObject();
-    delete obj.dataseries_id;
-    obj.data_series_id = this.dataSeriesId;
-    return obj;
-  };
-
-  /**
    * It builds a standardized TCP format
-   * 
+   *
    * @returns {Object}
    */
   View.prototype.toObject = function() {
@@ -139,7 +131,7 @@
       name: this.name,
       description: this.description,
       style: this.style,
-      dataseries_id: this.dataSeriesId,
+      data_series_id: this.dataSeriesId,
       dataSeries: this.dataSeries instanceof AbstractClass ? this.dataSeries.toObject() : {},
       schedule: this.schedule instanceof AbstractClass ? this.schedule.toObject() : {},
       automatic_schedule: this.automaticSchedule instanceof AbstractClass ? this.automaticSchedule.toObject() : {},
@@ -150,8 +142,13 @@
       private: this.private,
       schedule_type: this.scheduleType,
       source_type: this.source_type,
-      properties: this.properties
+      properties: this.properties,
+      charts: this.charts
     });
+  };
+
+  View.prototype.rawObject = function() {
+    return this.toObject()
   };
 
   module.exports = View;

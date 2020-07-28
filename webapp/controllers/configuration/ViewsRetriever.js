@@ -28,8 +28,9 @@ var ViewsRetriever = function(app) {
       if(params.type === memberViewsCache.TYPES.NEW_AND_UPDATED && (params.initialRequest || params.onlyPrivate)) {
         return memberDataManager.listRegisteredViews().then(function(views) {
           return memberDataManager.listAnalysis({}).then(function(analysisList) {
-            return memberDataManager.listAlerts().then(function(alerts) {
-              var viewsObjects = views.map(function(view) {
+            return memberDataManager.listAlerts().then(async function(alerts) {
+              var viewsObjects = [];
+              for (const view of views) {
                 var description = null;
 
                 if(view.dataSeries) {
@@ -44,12 +45,8 @@ var ViewsRetriever = function(app) {
                 }
 
                 var viewObject = view.toObject();
-                if(description) {
-                  viewObject.description = description;
-                }
-
-                return viewObject;
-              });
+                viewsObjects.push(viewObject);
+              }
 
               for(var i = 0, viewsLength = viewsObjects.length; i < viewsLength; i++) {
                 if((viewsObjects[i].private && sendPrivate) || (!params.onlyPrivate && !viewsObjects[i].private))

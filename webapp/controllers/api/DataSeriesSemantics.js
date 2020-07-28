@@ -2,8 +2,6 @@ var DataManager = require("../../core/DataManager.js");
 var Utils = require("../../core/Utils");
 var DataSeriesSemanticsError = require("../../core/Exceptions").DataSeriesSemanticsError;
 var DataSeriesSemanticsFactory = require('./../../core/data-series-semantics/Factory');
-var TemporalityType = require('./../../core/Enums').TemporalityType;
-var Promise = require("./../../core/Promise");
 var logger = require("./../../core/Logger");
 
 function makeMetadata(identifier, metadata) {

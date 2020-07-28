@@ -1,0 +1,24 @@
+{
+  "basePath": "/",
+  "port": 36000,
+  "defaultFilePathList": [
+    "/home/<USER>/terrama2"
+  ],
+  "defaultExecutablePath": "/opt/terrama2/4.1.0/bin",
+  "defaultExecutableName": "terrama2_service",
+  "disablePDF": true,
+  "debug": true,
+  "OGR2OGR": "ogr2ogr",
+  "SHP2PGSQL": "shp2pgsql",
+  "toolsMenu": [
+    {
+      "textEn": "TerraMA² Homepage",
+      "textEs": "TerraMA² Homepage",
+      "textFr": "TerraMA² Homepage",
+      "textPt": "TerraMA² Homepage",
+      "url": "http://www.terrama2.dpi.inpe.br/",
+      "openInNewTab": true
+    }
+  ],
+  "webAppId": "default|||$2b$10$olA2TK05Y4ooWaK/kClyaOUylqDg/epXdLgtkwHwjGyFi7u7NENNW"
+}

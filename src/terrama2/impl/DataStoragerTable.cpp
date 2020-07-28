@@ -293,7 +293,8 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
       if(typeCapabilities.supportsRTreeIndex())
       {
         // the newDataSetType takes ownership of the pointer
-        auto spatialIndex = new te::da::Index("spatial_index_" + destinationDataSetName, te::da::R_TREE_TYPE, {geomProperty});
+        auto spatialIndex = new te::da::Index("spatial_index_" + destinationDataSetName, te::da::R_TREE_TYPE);
+        spatialIndex->add(geomProperty);
         newDataSetType->add(spatialIndex);
       }
     }

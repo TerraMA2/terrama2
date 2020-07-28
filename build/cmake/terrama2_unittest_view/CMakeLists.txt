@@ -53,6 +53,7 @@ add_executable(terrama2_unittest_view ${TERRAMA2_SRC_FILES} ${TERRAMA2_HDR_FILES
 
 target_link_libraries(terrama2_unittest_view terrama2_view_core
                                                   terrama2_core
+                                                  ${CURL_LIBRARY}
                                                   ${GTEST_BOTH_LIBRARIES}
                                                   ${GMOCK_BOTH_LIBRARIES})
 

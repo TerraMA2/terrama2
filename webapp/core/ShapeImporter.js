@@ -21,7 +21,7 @@ function execute(command) {
     child_process.exec(command, { maxBuffer: 20 * 1024 * 1024 }, (commandErr, stdOut, stdErr) => {
       if (commandErr)
         return reject(commandErr);
-      return resolve(commandErr || stdErr);
+      return resolve(stdErr || stdOut);
     });
   });
 }

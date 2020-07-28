@@ -1,6 +1,6 @@
 'use strict';
 
-var passport = require('../../config/Passport');
+var passport = require('../../core/utility/Passport');
 
 module.exports = function(app) {
   var controller = app.controllers.api.Legend;

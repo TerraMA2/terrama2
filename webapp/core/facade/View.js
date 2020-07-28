@@ -87,7 +87,7 @@
         })
       }
       saveViewPromise
-        .then(function(view) {
+        .then(async view => {
           // sending to the services
           sendView(view);
           return resolve(view);
@@ -109,7 +109,7 @@
     return new PromiseClass(function(resolve, reject) {
       if (viewId) {
         return DataManager.getView({id: viewId})
-          .then(function(view) { 
+          .then(async view => {
             return resolve(view.toObject());
           })
           .catch(function(err) { 
@@ -169,10 +169,11 @@
         /**
          * @type {View}
          */
-        var view;
+        let view;
         var removeSchedule = null;
         var scheduleIdToRemove = null;
         var scheduleTypeToRemove = null;
+
         return DataManager.getView({id: viewId, project_id: projectId}, options)
           .then(function(viewResult) {
             view = viewResult;

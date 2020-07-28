@@ -21,6 +21,7 @@
       </div>
 
       <div class="col-md-12" style="margin-top: 30px; padding-left: 25px; padding-right: 25px;">
+        <hr />
         <a href="" class="btn btn-primary pull-left cancel-dynamic" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
         <a href="" class="btn btn-primary pull-left cancel-static" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
         <div class="pull-right">
@@ -42,7 +43,7 @@
     </wz-step>
 
     <wz-step wz-title="{{ i18n.__('Parameters') }}" canexit="isSecondStepValid" wz-data="wizard.parameters">
-      <div class="col-md-12">
+      <div ng-class="{ 'col-md-12' : !$ctrl.isFilteredTable(), 'col-md-8': $ctrl.isFilteredTable() }">
 
         <!-- schema form -->
         <form name="forms.parametersForm" sf-schema="schema" sf-form="form" sf-model="model" sf-options="options"></form>
@@ -59,6 +60,10 @@
 
       </div>
 
+      <div class="col-md-4" ng-show="$ctrl.isFilteredTable()">
+        <terrama2-map id="previewMap" hide></terrama2-map>
+      </div>
+
       <div class="col-md-12" ng-if="!isDynamic && (semanticsCode === 'STATIC_DATA-postgis' || (semanticsCode === 'STATIC_DATA-ogr' && isDataProviderFolder()))">
         <div class="col-md-12">
           <terrama2-shapefile-importer></terrama2-shapefile-importer>
@@ -71,11 +76,15 @@
       </div>
 
       <div class="col-md-12" style="margin-top: 30px; padding-left: 25px; padding-right: 25px;">
+        <hr />
         <a href="" class="btn btn-primary pull-left cancel-dynamic" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
         <a href="" class="btn btn-primary pull-left cancel-static" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
+
         <div class="pull-right">
+          <button class="btn btn-primary" ng-bind="i18n.__('Validate')" ng-if="$ctrl.isFilteredTable() || semanticsCode === 'STATIC_DATA-VIEW-postgis'" data-ng-click="onValidateView()"></button>
+
           <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
-          <button class="btn btn-primary" type="submit" ng-show="isDynamic && (!wizard.store.disabled || !wizard.filter.disabled || !wizard.intersection.disabled || !wizard.csvFormatForm.disabled)" ng-click="goToValidNextStep('parametersForm');" wz-next>{{ i18n.__('Next') }}</button>
+          <button class="btn btn-primary" type="submit" ng-show="isDynamic && (!wizard.store.disabled || !wizard.filter.disabled || !wizard.intersection.disabled || !wizard.csvFormatForm.disabled || !wizard.parameters)" ng-click="goToValidNextStep('parametersForm');" wz-next>{{ i18n.__('Next') }}</button>
           <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save')" ng-show="!isDynamic" data-ng-click="save(false);"></button>
           <div class="btn-group pull-right" style="margin-left: 3px;" ng-show="isDynamic && storager.format">
             <button type="button" class="btn btn-primary" ng-bind="i18n.__('Save and Run')" data-ng-click="save(true);"></button>
@@ -92,6 +101,20 @@
       </div>
     </wz-step>
 
+    <wz-step wz-title="{{ i18n.__('Attributes') }}" canexit="isSecondStepValid" wz-data="wizard.attributes" wz-disabled="{{isDynamic || model.table_name==undefined}}" canenter="!wizard.attributes.disabled">
+        <form name="forms.attributesForm"></form>
+          <attributes model="model.attributes" dataserie="dataSeries" provider="dataSeries.data_provider_id" table-name="model.table_name" ng-if="model.table_name!==undefined && dataSeries.data_provider_id!==undefined"></attributes>
+          <div class="col-md-12">
+              <a href="" class="btn btn-primary pull-left cancel-dynamic" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
+              <a href="" class="btn btn-primary pull-left cancel-static" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
+              <div class="pull-right">
+                <button class="btn btn-primary" type="submit" wz-previous>{{ i18n.__('Previous') }}</button>
+                <button type="button" class="btn btn-primary" ng-show="!isDynamic" data-ng-click="save(false);">{{ i18n.__('Save') }}</button>
+              </div>
+          </div>
+        </form>
+    </wz-step>
+
     <wz-step wz-title="{{ i18n.__('CSV Format') }}" canexit="validateSteps" wz-disabled="{{!custom_format}}" wz-data="wizard.csvFormat">
       <div class="col-md-12">
         <form name="forms.csvFormatForm">
@@ -105,6 +128,7 @@
       </div>
 
       <div class="col-md-12" style="margin-top: 30px; padding-left: 25px; padding-right: 25px;">
+        <hr />
         <a href="" class="btn btn-primary pull-left cancel-dynamic" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
         <a href="" class="btn btn-primary pull-left cancel-static" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
         <div class="pull-right">
@@ -132,6 +156,7 @@
 
       </div>
       <div class="col-md-12" style="margin-top: 30px; padding-left: 25px; padding-right: 25px;">
+        <hr />
         <a href="" class="btn btn-primary pull-left cancel-dynamic" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
         <a href="" class="btn btn-primary pull-left cancel-static" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
         <div class="pull-right">
@@ -154,9 +179,71 @@
 
     <wz-step wz-title="{{ i18n.__('Filters') }}" canexit="validateSteps" wz-disabled="{{ !isDynamic }}" wz-data="wizard.filter" canenter="!wizard.filter.disabled">
       <div class="col-md-12">
-        <div id="includeFilter" ng-include=""></div>
+        <div class="row">
+          <div class="col-md-12" style="padding-top: 20px">
+            <terrama2-box title="i18n.__('Date (local time)')" css="cssBoxSolid">
+              <terrama2-filter-datetime-picker before-datetime="filter.date.beforeDate" after-datetime="filter.date.afterDate"></terrama2-filter-datetime-picker>
+            </terrama2-box>
+
+            <terrama2-box title="i18n.__('Area')" css="cssBoxSolid">
+              <div class="col-md-8 terrama2-nopadding-box">
+                <p></p>
+                <div class='col-md-12'>
+                  <div class="form-group">
+                    <label>{{ i18n.__('Select the filter area type') }}:</label>
+                    <select class="form-control"
+                            id="filterAreaCombobox"
+                            name="filterAreaType"
+                            ng-model="filter.filterArea"
+                            ng-change="onFilterRegion();"
+                            ng-options="v.value as v.name for (k, v) in filterTypes">
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-12 terrama2-nopadding-box" ng-if="filter.filterArea == filterTypes.AREA.value">
+                  <terrama2-bounded-box ng-model="filter.area" is-required="filter.filterArea == filterTypes.AREA.value">
+                  </terrama2-bounded-box>
+                </div>
+
+                <div class="col-md-12" ng-if="filter.filterArea == filterTypes.STATIC_DATA.value">
+                  <form name="staticDataSeriesForm">
+                    <div class="terrama2-nopadding-box col-md-6 form-group" terrama2-show-errors>
+                      <label>{{ i18n.__('Data Series') }}:</label>
+                      <select class="form-control"
+                              id="filterStaticDataSeries"
+                              name="dataSeriesId"
+                              ng-model="filter.data_series_id"
+                              ng-required="filter.filterArea == filterTypes.STATIC_DATA.value"
+                              ng-options="v.id as v.name for (k, v) in staticDataSeriesList">
+                      </select>
+                      <span class='help-block' ng-show='staticDataSeriesForm.dataSeriesId.$dirty && staticDataSeriesForm.dataSeriesId.$error.required'>
+                        {{ i18n.__('Data series is required') }}
+                      </span>
+                    </div>
+                    <div class="col-md-6" ng-if="dataSeries.semantics.data_series_type_name =='GRID' ">
+                      <div class="form-group">
+                        <div class="checkbox" style="margin-left: 20px; margin-top:30px;">
+                          <span style="font-weight: 700;">
+                            <input type="checkbox" id="crop-raster" name="crop_raster" ng-model="filter.area.crop_raster"> {{ i18n.__('Crop raster') }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <terrama2-map id="previewMap"></terrama2-map>
+              </div>
+            </terrama2-box>
+          </div> <!-- ./col-md-12 -->
+        </div>
+        <!-- ./row -->
+
       </div>
       <div class="col-md-12" style="margin-top: 30px; padding-left: 25px; padding-right: 25px;">
+        <hr />
         <a href="" class="btn btn-primary pull-left cancel-dynamic" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
         <a href="" class="btn btn-primary pull-left cancel-static" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
         <div class="pull-right">
@@ -184,6 +271,7 @@
       </div>
 
       <div class="col-md-12" style="margin-top: 30px; padding-left: 25px; padding-right: 25px;">
+        <hr />
         <a href="" class="btn btn-primary pull-left cancel-dynamic" ng-show="isDynamic">{{ i18n.__('Cancel') }}</a>
         <a href="" class="btn btn-primary pull-left cancel-static" ng-show="!isDynamic">{{ i18n.__('Cancel') }}</a>
         <div class="pull-right">
@@ -218,7 +306,7 @@
     $("#wizard").attr("template", templatePath);
     $("#includeDcpTable").attr("ng-include", includeDcpTable);
     $("#includeIntersection").attr("ng-include", includeIntersection);
-    $("#includeFilter").attr("ng-include", includeFilter);
+    // $("#includeFilter").attr("ng-include", includeFilter);
     $("#includeGeneralData").attr("ng-include", includeGeneralData);
 
     $(".cancel-dynamic").attr("href", cancelDynamic);

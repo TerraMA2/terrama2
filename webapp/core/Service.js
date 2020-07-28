@@ -151,6 +151,7 @@ var Service = module.exports = function(serviceInstance) {
         const messageSizeReceived = tempBuffer.readUInt32BE(beginOfMessage.length);
         const headerSize = beginOfMessage.length + endOfMessage.length;
         const expectedLength = messageSizeReceived + 4;
+
         if(tempBuffer.length < expectedLength+headerSize) {
           // if we don't have the complete message
           // wait for the rest
@@ -214,6 +215,7 @@ var Service = module.exports = function(serviceInstance) {
         // we got an error, empty buffer.
         tempBuffer = undefined;
         logger.debug(Utils.format("Error parsing bytearray received from %s. %s", self.service.name, e.toString()));
+        console.log(byteArray.toString());
         self.emit("serviceError", e);
         if (callbackError) {
           callbackError(e);
@@ -269,7 +271,7 @@ var Service = module.exports = function(serviceInstance) {
     }
 
     self.answered = false;
-    self.writeData(buffer, 30000, function() {
+    self.writeData(buffer, 300000, function() {
       if (!self.answered) {
         self.emit("serviceError", new Error("Status Timeout exceeded."));
       }

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-INSTALL_COMMAND="yarn"
+INSTALL_COMMAND="npm"
 
 function valid()
 {
@@ -12,9 +12,6 @@ function valid()
 
 printf "Post-installation script...\n"
 
-npm install yarn -g
-valid $? "Unable to install Yarn."
-
 (
   printf "Webapp dependencies...\n"
   cd @TERRAMA2_DESTINATION@webapp
@@ -22,9 +19,6 @@ valid $? "Unable to install Yarn."
   #
   # Install web dependencies
   #
-  ${INSTALL_COMMAND} add grunt
-  valid $? "Unable to install Grunt."
-
   ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
 
@@ -32,19 +26,36 @@ valid $? "Unable to install Yarn."
   valid $? "Error executing grunt.\n"
 
   chmod +x bin/webapp-stop.js
+  chmod 755 bin/webapp-stop.js
+
+  #
+  # Create default config files
+  #
+
+  cd @TERRAMA2_DESTINATION@webapp/config
+  if ! [ -f "settings.json" ]; then
+    cp -a settings.json.example settings.json
+  fi
 )
 
 (
   printf "Webcomponents dependencies...\n"
   cd @TERRAMA2_DESTINATION@webcomponents
 
-  ${INSTALL_COMMAND} add grunt
-  valid $? "Unable to install Grunt."
-
   ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
+
   npm run grunt
   valid $? "Error executing grunt."
+
+  #
+  # Create default config files
+  #
+
+  cd @TERRAMA2_DESTINATION@webapp/config
+  if ! [ -f "db.json" ]; then
+    cp -a db.json.example db.json
+  fi
 )
 
 (
@@ -54,29 +65,19 @@ valid $? "Unable to install Yarn."
   #
   # Install web dependencies
   #
-  ${INSTALL_COMMAND} add grunt
-  valid $? "Unable to install Grunt."
-
   ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
 
   npm run grunt
   valid $? "Error executing grunt."
-)
 
-#
-# Create default config files
-#
-(
-  cd @TERRAMA2_DESTINATION@webapp/config
-  if ! [ -d "instances" ]; then
-    cp -r sample_instances instances
-  fi
-)
-(
+  #
+  # Create default config files
+  #
+
   cd @TERRAMA2_DESTINATION@webmonitor/config
   if ! [ -d "instances" ]; then
-    cp -r sample_instances instances
+    cp -a sample_instances instances
   fi
 )
 

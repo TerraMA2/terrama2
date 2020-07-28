@@ -58,6 +58,7 @@ namespace terrama2
       virtual boost::optional<double> getNumeric(const std::string& name) const;
       virtual boost::optional<std::string> getString(const std::string& name) const;
       virtual void runScript(const std::string& script);
+      virtual void runScript(const std::string& script, const std::map<std::string, std::string> &parameters);
       virtual std::string runScriptWithStringResult(const std::string& script, const std::string& variableToReturn);
 
       static InterpreterType interpreterType() { return "PYTHON"; }

@@ -319,6 +319,24 @@ void terrama2::core::Service::addReprocessingToQueue(ProcessPtr process) noexcep
     auto reprocessingHistoricalData = schedule.reprocessingHistoricalData;
 
     auto executionDate = reprocessingHistoricalData->startDate;
+
+    // When frequency defined, skip execution time and use the frequency provided
+    if (!schedule.frequencyStartTime.empty())
+    {
+      std::stringstream ss;
+
+      ss.exceptions(std::ios_base::failbit);
+      boost::gregorian::date_facet* facet = new boost::gregorian::date_facet();
+      facet->format("%Y-%m-%d");
+      ss.imbue(std::locale(ss.getloc(), facet));
+
+      ss << executionDate->getTimeInstantTZ().date();
+      ss << "T";
+      ss << schedule.frequencyStartTime;
+
+      executionDate = terrama2::core::TimeUtils::stringToTimestamp(ss.str(), terrama2::core::TimeUtils::webgui_timefacet);
+    }
+
     auto endDate = reprocessingHistoricalData->endDate->getTimeInstantTZ();
     boost::local_time::local_date_time titz = executionDate->getTimeInstantTZ();
 

@@ -51,6 +51,17 @@ function getTokenCodeMessage(code) {
 }
 
 var Utils = module.exports = {
+  /**
+   * Delay a promise handling for time provided
+   *
+   * @param {number} milliseconds Number of milliseconds to delay
+   * @return {Promise}
+   */
+  delay(milliseconds) {
+    return new Promise(resolve => {
+      setTimeout(resolve, milliseconds);
+    })
+  },
   clone: function(object) {
     return cloneDeep(object);
   },
@@ -148,14 +159,14 @@ var Utils = module.exports = {
 
   getTokenCodeMessage: getTokenCodeMessage,
 
-  makeTokenParameters: function(token, app) {
+  makeTokenParameters: function(token, app, alternativeMsg = "") {
     var parameters = {};
 
     if (app.locals.tokenIntent && app.locals.tokenIntent.token === token) {
       var code = app.locals.tokenIntent.code;
       var intent = app.locals.tokenIntent.intent;
 
-      parameters.message = intent + " " + getTokenCodeMessage(code);
+      parameters.message = intent + " " + getTokenCodeMessage(code) + alternativeMsg;
       if (app.locals.tokenIntent.extra){
         parameters.extra = app.locals.tokenIntent.extra;
       }
@@ -177,6 +188,9 @@ var Utils = module.exports = {
           output = Enums.DataSeriesType.GRID;
           break;
         case Enums.AnalysisType.MONITORED:
+          output = Enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT;
+          break;
+        case Enums.AnalysisType.VP:
           output = Enums.DataSeriesType.ANALYSIS_MONITORED_OBJECT;
           break;
         default:
@@ -871,5 +885,12 @@ var Utils = module.exports = {
         console.log(e);
       }
     }
+  },
+
+  isGeometricObjectPostGIS: dataSeries => {
+    if (!dataSeries || !dataSeries.data_series_semantics)
+      throw new Error(`Invalid data series provided to check geometric object`);
+
+    return dataSeries.data_series_semantics.format === 'POSTGIS';
   }
 };

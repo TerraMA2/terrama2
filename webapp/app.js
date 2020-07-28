@@ -8,7 +8,7 @@ var express = require('express'),
     app = express(),
     load = require('express-load'),
     swig = require('swig'),
-    passport = require('./config/Passport'),
+    passport = require('./core/utility/Passport'),
     session = require('express-session'),
     flash = require('connect-flash'),
     // i18n = require('i18n-2'),
@@ -16,6 +16,7 @@ var express = require('express'),
     Application = require("./core/Application"),
     i18nRoutes = require( "i18n-node-angular" );
     server = require('http').Server(app);
+    cors = require('cors');
 
 var instance = (process.argv[2] !== undefined ? process.argv[2] : "default");
 
@@ -23,14 +24,14 @@ app.use(session({ secret: KEY, name: "TerraMA2WebApp_" + instance, resave: false
 
 app.use(flash());
 
+app.use(cors())
+
 // Setting internationalization
 i18n.configure({
   locales        : [ "en_US", "pt_BR", "fr_FR", "es_ES"],
   directory      : __dirname + "/locales",
   objectNotation : true
 });
-
-Application.setCurrentContext(instance);
 
 // Get base url from environment and store in Express.
 app.locals.BASE_URL = Application.getContextConfig().basePath;
@@ -50,7 +51,7 @@ app.use(i18nRoutes.getLocale);
 i18nRoutes.configure(app, {"extension": ".json", directory : __dirname + "/locales/"});
 
 app.use(function(req, res, next) {
-  var configurations = JSON.parse(fs.readFileSync(path.join(__dirname, './config/instances/' + instance + '.json'), 'utf8'));
+  var configurations = Application.getContextConfig();
   res.locals.toolsMenu = configurations.toolsMenu;
   next();
 });

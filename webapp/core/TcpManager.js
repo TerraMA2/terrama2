@@ -148,14 +148,20 @@ var logs = {
  */
 TcpManager.prototype.$send = function(serviceInstance, data, signal) {
   try {
+    let beginOfMessage = "(BOM)\0";
+    let endOfMessage = "(EOM)\0";
+
     var client = _getClient(serviceInstance);
 
     var config = Application.getContextConfig();
     data.webAppId = config.webAppId;
+
     var buffer = this.makebuffer(signal, data);
+
     //logger.debug(buffer);
-    logger.debug("BufferToString: ", buffer.toString());
-    logger.debug("BufferToString size: ", buffer.length);
+    // logger.debug("BufferToString: ", buffer.toString());
+    // logger.debug("BufferToString size: ", buffer.length);
+    // logger.debug("Signal: ", signal, " serviceInstance: ", serviceInstance.name)
 
     client.send(buffer);
   } catch (e) {
@@ -220,6 +226,7 @@ TcpManager.prototype.logData = function(serviceInstance, data) {
     var config = Application.getContextConfig();
     data.webAppId = config.webAppId;
     var buffer = self.makebuffer(Signals.LOG_SIGNAL, data);
+    console.log("LOG_SIGNAL", buffer);
     // requesting for log
     client.log(buffer);
 
@@ -445,7 +452,7 @@ TcpManager.prototype.initialize = function(client) {
       self.logData(client.service, {begin: 0, end: 2, process_ids: [response.process_id]});
 
       return ProcessFinished.handle(response)
-        .then(function(targetProcess) {
+        .then(async targetProcess => {
           if (targetProcess){
             // if the finished process is from collector or analysis run conditioned process
             // response.automatic default true
@@ -453,12 +460,21 @@ TcpManager.prototype.initialize = function(client) {
                 && (targetProcess.serviceType == ServiceType.COLLECTOR
                     || targetProcess.serviceType == ServiceType.ANALYSIS
                     || targetProcess.serviceType == ServiceType.INTERPOLATION)){
-              targetProcess.processToRun.forEach(function(processToRun){
+
+              for(let processToRun of targetProcess.processToRun)
+              {
                 if (processToRun && processToRun.object && processToRun.object.active){
-                  self.startProcess(processToRun.instance, {ids: processToRun.ids, execution_date: response.execution_date});
-                  self.logData(processToRun.instance, {begin: 0, end: 2, process_ids: [processToRun.ids]});
+                  await Utils.delay(1000);
+
+                  logger.debug(`Automatic Schedule: STARTING PROCESS ${processToRun.object.name} ON ${processToRun.instance.id} - ${processToRun.instance.name}`)
+
+                  self.startProcess(
+                    processToRun.instance,
+                    { ids: processToRun.ids, execution_date: response.execution_date }
+                  );
                 }
-              });
+              }
+
             }
             // if the finished process ir from view, save/update the registered view
             else if (targetProcess.serviceType == ServiceType.VIEW){

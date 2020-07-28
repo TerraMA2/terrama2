@@ -11,19 +11,22 @@ define(
       if(layer.hasOwnProperty('Extent')) {
         var stringextent = layer.Extent[0]._;
 
-        if(stringextent.includes('/')) {
-          var startDate = stringextent.split('/')[0];
-          var endDate = stringextent.split('/')[1];
+        if (stringextent) {
+          if(stringextent.includes('/')) {
+            var startDate = stringextent.split('/')[0];
+            var endDate = stringextent.split('/')[1];
 
-          if(startDate != endDate) {
-            extent = {
-              startDate: startDate,
-              endDate: endDate
-            };
+            if(startDate != endDate) {
+              extent = {
+                startDate: startDate,
+                endDate: endDate
+              };
+            }
+          } else {
+            extent = stringextent.split(',');
           }
-        } else {
-          extent = stringextent.split(',');
         }
+
       }
 
       if(layer.hasOwnProperty('LatLonBoundingBox')) {
@@ -46,7 +49,7 @@ define(
 
       if(capabilities.Capability && capabilities.Capability[0] && capabilities.Capability[0].Layer && capabilities.Capability[0].Layer[0]) {
         var layers = capabilities.Capability[0].Layer[0];
-        
+
 
         if(layers.Layer !== undefined) {
           for(var i = 0, layersLength = layers.Layer.length; i < layersLength; i++) {

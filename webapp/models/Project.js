@@ -25,6 +25,20 @@ module.exports = function(sequelize, DataTypes) {
       underscoredAll: true,
       timestamps: false,
 
+      instanceMethods: {
+        toObject(user = null) {
+          const { protected, user_id } = this.dataValues;
+
+          let hasPermission = !protected || (user ? (user.administrator || user.id == user_id) : false);
+
+          return {
+            class: 'Project',
+            ...this.dataValues,
+            hasPermission
+          }
+        }
+      },
+
       classMethods: {
         associate: function(models) {
           Project.belongsTo(models.User, {

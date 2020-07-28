@@ -6,6 +6,10 @@ define([], function() {
 
     var srids = [];
 
+    this.$scope = $scope;
+    this.MessageBoxService = MessageBoxService;
+    this.DataSeriesService = DataSeriesService;
+
     /**
      * Retrieves properties from object excluding provided keys.
      *
@@ -104,6 +108,10 @@ define([], function() {
       //disable option to crop on filter
       $scope.filter.area.showCrop = false;
       $scope.filter.area.crop_raster = false;
+    };
+
+    var clearAttributesForm = function(){      
+      $scope.wizard.attributes.message = i18n.__("Add attributes configuration");
     };
 
     var clearFilterForm = function(){
@@ -220,6 +228,11 @@ define([], function() {
       }
     };
 
+    var enableAttributesForm = function(){
+      $scope.wizard.attributes.disabled = false;
+      $scope.wizard.attributes.message = i18n.__("Remove attributes configuration");
+    }
+
     // Function to enable optional forms on wizard mode
     var enableStoreForm = function(){
       $scope.wizard.store.disabled = false;
@@ -252,6 +265,15 @@ define([], function() {
         required: true,
         formName: 'parametersForm',
         disabled: true
+      },
+      attributes: {
+        required: false,
+        formName: 'attributesForm',
+        optional: true,
+        disabled: true,
+        enableForm: enableAttributesForm,
+        clearForm: clearAttributesForm,
+        message: i18n.__("Add attributes configuration")
       },
       store: {
         required: false,
@@ -356,25 +378,23 @@ define([], function() {
         if (typeof dataSeries != 'object'){
           return '';
         }
+
         switch (dataSeries.data_provider_type.name){
           case "FILE":
             return BASE_URL + "images/data-server/file/file.png";
-            break;
           case "FTP":
             return BASE_URL + "images/data-server/ftp/ftp.png";
-            break;
           case "SFTP":
             return BASE_URL + "images/data-server/sftp/sftp.png";
-            break;
+          case "WFS":
+            return BASE_URL + "images/data-server/wfs/datasource-wfs.svg";
           case "HTTP":
           case "HTTPS":
           case "STATIC-HTTP":
             return BASE_URL + "images/data-server/http/http.png";
-            break;
           case "POSTGIS":
           default:
             return BASE_URL + "images/data-server/postGIS/postGIS.png";
-            break;
         }
       }
 
@@ -459,7 +479,7 @@ define([], function() {
         var count = 0;
 
         if(object !== undefined && object !== null && typeof object === "object")
-          for(key in object) if(object.hasOwnProperty(key)) count++;
+          for(let key in object) if(object.hasOwnProperty(key)) count++;
 
         return count;
       };
@@ -507,6 +527,12 @@ define([], function() {
 
         return returnVal;
       };
+
+      function getDataProvider() {
+        return $scope.dataSeries.data_provider_id;
+      }
+
+      $scope.getDataProvider = getDataProvider;
 
       // it defines when data change combobox has changed and it will adapt the interface
       $scope.onDataSemanticsChange = function() {
@@ -1648,7 +1674,7 @@ define([], function() {
       };
 
       $scope.isAliasValid = function(value, dcpsObject) {
-        for(key in dcpsObject) {
+        for(let key in dcpsObject) {
           if(dcpsObject.hasOwnProperty(key)) {
             if(dcpsObject[key].alias == value)
               return false;
@@ -2062,6 +2088,7 @@ define([], function() {
 
       // it prepares dataseries object, schedule and filter object
       var _save = function() {
+
         var dataToSend = Object.assign({}, $scope.dataSeries);
         dataToSend.data_series_semantics_id = $scope.dataSeries.semantics.id;
 
@@ -2211,7 +2238,27 @@ define([], function() {
         return fieldAlias;
       }
 
-      $scope.save = function(shouldRun) {
+
+      /**
+       * Callback to display View Validation message
+       */
+      $scope.onValidateView = async function() {
+        const title = $scope.i18n.__('View Validation');
+
+        const provider = $scope.dataSeries.data_provider_id;
+        const { table_name, query_builder } = $scope.model;
+
+        try {
+          const result = await DataSeriesService.validateView(table_name, provider, query_builder);
+          MessageBoxService.success(title, $scope.i18n.__(`View is valid, the query returned ${result.data.result} ${result.data.result > 1 ? "registers" : "register"}`));
+          return true;
+        } catch (err) {
+          MessageBoxService.danger(title, $scope.i18n.__(err.message));
+          return false;
+        }
+      };
+
+      $scope.save = async function(shouldRun) {
         $scope.shouldRun = shouldRun;
         $scope.extraProperties = {};
         $scope.$broadcast('formFieldValidation');
@@ -2276,6 +2323,10 @@ define([], function() {
             return;
           }
         }
+
+        if ($scope.semanticsCode === 'STATIC_DATA-VIEW-postgis')
+          if(!await $scope.onValidateView())
+            return;
 
         if($scope.model.srid) {
           var sridValidationResult = $scope.validateSrid($scope.model.srid);
@@ -2342,6 +2393,31 @@ define([], function() {
       };
     })
   }
+
+  /** Simple filter to identify Filtered Static Data (PostGIS) */
+  RegisterDataSeries.prototype.isFilteredTable = function() {
+    const { dataSeries } = this.$scope;
+
+    if (Object.keys(dataSeries).length === 0)
+      return;
+
+    return dataSeries.semantics && dataSeries.semantics.driver === 'STATIC_DATA-VIEW-postgis';
+  };
+
+  RegisterDataSeries.prototype.previewMap = async function() {
+    const { $scope, MapService, DataSeriesService } = this;
+    const { table_name, query_builder } = $scope.model;
+    const providerId = this.$scope.dataSeries.data_provider_id;
+
+    try {
+      const wkts = await DataSeriesService.getWKT(table_name, providerId, query_builder);
+
+      MapService.addLayerFromWKT('previewLayer', wkts, 'EPSG:4326');
+      MapService.zoomToLayer('previewLayer');
+    } catch (err) {
+      debugger;
+    }
+  };
 
   RegisterDataSeries.$inject = ["$scope", "$http", "i18n", "$window", "$state", "$httpParamSerializer", "DataSeriesSemanticsService", "DataProviderService", "DataSeriesService", "Service", "$timeout", "WizardHandler", "UniqueNumber", "FilterForm", "MessageBoxService", "$q", "GeoLibs", "$compile", "DateParser", "FormTranslator", "Socket", "CemadenService"];
 
