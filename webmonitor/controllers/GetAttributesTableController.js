@@ -54,9 +54,7 @@ var GetAttributesTableController = function(app) {
   var getValidProperties = function(layer, geoserverUri, callback) {
     const http = isSSL ? memberHttps : memberHttp;
 
-    http.get({
-          url: geoserverUri + memberDescribeFeatureTypeTemplateURL.replace('{{LAYER_NAME}}', layer),
-          rejectUnauthorized: false},
+    http.get(geoserverUri + memberDescribeFeatureTypeTemplateURL.replace('{{LAYER_NAME}}', layer),
         function(resp) {
           var body = '';
           var fields = [];
@@ -152,7 +150,7 @@ var GetAttributesTableController = function(app) {
         url += "&cql_filter=(execution_date='" + request.body.analysisTime + "')";
       }
 
-      http.get({url: url, rejectUnauthorized: false}, function(resp) {
+      http.get(url, function(resp) {
         var body = '';
         var fields = [];
 
@@ -294,19 +292,14 @@ var GetAttributesTableController = function(app) {
    */
   var getLegend = function(request, response) {
     const http = isSSL ? memberHttps : memberHttp;
-    http.get({
-          url: request.query.geoserverUri + memberGetLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer).replace('{{STYLE_NAME}}', request.query.layer+'_style'),
-          rejectUnauthorized: false
-        },
+    http.get(request.query.geoserverUri + memberGetLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer).replace('{{STYLE_NAME}}', request.query.layer+'_style'),
         function(resp) {
           if(resp.headers['content-type'].startsWith('image')) {
             resp.pipe(response, {
               end: true
             });
           } else {
-            http.get({
-                  url :request.query.geoserverUri + memberGetLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer).replace('{{STYLE_NAME}}', request.query.layer+'_style_legend'),
-                  rejectUnauthorized: false},
+            http.get(request.query.geoserverUri + memberGetLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer).replace('{{STYLE_NAME}}', request.query.layer+'_style_legend'),
                 function(resp) {
                   if(resp.headers['content-type'].startsWith('image')) {
                     resp.pipe(response, {
