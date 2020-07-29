@@ -15,7 +15,7 @@ ssh-keygen -t rsa -b 4096 -C "terrama2-team@dpi.inpe.br" -N "" -f $HOME/.ssh/id_
 
 mkdir terralib-installer
 cd terralib-installer
-if ! [ test -f "terralib-5.4.5-ubuntu-16.04_2019-12-13_15-45-5.4.5.tar.gz" ]
+if ! [ test -f "terralib-5.4.5-ubuntu-16.04.tar.gz" ]
 then
     wget -q http://www.dpi.inpe.br/jenkins-data/terrama2/3rdparty/terralib-5.4.5-ubuntu-16.04.tar.gz
 fi
