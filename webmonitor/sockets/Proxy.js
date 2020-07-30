@@ -19,7 +19,7 @@ var Proxy = function(io){
     client.on('checkConnection', function(json) {
       const http = isSSL ? memberHttps : memberHttp;
       // Http request to check connection
-      http.get({url: json.url, rejectUnauthorized: false}, function(resp) {
+      http.get(json.url, function(resp) {
         // If success to access the url, send an object with connected propertie with true value
         client.emit('connectionResponse', { connected: true, requestId: json.requestId, url: json.url});
       })
@@ -34,7 +34,7 @@ var Proxy = function(io){
       // Http request to the received url
       try {
         const http = isSSL ? memberHttps : memberHttp;
-        http.get({url: json.url, rejectUnauthorized: false}, function(resp) {
+        http.get(json.url, function(resp) {
           var body = '';
           // Data receiving event
           resp.on('data', function(chunk) {
@@ -66,7 +66,7 @@ var Proxy = function(io){
     client.on('proxyRequestCapabilities', function(json) {
       const http = isSSL ? memberHttps : memberHttp;
       // Http request to the received url
-      http.get({url: json.url, rejectUnauthorized: false}, function(resp) {
+      http.get(json.url, function(resp) {
         var body = '';
         // Data receiving event
         resp.on('data', function(chunk) {

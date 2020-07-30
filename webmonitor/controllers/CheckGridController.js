@@ -39,7 +39,7 @@ var CheckGridController = function(app) {
     if(request.body.date !== undefined)
       url += "." + request.body.date + "&date=" + request.body.date;
 
-    http.get({url: url, rejectUnauthorized: false}, function(resp) {
+    http.get(url, function(resp) {
       var body = '';
 
       resp.on('data', function(chunk) {
@@ -76,7 +76,7 @@ var CheckGridController = function(app) {
 
     var url = memberAdminHostInfo.protocol + memberAdminHostInfo.host + ":" + memberAdminHostInfo.port + memberAdminHostInfo.basePath + "check-grid-folder?dpi=" + request.body.dpi;
 
-    http.get({url: url, rejectUnauthorized: false}, function(resp) {
+    http.get(url, function(resp) {
       var body = '';
 
       resp.on('data', function(chunk) {

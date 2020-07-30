@@ -24,8 +24,7 @@ var State = function(io) {
         form: {
           userToken: userToken.getToken(),
           state: json.state
-        },
-        rejectUnauthorized: false
+        }
       };
 
       memberRequest.post(options, function(err, httpResponse, body) {
@@ -50,8 +49,7 @@ var State = function(io) {
         url: memberConfig.webadmin.protocol + memberConfig.webadmin.host + ":" + memberConfig.webadmin.port + memberConfig.webadmin.basePath + "get-state",
         form: {
           userToken: userToken.getToken()
-        },
-        rejectUnauthorized: false
+        }
       };
 
       memberRequest.post(options, function(err, httpResponse, body) {

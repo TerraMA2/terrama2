@@ -32,8 +32,7 @@ var ViewsHandlers = function(io) {
           initialRequest: json.initialRequest,
           onlyPrivate: json.onlyPrivate,
           views: (json.views ? json.views : null)
-        },
-        rejectUnauthorized: false
+        }
       };
 
       memberRequest.post(options, function(err, httpResponse, body) {
