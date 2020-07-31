@@ -86,9 +86,7 @@ std::unique_ptr<te::dt::Property> terrama2::core::DataStoragerTable::copyPropert
           throw DataStoragerException() << ErrorDescription(errMsg);
         }
 
-        return std::unique_ptr<te::dt::Property>(new te::dt::StringProperty(name,
-                                                                            stringProperty->getSubType(),
-                                                                            stringProperty->size()));
+        return std::unique_ptr<te::dt::Property>(new te::dt::StringProperty(name, te::dt::STRING, 0));
       }
     case te::dt::DATETIME_TYPE:
       {
@@ -307,15 +305,12 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
   }
   else
   {
+    if (storageOption == "replace") {
+      boost::format query("TRUNCATE TABLE " + destinationDataSetName);
 
-        if (storageOption == "replace") {
-            boost::format query("TRUNCATE TABLE " + destinationDataSetName);
-            transactorDestination->execute(query.str());
-
-            transactorDestination->commit();
-        }
-
-        newDataSetType = transactorDestination->getDataSetType(destinationDataSetName);
+      transactorDestination->execute(query.str());
+    }
+    newDataSetType = transactorDestination->getDataSetType(destinationDataSetName);
   }
 
   adapt(series, outputDataSet);
