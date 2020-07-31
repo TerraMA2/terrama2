@@ -169,7 +169,7 @@ cd /home/USER/mydevel/terrama2/codebase/packages/deb-package
 
 1.4. To install TerraMA² debian package in the shell command line change the current directory to the `build-package` folder and run the following command:
 ```
-sudo dpkg -i TerraMA2-develop-release-linux-x64-Ubuntu-16.04.deb
+sudo dpkg -i TerraMA2-4.1.1-release-linux-x64-Ubuntu-16.04.deb
 ```
 
 ### Quick Notes for Developers
