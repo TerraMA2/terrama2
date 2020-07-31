@@ -36,9 +36,9 @@ fi
 
 sudo dpkg -i TerraMA2-4.1.1-release-linux-x64-Ubuntu-16.04.deb
 
-if ! [ test -f "terrama2-doc-4.1.1-release.deb" ]
+if ! [ test -f "terrama2-doc-4.1.1.deb" ]
 then
-    wget -q http://www.dpi.inpe.br/jenkins-data/terrama2/installers/linux/final/terrama2-doc-4.1.1-release.deb
+    wget -q http://www.dpi.inpe.br/jenkins-data/terrama2/installers/linux/final/terrama2-doc-4.1.1.deb
 fi
 
-sudo dpkg -i terrama2-doc-4.1.1-release.deb
+sudo dpkg -i terrama2-doc-4.1.1.deb
