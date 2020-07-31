@@ -86,9 +86,7 @@ std::unique_ptr<te::dt::Property> terrama2::core::DataStoragerTable::copyPropert
           throw DataStoragerException() << ErrorDescription(errMsg);
         }
 
-        return std::unique_ptr<te::dt::Property>(new te::dt::StringProperty(name,
-                                                                            stringProperty->getSubType(),
-                                                                            stringProperty->size()));
+        return std::unique_ptr<te::dt::Property>(new te::dt::StringProperty(name, te::dt::STRING, 0));
       }
     case te::dt::DATETIME_TYPE:
       {
