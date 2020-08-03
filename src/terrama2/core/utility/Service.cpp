@@ -516,10 +516,18 @@ void terrama2::core::Service::updateFilterDiscardDates(terrama2::core::Filter& f
   if(lastCollectedDataTimestamp && filter.discardBefore)
   {
     if(*filter.discardBefore < *lastCollectedDataTimestamp)
+    {
+      filter.hasBeforeFilter = true;
       filter.discardBefore = lastCollectedDataTimestamp;
+    }
   }
   else if(lastCollectedDataTimestamp)
-    filter.discardBefore = lastCollectedDataTimestamp;
+  {
+     filter.hasBeforeFilter = true;
+     filter.discardBefore = lastCollectedDataTimestamp;
+  }
+
+
 }
 
 void terrama2::core::Service::addToQueue(ProcessPtr process, std::shared_ptr<te::dt::TimeInstantTZ> startTime) noexcept
