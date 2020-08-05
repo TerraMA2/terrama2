@@ -24,7 +24,8 @@ var webMonitorSession = session({ secret: KEY, name: "TerraMA2WebMonitor_" + (pr
 var config = Application.getContextConfig();
 
 app.locals.BASE_URL = config.webmonitor.basePath;
-app.locals.ADMIN_URL = config.webadmin.protocol + config.webadmin.host + (config.webadmin.port != "" ? ":" + config.webadmin.port : "") + config.webadmin.basePath;
+app.locals.ADMIN_URL = config.webadmin.public_uri;
+app.locals.INTERNAL_ADMIN_URL = config.webadmin.internal_uri;
 
 // view engine setup
 var customSwig = new swig.Swig({varControls: ["{[", "]}"]});

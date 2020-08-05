@@ -14,13 +14,15 @@ var State = function(io) {
 
   var userToken = require('../config/UserToken');
 
+  const common = require('./../utils/common');
+
   // Socket connection event
   memberSockets.on('connection', function(client) {
 
     // check connection event
     client.on('saveState', function(json) {
       var options = {
-        url: memberConfig.webadmin.protocol + memberConfig.webadmin.host + ":" + memberConfig.webadmin.port + memberConfig.webadmin.basePath + "save-state",
+        url: common.urlResolve(memberConfig.webadmin.internal_uri, "/save-state"),
         form: {
           userToken: userToken.getToken(),
           state: json.state

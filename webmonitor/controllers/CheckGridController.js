@@ -7,21 +7,24 @@
  * @author Jean Souza [jean.souza@funcate.org.br]
  *
  * @property {object} memberHttp - 'http' module.
- * @property {object} memberHttps - 'https' module.
+ * @property {object} memberFs - 'fs' module.
+ * @property {object} memberPath - 'path' module.
  * @property {object} memberAdminHostInfo - WebAdmin host info.
  */
 var CheckGridController = function(app) {
+
+  // 'http' module
+  var memberHttp = require('http');
+  // 'fs' module
+  var memberFs = require('fs');
+  // 'path' module
+  var memberPath = require('path');
 
   var Application = require('./../core/Application');
   // WebAdmin host info
   var memberAdminHostInfo = Application.getContextConfig().webadmin;
 
-  var isSSL = Application.getContextConfig().ssl;
-
-  // 'http' module
-  var memberHttp = require('http');
-  // 'https' module
-  var memberHttps = require('https');
+  const common = require('./../utils/common');
 
   /**
    * Processes the request and returns a response.
@@ -33,13 +36,12 @@ var CheckGridController = function(app) {
    * @inner
    */
   var checkGridFile = function(request, response) {
-    const http = isSSL ? memberHttps : memberHttp;
-    var url = memberAdminHostInfo.protocol + memberAdminHostInfo.host + ":" + memberAdminHostInfo.port + memberAdminHostInfo.basePath + "check-grid?dpi=" + request.body.dpi + "&mask=" + request.body.mask + "&file=" + request.body.file;
+    var url = common.urlResolve(app.locals.INTERNAL_ADMIN_URL, "check-grid?dpi=" + request.body.dpi + "&mask=" + request.body.mask + "&file=" + request.body.file);
 
     if(request.body.date !== undefined)
       url += "." + request.body.date + "&date=" + request.body.date;
 
-    http.get(url, function(resp) {
+    memberHttp.get(url, function(resp) {
       var body = '';
 
       resp.on('data', function(chunk) {
@@ -62,7 +64,7 @@ var CheckGridController = function(app) {
     });
   };
 
-  /**
+    /**
    * Processes the request and returns a response.
    * @param {json} request - JSON containing the request data
    * @param {json} response - JSON containing the response data
@@ -72,11 +74,9 @@ var CheckGridController = function(app) {
    * @inner
    */
   var checkGridFolder = function(request, response) {
-    const http = isSSL ? memberHttps : memberHttp;
+    var url = common.urlResolve(app.locals.INTERNAL_ADMIN_URL, "check-grid-folder?dpi=" + request.body.dpi);
 
-    var url = memberAdminHostInfo.protocol + memberAdminHostInfo.host + ":" + memberAdminHostInfo.port + memberAdminHostInfo.basePath + "check-grid-folder?dpi=" + request.body.dpi;
-
-    http.get(url, function(resp) {
+    memberHttp.get(url, function(resp) {
       var body = '';
 
       resp.on('data', function(chunk) {
