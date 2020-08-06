@@ -48,7 +48,7 @@ var State = function(io) {
     // check connection event
     client.on('getState', function(json) {
       var options = {
-        url: memberConfig.webadmin.protocol + memberConfig.webadmin.host + ":" + memberConfig.webadmin.port + memberConfig.webadmin.basePath + "get-state",
+        url: common.urlResolve(memberConfig.webadmin.internal_uri, "get-state"),
         form: {
           userToken: userToken.getToken()
         }

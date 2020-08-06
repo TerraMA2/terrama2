@@ -14,7 +14,7 @@ module.exports = function(app) {
     var message = {
       content: (req.query.message && req.query.message != "" ? req.query.message : "")
     };
-    res.render('index', { title: 'Express', webmonitorHostInfo: webmonitorHostInfo, webadminHostInfo: webadminHostInfo, message: message, userConfig: userConfig});
+    res.render('index', { title: 'Express', message: message, userConfig: userConfig});
   });
 
   app.post(app.locals.BASE_URL + 'languages', function(request, response) {

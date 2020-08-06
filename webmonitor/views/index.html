@@ -138,7 +138,6 @@
 
         <!-- Main content -->
         <div id="content" class="content">
-          {% set webadminHostInfo = webadminHostInfo || {} %}
           {% set webmonitorHostInfo = webmonitorHostInfo || {} %}
           {% set message = message || {} %}
 
@@ -386,7 +385,6 @@
     <script>
       var BASE_URL = "{[ BASE_URL ]}";
       var ADMIN_URL = "{[ ADMIN_URL ]}";
-      var webadminHostInfo = {[webadminHostInfo|json|safe]};
       var webmonitorHostInfo = {[webmonitorHostInfo|json|safe]};
       var message = "{[message.content]}";
       var defaultLanguage = 'en';
