@@ -13,6 +13,7 @@ var load = require('express-load');
 var io = require('socket.io')();
 var Application = require('./core/Application');
 var cors = require('cors')
+const common = require('./utils/common');
 
 var app = express();
 
@@ -24,7 +25,7 @@ var webMonitorSession = session({ secret: KEY, name: "TerraMA2WebMonitor_" + (pr
 var config = Application.getContextConfig();
 
 app.locals.BASE_URL = config.webmonitor.basePath;
-app.locals.ADMIN_URL = config.webadmin.public_uri;
+app.locals.ADMIN_URL = common.urlResolve(config.webadmin.public_uri, '/');
 app.locals.INTERNAL_ADMIN_URL = config.webadmin.internal_uri;
 
 // view engine setup

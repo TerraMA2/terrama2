@@ -1,5 +1,7 @@
 const url = require('url');
 const path = require('path');
+const https = require('https');
+const http = require('http');
 
 module.exports = {
   /**
@@ -25,5 +27,18 @@ module.exports = {
     customURL.pathname = path.join(customURL.pathname, to);
 
     return customURL.toString();
+  },
+
+  /**
+   * Retrieves the HTTP handler for URI.
+   *
+   * @param {string} uri URL to request
+   * @returns {http|https}
+   */
+  getHttpHandler(uri) {
+    if (uri && uri.startsWith('https')) {
+      return https;
+    }
+    return http;
   }
 }
