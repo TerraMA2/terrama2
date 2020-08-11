@@ -327,6 +327,84 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
   transactorDestination->add(newDataSetType->getName(), series.syncDataSet->dataset().get(), {});
 
   scopedTransaction.commit();
+
+  if(this->dataSeries_.get()->semantics.temporality == terrama2::core::DataSeriesTemporality::DYNAMIC || this->dataSeries_.get()->semantics.dataSeriesType == terrama2::core::DataSeriesType::VECTOR_PROCESSING_OBJECT)
+  {
+    storeDynamicQuantity(transactorDestination, destinationDataSetName);
+  }
+}
+
+void terrama2::core::DataStoragerTable::storeDynamicQuantity(std::shared_ptr<te::da::DataSourceTransactor> transactorDestination, std::string destinationDataSetName) const
+{
+    
+    double quantityTableController;
+    
+    boost::format queryQuantityTableController("SELECT last_id from terrama2.table_ids_controller where table_name = '" + destinationDataSetName +"'");
+
+    std::shared_ptr<te::da::DataSet> tempDataSetQuantTableContr(transactorDestination->query(queryQuantityTableController.str()));
+
+    if(!tempDataSetQuantTableContr)
+    {
+      QString errMsg = QObject::tr("Can not find log message table name!");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::core::LogException() << ErrorDescription(errMsg);
+    }
+
+    if(!tempDataSetQuantTableContr->moveFirst())
+    {
+      //CASE TABLE IS EMPTY
+      quantityTableController = 0;
+      boost::format queryInsertInitial("INSERT INTO terrama2.table_ids_controller (table_name, last_id) VALUES('%1%', %2%)");
+      queryInsertInitial.bind_arg(1, destinationDataSetName);
+      queryInsertInitial.bind_arg(2, 0);
+
+      transactorDestination->execute(queryInsertInitial.str());
+
+      transactorDestination->commit();
+    }
+    else
+    {
+      tempDataSetQuantTableContr->moveFirst();
+      quantityTableController = tempDataSetQuantTableContr->getInt32("last_id");
+    }
+
+    double quantityRealtable;
+
+    //RETRIEVE ID FROM LAST DATA INSERTED
+    boost::format queryRealTable("SELECT pid_"+destinationDataSetName+" FROM (SELECT * FROM public." + destinationDataSetName + " ORDER BY pid_" + destinationDataSetName + " DESC LIMIT 1) AS last_data");
+
+    std::shared_ptr<te::da::DataSet> tempDataSetRealtable(transactorDestination->query(queryRealTable.str()));
+
+    if(!tempDataSetRealtable)
+    {
+      QString errMsg = QObject::tr("Can not find log message table name!");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::core::LogException() << ErrorDescription(errMsg);
+    }
+
+    if(!tempDataSetRealtable->moveFirst())
+    {
+      //CASE TABLE IS EMPTY
+      quantityRealtable = 0;
+    }
+    else
+    {
+      tempDataSetRealtable->moveFirst();
+      quantityRealtable = tempDataSetRealtable->getInt32("pid_"+destinationDataSetName);
+    }
+
+    if(quantityRealtable > quantityTableController || quantityRealtable < quantityTableController)
+    {
+      quantityTableController = quantityRealtable;
+
+      boost::format queryInsertSize("UPDATE terrama2.table_ids_controller SET last_id = %1% WHERE table_name = '%2%'");
+      queryInsertSize.bind_arg(1, quantityTableController);
+      queryInsertSize.bind_arg(2, destinationDataSetName);
+
+      transactorDestination->execute(queryInsertSize.str());
+
+      transactorDestination->commit();
+    }
 }
 
 std::string terrama2::core::DataStoragerTable::getGeometryPropertyName(DataSetPtr dataSet) const

@@ -65,6 +65,7 @@ namespace terrama2
         std::shared_ptr<te::da::DataSet> updateAttributeNames(std::shared_ptr<te::da::DataSet> dataSet, std::shared_ptr<te::da::DataSetType> dataSetType, DataSetPtr dataset) const;
         virtual std::string driver() const = 0;
         virtual std::string getStorageOption(DataSetPtr dataSet, DataSeriesPtr dataSetSeries) const;
+        void storeDynamicQuantity(std::shared_ptr<te::da::DataSourceTransactor> transactorDestination, std::string destinationDataSetName) const;
     };
   }
 }
