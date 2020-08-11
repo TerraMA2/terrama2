@@ -174,6 +174,10 @@ DECLARE
     number_of_attributes INTEGER;
 	number_of_affected_rows BIGINT;
 
+    dynamic_last_id_inserted INTEGER;
+    finaltable_last_id_inserted INTEGER;
+    is_finaltable_exists_idcontroller BOOLEAN;
+
     query TEXT;
     result RECORD;
 BEGIN
@@ -197,12 +201,19 @@ BEGIN
     -- Getting date_column_from_dynamic_table
     EXECUTE format('SELECT get_date_column_from_dynamic_table(''%s'')', dynamic_table_name_handler) INTO date_column_from_dynamic_table;
 
-    -- Getting last time collected from analysis_metadata
-	  EXECUTE format('SELECT COUNT(*) FROM terrama2.analysis_metadata WHERE key = ''last_analysis'' AND terrama2.analysis_metadata.analysis_id = %s', analysis_id) INTO number_of_rows_metadata;
-
-    EXECUTE format('SELECT MAX(value::TIMESTAMP) FROM terrama2.analysis_metadata WHERE key = ''last_analysis'' AND terrama2.analysis_metadata.analysis_id = %s', analysis_id) INTO last_analysis;
+    -- Getting last id inserted in dynamic table
+    EXECUTE format('SELECT last_id FROM terrama2.table_ids_controller WHERE table_name = ''%s''', dynamic_table_name_handler) INTO dynamic_last_id_inserted;
 
     final_table := format('%s_%s', output_table_name, analysis_id);
+
+    EXECUTE format('SELECT EXISTS (SELECT * FROM terrama2.table_ids_controller where table_name = ''%s'')', final_table) INTO is_finaltable_exists_idcontroller;
+
+    IF (is_finaltable_exists_idcontroller) THEN
+        EXECUTE format('SELECT last_id FROM terrama2.table_ids_controller WHERE table_name = ''%s''', final_table) INTO finaltable_last_id_inserted;
+    ELSE
+        EXECUTE format('INSERT INTO terrama2.table_ids_controller (table_name, last_id) VALUES(''%s'', 0)', final_table);
+        finaltable_last_id_inserted := 0;
+    END IF;
 
     EXECUTE 'SELECT get_primary_key($1)' INTO pk_static_table USING static_table_name;
     EXECUTE 'SELECT get_primary_key($1)' INTO pk_dynamic_table USING dynamic_table_name_handler;
@@ -219,12 +230,7 @@ BEGIN
     -- 6 this is the default number of attributes: mo   nitored_id, intersect_id, execution_date, intersection_geom, calculated_area_ha, final_table_id;
 
     IF (is_table_exists AND number_of_columns = number_of_attributes) THEN
-        -- Creating analysis filter
-        IF number_of_rows_metadata > 0 THEN
-            analysis_filter := format(' %s.%s  >  ''%s'' ', dynamic_table_name_handler, date_column_from_dynamic_table, last_analysis);
-        ELSE
-            analysis_filter := '1 = 1';
-        END IF;
+        analysis_filter := format(' %s.pid_%s  >  %s ', dynamic_table_name_handler, dynamic_table_name_handler, finaltable_last_id_inserted);
 
         date_filter := '1 = 1';
 
@@ -278,7 +284,7 @@ BEGIN
         GET DIAGNOSTICS number_of_affected_rows = ROW_COUNT;
     ELSE
 
-        analysis_filter := '1 = 1';
+        analysis_filter := format(' %s.pid_%s  >  %s ', dynamic_table_name_handler, dynamic_table_name_handler, finaltable_last_id_inserted);
 
         date_filter := '1 = 1';
 
@@ -346,6 +352,9 @@ BEGIN
 
         EXECUTE query;
     END IF;
+
+    -- Refresh id number in ids controller
+    EXECUTE format('UPDATE terrama2.table_ids_controller SET last_id = %s WHERE table_name = ''%s''', dynamic_last_id_inserted, final_table);
 
 	query := format('ALTER TABLE %s ALTER COLUMN intersection_geom TYPE geometry(GEOMETRY, %s)
 				USING ST_Transform(ST_SetSRID(intersection_geom,%s), %s)',final_table, dynamic_table_srid, dynamic_table_srid, dynamic_table_srid);
