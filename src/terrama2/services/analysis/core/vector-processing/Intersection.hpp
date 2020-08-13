@@ -35,6 +35,7 @@ namespace terrama2
               ~Intersection() override;
 
               virtual void execute() override;
+              virtual double getLastId() override;
           };
         }
       }
