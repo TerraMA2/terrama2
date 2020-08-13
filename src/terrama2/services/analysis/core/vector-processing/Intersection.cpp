@@ -1,7 +1,12 @@
 #include "Intersection.hpp"
 #include "../../../../core/utility/Utils.hpp"
+#include "../../../../core/utility/Raii.hpp"
 
 #include "../Analysis.hpp"
+
+//Boost
+#include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
 
 #include <terralib/dataaccess/datasource/DataSourceTransactor.h>
 
@@ -18,6 +23,80 @@ terrama2::services::analysis::core::vp::Intersection::Intersection(terrama2::ser
 
 terrama2::services::analysis::core::vp::Intersection::~Intersection()
 {
+}
+
+double terrama2::services::analysis::core::vp::Intersection::getLastId()
+{
+  auto transactor = dataSource_->getTransactor();
+  std::string dynamicLayerTableName = terrama2::core::getTableNameProperty(dynamicDataSeries_->datasetList[0]);
+
+  //VARIFY PK FROM TABLE
+  std::string columnPk = "";
+
+  std::string queryColumnPkStr = "SELECT kcu.column_name FROM INFORMATION_SCHEMA.TABLES t ";
+  queryColumnPkStr = queryColumnPkStr + "LEFT JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc ";
+  queryColumnPkStr = queryColumnPkStr + "ON tc.table_catalog = t.table_catalog ";
+  queryColumnPkStr = queryColumnPkStr + "AND tc.table_schema = t.table_schema ";
+  queryColumnPkStr = queryColumnPkStr + "AND tc.table_name = t.table_name ";
+  queryColumnPkStr = queryColumnPkStr + "AND tc.constraint_type = 'PRIMARY KEY' ";
+  queryColumnPkStr = queryColumnPkStr + "LEFT JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE kcu ";
+  queryColumnPkStr = queryColumnPkStr + "ON kcu.table_catalog = tc.table_catalog ";
+  queryColumnPkStr = queryColumnPkStr + "AND kcu.table_schema = tc.table_schema ";
+  queryColumnPkStr = queryColumnPkStr + "AND kcu.table_name = tc.table_name ";
+  queryColumnPkStr = queryColumnPkStr + "AND kcu.constraint_name = tc.constraint_name ";
+  queryColumnPkStr = queryColumnPkStr + "WHERE   t.table_schema NOT IN ('pg_catalog', 'information_schema') and t.table_name = '"+dynamicLayerTableName+"'";
+
+  std::cout << queryColumnPkStr << std::endl;
+
+  boost::format queryColumnPk(queryColumnPkStr);
+
+  std::shared_ptr<te::da::DataSet> tempDataSetColumnPk(transactor->query(queryColumnPk.str()));
+
+  if(!tempDataSetColumnPk)
+  {
+    QString errMsg = QObject::tr("Can not find log message table name!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::LogException() << ErrorDescription(errMsg);
+  }
+
+  if(!tempDataSetColumnPk->moveFirst())
+  {
+      QString errMsg = QObject::tr("Can not find column PK!");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::core::LogException() << ErrorDescription(errMsg);
+  }
+  else
+  {
+    tempDataSetColumnPk->moveFirst();
+    columnPk = tempDataSetColumnPk->getString("column_name");
+  }
+
+  double quantityRealtable;
+
+  //RETRIEVE ID FROM LAST DATA INSERTED
+  boost::format queryRealTable("SELECT "+columnPk+" FROM (SELECT * FROM public." + dynamicLayerTableName + " ORDER BY " + columnPk + " DESC LIMIT 1) AS last_data");
+
+  std::shared_ptr<te::da::DataSet> tempDataSetRealtable(transactor->query(queryRealTable.str()));
+
+  if(!tempDataSetRealtable)
+  {
+    QString errMsg = QObject::tr("Can not find log message table name!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::LogException() << ErrorDescription(errMsg);
+  }
+
+  if(!tempDataSetRealtable->moveFirst())
+  {
+    //CASE TABLE IS EMPTY
+    quantityRealtable = 0;
+  }
+  else
+  {
+    tempDataSetRealtable->moveFirst();
+    quantityRealtable = tempDataSetRealtable->getInt32(columnPk);
+  }
+
+  return quantityRealtable;
 }
 
 void terrama2::services::analysis::core::vp::Intersection::execute()
