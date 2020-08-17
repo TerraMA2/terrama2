@@ -36,6 +36,7 @@ namespace terrama2
 
               virtual void execute() override;
               virtual double getLastId() override;
+              virtual std::string getDynamicTableName();
           };
         }
       }

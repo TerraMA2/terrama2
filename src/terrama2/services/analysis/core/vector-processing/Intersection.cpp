@@ -28,7 +28,7 @@ terrama2::services::analysis::core::vp::Intersection::~Intersection()
 double terrama2::services::analysis::core::vp::Intersection::getLastId()
 {
   auto transactor = dataSource_->getTransactor();
-  std::string dynamicLayerTableName = terrama2::core::getTableNameProperty(dynamicDataSeries_->datasetList[0]);
+  std::string dynamicLayerTableName = getDynamicTableName();
 
   //VARIFY PK FROM TABLE
   std::string columnPk = "";
@@ -97,6 +97,51 @@ double terrama2::services::analysis::core::vp::Intersection::getLastId()
   }
 
   return quantityRealtable;
+}
+
+std::string terrama2::services::analysis::core::vp::Intersection::getDynamicTableName()
+{
+  auto transactor = dataSource_->getTransactor();
+  std::string dynamicLayerTableName = terrama2::core::getTableNameProperty(dynamicDataSeries_->datasetList[0]);
+  std::string tableNameReturn = "";
+
+  boost::format queryVerifyTable("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '"+dynamicLayerTableName+"' AND column_name = 'table_name'");
+
+  std::shared_ptr<te::da::DataSet> tempDataSetVerifyTable(transactor->query(queryVerifyTable.str()));
+
+  if(!tempDataSetVerifyTable)
+  {
+    QString errMsg = QObject::tr("Can not find!");
+    TERRAMA2_LOG_ERROR() << errMsg;
+    throw terrama2::core::LogException() << ErrorDescription(errMsg);
+  }
+
+  tempDataSetVerifyTable->moveFirst();
+  auto verifyTableResult = tempDataSetVerifyTable->getInt64("count");
+
+  if(verifyTableResult > 0)
+  {
+    boost::format queryGetRealName("SELECT table_name FROM public."+dynamicLayerTableName);
+
+    std::shared_ptr<te::da::DataSet> tempDataSetRealName(transactor->query(queryGetRealName.str()));
+
+    if(!tempDataSetRealName)
+    {
+      QString errMsg = QObject::tr("Can not find!");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::core::LogException() << ErrorDescription(errMsg);
+    }
+
+    tempDataSetRealName->moveFirst();
+    tableNameReturn = tempDataSetRealName->getString("table_name");
+  }
+  else
+  {
+    tableNameReturn = dynamicLayerTableName;
+  }
+
+  return tableNameReturn;
+
 }
 
 void terrama2::services::analysis::core::vp::Intersection::execute()
