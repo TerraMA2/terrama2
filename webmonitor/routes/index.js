@@ -10,11 +10,10 @@ module.exports = function(app) {
     var userConfig = Application.getContextConfig("user_conf");
 
     var webmonitorHostInfo = hostInfo.webmonitor;
-    var webadminHostInfo = hostInfo.webadmin;
     var message = {
       content: (req.query.message && req.query.message != "" ? req.query.message : "")
     };
-    res.render('index', { title: 'Express', message: message, userConfig: userConfig});
+    res.render('index', { title: 'Express', message: message, userConfig: userConfig, webmonitorHostInfo: webmonitorHostInfo });
   });
 
   app.post(app.locals.BASE_URL + 'languages', function(request, response) {
