@@ -7,7 +7,6 @@
  * @author Jean Souza [jean.souza@funcate.org.br]
  *
  * @property {object} memberHttp - 'http' module.
- * * @property {object} memberHttps - 'https' module.
  * @property {string} memberDescribeFeatureTypeTemplateURL - Url template for the GeoServer 'DescribeFeatureType' request.
  * @property {string} memberGetFeatureTemplateURL - Url template for the GeoServer 'GetFeature' request.
  * @property {string} memberGetLegendGraphicTemplateURL - Url template for the GeoServer 'GetLegendGraphic' request.
@@ -15,15 +14,9 @@
  */
 var GetAttributesTableController = function(app) {
 
-  var Application = require('./../core/Application');
-
-  var isSSL = Application.getContextConfig().ssl;
-
   // 'http' module
   var memberHttp = require('http');
-
-  // 'http' module
-  var memberHttps = require('https');
+  const common = require('./../utils/common');
   // Url template for the GeoServer 'DescribeFeatureType' request
   var memberDescribeFeatureTypeTemplateURL = "/wms?service=WFS&version=1.0.0&request=DescribeFeatureType&outputFormat=application/json&typename={{LAYER_NAME}}";
   // Url template for the GeoServer 'GetFeature' request
@@ -52,36 +45,35 @@ var GetAttributesTableController = function(app) {
    * @inner
    */
   var getValidProperties = function(layer, geoserverUri, callback) {
-    const http = isSSL ? memberHttps : memberHttp;
 
-    http.get(geoserverUri + memberDescribeFeatureTypeTemplateURL.replace('{{LAYER_NAME}}', layer),
-        function(resp) {
-          var body = '';
-          var fields = [];
+    common.getHttpHandler(geoserverUri).get(geoserverUri + memberDescribeFeatureTypeTemplateURL.replace('{{LAYER_NAME}}', layer), function(resp) {
 
-          resp.on('data', function(chunk) {
-            body += chunk;
-          });
+      var body = '';
+      var fields = [];
 
-          resp.on('end', function() {
-            try {
-              body = JSON.parse(body);
+      resp.on('data', function(chunk) {
+        body += chunk;
+      });
 
-              for(var i = 0, propertiesLength = body.featureTypes[0].properties.length; i < propertiesLength; i++) {
-                fields.push({
-                  name: body.featureTypes[0].properties[i].name,
-                  string: (body.featureTypes[0].properties[i].localType === "string" ? true : false),
-                  dateTime: (body.featureTypes[0].properties[i].localType === "date-time" ? true : false),
-                  date: (body.featureTypes[0].properties[i].localType === "date" ? true : false)
-                });
-              }
+      resp.on('end', function() {
+        try {
+          body = JSON.parse(body);
 
-            } catch(ex) {
-              body = {};
-            }
-            callback(fields);
-          });
-        }).on("error", function(e) {
+          for(var i = 0, propertiesLength = body.featureTypes[0].properties.length; i < propertiesLength; i++) {
+            fields.push({
+              name: body.featureTypes[0].properties[i].name,
+              string: (body.featureTypes[0].properties[i].localType === "string" ? true : false),
+              dateTime: (body.featureTypes[0].properties[i].localType === "date-time" ? true : false),
+              date: (body.featureTypes[0].properties[i].localType === "date" ? true : false)
+            });
+          }
+
+        } catch(ex) {
+          body = {};
+        }
+        callback(fields);
+      });
+    }).on("error", function(e) {
       console.error(e.message);
       callback([]);
     });
@@ -98,7 +90,6 @@ var GetAttributesTableController = function(app) {
    */
   var getAttributesTable = function(request, response) {
     getValidProperties(request.body.layer, request.body.geoserverUri, function(fields) {
-      const http = isSSL ? memberHttps : memberHttp;
       var properties = "";
       var search = (request.body['search[value]'] !== "" ? "&cql_filter=(" : "");
       var dateTimeField = null;
@@ -150,7 +141,7 @@ var GetAttributesTableController = function(app) {
         url += "&cql_filter=(execution_date='" + request.body.analysisTime + "')";
       }
 
-      http.get(url, function(resp) {
+      common.getHttpHandler(url).get(url, function(resp) {
         var body = '';
         var fields = [];
 
@@ -218,12 +209,12 @@ var GetAttributesTableController = function(app) {
           }
 
           if(
-              memberCurrentLayer.id !== request.body.layer ||
-              memberCurrentLayer.search !== request.body['search[value]'] ||
-              parseInt(memberCurrentLayer.numberOfFeatures) < parseInt(body.totalFeatures) ||
-              memberCurrentLayer.timeStart !== request.body.timeStart ||
-              memberCurrentLayer.timeEnd !== request.body.timeEnd ||
-              memberCurrentLayer.analysisTime !== request.body.analysisTime
+            memberCurrentLayer.id !== request.body.layer ||
+            memberCurrentLayer.search !== request.body['search[value]'] ||
+            parseInt(memberCurrentLayer.numberOfFeatures) < parseInt(body.totalFeatures) ||
+            memberCurrentLayer.timeStart !== request.body.timeStart ||
+            memberCurrentLayer.timeEnd !== request.body.timeEnd ||
+            memberCurrentLayer.analysisTime !== request.body.analysisTime
           ) {
             memberCurrentLayer.id = request.body.layer;
             memberCurrentLayer.numberOfFeatures = body.totalFeatures;
@@ -291,28 +282,27 @@ var GetAttributesTableController = function(app) {
    * @inner
    */
   var getLegend = function(request, response) {
-    const http = isSSL ? memberHttps : memberHttp;
-    http.get(request.query.geoserverUri + memberGetLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer).replace('{{STYLE_NAME}}', request.query.layer+'_style'),
-        function(resp) {
+    const uri = request.query.geoserverUri;
+
+    common.getHttpHandler(uri).get(uri + memberGetLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer).replace('{{STYLE_NAME}}', request.query.layer+'_style'), function(resp) {
+      if(resp.headers['content-type'].startsWith('image')) {
+        resp.pipe(response, {
+          end: true
+        });
+      } else {
+        common.getHttpHandler(uri).get(request.query.geoserverUri + memberGetLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer).replace('{{STYLE_NAME}}', request.query.layer+'_style_legend'), function(resp) {
           if(resp.headers['content-type'].startsWith('image')) {
             resp.pipe(response, {
               end: true
             });
           } else {
-            http.get(request.query.geoserverUri + memberGetLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer).replace('{{STYLE_NAME}}', request.query.layer+'_style_legend'),
-                function(resp) {
-                  if(resp.headers['content-type'].startsWith('image')) {
-                    resp.pipe(response, {
-                      end: true
-                    });
-                  } else {
-                    console.error('Error retriving legend.');
-                  }
-                }).on("error", function(e) {
-              console.error(e.message);
-            });
+            console.error('Error retriving legend.');
           }
         }).on("error", function(e) {
+          console.error(e.message);
+        });
+      }
+    }).on("error", function(e) {
       console.error(e.message);
     });
   };
