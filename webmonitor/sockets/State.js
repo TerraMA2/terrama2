@@ -3,8 +3,6 @@
 var State = function(io) {
   var Application = require('./../core/Application');
 
-  var isSSL = Application.getContextConfig().ssl;
-
   var memberSockets = io.sockets;
   // 'request' module
   var memberRequest = require('request');
