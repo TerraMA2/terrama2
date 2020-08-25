@@ -103,6 +103,9 @@ void terrama2::services::analysis::core::AnalysisExecutor::runAnalysis(DataManag
 {
   AnalysisHashCode analysisHashCode = analysis->hashCode(executionPackage.executionDate);
 
+  std::cout << "Resultado" << std::endl;
+  std::cout << dataManager << std::endl;
+
   auto logId = executionPackage.registerId;
   auto startTime = executionPackage.executionDate;
 
@@ -506,8 +509,11 @@ void terrama2::services::analysis::core::AnalysisExecutor::runVectorialProcessin
 
     auto result = analysisOperator->getResultDataSet();
 
+    auto lastId = analysisOperator->getLastId();
+
     context->addAttribute("table_name", te::dt::STRING_TYPE);
     context->addAttribute("affected_rows", te::dt::DOUBLE_TYPE);
+    context->addAttribute("last_id", te::dt::DOUBLE_TYPE);
 
     int currentLine = 0;
 
@@ -517,6 +523,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runVectorialProcessin
     {
       context->setAnalysisResult(++currentLine, "table_name", result->getString("table_name"));
       context->setAnalysisResult(currentLine, "affected_rows", result->getDouble("affected_rows"));
+      context->setAnalysisResult(currentLine, "last_id", lastId);
 
       affectedRows = result->getDouble("affected_rows");
     }
@@ -1314,9 +1321,8 @@ terrama2::services::analysis::core::ValidateResult terrama2::services::analysis:
   }
   else
   {
-    QString errMsg = QObject::tr("VALIDATION FOR LUA SCRIPT NOT IMPLEMENTED YET.");
-    TERRAMA2_LOG_WARNING() << errMsg;
-    validateResult.messages.insert(errMsg.toStdString());
+      validateResult.valid = validateResult.messages.empty();
+      return validateResult;
   }
 
   validateResult.valid = validateResult.messages.empty();

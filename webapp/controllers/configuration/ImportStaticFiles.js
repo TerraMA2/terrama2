@@ -26,6 +26,82 @@ const ImportStaticFiles = (/*app*/) => {
 
   const { ShapeImporter } = require('./../../core/ShapeImporter');
 
+
+  /**
+   * Processes the request and returns a response.
+   * @param {json} request - JSON containing the request data
+   * @param {json} response - JSON containing the response data
+   *
+   * @function importFile
+   * @memberof ImportStaticFiles
+   * @inner
+   */
+  var importFile = function(request, response){
+
+    var sendResponse = function(status, error, folder) {
+      if(folder !== null) memberUtils.deleteFolderRecursively(folder, function() {});
+      memberExportation.deleteInvalidFolders();
+
+      response.status(error ? status : 200);
+      return response.json({ error: error });
+    };
+
+    var filesFolder = null;
+    var folderPath = null;
+
+    memberExportation.generateRandomFolder().then(function(randomFolderResult) {
+      filesFolder = randomFolderResult.filesFolder;
+      folderPath = randomFolderResult.folderPath;
+
+      memberFs.readFile(request.body.filePath, function(err, data) {
+        if(err)
+          return sendResponse(404, err.toString(), folderPath);
+        else {
+          var path = memberPath.join(__dirname, '../../tmp/' + filesFolder + '/' + request.body.fileName);
+
+          memberFs.writeFile(path, data, async err => {
+            if(err)
+              return sendResponse(500,err.toString(), folderPath);
+            else {
+              try {
+                // Retrieve file information such size, permissions, etc.
+                const fileProperties = memberFs.lstatSync(path);
+
+                // Check file size. TODO: Remove it, since the it should be validated on header parsing
+                if(!fileProperties.isDirectory() && (fileProperties.size / 1048576) > 300) {
+                  return sendResponse(500, 'File is too large', path);
+                }
+
+                const importer = new ShapeImporter(folderPath, request.body.srid, request.body.encoding);
+                if(request.body.fileName.endsWith(".zip")){
+                  importer.unzip(path);
+                }else if(request.body.fileName.endsWith(".shp")){
+                  importer.getFilesGeom(request.body.filePath, 'vectorial', request.body.fileName);
+                }else if(request.body.fileName.endsWith(".tif")){
+                  importer.getFilesGeom(request.body.filePath, 'raster', request.body.fileName);
+                }
+
+                if(request.body.semantics === 'STATIC_DATA-postgis') {
+                  await importer.toDatabase(request.body.tableName, request.body.dataProviderId);
+                } else {
+                  const mask = request.body.mask.split("\\").join("/");
+
+                  await importer.toDataProvider(request.body.dataProviderId, mask);
+                }
+
+                return sendResponse(200, null, folderPath);
+              } catch(err) {
+                return sendResponse(400, err.toString(), folderPath);
+              }
+            }
+          });
+        }
+      });
+    }).catch(function(err) {
+      return sendResponse(400, err.toString(), folderPath);
+    });
+  }
+
   /**
    * Processes the request and returns a response.
    * @param {json} request - JSON containing the request data
@@ -71,18 +147,22 @@ const ImportStaticFiles = (/*app*/) => {
                 }
 
                 const importer = new ShapeImporter(folderPath, request.body.srid, request.body.encoding);
-                importer.unzip(path);
+                if(request.body.semantics === 'STATIC_DATA-postgis'){
+                  importer.unzip(path);
+                }else{
+                  importer.unzip(path, request.body.basePath + request.body.mask);
+                }
 
                 if(request.body.semantics === 'STATIC_DATA-postgis') {
                   await importer.toDatabase(request.body.tableName, request.body.dataProviderId);
                 } else {
                   const mask = request.body.mask.split("\\").join("/");
 
-                  if(memberPath.extname(mask) !== ".shp") {
-                    return sendResponse("Invalid file name!", folderPath);
-                  }
+                  // if(memberPath.extname(mask) !== ".shp") {
+                  //   return sendResponse("Invalid file name!", folderPath);
+                  // }
 
-                  await importer.toDataProvider(request.body.dataProviderId, mask);
+                  await importer.toDataProvider(request.body.dataProviderId, request.body.mask + '/' + request.files.file.name.replace(".zip",".shp"));
                 }
 
                 return sendResponse(null, folderPath);
@@ -133,7 +213,7 @@ const ImportStaticFiles = (/*app*/) => {
             else {
               try {
                 if(memberPath.extname(path) === ".tif") {
-                  var mask = request.body.mask.split("\\").join("/");
+                  var mask = request.body.mask.split("\\").join("/") + '/' + request.files.file.name;
 
                   if(memberPath.extname(mask) === ".tif") {
                     memberDataManager.getDataProvider({ id: request.body.dataProviderId }).then(function(dataProvider) {
@@ -190,7 +270,8 @@ const ImportStaticFiles = (/*app*/) => {
 
   return {
     importShapefile: importShapefile,
-    importGeoTIFF: importGeoTIFF
+    importGeoTIFF: importGeoTIFF,
+    importFile: importFile
   };
 };
 

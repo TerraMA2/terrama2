@@ -14,7 +14,8 @@
           "table_name": {
             "type": "string",
             "title": "Table Name",
-            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+            "autocomplete":"off"
           },
           "timestamp_property": {
             "type": "string",
@@ -25,6 +26,11 @@
             "type": "string",
             "title": "Geometry property",
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+          },
+          "storage_option": {
+            "type": "string",
+            "title": "Storange",
+            "default": "append"
           }
         },
         "required": ["table_name", "timestamp_property", "geometry_property"]
@@ -50,6 +56,15 @@
           "validationMessage": {
             "202": "Invalid column name"
           }
+        },
+        {
+          "key": "storage_option",
+          "htmlClass": "col-md-12 terrama2-schema-form table-column",
+          "type": "radios",
+          "titleMap": [
+            {"name": "Append", "value": "append"},
+            {"name": "Replace", "value": "replace"}
+          ]
         }
       ]
     }
@@ -97,12 +112,8 @@
         "properties": {
           "table_name": {
             "type": "string",
-            "title": "Base Table/View Name",
+            "title": "View Name",
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
-          },
-          "view_name": {
-            "type": "string",
-            "title": "View Name"
           },
           "query_builder": {
             "type": "string",
@@ -120,21 +131,12 @@
           }
         },
         {
-          "key": "view_name",
-          "htmlClass": "col-md-12 terrama2-schema-form",
-          "validationMessage": {
-            "202": "Invalid view name"
-          }
-        },
-        {
           "key": "query_builder",
           "type": "querybuilder",
           "htmlClass": "col-md-12",
           "validationMessage": {
             "202": "Invalid query builder"
-          },
-          "mapId": "previewMap",
-          "provider": "getDataProvider()"
+          }
         }
       ]
     }

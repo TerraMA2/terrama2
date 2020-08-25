@@ -14,18 +14,22 @@
     return ((analyze.type && analyze.type === 'deforestation') && (view.codgroup === 'PRODES'));
   };
   function isBurned(analyze, view) {
-    return ((analyze.type && analyze.type === 'burned') && (view.codgroup === 'FOCOS'));
+    return ((analyze.type && analyze.type === 'burned') && (view.codgroup === 'BURNED'));
   };
   function isBurnedArea(analyze, view) {
-    return ((analyze.type && analyze.type === 'burned_area') && (view.codgroup === 'AREA_QUEIMADA'));
+    return ((analyze.type && analyze.type === 'burned_area') && (view.codgroup === 'BURNED_AREA'));
   };
   function isCarArea(type){
-    return (type === 'carArea');
+    return (type === 'car_area');
   };
   const specificSearch = {
     car: async function(conn, sql, filter, columns, cod, aliasTablePrimary) {
       sql.secondaryTables = '';
       sql.sqlWhere += ` ${addAND(sql.sqlWhere)} ${columns.column1} like '${filter.specificSearch.inputValue}' `;
+    },
+    car_federal: async function(conn, sql, filter, columns, cod, aliasTablePrimary) {
+      sql.secondaryTables = '';
+      sql.sqlWhere += ` ${addAND(sql.sqlWhere)} ${columns.columnCarFederal} like '${filter.specificSearch.inputValue}' `;
     },
     cpf: async function(conn, sql, filter, columns, cod, aliasTablePrimary) {
       sql.secondaryTables = '';
@@ -41,10 +45,11 @@
         others: async function() {
           sql.secondaryTables += ' , public.de_biomas_mt biome ';
 
+          srid = srid && srid.rows[0] && srid.rows[0].srid ? srid : { rows: [{srid: 4326}]};
           const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_biomas_mt LIMIT 1`);
           const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'biome.geom' : ` st_transform(biome.geom, ${srid.rows[0].srid}) ` ;
 
-          sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(${aliasTablePrimary}.intersection_geom, 3), ${fieldIntersects}) `;
+          sql.sqlWhere += ` AND ST_Intersects(${aliasTablePrimary}.intersection_geom, ${fieldIntersects}) `;
           sql.sqlWhere += ` AND biome.gid = ${filter.themeSelected.value.gid} `;
         }
       };
@@ -59,10 +64,11 @@
           sql.sqlWhere += ` AND ${columns.filterColumns.columnsTheme.geocod} = cast(county.geocodigo AS integer) `;
         },
         others: async function() {
+          srid = srid && srid.rows[0] && srid.rows[0].srid ? srid : { rows: [{srid: 4326}]};
           const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_municipios_sema LIMIT 1`);
           const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? ' county.geom ' : ` st_transform(county.geom, ${srid.rows[0].srid}) ` ;
 
-          sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(${aliasTablePrimary}.intersection_geom, 3), ${fieldIntersects}) `;
+          sql.sqlWhere += ` AND ST_Intersects(${aliasTablePrimary}.intersection_geom, ${fieldIntersects}) `;
           sql.sqlWhere += ` AND county.comarca = '${filter.themeSelected.value.name}'  `;
         }
       };
@@ -77,10 +83,11 @@
           sql.sqlWhere += ` AND ${columns.filterColumns.columnsTheme.geocod} = cast(county.geocodigo AS integer) `;
         },
         others: async function() {
+          srid = srid && srid.rows[0] && srid.rows[0].srid ? srid : { rows: [{srid: 4326}]};
           const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_municipios_sema LIMIT 1`);
           const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'county.geom' : ` st_transform(county.geom, ${srid.rows[0].srid}) ` ;
 
-          sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(${aliasTablePrimary}.intersection_geom, 3), ${fieldIntersects}) `;
+          sql.sqlWhere += ` AND ST_Intersects(${aliasTablePrimary}.intersection_geom, ${fieldIntersects}) `;
           sql.sqlWhere += ` AND county.nm_meso = '${filter.themeSelected.value.name}' `;
         }
       };
@@ -95,10 +102,11 @@
           sql.sqlWhere += ` AND ${columns.filterColumns.columnsTheme.geocod} = cast(county.geocodigo AS integer) `;
         },
         others: async function() {
+          srid = srid && srid.rows[0] && srid.rows[0].srid ? srid : { rows: [{srid: 4326}]};
           const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_municipios_sema LIMIT 1`);
           const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'county.geom' : ` st_transform(county.geom, ${srid.rows[0].srid}) ` ;
 
-          sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(${aliasTablePrimary}.intersection_geom, 3), ${fieldIntersects}) `;
+          sql.sqlWhere += ` AND ST_Intersects(${aliasTablePrimary}.intersection_geom, ${fieldIntersects}) `;
           sql.sqlWhere += ` AND county.nm_micro = '${filter.themeSelected.value.name}'  `;
         }
       };
@@ -111,11 +119,12 @@
         },
         others: async function() {
           sql.secondaryTables += ' , public.de_municipios_sema county ';
+          srid = srid && srid.rows[0] && srid.rows[0].srid ? srid : { rows: [{srid: 4326}]};
 
           const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_municipios_sema LIMIT 1`);
           const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'county.geom' : ` st_transform(county.geom, ${srid.rows[0].srid}) ` ;
 
-          sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(${aliasTablePrimary}.intersection_geom, 3), ${fieldIntersects}) `;
+          sql.sqlWhere += ` AND ST_Intersects(${aliasTablePrimary}.intersection_geom, ${fieldIntersects}) `;
           sql.sqlWhere += ` AND county.gid = ${filter.themeSelected.value.gid} `;
         }
       };
@@ -123,11 +132,12 @@
     },
     uc: async function(conn, sql, filter, columns, cod, aliasTablePrimary, srid){
       sql.secondaryTables += ' , public.de_unidade_cons_sema uc ';
+      srid = srid && srid.rows[0] && srid.rows[0].srid ? srid : { rows: [{srid: 4326}]};
 
       const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_unidade_cons_sema LIMIT 1`);
       const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'uc.geom' : ` st_transform(uc.geom, ${srid.rows[0].srid}) ` ;
 
-      sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(${aliasTablePrimary}.intersection_geom, 3), ${fieldIntersects}) `;
+      sql.sqlWhere += ` AND ST_Intersects(${aliasTablePrimary}.intersection_geom, ${fieldIntersects}) `;
 
       if (filter.themeSelected.value.gid > 0) {
         sql.sqlWhere += ` AND uc.gid = ${filter.themeSelected.value.gid} `;
@@ -135,11 +145,12 @@
     },
     ti: async function(conn, sql, filter, columns, cod, aliasTablePrimary, srid){
       sql.secondaryTables += ' , public.de_terra_indigena_sema ti ';
+      srid = srid && srid.rows[0] && srid.rows[0].srid ? srid : { rows: [{srid: 4326}]};
 
       const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_terra_indigena_sema LIMIT 1`);
       const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'ti.geom' : ` st_transform(ti.geom, ${srid.rows[0].srid}) ` ;
 
-      sql.sqlWhere += ` AND ST_Intersects(ST_CollectionExtract(${aliasTablePrimary}.intersection_geom, 3), ${fieldIntersects}) `;
+      sql.sqlWhere += ` AND ST_Intersects(${aliasTablePrimary}.intersection_geom, ${fieldIntersects}) `;
 
       if (filter.themeSelected.value.gid > 0) {
         sql.sqlWhere += ` AND ti.gid = ${filter.themeSelected.value.gid} `;
@@ -147,11 +158,12 @@
     },
     projus: async function(conn, sql, filter, columns, cod, aliasTablePrimary, srid){
       sql.secondaryTables += ' , public.de_projus_bacias_sema projus ';
+      srid = srid && srid.rows[0] && srid.rows[0].srid ? srid : { rows: [{srid: 4326}]};
 
       const sridSec = await conn.execute(`SELECT ST_SRID(geom) AS srid FROM public.de_projus_bacias_sema LIMIT 1`);
       const fieldIntersects =(srid.rows[0].srid === sridSec.rows[0].srid) ? 'projus.geom' : ` st_transform(projus.geom, ${srid.rows[0].srid}) ` ;
 
-      sql.sqlWhere += ` ${addAND(sql.sqlWhere)} ST_Intersects(ST_CollectionExtract(${aliasTablePrimary}.intersection_geom, 3), ${fieldIntersects}) `;
+      sql.sqlWhere += ` ${addAND(sql.sqlWhere)} ST_Intersects(${aliasTablePrimary}.intersection_geom, ${fieldIntersects}) `;
 
       if (filter.themeSelected.value.gid > 0) {
         sql.sqlWhere += ` ${addAND(sql.sqlWhere)} projus.gid = ${filter.themeSelected.value.gid} `;
@@ -166,7 +178,7 @@
           burned() {
             sql.sqlHaving += ` HAVING count(1) ${values.columnValueFocos} `;
           },
-          carArea() {
+          car_area() {
             sql.secondaryTables += ' , public.de_car_validado_sema car ';
             sql.sqlWhere += ` ${addAND(sql.sqlWhere)} car.area_ha_ ${values.columnValue} `;
             sql.sqlWhere += ` ${addAND(sql.sqlWhere)} car.numero_do1 = ${columns.column1} `;
@@ -185,7 +197,7 @@
         }
 
         if (isCarArea(analyze.type)) {
-          alertType[analyse.type]();
+          alertType[analyze.type]();
         }
       }
     });
@@ -229,6 +241,10 @@
       (view.isAnalysis && view.isPrimary) ?
         ` ${aliasTablePrimary}.de_car_validado_sema_cpfcnpj ` :
         ` ${aliasTablePrimary}.${tableOwner}_de_car_validado_sema_cpfcnpj `;
+    const columnCarFederal =
+      (view.isAnalysis && view.isPrimary) ?
+        ` ${aliasTablePrimary}.de_car_validado_sema_numero_do2 ` :
+        ` ${aliasTablePrimary}.${tableOwner}_de_car_validado_sema_numero_do2 `;
 
     const columnArea = `${aliasTablePrimary}.calculated_area_ha`;
 
@@ -243,7 +259,7 @@
       }
     };
 
-    if (view.codgroup && view.codgroup === 'FOCOS') {
+    if (view.codgroup && view.codgroup === 'BURNED') {
       if (view.isAnalysis && view.isPrimary) {
         column1 = ` ${aliasTablePrimary}.de_car_validado_sema_numero_do1 `;
         column2 = ` ${aliasTablePrimary}.dd_focos_inpe_bioma `;
@@ -275,7 +291,8 @@
       }
 
       column3 = view.activearea ? ` ${aliasTablePrimary}.calculated_area_ha ` : '1';
-    } else if (view.codgroup && view.codgroup === 'AREA_QUEIMADA') {
+
+    } else if (view.codgroup && view.codgroup === 'BURNED_AREA') {
       if (view.isAnalysis && view.isPrimary) {
         column1 = ` ${aliasTablePrimary}.de_car_validado_sema_numero_do1 `;
         column2 = ` ${aliasTablePrimary}.de_car_validado_sema_numero_do1 `;
@@ -287,7 +304,7 @@
       column3 = view.activearea ? ` ${aliasTablePrimary}.calculated_area_ha ` : '1';
     }
 
-    return {column1, column2, column3, column4, filterColumns, columnArea, columnCpfCnpj};
+    return {column1, column2, column3, column4, filterColumns, columnArea, columnCpfCnpj, columnCarFederal};
   };
   function getValues(analyze) {
     const values = {columnValue: '', columnValueFocos: ''};
@@ -342,7 +359,7 @@
     if (filter) {
       const filtered = filter.specificSearch && filter.specificSearch.isChecked ? 'specificSearch' : 'others';
 
-      const cod = (view.codgroup === 'FOCOS') ? 'focos' : 'others';
+      const cod = (view.codgroup === 'BURNED') ? 'focos' : 'others';
       await setFilter[filtered](conn, sql, filter, columns, cod, table, view);
     }
 
@@ -373,16 +390,27 @@
     const tableName = dataSet.format.table_name;
 
     const sqlTableName = ` SELECT DISTINCT table_name FROM ${tableName}`;
-    let resultTableName = { rows: [] };
 
+    let resultTableName = { rows: [] };
     try {
       resultTableName = await conn.execute(sqlTableName);
     } catch(e) {
-      resultTableName.rows.push({table_name: tableName});
+      resultTableName = await exceptionNoView(conn, tableName, e);
     }
 
     return resultTableName.rows[0]['table_name'];
   };
+
+  async function exceptionNoView(conn, tableName, err) {
+    let resultTableName = { rows: [] };
+
+    if (err.message.indexOf(`Error in query execution.`) > -1 ) {
+      return await conn.execute(`SELECT tablename AS table_name FROM pg_catalog.pg_tables where tablename like '${tableName}%'`);
+    } else {
+      return resultTableName.rows.push({table_name: tableName});
+    }
+  };
+
   function setAlertGraphic(alert, graphic1, graphic2) {
     return {
       cod: alert.cod,
@@ -440,7 +468,7 @@
       }]
     };
   };
-  async function getSqlDetailsAnalysisTotals(conn, alert, tableOwner, params) {
+  async function getSqlDetailsAnalysisTotals(conn, alert, params) {
     let sql1 = '';
     let sql2 = '';
 
@@ -450,12 +478,12 @@
     if (alert.idview && alert.idview > 0 && alert.idview !== 'null') {
 
       const table = {
-        name: await getTable(conn, alert.idview),
+        name: alert.tableName,
         alias: 'main_table',
-        owner: tableOwner
+        owner: alert.tableOwner
       };
 
-      const columns = getColumns(alert, tableOwner, table.alias);
+      const columns = getColumns(alert, table.owner, table.alias);
 
       const limit = params.limit && params.limit !== 'null' && params.limit > 0 ?
           params.limit :
@@ -524,7 +552,7 @@
         if (alert.idview && alert.idview > 0 && alert.idview !== 'null') {
 
           const table = {
-            name: await getTable(conn, alert.idview),
+            name: alert.tableName,
             alias: 'main_table'
           };
 
@@ -532,7 +560,7 @@
 
           const filter = await getFilter(conn, table, params, alert, collumns);
 
-          const value1 = alert.codgroup === 'FOCOS' ?
+          const value1 = alert.codgroup === 'BURNED' ?
               ` COALESCE( ( SELECT ROW_NUMBER() OVER(ORDER BY ${collumns.column1} ASC) AS Row
                                          FROM public.${table.name} AS ${table.alias}
                                          ${filter.secondaryTables}
@@ -554,11 +582,11 @@
                       ${filter.sqlHaving}) ` :
               filter.sqlWhere;
 
-          const value2 = alert.codgroup === 'FOCOS' ?
+          const value2 = alert.codgroup === 'BURNED' ?
               ` ( SELECT coalesce(sum(1), 0.00) as num_focos FROM public.${table.name} AS ${table.alias} ${filter.secondaryTables} ${sqlWhere} ) AS value2 ` :
               ` COALESCE(SUM(${collumns.columnArea}), 0.00) AS value2 `;
 
-          const sqlFrom = alert.codgroup === 'FOCOS' ?
+          const sqlFrom = alert.codgroup === 'BURNED' ?
               ` ` :
               ` FROM public.${table.name} AS ${table.alias} ${filter.secondaryTables} ${filter.sqlWhere} `;
 
@@ -597,11 +625,11 @@
         JSON.parse(params.specificParameters) : [];
 
     const result = [];
-    const tableOwner = await getTableOwner(conn, alerts);
+    // const tableOwner = await getTableOwner(conn, alerts);
 
     if (alerts.length > 0) {
       for (let alert of alerts) {
-        const sql = await getSqlDetailsAnalysisTotals(conn, alert, tableOwner, params);
+        const sql = await getSqlDetailsAnalysisTotals(conn, alert, params);
 
         let resultAux = await conn.execute(sql.sql1);
         const graphic1 = await setGraphic(resultAux, sql.value1, sql.subtitle);
@@ -621,6 +649,15 @@
 
     const columns = getColumns(view, table.owner, table.alias);
 
-    return await getFilter(conn, table, params, view, columns);
+    let paramsFilter = {};
+    if (params.specificParameters) {
+      paramsFilter = JSON.parse(params.specificParameters);
+      paramsFilter['date'] = params.date;
+      paramsFilter['filter'] = params.filter;
+    } else {
+      paramsFilter = params;
+    }
+
+    return await getFilter(conn, table, paramsFilter, view, columns);
   }
 } ());

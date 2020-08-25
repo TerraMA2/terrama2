@@ -365,7 +365,7 @@ define(function() {
           timeout: timeOut.promise
         });
 
-        httpRequest.then(function(response) {
+        httpRequest.then(function(response) { 
           result.resolve(response.data);
         });
 

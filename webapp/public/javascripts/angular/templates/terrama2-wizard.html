@@ -16,6 +16,7 @@
             <i class="fa" ng-class="{'fa-times': step.wzData.error, 'fa-check': step.wzData.error === false}"></i>
           </span>
           <span ng-if="step.wzData.optional && step.wzData.disabled"
+              id="remove-configuration"
               ng-class="terrama2-font-black"
               class="button pull-right enable-button-click"
               ng-click="step.wzData.enableForm()"

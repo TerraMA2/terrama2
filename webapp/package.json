@@ -1,10 +1,10 @@
 {
   "name": "terrama2-webapp",
-  "version": "4.1.0-release",
+  "version": "master",
   "private": true,
   "scripts": {
-    "start": "grunt && NODE_ENV=PRODUCTION node ./bin/www",
-    "dev": "grunt && node ./bin/www",
+    "start": "NODE_ENV=PRODUCTION node ./bin/www",
+    "dev": "grunt && NODE_ENV=DEVELOPMENT node --inspect=0.0.0.0:5858 ./bin/www",
     "grunt": "grunt",
     "test": "mocha -c --reporter=spec --timeout 99999 --recursive 'tests/**/*.spec.js'",
     "sequelize": "sequelize",
@@ -63,7 +63,7 @@
     "font-awesome": "=4.6.3",
     "fs": "0.0.1-security",
     "glob": "^7.0.3",
-    "grunt": "^1.0.4",
+    "grunt": "^1.1.0",
     "grunt-contrib-clean": "^1.0.0",
     "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-cssmin": "^1.0.2",

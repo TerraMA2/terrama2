@@ -49,6 +49,8 @@ namespace terrama2
                */
               virtual void execute() = 0;
 
+              virtual double getLastId() = 0;
+
               virtual void setWhereCondition(const std::string& where);
 
               virtual std::shared_ptr<te::da::DataSet> getResultDataSet() const;

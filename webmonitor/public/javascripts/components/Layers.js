@@ -238,9 +238,17 @@ define(
           var parent = data[i].parent;
           var layerId = data[i].id;
           var htmlId = data[i].htmlId;
+          var description = data[i].description;
+          if (!description) {
+            description = "";
+          }
+          let descriptionReduced = description.substr(0, 100);
+          if (description.length > 100) {
+            descriptionReduced = descriptionReduced + "...";
+          }
 
           if(TerraMA2WebComponents.MapDisplay.addImageWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", { version: "1.1.0" })) {
-            TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, parent, null, "treeview unsortable terrama2-truncate-text sidebar-subitem", null);
+            TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, parent, null, "treeview unsortable terrama2-truncate-text sidebar-subitem", null, descriptionReduced);
 
             if(parent != 'custom' && parent != 'template') {
               getLayerCapabilities(uriGeoServer, workspace, data[i].nameId, layerId, parent, false);

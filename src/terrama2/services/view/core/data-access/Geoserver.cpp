@@ -41,6 +41,7 @@
 #include "../../../../core/utility/DataAccessorFactory.hpp"
 #include "../../../../core/utility/Utils.hpp"
 #include "../../../../core/utility/Raii.hpp"
+#include "../../../../core/utility/Utils.hpp"
 
 // TerraLib
 #include <terralib/dataaccess/datasource/DataSource.h>
@@ -306,6 +307,7 @@ QJsonObject terrama2::services::view::core::GeoServer::generateLayersInternal(co
                            logger,
                            logId,
                            "",
+                           tableInfo.timestampPropertyName,
                            SQL);
 
       QJsonObject layer;
@@ -918,6 +920,8 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const terra
 
   }
 
+  std::cout << timestampPropertyName << std::endl;
+
   if(!sql.empty())
   {
     te::gm::GeomType geomType;
@@ -987,6 +991,8 @@ void terrama2::services::view::core::GeoServer::registerPostgisTable(const terra
   }
 
   xml += "</featureType>";
+
+  std::cout << sql << std::endl;
 
   std::string uri = uri_.uri() + "/rest/workspaces/" + workspace_ + "/datastores/"
                     + QString(QUrl::toPercentEncoding(QString::fromStdString(dataStoreName), "", "-._~/")).toStdString()
@@ -1970,18 +1976,17 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
     // get all dates stored in the dataset
     std::vector<std::shared_ptr<te::dt::TimeInstantTZ> > vecDates;
 
+
+    if(!dataSource->dataSetExists(layerName))
     {
-      if(!dataSource->dataSetExists(layerName))
-      {
-        QString errMsg = QObject::tr("Could not find dataset!");
-        TERRAMA2_LOG_ERROR() << errMsg;
-        throw Exception() << ErrorDescription(errMsg);
-      }
-
-      std::unique_ptr<te::da::DataSet> teDataSet(dataSource->getDataSet(layerName));
-
-      vecDates = terrama2::core::getAllDates(teDataSet.get(), "timestamp");
+      QString errMsg = QObject::tr("Could not find dataset!");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw Exception() << ErrorDescription(errMsg);
     }
+
+    std::unique_ptr<te::da::DataSet> teDataSet(dataSource->getDataSet(layerName));
+
+    vecDates = terrama2::core::getAllDates(teDataSet.get(), "timestamp");
 
     std::unique_ptr<te::da::DataSetType> teDataSetType(dataSource->getDataSetType(layerName));
 
@@ -1994,7 +1999,14 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
         teDataSetType->remove(property);
     }
 
-    std::unique_ptr<te::mem::DataSet> ds(new te::mem::DataSet(teDataSetType.get()));
+    std::vector<std::size_t> properties;
+
+    for(std::size_t i = 1; i < teDataSet->getNumProperties(); ++i)
+    {
+      properties.push_back(i);
+    }
+
+    std::unique_ptr<te::mem::DataSet> ds(new te::mem::DataSet(*teDataSet, properties));
 
     // Insert data
     for(const auto& rasterInfo : vecRasterInfo)
@@ -2020,6 +2032,7 @@ std::vector<std::string> terrama2::services::view::core::GeoServer::registerMosa
         }
 
         std::unique_ptr<te::mem::DataSetItem> dsItem (new te::mem::DataSetItem(ds.get()));
+
         dsItem->setGeometry("the_geom", geom.release());
         dsItem->setString("location", file.absoluteFilePath().toStdString());
         dsItem->setDateTime("timestamp", new te::dt::TimeInstantTZ(*rasterInfo.timeTz));

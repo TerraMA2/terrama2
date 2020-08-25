@@ -218,6 +218,10 @@ module.exports = {
     WFS: {
       name: "WFS",
       value: 6
+    },
+    HTTPS: {
+      name: "HTTPS",
+      value: 7
     }
   },
 
@@ -435,7 +439,13 @@ module.exports = {
     DATABASE: "database",
     TABLE: "table",
     COLUMN: "column",
-    VALUES: "values"
+    VALUES: "values",
+    ALLVALUES :"allvalues",
+    VIEWS: "views",
+    COLUMNVIEW:"columnview",
+    VALUEVIEW:"valueview",
+    IDCOLUMN:"idcolumn",
+    GETTYPES:"gettypes"
   },
 
   /**

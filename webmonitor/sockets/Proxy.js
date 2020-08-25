@@ -2,7 +2,7 @@
 
 var Proxy = function(io){
   var memberSockets = io.sockets;
-  var memberHttp = require('http');
+  const common = require('./../utils/common');
   var memberXmlParser = require('../utils/XmlParser');
 
   // Socket connection event
@@ -11,7 +11,7 @@ var Proxy = function(io){
     // check connection event
     client.on('checkConnection', function(json) {
       // Http request to check connection
-      memberHttp.get(json.url, function(resp) {
+      common.getHttpHandler(json.url).get(json.url, function(resp) {
         // If success to access the url, send an object with connected propertie with true value
         client.emit('connectionResponse', { connected: true, requestId: json.requestId, url: json.url});
       })
@@ -25,7 +25,7 @@ var Proxy = function(io){
     client.on('proxyRequest', function(json) {
       // Http request to the received url
       try {
-        memberHttp.get(json.url, function(resp) {
+        common.getHttpHandler(json.url).get(json.url, function(resp) {
           var body = '';
           // Data receiving event
           resp.on('data', function(chunk) {
@@ -56,7 +56,7 @@ var Proxy = function(io){
     // Proxy request event
     client.on('proxyRequestCapabilities', function(json) {
       // Http request to the received url
-      memberHttp.get(json.url, function(resp) {
+      common.getHttpHandler(json.url).get(json.url, function(resp) {
         var body = '';
         // Data receiving event
         resp.on('data', function(chunk) {
@@ -74,11 +74,11 @@ var Proxy = function(io){
             }
           }
           // Socket response
-          client.emit('proxyResponseCapabilities', { 
-            msg: body, 
-            requestId: json.requestId, 
-            layerId: json.layerId, 
-            parent: json.parent, 
+          client.emit('proxyResponseCapabilities', {
+            msg: body,
+            requestId: json.requestId,
+            layerId: json.layerId,
+            parent: json.parent,
             layerName: json.layerName,
             update: json.update
            });

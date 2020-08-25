@@ -1,12 +1,9 @@
 "use strict";
 
 var State = function(io) {
+  var Application = require('./../core/Application');
 
   var memberSockets = io.sockets;
-  // 'fs' module
-  var memberFs = require('fs');
-  // 'path' module
-  var memberPath = require('path');
   // 'request' module
   var memberRequest = require('request');
   // WebMonitor configuration
@@ -15,13 +12,15 @@ var State = function(io) {
 
   var userToken = require('../config/UserToken');
 
+  const common = require('./../utils/common');
+
   // Socket connection event
   memberSockets.on('connection', function(client) {
 
     // check connection event
     client.on('saveState', function(json) {
       var options = {
-        url: memberConfig.webadmin.protocol + memberConfig.webadmin.host + ":" + memberConfig.webadmin.port + memberConfig.webadmin.basePath + "save-state",
+        url: common.urlResolve(memberConfig.webadmin.internal_uri, "/save-state"),
         form: {
           userToken: userToken.getToken(),
           state: json.state
@@ -47,7 +46,7 @@ var State = function(io) {
     // check connection event
     client.on('getState', function(json) {
       var options = {
-        url: memberConfig.webadmin.protocol + memberConfig.webadmin.host + ":" + memberConfig.webadmin.port + memberConfig.webadmin.basePath + "get-state",
+        url: common.urlResolve(memberConfig.webadmin.internal_uri, "get-state"),
         form: {
           userToken: userToken.getToken()
         }

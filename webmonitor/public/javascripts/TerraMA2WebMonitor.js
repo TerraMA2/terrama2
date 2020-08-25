@@ -14,7 +14,6 @@ define(
     'TerraMA2WebComponents'
   ],
   function(Calendar, Capabilities, Slider, Utils, LayerStatus, Layers, AddLayerByUri, Sortable, Login, LayerStatusEnum, TerraMA2WebComponents) {
-
     var visibleLayers = [];
     var memberWindowHeight;
     var memberReducedHeight;
@@ -85,6 +84,13 @@ define(
         TerraMA2WebComponents.MapDisplay.updateMapSize();
       });
 
+      let language = USER_CONFIG.language;
+
+      if (!language) {
+        language = 'en';
+      }
+      changeLanguage(language);
+      
       // Language change events
 
       $("#language-pt").parent().on("click", function() {
@@ -123,9 +129,12 @@ define(
         var layerid = $(this).closest('li').data('layerid');
         var layerObject = Layers.getLayerById(layerid);
         var isVisible = layerObject.visible;
+        var hiddenLayer = false;
+
         if(isVisible) {
           $('#terrama2-sortlayers').find('li#' + layerObject.htmlId).addClass('hide');
           Layers.changeLayerVisible(layerObject.id, false);
+          hiddenLayer = true;
         } else {
           $('#terrama2-sortlayers').find('li#' + layerObject.htmlId).removeClass('hide');
           Layers.changeLayerVisible(layerObject.id, true);
@@ -140,6 +149,15 @@ define(
         $("#terrama2-map").trigger("setGetFeatureInfoToolSelect");
         $("#terrama2-map").trigger("createAttributesTable");
         $("#legend-box").trigger("setLegends");
+
+        if(hiddenLayer){
+          TerraMA2WebComponents.MapDisplay.getMap().getLayers().array_.forEach(e =>{
+            if(e.values_.name === layerid){
+              TerraMA2WebComponents.MapDisplay.getMap().removeLayer(e);
+            }
+          });
+          hiddenLayer = false;
+        }
 
         if(layerObject.status == LayerStatusEnum.NEW || layerObject.status == LayerStatusEnum.ALERT) {
           TerraMA2WebComponents.MapDisplay.updateLayerSourceParams(layerObject.id, {
@@ -185,8 +203,10 @@ define(
 
       $('#about-btn').on('click', function() {
         $('#about-dialog').dialog({
-          resizable: false,
-          draggable: false,
+          resizable: true,
+          draggable: true,
+          width: 600,
+          height: 500,
           title: "",
           closeOnEscape: true,
           closeText: "",
@@ -230,6 +250,7 @@ define(
       var isAutoUpdate = $('#auto-update-off').hasClass("hidden");
       var isVisible = $("#" + layer.htmlId + " input").is(":checked");
       if (isAutoUpdate && isVisible){
+        $("#" + layer.htmlId + " .checkbox input").trigger("click");
         $("#" + layer.htmlId + " .checkbox input").trigger("click");
         Layers.changeLayerStatus(layer.id, LayerStatusEnum.NEW);
         Layers.changeParentLayerStatus(layer.parent, LayerStatusEnum.NEW);
@@ -340,7 +361,6 @@ define(
         }
 
         var currentProject = $("#projects").val();
-
         for(var i = 0, viewsLength = viewsData.views.length; i < viewsLength; i++) {
           const currentView = viewsData.views[i];
 
@@ -389,10 +409,43 @@ define(
           }
         }
 
-        if(viewsData.initialRequest)
+        if(viewsData.initialRequest) {
           Layers.fillLayersData();
+          const userLayers = USER_CONFIG.selectedLayers;
+          for (let i = 0; i < userLayers.length; i++) {
+            const layer = userLayers[i];
+            if (!$("li[title='"+layer+"'] input").is(':checked')){
+              $("li[title='"+layer+"'] input").trigger('click');
+            }
+          }
 
-        // Layers.addLayersToSort();
+          var defaultProject = USER_CONFIG.project;
+          if (defaultProject){
+            $("#projects").val($('#projects option').filter(function () { return $(this).html() == defaultProject; }).val());
+          }
+        }
+        $(document).ready(function(){
+          $('[data-toggle="popover"]').popover({
+            delay: {
+              "show": 1000,
+              "hide": 200 
+            },
+            trigger: "hover",
+            placement: "auto",
+            container: "body"
+          });
+          $('[data-toggle="tooltip"]').tooltip();
+        });
+        var links = document.getElementsByClassName("layer");
+        for (var i = 0; i < links.length; i++) {
+          links[i]._title = links[i].title;
+          links[i].onmouseover = function() { 
+              this.title = '';
+          }
+          links[i].onmouseout = function() { 
+              this.title = this._title;
+          }
+        }
       });
 
       // Checking map server connection response
@@ -529,6 +582,10 @@ define(
               }
             };
 
+            const zoomToLayer = USER_CONFIG.zoomToLayer;
+            if (layerCapabilities[layerIndex].title == zoomToLayer) {
+              TerraMA2WebComponents.MapDisplay.zoomToExtent(layerCapabilities[layerIndex].boundingBox);
+            }
             Utils.getSocket().emit('proxyRequest', jsonData);
           }
         } catch(e) {
@@ -542,228 +599,238 @@ define(
           var featureInfo = data.msg;
           var featuresLength = featureInfo.features.length;
 
-          var features = featureInfo.features[0].properties;
           var layerId = data.params.layerId;
           var layerData = Layers.getLayerById(layerId);
           var layerType = layerData.parent;
 
           const tableName = layerData.exportation.table;
-          const viewId = layerData.viewId;
 
+          var columns = [];
           $.get(BASE_URL + 'get-columns', {
             layer: layerData.id,
             geoserverUri: layerData.uriGeoServer
           },
             function(response) {
-              if(response.fields.length > 0) {                
-                var fields = [];
-                response.fields.forEach(function(field){
-                  fields.push(field.name);
-                });
+              columns = response.fields;
+              var fields = [];
+              response.fields.forEach(function(field){
+                fields.push(field.name);
+              });
+              if (columns.length == 0) {
+                fields = Object.keys(featureInfo.features[0].properties);
+              }
 
-                $.get(ADMIN_URL + 'api/datasetid', {
-                  tableName: tableName,
-                  viewId: viewId
-                },
-                  function(response) {
-                    if(response[0].data_set_id){
-                      var dataSetid = response[0].data_set_id;
-                      $.get(ADMIN_URL + 'api/attributes', {
-                        dataSetid: dataSetid,
-                        viewId: viewId
-                      },
-                        function(response) {
-                          var attributesResponseStr = null;
-                          var attributesJson = null;                    
-      
-                          if(typeof response !== 'undefined' && response.length > 0 && response[0].value){
-                            var attributesResponseStr = response[0].value;
-                            var attributesJson = JSON.parse(attributesResponseStr);
-                          }
-                          
-                          if(featuresLength > 0) {
-                            var firesAttributes = "";
-                            for(var i = 0; i < featuresLength; i++) {
-                              var imageUrl = null;
-      
-                              firesAttributes += "<table class=\"table table-striped\"><tbody>";
-                              var firesAttributesRows = "";
-      
-                              if(attributesJson != null){
+              $.get(ADMIN_URL + 'api/datasetid', {
+                tableName: tableName
+              },
+                function(response) {
+                  var dataSetid = null;
+                  if(response && response.length > 0 && response[0].data_set_id) {
+                    dataSetid = response[0].data_set_id;
+                  }
+                  $.get(ADMIN_URL + 'api/attributes', {
+                    dataSetid: dataSetid
+                  },
+                    function(response) {
+                      var attributesResponseStr = null;
+                      var attributesJson = null;                    
+  
+                      if(typeof response !== 'undefined' && response.length > 0 && response[0].value){
+                        var attributesResponseStr = response[0].value;
+                        var attributesJson = JSON.parse(attributesResponseStr);
 
-                                if(attributesJson.length !== Object.keys(featureInfo.features[i].properties).length){
-                                  attributesJson.forEach(function(columnFilter){
-                                    if(Object.keys(featureInfo.features[i].properties).includes(columnFilter.name)){
-                                      if(featureInfo.features[i].properties[columnFilter.name] === "picture") {
-                                        imageUrl = featureInfo.features[i].properties[columnFilter.name];
+                        if (layerType == "static"){
+
+                          attributesJson.forEach(e => {
+                              if(e.name == "gid"){
+                                e.visible = false;
+                              }
+                          });
+
+                        }
+                      }
+                      
+                      if(featuresLength > 0) {
+                        var firesAttributes = "";
+                        for(var i = 0; i < featuresLength; i++) {
+                          var imageUrl = null;
+  
+                          firesAttributes += "<table class=\"table table-striped\"><tbody>";
+                          var firesAttributesRows = "";
+  
+                          if(attributesJson != null){
+
+                            if(attributesJson.length !== Object.keys(featureInfo.features[i].properties).length){
+                              attributesJson.forEach(function(columnFilter){
+                                if(Object.keys(featureInfo.features[i].properties).includes(columnFilter.name)){
+                                  if(featureInfo.features[i].properties[columnFilter.name] === "picture") {
+                                    imageUrl = featureInfo.features[i].properties[columnFilter.name];
+                                  }else{
+                                    if(featureInfo.features[i].properties[columnFilter.name] != null && typeof featureInfo.features[i].properties[columnFilter.name] == 'object'){                                            
+                                      if(typeof featureInfo.features[i].properties[columnFilter.name].type !== 'undefined'){
+                                        if(columnFilter.alias != "" && columnFilter.visible == true){
+                                          firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter.name].type + "</td></tr>";
+                                        }else if(columnFilter.alias == "" && columnFilter.visible == true){
+                                          firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter.name].type + "</td></tr>";
+                                        }
                                       }else{
-                                        if(featureInfo.features[i].properties[columnFilter.name] != null && typeof featureInfo.features[i].properties[columnFilter.name] == 'object'){                                            
-                                          if(typeof featureInfo.features[i].properties[columnFilter.name].type !== 'undefined'){
-                                            if(columnFilter.alias != "" && columnFilter.visible == true){
-                                              firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter.name].type + "</td></tr>";
-                                            }else if(columnFilter.alias == "" && columnFilter.visible == true){
-                                              firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter.name].type + "</td></tr>";
-                                            }
-                                          }else{
-                                            if(columnFilter.alias != "" && columnFilter.visible == true){
-                                              let propertiesObj = featureInfo.features[i].properties[columnFilter.name];
-                                              for(let key in propertiesObj){
-                                                firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + propertiesObj[key] + "</td></tr>";
-                                                break;
-                                              }
-                                            }else if(columnFilter.alias == "" && columnFilter.visible == true){
-                                              let propertiesObj = featureInfo.features[i].properties[columnFilter.name];
-                                              for(let key in propertiesObj){
-                                                firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + propertiesObj[key] + "</td></tr>";
-                                                break;
-                                              }
-                                            }
+                                        if(columnFilter.alias != "" && columnFilter.visible == true){
+                                          let propertiesObj = featureInfo.features[i].properties[columnFilter.name];
+                                          for(let key in propertiesObj){
+                                            firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + propertiesObj[key] + "</td></tr>";
+                                            break;
                                           }
-                                        } else{
-                                          if(columnFilter.alias != "" && columnFilter.visible == true){
-                                            firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter.name] + "</td></tr>";
-                                          }else if(columnFilter.alias == "" && columnFilter.visible == true){
-                                            firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter.name] + "</td></tr>";
-                                          }                                        
+                                        }else if(columnFilter.alias == "" && columnFilter.visible == true){
+                                          let propertiesObj = featureInfo.features[i].properties[columnFilter.name];
+                                          for(let key in propertiesObj){
+                                            firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + propertiesObj[key] + "</td></tr>";
+                                            break;
+                                          }
                                         }
                                       }
                                     } else{
-                                      if(columnFilter.name !== "fid"){
-                                        if(layerType == "static" && featureInfo.features[i].geometry !== null){
-                                          if(columnFilter.alias != "" && columnFilter.visible == true){
-                                            firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
-                                          }else if(columnFilter.alias == "" && columnFilter.visible == true){
-                                            firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
-                                          }
-                                        }else{
-                                          if(typeof featureInfo.features[i].geometry_name !== 'undefined' && featureInfo.features[i].geometry_name !== null){
-                                            if(columnFilter.alias != "" && columnFilter.visible == true){
-                                              firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
-                                            }else if(columnFilter.alias == "" && columnFilter.visible == true){
-                                              firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
-                                            }
-                                          } else{
-                                            if(columnFilter.alias != "" && columnFilter.visible == true){
-                                              firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td> </td></tr>";
-                                            }else if(columnFilter.alias == "" && columnFilter.visible == true){
-                                              firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td> </td></tr>";
-                                            }
-                                          } 
-                                        }
-                                      }
-                                    }
-                                  });
-                                } else{
-                                  for(var key in featureInfo.features[i].properties) {
-                                    if(key === "picture") {
-                                      imageUrl = featureInfo.features[i].properties[key];
-                                    } else {
-                                      attributesJson.forEach(function(jsonElement){
-                                        if(key == jsonElement.name){
-                                          if(jsonElement.alias != "" && jsonElement.visible == true){
-                                            firesAttributesRows += "<tr><td><strong>" + jsonElement.alias + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
-                                          }else if(jsonElement.alias == "" && jsonElement.visible == true){
-                                            firesAttributesRows += "<tr><td><strong>" + key + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
-                                          }
-                                        }
-                                      });  
+                                      if(columnFilter.alias != "" && columnFilter.visible == true){
+                                        firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter.name] + "</td></tr>";
+                                      }else if(columnFilter.alias == "" && columnFilter.visible == true){
+                                        firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter.name] + "</td></tr>";
+                                      }                                        
                                     }
                                   }
-                                }      
-                              }else{
-                                if(fields.length !== Object.keys(featureInfo.features[i].properties).length){
-                                  fields.forEach(function(columnFilter){
-                                    if(Object.keys(featureInfo.features[i].properties).includes(columnFilter)){
-                                      if(featureInfo.features[i].properties[columnFilter.name] === "picture") {
-                                        imageUrl = featureInfo.features[i].properties[columnFilter.name];
-                                      }else{
-                                        if(featureInfo.features[i].properties[columnFilter] != null && typeof featureInfo.features[i].properties[columnFilter] == 'object'){                                            
-                                          if(typeof featureInfo.features[i].properties[columnFilter].type !== 'undefined'){
-                                            firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter].type + "</td></tr>";
-                                          }else{
-                                            let propertiesObj = featureInfo.features[i].properties[columnFilter];
-                                            for(let key in propertiesObj){
-                                              firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + propertiesObj[key] + "</td></tr>";
-                                              break;
-                                            }
-                                          }
-                                        } else{
-                                          firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter] + "</td></tr>";
-                                        }
-                                      }
-                                    } else{
-                                      if(columnFilter !== "fid"){
-                                        if(layerType == "static" && featureInfo.features[i].geometry !== null){
-                                          firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
-                                        }else{
-                                          if(typeof featureInfo.features[i].geometry_name !== 'undefined' && featureInfo.features[i].geometry_name !== null){
-                                            firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
-                                          } else{
-                                            firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td> </td></tr>";
-                                          } 
-                                        }
-                                      }
-                                    }
-                                  });
                                 } else{
-                                  for(var key in featureInfo.features[i].properties) {
-                                    if(key === "picture") {
-                                      imageUrl = featureInfo.features[i].properties[key];
-                                    } else {
-                                      firesAttributesRows += "<tr><td><strong>" + key + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
+                                  if(columnFilter.name !== "fid"){
+                                    if(layerType == "static" && featureInfo.features[i].geometry !== null){
+                                      if(columnFilter.alias != "" && columnFilter.visible == true){
+                                        firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
+                                      }else if(columnFilter.alias == "" && columnFilter.visible == true){
+                                        firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
+                                      }
+                                    }else{
+                                      if(typeof featureInfo.features[i].geometry_name !== 'undefined' && featureInfo.features[i].geometry_name !== null){
+                                        if(columnFilter.alias != "" && columnFilter.visible == true){
+                                          firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
+                                        }else if(columnFilter.alias == "" && columnFilter.visible == true){
+                                          firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
+                                        }
+                                      } else{
+                                        if(columnFilter.alias != "" && columnFilter.visible == true){
+                                          firesAttributesRows += "<tr><td><strong>" + columnFilter.alias + "</strong></td><td> </td></tr>";
+                                        }else if(columnFilter.alias == "" && columnFilter.visible == true){
+                                          firesAttributesRows += "<tr><td><strong>" + columnFilter.name + "</strong></td><td> </td></tr>";
+                                        }
+                                      } 
                                     }
                                   }
                                 }
-                              }                         
-      
-                              if(imageUrl) {
-                                firesAttributes += "<tr><td colspan=\"2\"><a target=\"_blank\" href=\"" + imageUrl + "\"><img style=\"width: 100%;\" src=\"" + imageUrl + "\"/></a></td></tr>";
+                              });
+                            } else{
+                              for(var key in featureInfo.features[i].properties) {
+                                if(key === "picture") {
+                                  imageUrl = featureInfo.features[i].properties[key];
+                                } else {
+                                  attributesJson.forEach(function(jsonElement){
+                                    if(key == jsonElement.name){
+                                      if(jsonElement.alias != "" && jsonElement.visible == true){
+                                        firesAttributesRows += "<tr><td><strong>" + jsonElement.alias + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
+                                      }else if(jsonElement.alias == "" && jsonElement.visible == true){
+                                        firesAttributesRows += "<tr><td><strong>" + key + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
+                                      }
+                                    }
+                                  });  
+                                }
                               }
-                
-                              firesAttributes += firesAttributesRows + "</tbody></table>";
-                              if(featuresLength > (i + 1)) firesAttributes += "<hr/>";
-                            
+                            }      
+                          }else{
+                            if(fields.length !== Object.keys(featureInfo.features[i].properties).length){
+                              fields.forEach(function(columnFilter){
+                                if(Object.keys(featureInfo.features[i].properties).includes(columnFilter)){
+                                  if(featureInfo.features[i].properties[columnFilter.name] === "picture") {
+                                    imageUrl = featureInfo.features[i].properties[columnFilter.name];
+                                  }else{
+                                    if(featureInfo.features[i].properties[columnFilter] != null && typeof featureInfo.features[i].properties[columnFilter] == 'object'){                                            
+                                      if(typeof featureInfo.features[i].properties[columnFilter].type !== 'undefined'){
+                                        firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter].type + "</td></tr>";
+                                      }else{
+                                        let propertiesObj = featureInfo.features[i].properties[columnFilter];
+                                        for(let key in propertiesObj){
+                                          firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + propertiesObj[key] + "</td></tr>";
+                                          break;
+                                        }
+                                      }
+                                    } else{
+                                      firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + featureInfo.features[i].properties[columnFilter] + "</td></tr>";
+                                    }
+                                  }
+                                } else{
+                                  if(columnFilter !== "fid"){
+                                    if(layerType == "static" && featureInfo.features[i].geometry !== null){
+                                      firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
+                                    }else{
+                                      if(typeof featureInfo.features[i].geometry_name !== 'undefined' && featureInfo.features[i].geometry_name !== null){
+                                        firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td>" + featureInfo.features[i].geometry.type + "</td></tr>";
+                                      } else{
+                                        firesAttributesRows += "<tr><td><strong>" + columnFilter + "</strong></td><td> </td></tr>";
+                                      } 
+                                    }
+                                  }
+                                }
+                              });
+                            } else{
+                              for(var key in featureInfo.features[i].properties) {
+                                if(key === "picture") {
+                                  imageUrl = featureInfo.features[i].properties[key];
+                                } else {
+                                  firesAttributesRows += "<tr><td><strong>" + key + "</strong></td><td>" + featureInfo.features[i].properties[key] + "</td></tr>";
+                                }
+                              }
                             }
-      
-                            $('#feature-info-box').html(firesAttributes);
-      
-                            $('#feature-info-box').dialog({
-                              dialogClass: "feature-info-box",
-                              title: "",
-                              width: 400,
-                              height: 380,
-                              maxWidth: 600,
-                              modal: false,
-                              resizable: true,
-                              draggable: true,
-                              closeOnEscape: true,
-                              closeText: "",
-                              position: {
-                                my: 'top',
-                                at: 'top+75'
-                              },
-                              open: function() {
-                                $(this).parent().find('.ui-dialog-content').css('white-space', 'normal');
-                                $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
-                                $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', 'center');
-                                $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '20px');
-                                $(this).parent().find('.ui-dialog-title').append('<span id=\'feature-info-dialog-title-prefix\'></span>' + data.params.layerName);
-      
-                                Utils.setTagContent('.ui-dialog-title > #feature-info-dialog-title-prefix', 'ATTRIBUTES-OF-LAYER-COLON');
-                              },
-                              close: function() {
-                                $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', '');
-                                $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', '');
-                                $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '');
-                              }
-                            });
+                          }                         
+  
+                          if(imageUrl) {
+                            firesAttributes += "<tr><td colspan=\"2\"><a target=\"_blank\" href=\"" + imageUrl + "\"><img style=\"width: 100%;\" src=\"" + imageUrl + "\"/></a></td></tr>";
                           }
+            
+                          firesAttributes += firesAttributesRows + "</tbody></table>";
+                          if(featuresLength > (i + 1)) firesAttributes += "<hr/>";
+                        
                         }
-                      );  
-                    }             
-                  }
-                );
-              }
+  
+                        $('#feature-info-box').html(firesAttributes);
+  
+                        $('#feature-info-box').dialog({
+                          dialogClass: "feature-info-box",
+                          title: "",
+                          width: 400,
+                          height: 380,
+                          maxWidth: 600,
+                          modal: false,
+                          resizable: true,
+                          draggable: true,
+                          closeOnEscape: true,
+                          closeText: "",
+                          position: {
+                            my: 'top',
+                            at: 'top+75'
+                          },
+                          open: function() {
+                            $(this).parent().find('.ui-dialog-content').css('white-space', 'normal');
+                            $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', 'url(images/close.png)');
+                            $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', 'center');
+                            $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '20px');
+                            $(this).parent().find('.ui-dialog-title').append('<span id=\'feature-info-dialog-title-prefix\'></span>' + data.params.layerName);
+  
+                            Utils.setTagContent('.ui-dialog-title > #feature-info-dialog-title-prefix', 'ATTRIBUTES-OF-LAYER-COLON');
+                          },
+                          close: function() {
+                            $(this).parent().find('.ui-dialog-titlebar-close').css('background-image', '');
+                            $(this).parent().find('.ui-dialog-titlebar-close').css('background-position', '');
+                            $(this).parent().find('.ui-dialog-titlebar-close').css('background-size', '');
+                          }
+                        });
+                      }
+                    }
+                  );
+                }
+              );
           });
 
           
@@ -843,21 +910,6 @@ define(
 
       $.TerraMAMonitor.tree('.sidebar');
 
-      $(document).on('click', "#collapseButton", function () {
-        if($(".main-sidebar").width == 0){
-          $("#terrama2-map").width("100vw");
-        }else {
-          $("#terrama2-map").width("100%");
-        }
-      })
-
-      var mapWidthInterval = window.setInterval(function() {
-        $("#terrama2-map").width("100vw");
-      }, 100);
-      window.setTimeout(function() {
-        clearInterval(mapWidthInterval);
-      }, 2000);
-
       $("#dynamic > .group-name > .sidebar-item-text").find("div").each(function() {
         $(this).addClass("fa fa-clock-o");
       });
@@ -911,6 +963,15 @@ define(
     };
 
     var init = function() {
+
+        $('[data-toggle="popover"]').popover({
+          delay: {
+            "show": 1000,
+            "hide": 200 
+          },
+          trigger: "hover"
+        });
+        $('[data-toggle="tooltip"]').tooltip();
 
       if(message != "") {
         $("#terrama2Alert > p > strong").text('');
@@ -992,7 +1053,7 @@ define(
       }
 
       var gebcoUrl = "http://www.gebco.net/data_and_products/gebco_web_services/web_map_service/mapserv?request=getmap&service=wms";
-      if(TerraMA2WebComponents.MapDisplay.addTileWMSLayer("gebco_08_grid", "GEBCO", "GEBCO", gebcoUrl, "mapserver", false, false, "terrama2-layerexplorer", { version: "1.3.0", format: "image/jpeg" })){
+      if(TerraMA2WebComponents.MapDisplay.addTileWMSLayer("gebco_08_grid", "GEBCO", "GEBCO", gebcoUrl, "mapserver", false, false, "terrama2-layerexplorer", { version: "1.3.0", format: "image/jpeg" }, "GEBCO Compilation Group (2019) GEBCO 2019 Grid")){
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("gebco_08_grid", "template", null, "treeview unsortable terrama2-truncate-text sidebar-subitem template", null);
         var layerObject = Layers.createLayerObject({
           layers: ["gebco_08_grid"],
@@ -1003,9 +1064,8 @@ define(
         Layers.addLayer(layerObject);
         LayerStatus.addLayerStatusIcon("gebco_08_grid");
       }
-
       var sentinelURL = "https://b.s2maps-tiles.eu/wms?";
-      if(TerraMA2WebComponents.MapDisplay.addTileWMSLayer("s2cloudless", "Sentinel 2", "Sentinel 2", sentinelURL, "mapserver", false, false, "terrama2-layerexplorer", { version: "1.1.1", format: "image/jpeg" })){
+      if(TerraMA2WebComponents.MapDisplay.addTileWMSLayer("s2cloudless", "Sentinel 2", "Sentinel 2", sentinelURL, "mapserver", false, false, "terrama2-layerexplorer", { version: "1.1.1", format: "image/jpeg" }, "Sentinel-2 cloudless - <a href='https://s2maps.eu'>https://s2maps.eu</a> by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2017 & 2018)")){
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("s2cloudless", "template", null, "treeview unsortable terrama2-truncate-text sidebar-subitem template", null);
         var layerObject = Layers.createLayerObject({
           layers: ["s2cloudless"],
@@ -1054,14 +1114,22 @@ define(
       loadSocketsListeners();
       loadEvents();
       loadLayout();
-      $("#osm input").trigger("click");
 
+      var defaultTemplate = 'osm';
+      var userConfigTemplate = USER_CONFIG.template;
+      if (userConfigTemplate == 'osm') {
+        defaultTemplate = 'osm';
+      } else if (userConfigTemplate == 'gebco') {
+        defaultTemplate = 'gebco_08_grid';
+      } else if (userConfigTemplate == 'sentinel') {
+        defaultTemplate = 's2cloudless';
+      }
+      $("#"+defaultTemplate+" input").trigger("click");
       Utils.isAuthenticated()
         .then(flag => {
           Utils.getSocket().emit('retrieveViews', { clientId: Utils.getWebAppSocket().id, initialRequest: true, token: flag ? Utils.getToken() : "" });
         })
         .catch(error => console.error(error));
-    
     };
 
     return {

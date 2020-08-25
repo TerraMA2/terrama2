@@ -56,7 +56,7 @@ namespace terrama2
             \param dataSeriesName DataSeries name.
             \return The current pixel value for the selected data series.
           */
-          TMANALYSISEXPORT double sample(const std::string& dataSeriesName, size_t bandIdx = 0);
+          TMANALYSISEXPORT double sample(const std::string& dataSeriesName, size_t bandIdx = 0, const std::string& date="");
 
           TMANALYSISEXPORT double getValue(std::shared_ptr<te::rst::Raster> raster, std::shared_ptr<terrama2::core::SynchronizedInterpolator> interpolator, double column, double row, size_t bandIdx);
 

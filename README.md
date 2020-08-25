@@ -3,15 +3,7 @@
 Repository Health  | Status
 ------------------ | -----------------------------------------------------------------
  Build             | [![Build Status](http://www.dpi.inpe.br/jenkins/view/TerraMA%C2%B2/job/terrama2-build-master/badge/icon)](http://www.dpi.inpe.br/jenkins/view/TerraMA%C2%B2/job/terrama2-build-master/)
- Cppcheck          | [![Build Status](http://www.dpi.inpe.br/jenkins/view/TerraMA%C2%B2/job/terrama2-cppcheck-linux-ubuntu-14.04/badge/icon)](http://www.dpi.inpe.br/jenkins/view/TerraMA%C2%B2/job/terrama2-cppcheck-linux-ubuntu-14.04/)
- JSHint            | [![Build Status](http://www.dpi.inpe.br/jenkins/view/TerraMA%C2%B2/job/terrama2-jscheck-linux-ubuntu-14.04/badge/icon)](http://www.dpi.inpe.br/jenkins/view/TerraMA%C2%B2/job/terrama2-jscheck-linux-ubuntu-14.04/)
 
-
-**NOTE:**
-* **Until we reach version 4.0.0 this codebase will be unstable and not fully operational.**
-* **TerraMA² is under active development. We are preparing this site to host it!**
-* **If you want to try the old version, please, look at http://www.dpi.inpe.br/terrama2.**
-* **If you have any question, please, send us an e-mail at: terrama2-team@dpi.inpe.br.**
 
 TerraMA² is a free and open source computational platform for early warning systems.
 
@@ -30,39 +22,31 @@ The computational platform is based on a service-oriented architecture, which is
 
 In the root directory of TerraMA² codebase (the source code tree) there are some text files explaining the details of the codebase:
 
-- **[BRANCHES-AND-TAGS:](https://github.com/TerraMA2/terrama2/blob/master/BRANCHES-AND-TAGS)** Notes on how to switch to the right branch to work on or the right tag to get the source code.
+- **[CHANGELOG:](CHANGELOG.md)** List of changes in TerraMA² source code.
 
-- **[BUILD-INSTRUCTIONS:](https://github.com/TerraMA2/terrama2/blob/master/BUILD-INSTRUCTIONS)** Notes on how to compile and install TerraMA² for each platform.
+- **[LICENSE:](LICENSE)** Licence statement in plain txt format.
 
-- **[CHANGELOG:](https://github.com/TerraMA2/terrama2/blob/master/Changelog.md)** List of changes in TerraMA² source code.
-
-- **[DEPENDENCIES:](https://github.com/TerraMA2/terrama2/blob/master/DEPENDENCIES)** The list of third-party library you must install before building TerraMA².
-
-- **[LICENSE:](https://github.com/TerraMA2/terrama2/blob/master/LICENSE)** Licence statement in plain txt format.
-
-- **[README:](https://github.com/TerraMA2/terrama2/blob/master/README)** Contains instructions about how to build and how is organized TerraMA² plataform source code.
+- **[README:](README.md)** Contains instructions about how to build and how is organized TerraMA² plataform source code.
 
 
 ## Source Code Organization
 
-- **[build/cmake:](https://github.com/TerraMA2/terrama2/tree/master/build/cmake)** Contains the CMake scripts with commands, macros and functions used to build the environment for compiling libraries and executables in different platforms using the CMake tool.
+- **[build/cmake:](build/cmake)** Contains the CMake scripts with commands, macros and functions used to build the environment for compiling libraries and executables in different platforms using the CMake tool.
 
-- **[examples:](https://github.com/TerraMA2/terrama2/tree/master/src/examples)** Some examples on how to use TerraMA² API and GUI.
+- **[examples:](src/examples)** Some examples on how to use TerraMA² API and GUI.
 
-- **[install:](https://github.com/TerraMA2/terrama2/tree/master/install)** Bash scripts for helping building and installing TerraMA².
+- **[install:](install)** Bash scripts for helping building and installing TerraMA².
 
-- **[licenses](https://github.com/TerraMA2/terrama2/blob/master/LICENSE):** Copyright notices of third-party libraries used by TerraMA².
+- **[licenses](LICENSE):** Copyright notices of third-party libraries used by TerraMA².
 
-- **[share:](https://github.com/TerraMA2/terrama2/tree/master/share)** XML Schema (.xsd), JSON files, plugin manifest files, translations files and OGC specifications that is shared and installed with TerraMA².
+- **[share:](share)** XML Schema (.xsd), JSON files, plugin manifest files, translations files and OGC specifications that is shared and installed with TerraMA².
 
-- **[src:](https://github.com/TerraMA2/terrama2/tree/master/src)** Contains the source code of TerraMA² and its automatic test system.
+- **[src:](src)** Contains the source code of TerraMA² and its automatic test system.
 
-- **[tool:](https://github.com/TerraMA2/terrama2/tree/master/tools)** Contains some helper tools for managig TerraMA² code.
+- **[tool:](tools)** Contains some helper tools for managig TerraMA² code.
 
 
 ## C++ Dependencies
-
-The file named **[DEPENDENCIES](https://github.com/TerraMA2/terrama2/blob/master/DEPENDENCIES)** in the root of TerraMA² source tree contains the official list of third-party libraries and tools that you must install before building TerraMA² from source.
 
 If you want to build yourself TerraMA² then you need to install some third-party libraries. Below we show the list of third-party libraries dependencies and its versions:
 
@@ -87,12 +71,12 @@ All the *web application* dependencies and install steps you can find in: https:
 
 - Make a new folder to host TerraMA² source code:
 ```
-$ mkdir -p /home/user/mydevel/terrama2/codebase
+$ mkdir -p /home/${USER}/mydevel/terrama2/codebase
 ```
 
 - Change the current directory to that new folder:
 ```
-$ cd /home/user/mydevel/terrama2/codebase
+$ cd /home/${USER}/mydevel/terrama2/codebase
 ```
 
 - Make a local copy of TerraMA² repository:
@@ -147,15 +131,15 @@ To switch to one of the branches listed above, use the checkout command and crea
 $ git checkout -b <local_branch_name> <remote_branch_name without this part "remotes/">
 ```
 
-In order to switch to branch *b-4.0.3* you can use the following command:
+In order to switch to branch *b4.1.1* you can use the following command:
 ```
-$ git checkout -b b-4.0.3 origin/b-4.0.3*
+$ git checkout -b b4.1.1 origin/b4.1.1*
 ```
 
 
 ## Tags
 
-Also there are tags which usually are originated from a release branch. For instance, tag *v4.0.3* will be originated from branch *b-4.0.3*.
+Also there are tags which usually are originated from a release branch. For instance, tag *b4.1.1* will be originated from branch *b4.1.1*.
 
 To check all tags available, use:
 ```
@@ -167,9 +151,9 @@ If you want to checkout a specific version given by a tag and create a local bra
 $ git checkout -b <local_branch_tag_name> <one_of_tag_name_listed>
 ```
 
-For instance, to checkout *v4.0.3* you can enter the following command:
+For instance, to checkout *b4.1.1* you can enter the following command:
 ```
-$ git checkout -b v4.0.3  v4.0.3
+$ git checkout -b vb4.1.1  vb4.1.1
 ```
 
 ## Build Instructions
