@@ -7,7 +7,7 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="generator" content="HelpNDoc Standard Edition 6.0.0.154">
+  <meta name="generator" content="HelpNDoc Standard Edition 6.9.0.577">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="favicon.ico"/>
 
@@ -28,13 +28,13 @@
   <meta property="og:title" content="Adicionar Servidor de Dados" />
   <meta property="og:type" content="article" />
   <meta property="og:description" content="" />
-  <meta property="og:site_name" content="Plataforma de Monitoramento Ambiental TerraMA&sup2;" /> 
+  <meta property="og:site_name" content="Manual da plataforma TerraMA2" /> 
 
   <!-- Bootstrap core CSS -->
-  <link href="vendors/bootstrap-3.4.0/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="vendors/bootstrap-3.4.1/css/bootstrap.min.css" rel="stylesheet"/>
 
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <link href="vendors/bootstrap-3.4.0/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
+  <link href="vendors/bootstrap-3.4.1/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
 
   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
   <!--[if lt IE 9]>
@@ -74,7 +74,7 @@
       <span class="sr-only">Toggle navigation</span>
       <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>        
     </button>
-    <h1>Plataforma de Monitoramento Ambiental TerraMA&sup2;</h1>
+    <h1>Manual da plataforma TerraMA2</h1>
     
   </header>
 
@@ -164,13 +164,13 @@
     <article>
         <div id="topic-content" class="container-fluid" 
 		  data-hnd-id="AdicionarServidordeDados"
-		  data-hnd-context="24"
+		  data-hnd-context="29"
 		  data-hnd-title="Adicionar Servidor de Dados"
 		>
             
                 <div class="navigation">
                     <ol class="breadcrumb">
-                        <li><a href="administration_module.html">M&oacute;dulo de Administra&ccedil;&atilde;o</a></li><li><a href="projects.html">Projetos</a></li><li><a href="ServidoresdeDados.html">Servidores de Dados</a></li>
+                        <li><a href="administration_module.html">M&oacute;dulo de Administra&ccedil;&atilde;o</a></li><li><a href="Projetos.html">Projetos</a></li><li><a href="ServidoresdeDados.html">Servidores de Dados</a></li>
                     </ol>
                     <div class="nav-arrows">
                         <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="ServidoresdeDados.html" title="Servidores de Dados" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="ServidoresdeDados.html" title="Servidores de Dados" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="dynamic_data.html" title="Dados Din&acirc;micos" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
@@ -185,54 +185,60 @@
             <div class="main-content">
                 
 <p></p>
-<p class="rvps2"><span class="rvts6"><br/></span></p>
-<p class="rvps23"><span class="rvts22">Para adicionar um novo servidor de dados é necessário ter um projeto ativo. No menu de opções selecione </span><span class="rvts38">“</span><img width="20" height="20" alt="" style="padding : 1px;" src="lib/Menu_servidores.png"><span class="rvts38">&nbsp;Servidores de Dados”</span><span class="rvts22">&nbsp;para que a lista de servidores disponíveis seja apresentada na área de trabalho. Clique no botão “ </span><span class="rvts50">+</span><span class="rvts22">&nbsp;” para adicionar novo servidor. Utilize o botão </span><span class="rvts38">“Salvar”</span><span class="rvts22">&nbsp;para salvar o servidor. Não é permitido nomes de servidores em duplicidade. Botão </span><span class="rvts38">“Verificar Conexão”</span><span class="rvts22">&nbsp;verifica se os parâmetros da máquina como caminhos de diretórios, endereço de FTP, HTTP ou HTTPS, ou ainda conexão com banco PostGIS estão corretos. Botão </span><span class="rvts38">“Cancelar”</span><span class="rvts22">&nbsp;volta à tela anterior sem salvar o servidor. A Figura 2.11 mostra a área de trabalho para adicionar novo servidor. Detalhes de cada campo a seguir.</span></p>
-<p class="rvps29"><img alt="" style="padding : 1px;" src="lib/Fig2_11.png"></p>
-<p class="rvps38"><span class="rvts20">Figura 2.11 – </span><span class="rvts21">Módulo de Administração: Registro de servidor de dados.</span></p>
-<p class="rvps46"><span class="rvts55">Registro de Servidor de Dados – Dado Geral:</span></p>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: disc;">
-<li style="margin-left: 0px" class="rvps47"><span class="rvts38">Nome</span><span class="rvts22">: Defina o nome do servidor. O tamanho máximo do nome é de 100 caracteres.</span></li>
-<li style="margin-left: 0px" class="rvps47"><span class="rvts38">Tipo</span><span class="rvts22">: Escolha o tipo entre FTP, HTTP, HTTPS, ARQUIVO e POSTGIS. Dependendo do tipo escolhido alguns parâmetros específicos serão apresentados para preenchimento. Após salvar não será possível alterar o tipo.</span></li>
-<li style="margin-left: 0px" class="rvps47"><span class="rvts38">Ativo</span><span class="rvts22">: Botão ativo permite que servidor seja utilizado pelos dados estáticos ou dinâmicos associados para qualquer processamento. No caso de um servidor remoto ativo para ser utilizado para coletar dados dinâmicos ou inativo nenhuma coleta será realizada. Este botão não é aplicado para servidores que estarão armazenando (ou recebendo) dados. Se preferir poderá ativa/desativar um servidor diretamente na lista de servidores.</span></li>
-<li style="margin-left: 0px" class="rvps47"><span class="rvts38">Descrição</span><span class="rvts22">: Campo não obrigatório para descrição do servidor. O tamanho máximo da senha é de 250 caracteres.</span></li>
+<p class="rvps11"><span class="rvts19">Para adicionar um novo servidor de dados é necessário ter um projeto ativo. No menu de opções selecione </span><span class="rvts22">“</span><img width="12" height="12" alt="" style="padding : 1px;" src="lib/NewItem112.png"><span class="rvts22">&nbsp;Servidores de Dados”</span><span class="rvts19">&nbsp;para que a lista de servidores disponíveis seja apresentada na área de trabalho. Clique no botão “ </span><span class="rvts53">+</span><span class="rvts19">&nbsp;” para adicionar novo servidor. Utilize o botão </span><span class="rvts22">“Salvar”</span><span class="rvts19">&nbsp;para salvar o servidor. Não é permitido nomes de servidores em duplicidade. Botão </span><span class="rvts22">“Verificar Conexão”</span><span class="rvts19">&nbsp;verifica se os parâmetros da máquina como caminhos de diretórios, endereço de FTP, HTTP, HTTPS, WFS, ou conexão com banco PostGIS estão corretos. Botão </span><span class="rvts22">“Cancelar”</span><span class="rvts19">&nbsp;volta à tela anterior sem salvar o servidor. A Figura 2.12 mostra a área de trabalho para adicionar novo servidor. Detalhes de cada campo a seguir.</span></p>
+<p class="rvps11"><span class="rvts19"><br/></span></p>
+<p class="rvps34"><img width="684" height="584" alt="" style="padding : 1px;" src="lib/NewItem111.png"></p>
+<p class="rvps55"><span class="rvts20">Figura 2.12 – </span><span class="rvts21">Módulo de Administração: Registro de servidor de dados.</span></p>
+<p class="rvps56"><span class="rvts54"><br/></span></p>
+<p class="rvps56"><span class="rvts54">Registro de Servidor de Dados – Informações Gerais:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Nome</span><span class="rvts19">: Defina o nome do servidor. O tamanho máximo do nome é de 100 caracteres.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Tipo</span><span class="rvts19">: Escolha o tipo entre FTP, HTTP, HTTPS, ARQUIVO, POSTGIS ou WFS. Dependendo do tipo escolhido alguns parâmetros específicos serão apresentados para preenchimento. Após salvar não será possível alterar o tipo.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Ativo</span><span class="rvts19">: Botão ativo permite que servidor seja utilizado pelos dados estáticos ou dinâmicos associados para qualquer processamento. No caso de um servidor remoto ativo para ser utilizado para coletar dados dinâmicos ou inativo nenhuma coleta será realizada. Se preferir poderá ativa/desativar um servidor diretamente na lista de servidores.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Descrição</span><span class="rvts19">: Campo não obrigatório para descrição do servidor. O tamanho máximo da senha é de 250 caracteres.</span></li>
 </ul>
-<p class="rvps46"><span class="rvts55">Registro de Servidor de Dados – Máquina: </span><span class="rvts56">(se tipo FTP)</span></p>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: disc;">
-<li style="margin-left: 0px" class="rvps47"><span class="rvts38">Endereço</span><span class="rvts22">: Nome de endereço de FTP (File Transfer Protocol) da máquina remota normalmente utilizada para coletar dados ambientais. O tamanho máximo do endereço é de 250 caracteres. Exemplo: </span><a class="rvts57" href="ftp://ftp1.cptec.inpe.br">ftp1.cptec.inpe.br</a><span class="rvts22">&nbsp;ou </span><a class="rvts57" href="ftp://150.163.133.245/">150.163.133.245</a><span class="rvts47">.</span></li>
-<li style="margin-left: 0px" class="rvps47"><span class="rvts38">Porta</span><span class="rvts22">: Porta do servidor FTP. Normalmente utilizada a porta 21.</span></li>
-<li style="margin-left: 0px" class="rvps47"><span class="rvts38">Tempo Limite do Servidor de Dados (seg)</span><span class="rvts22">: Tempo limite para encontrar o servidor. O valor padrão é de 8 segundo, mas se necessário mais tempo para encontrar um servidor devido o tráfego na rede, aumente este valor.</span></li>
-<li style="margin-left: 0px" class="rvps47"><span class="rvts38">Modo Ativo</span><span class="rvts22">: O protocolo de transferência de arquivos pode operar de modo </span><span class="rvts38">Ativo</span><span class="rvts22">&nbsp;ou </span><span class="rvts38">Passivo</span><span class="rvts22">. Ambas as formas usam dois canais de comunicação cliente-servidor, sendo eles canal de comandos e canal de dados, tendo uma conexão TCP para cada. O canal de comandos é usado apenas para o envio e resposta de comandos, sendo o canal de dados utilizado para a transferência dos arquivos em si. Essa separação é feita para que o cliente possa se comunicar (enviar comandos) ao servidor sem a necessidade de aguardar o término da transmissão em execução. O modo ativo fixa determinadas portas a serem usadas nas conexões de dados e comandos, o que pode vir a causar erros caso o servidor possua um Firewall instalado (que pode vir a bloquear tais portas). Já no FTP Passivo, é definido pelo SysAdmin o range de portas (2000:7000, por exemplo), nas configurações do serviço FTP, em que essas conexões serão estabelecidas, sendo definidas aleatoriamente durante o processo.</span></li>
-<li style="margin-left: 0px" class="rvps47"><span class="rvts38">Usuário</span><span class="rvts22">: Nome de usuário do servidor FTP deve ser informado.</span></li>
-<li style="margin-left: 0px" class="rvps47"><span class="rvts38">Senha</span><span class="rvts22">: Senha de usuário do servidor FTP deve ser informado.</span></li>
-<li style="margin-left: 0px" class="rvps47"><span class="rvts38">Caminho: </span><span class="rvts22">Diretório base a partir do ponto de conexão com o servidor de FTP. Este caminho poderá ser acrescentado de uma pasta específica para cada dado ambiental. Se preferir escolher o caminho a ser preenchido no campo utilize o botão </span><img alt="" style="padding : 1px;" src="lib/Botao_arquivo.png"><span class="rvts22">&nbsp;para selecionar a pasta disponível. Caso o servidor de FTP tenha mais do que uma fonte de dados a ser consultada em diferentes pastas, informe somente até o caminho imediatamente acima das pastas que serão consultadas. Posteriormente, para cada dado dinâmico a ser definido será possível apontar a pasta onde eles estão disponíveis. &nbsp;</span></li>
+<p class="rvps57"><span class="rvts19"><br/></span></p>
+<p class="rvps56"><span class="rvts54">Registro de Servidor de Dados – Máquina: </span><span class="rvts56">(se tipo FTP)</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Endereço</span><span class="rvts19">: Nome de endereço de FTP (File Transfer Protocol) da máquina remota normalmente utilizada para coletar dados ambientais. O tamanho máximo do endereço é de 250 caracteres. Exemplo: </span><a class="rvts37" href="ftp://ftp1.cptec.inpe.br">ftp1.cptec.inpe.br</a><span class="rvts19">&nbsp;ou </span><a class="rvts37" href="ftp://150.163.133.245/">150.163.133.245</a><span class="rvts36">.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Porta</span><span class="rvts19">: Porta do servidor FTP. Normalmente utilizada a porta 21.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Tempo Limite do Servidor de Dados (seg)</span><span class="rvts19">: Tempo limite para encontrar o servidor. O valor padrão é de 8 segundo, mas se necessário mais tempo para encontrar um servidor devido o tráfego na rede, aumente este valor.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Modo Ativo</span><span class="rvts19">: O protocolo de transferência de arquivos pode operar de modo </span><span class="rvts22">Ativo</span><span class="rvts19">&nbsp;ou </span><span class="rvts22">Passivo</span><span class="rvts19">. Ambas as formas usam dois canais de comunicação cliente-servidor, sendo eles canal de comandos e canal de dados, tendo uma conexão TCP para cada. O canal de comandos é usado apenas para o envio e resposta de comandos, sendo o canal de dados utilizado para a transferência dos arquivos em si. Essa separação é feita para que o cliente possa se comunicar (enviar comandos) ao servidor sem a necessidade de aguardar o término da transmissão em execução. O modo ativo fixa determinadas portas a serem usadas nas conexões de dados e comandos, o que pode vir a causar erros caso o servidor possua um Firewall instalado (que pode vir a bloquear tais portas). Já no FTP Passivo, é definido pelo SysAdmin o range de portas (2000:7000, por exemplo), nas configurações do serviço FTP, em que essas conexões serão estabelecidas, sendo definidas aleatoriamente durante o processo.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Usuário</span><span class="rvts19">: Nome de usuário do servidor FTP deve ser informado.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Senha</span><span class="rvts19">: Senha de usuário do servidor FTP deve ser informado.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Caminho: </span><span class="rvts19">Diretório base a partir do ponto de conexão com o servidor de FTP. Este caminho poderá ser acrescentado de uma pasta específica para cada dado ambiental. Se preferir escolher o caminho a ser preenchido no campo utilize o botão </span><img width="26" height="21" alt="" style="padding : 1px;" src="lib/NewItem110.png"><span class="rvts19">&nbsp;para selecionar a pasta disponível. Caso o servidor de FTP tenha mais do que uma fonte de dados a ser consultada em diferentes pastas, informe somente até o caminho imediatamente acima das pastas que serão consultadas. Posteriormente, para cada dado dinâmico a ser definido será possível apontar a pasta onde eles estão disponíveis.</span></li>
 </ul>
-<p class="rvps46"><span class="rvts55">Registro de Servidor de Dados – Máquina: </span><span class="rvts56">(se tipo HTTP ou HTTPS)</span></p>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: disc;">
-<li style="margin-left: 0px" class="rvps47"><span class="rvts38">Endereço</span><span class="rvts22">: Nome de endereço de HTTP (Hypertext Transfer Protocol) ou HTTPS (Hypertext Transfer Protocol Secure) da máquina remota normalmente utilizada para coletar dados ambientais. O tamanho máximo do endereço é de 250 caracteres.</span></li>
-<li style="margin-left: 0px" class="rvps47"><span class="rvts38">Porta</span><span class="rvts22">: Porta do servidor HTTP ou HTTPS. Normalmente utilizada a porta 80 para HTTP e 443 para HTTPS.</span></li>
-<li style="margin-left: 0px" class="rvps47"><span class="rvts38">Tempo Limite do Servidor de Dados (seg)</span><span class="rvts22">: Tempo limite para encontrar o servidor. O valor padrão é de 8 segundo, mas se necessário mais tempo para encontrar um servidor devido o tráfego na rede, aumente este valor.</span></li>
-<li style="margin-left: 0px" class="rvps47"><span class="rvts38">Usuário</span><span class="rvts22">: Nome de usuário do servidor HTTP ou HTTPS deve ser informado se necessário.</span></li>
-<li style="margin-left: 0px" class="rvps47"><span class="rvts38">Senha</span><span class="rvts22">: Senha de usuário do servidor HTTP ou HTTPS deve ser informado se necessário.</span></li>
-<li style="margin-left: 0px" class="rvps47"><span class="rvts38">Caminho: </span><span class="rvts22">Diretório base a partir do ponto de conexão com o servidor de HTTP. Este caminho poderá ser acrescentado de uma pasta específica para cada dado ambiental.</span></li>
+<p class="rvps57"><span class="rvts19"><br/></span></p>
+<p class="rvps56"><span class="rvts54">Registro de Servidor de Dados – Máquina: </span><span class="rvts56">(se tipo HTTP, HTTPS ou WFS)</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Endereço</span><span class="rvts19">: Nome de endereço de HTTP (Hypertext Transfer Protocol) ou HTTPS (Hypertext Transfer Protocol Secure) da máquina remota normalmente utilizada para coletar dados ambientais. O tamanho máximo do endereço é de 250 caracteres.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Porta</span><span class="rvts19">: Porta do servidor HTTP ou HTTPS. Normalmente utilizada a porta 80 para HTTP e 443 para HTTPS.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Tempo Limite do Servidor de Dados (seg)</span><span class="rvts19">: Tempo limite para encontrar o servidor. O valor padrão é de 8 segundo, mas se necessário mais tempo para encontrar um servidor devido o tráfego na rede, aumente este valor.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Usuário</span><span class="rvts19">: Nome de usuário do servidor HTTP deve ser informado.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Senha</span><span class="rvts19">: Senha de usuário do servidor HTTP deve ser informado.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Caminho: </span><span class="rvts19">Diretório base a partir do ponto de conexão com o servidor de HTTP. Este caminho poderá ser acrescentado de uma pasta específica para cada dado ambiental.</span></li>
 </ul>
-<p class="rvps46"><span class="rvts55">Registro de Servidor de Dados – Máquina: </span><span class="rvts56">(se tipo ARQUIVO)</span></p>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: disc;">
-<li style="margin-left: 0px" class="rvps47"><span class="rvts38">Caminho: </span><span class="rvts22">Clique sobre o campo para escolher o diretório base a partir do sistema de arquivos locais para coletar ou armazenar dados ambientais dinâmicos ou estáticos. Por questão de segurança o usuário só pode apontar para sistemas de arquivos da máquina (diretórios) que foram configurados pelo administrador da rede que fez a instalação do TerraMA</span><span class="rvts14">²</span><span class="rvts22">, pois este deverá definir um ou mais caminhos bases (veja como configurar estes caminhos base e outras variáveis no </span><a class="rvts48" href="http://www.terrama2.dpi.inpe.br/downloads" target="_blank">manual de instalação</a><span class="rvts22">) a partir da onde o usuário terá acesso para ler ou armazenar arquivos. Para cada caminho disponível poderá ser acrescentado de uma pasta específica para cada dado ambiental </span><span class="rvts38">dinâmico</span><span class="rvts22">&nbsp;(veja detalhes na definição da </span><a class="rvts34" href="masc_dynamic_data.html">máscara dos arquivos</a><span class="rvts22">) ou </span><span class="rvts38">estático</span><span class="rvts22">&nbsp;(veja detalhes na definição do nome do arquivo). Após selecionado um caminho base utilize o botão </span><img alt="" style="padding : 1px;" src="lib/Botao_arquivo.png"><span class="rvts22">&nbsp;para selecionar uma pasta disponível. Caso o servidor de arquivos tenha mais do que uma fonte de dados a ser consultada em diferentes pastas, informe somente até o caminho imediatamente acima das pastas que serão consultadas. Posteriormente, para cada dado dinâmico ou estático a ser definido será possível apontar a pasta onde os mesmos serão disponíveis.</span></li>
+<p class="rvps57"><span class="rvts19"><br/></span></p>
+<p class="rvps56"><span class="rvts54">Registro de Servidor de Dados – Máquina: </span><span class="rvts56">(se tipo ARQUIVO)</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Caminho: </span><span class="rvts19">Clique sobre o campo para escolher o diretório base a partir do sistema de arquivos locais para coletar ou armazenar dados ambientais dinâmicos ou estáticos. Por questão de segurança o usuário só pode apontar para sistemas de arquivos da máquina (diretórios) que foram configurados pelo administrador da rede que fez a instalação do TerraMA</span><span class="rvts57">²</span><span class="rvts19">, pois este deverá definir um ou mais caminhos bases (veja como configurar estes caminhos base e outras variáveis no manual de instalação) a partir da onde o usuário terá acesso para ler ou armazenar arquivos. Para cada caminho disponível poderá ser acrescentado de uma pasta específica para cada dado ambiental </span><span class="rvts22">dinâmico</span><span class="rvts19">&nbsp;(veja detalhes na definição da máscara dos arquivos) ou </span><span class="rvts22">estático</span><span class="rvts19">&nbsp;(veja detalhes na definição do nome do arquivo). Após selecionado um caminho base utilize o botão </span><img width="26" height="21" alt="" style="padding : 1px;" src="lib/NewItem109.png"><span class="rvts19">&nbsp;para selecionar uma pasta disponível. Caso o servidor de arquivos tenha mais do que uma fonte de dados a ser consultada em diferentes pastas, informe somente até o caminho imediatamente acima das pastas que serão consultadas. Posteriormente, para cada dado dinâmico ou estático a ser definido será possível apontar a pasta onde eles serão disponíveis.</span></li>
 </ul>
-<p class="rvps46"><span class="rvts55">Registro de Servidor de Dados – Máquina: </span><span class="rvts56">(se tipo POSTGIS)</span></p>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: disc;">
-<li style="margin-left: 0px" class="rvps47"><span class="rvts38">Endereço</span><span class="rvts22">: Nome do servidor de banco de dados PostgreSQL + PostGIS utilizado para para coletar ou armazenar dados ambientais ou estáticos. O tamanho máximo do endereço é de 250 caracteres.</span></li>
-<li style="margin-left: 0px" class="rvps47"><span class="rvts38">Porta</span><span class="rvts22">: Porta do servidor PostgreSQL + PostGIS. Normalmente utilizada a porta 5432.</span></li>
-<li style="margin-left: 0px" class="rvps47"><span class="rvts38">Usuário</span><span class="rvts22">: Nome de usuário do servidor PostgreSQL + PostGIS deve ser informado.</span></li>
-<li style="margin-left: 0px" class="rvps47"><span class="rvts38">Senha</span><span class="rvts22">: Senha de usuário do servidor PostgreSQL + PostGIS deve ser informado.</span></li>
-<li style="margin-left: 0px" class="rvps47"><span class="rvts38">Base de Dados: </span><span class="rvts22">Nome do banco de dados disponível do servidor PostgreSQL + PostGIS.</span></li>
+<p class="rvps60"><span class="rvts6"><br/></span></p>
+<p class="rvps56"><span class="rvts54">Registro de Servidor de Dados – Máquina: </span><span class="rvts56">(se tipo POSTGIS)</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Endereço</span><span class="rvts19">: Nome do servidor de banco de dados PostgreSQL + PostGIS utilizado para para coletar ou armazenar dados ambientais ou estáticos. O tamanho máximo do endereço é de 250 caracteres.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Porta</span><span class="rvts19">: Porta do servidor PostgreSQL + PostGIS. Normalmente utilizada a porta 5432.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Usuário</span><span class="rvts19">: Nome de usuário do servidor PostgreSQL + PostGIS deve ser informado.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Senha</span><span class="rvts19">: Senha de usuário do servidor PostgreSQL + PostGIS deve ser informado.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Base de Dados: </span><span class="rvts19">Nome do banco de dados disponível do servidor PostgreSQL + PostGIS.</span></li>
 </ul>
-<p class="rvps50"><span class="rvts6"><br/></span></p>
+<p class="rvps61"><span class="rvts6"><br/></span></p>
+<p class="rvps61"><span class="rvts6"><br/></span></p>
 <p></p>
 
             </div>
             
-            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2019 by INPE. All Rights Reserved.</div></div>
+            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2020 by INPE. All Rights Reserved.</div></div>
         </div>  <!-- /#topic-content -->
     </article>
 
@@ -260,14 +266,13 @@
   </div>
 
   <!-- Scripts -->
-  <script src="vendors/jquery-3.3.1/jquery.min.js"></script>
-  <script src="vendors/bootstrap-3.4.0/js/bootstrap.min.js"></script>
-  <script src="vendors/fastclick-1.0.6/fastclick.min.js"></script>
+  <script src="vendors/jquery-3.4.1/jquery.min.js"></script>
+  <script src="vendors/bootstrap-3.4.1/js/bootstrap.min.js"></script>
   <script src="vendors/markjs-8.11.1/jquery.mark.min.js"></script>
   <script src="vendors/uri-1.19.1/uri.min.js"></script>
   <script src="vendors/imageMapResizer-1.0.7/imageMapResizer.min.js"></script>
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <script src="vendors/bootstrap-3.4.0/js/ie10-viewport-bug-workaround.js"></script>
+  <script src="vendors/bootstrap-3.4.1/js/ie10-viewport-bug-workaround.js"></script>
   
   <!-- Headroom -->
   <script src="vendors/headroom-0.9.4/headroom.min.js"></script>
@@ -285,8 +290,6 @@
   <!-- Scripts -->
   <script>
     $(function() {
-      // Instanciate FastClick
-      Origami.fastclick(document.body);
       // Create the app
       var app = new Hnd.App();
       // Update translations
