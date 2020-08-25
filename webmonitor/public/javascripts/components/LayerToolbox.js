@@ -37,7 +37,9 @@ define(
           Utils.setTagContent("#exportation-status > div > div > div > span", "0% Complete");
           $('#exportation-status > div > div > div').css('width', '0%');
 
-          var exportLink = webadminHostInfo.protocol + webadminHostInfo.host + ":" + webadminHostInfo.port + webadminHostInfo.basePath + "export?folder=" + result.folder + "&file=" + result.file;
+          var adminURL = new URL(ADMIN_URL);
+          adminURL += "export";
+          var exportLink = adminURL.toString() + "?folder=" + result.folder + "&file=" + result.file;
           $('#exportation-iframe').attr('src', exportLink);
         }
       });
@@ -125,7 +127,7 @@ define(
 
             $.post(BASE_URL + "check-grid", params, function(data) {
               if(data.result)
-                $('#exportation-iframe').attr('src', webadminHostInfo.protocol + webadminHostInfo.host + ":" + webadminHostInfo.port + webadminHostInfo.basePath + "export-grid" + urlParams);
+                $('#exportation-iframe').attr('src', ADMIN_URL + "export-grid" + urlParams);
               else {
                 $("#terrama2Alert > p > strong").text('');
                 Utils.setTagContent("#terrama2Alert > p > span", "FILE-NOT-FOUND");
@@ -146,7 +148,7 @@ define(
 
       $("#uncheck-layers").on("click", function() {
         var checked = $(".parent_li:not(#template) input:checked");
-        
+
         for(var i = 0, checkedLength = checked.length; i < checkedLength; i++)
           checked[i].click();
       });
@@ -313,9 +315,9 @@ define(
                                        "<label data-i18n=\"PERIOD-COLON\"></label>&nbsp" +
                                        "<input type=\"number\" id=\"frequency\" value=1 min=1>&nbsp" +
                                        "<select id=\"unitTime\" class=\"form-control\">" +
-                                         "<option value=\"minutes\" data-i18n=\"Minutes\"></option>" + 
-                                         "<option value=\"hours\" selected=\"selected\" data-i18n=\"Hours\"></option>" + 
-                                         "<option value=\"days\" data-i18n=\"Days\"></option>" + 
+                                         "<option value=\"minutes\" data-i18n=\"Minutes\"></option>" +
+                                         "<option value=\"hours\" selected=\"selected\" data-i18n=\"Hours\"></option>" +
+                                         "<option value=\"days\" data-i18n=\"Days\"></option>" +
                                        "</select>" +
                                      "</div>"
 

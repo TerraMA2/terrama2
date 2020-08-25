@@ -120,9 +120,10 @@ define(
         memberSocket = io.connect(":36001");
       }
 
-      if(webadminHostInfo && webadminHostInfo.host && webadminHostInfo.port && webadminHostInfo.basePath) {
-        memberWebAppSocket = io.connect(webadminHostInfo.host + ":" + webadminHostInfo.port, {
-          path: webadminHostInfo.basePath + 'socket.io'
+      if(ADMIN_URL) {
+        var adminURL = new URL(ADMIN_URL);
+        memberWebAppSocket = io.connect(adminURL.host, {
+          path: adminURL.pathname + 'socket.io'
         });
       } else {
         memberWebAppSocket = io.connect(":36000");
