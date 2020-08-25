@@ -7,7 +7,7 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="generator" content="HelpNDoc Standard Edition 6.0.0.154">
+  <meta name="generator" content="HelpNDoc Standard Edition 6.9.0.577">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="favicon.ico"/>
 
@@ -28,13 +28,13 @@
   <meta property="og:title" content="Visualiza&ccedil;&otilde;es" />
   <meta property="og:type" content="article" />
   <meta property="og:description" content="" />
-  <meta property="og:site_name" content="Plataforma de Monitoramento Ambiental TerraMA&sup2;" /> 
+  <meta property="og:site_name" content="Manual da plataforma TerraMA2" /> 
 
   <!-- Bootstrap core CSS -->
-  <link href="vendors/bootstrap-3.4.0/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="vendors/bootstrap-3.4.1/css/bootstrap.min.css" rel="stylesheet"/>
 
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <link href="vendors/bootstrap-3.4.0/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
+  <link href="vendors/bootstrap-3.4.1/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
 
   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
   <!--[if lt IE 9]>
@@ -74,7 +74,7 @@
       <span class="sr-only">Toggle navigation</span>
       <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>        
     </button>
-    <h1>Plataforma de Monitoramento Ambiental TerraMA&sup2;</h1>
+    <h1>Manual da plataforma TerraMA2</h1>
     
   </header>
 
@@ -164,16 +164,16 @@
     <article>
         <div id="topic-content" class="container-fluid" 
 		  data-hnd-id="views"
-		  data-hnd-context="17"
+		  data-hnd-context="26"
 		  data-hnd-title="Visualizações"
 		>
             
                 <div class="navigation">
                     <ol class="breadcrumb">
-                        <li><a href="administration_module.html">M&oacute;dulo de Administra&ccedil;&atilde;o</a></li><li><a href="projects.html">Projetos</a></li>
+                        <li><a href="administration_module.html">M&oacute;dulo de Administra&ccedil;&atilde;o</a></li><li><a href="Projetos.html">Projetos</a></li>
                     </ol>
                     <div class="nav-arrows">
-                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="projects.html" title="Projetos" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="operators_dcp.html" title="Operadores sobre PCD" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="add_views.html" title="Adicionar Visualiza&ccedil;&atilde;o" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
+                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="Projetos.html" title="Projetos" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="OperadoressobrePCD.html" title="Operadores sobre PCD" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="add_views.html" title="Adicionar Visualiza&ccedil;&atilde;o" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
                     </div>
                 </div> 
             
@@ -185,50 +185,53 @@
             <div class="main-content">
                 
 <p></p>
-<p class="rvps3"><img alt="" style="padding : 1px;" src="lib/View_26x15.png"></p>
-<p class="rvps2"><span class="rvts6"><br/></span></p>
-<p class="rvps23"><span class="rvts22">Todos os dados estáticos, dinâmicos e resultados de análises podem ser publicados no “</span><a class="rvts48" href="monitoring_module.html">Módulo de Monitoramento</a><span class="rvts22">” na forma de simples visualizações, visualizações dinâmicas com animação ou alertas com legendas associadas enviadas por email. O alerta, além de produzir uma visualização específica com serviço associado, também é utilizado para criar notificações de situações críticas apontadas a partir dos dados dinâmicos e análises com serviço de alerta associado. A Figura 4.1 mostra a relação entre os serviços de visualização e alerta. A seguir apresentamos as opções de visualização e alerta.</span></p>
-<p class="rvps164"><img alt="" style="padding : 1px;" src="lib/Fig4_1_web.png"></p>
-<p class="rvps38"><span class="rvts20">Figura 4.1 – </span><span class="rvts21">Esquema de um projeto e relações com os serviços. Note que uma visualização recebe dados estáticos, dinâmicos e análises. O alerta recebe dados dinâmicos e análises e utiliza ambos serviços de visualização e alerta para envio de notificações.</span></p>
-<p class="rvps2"><span class="rvts129"><br/></span></p>
-<p class="rvps23"><span class="rvts22">As visualizações são utilizadas para publicar dados estáticos (matriciais ou vetoriais), dados dinâmicos (PCD, Ocorrências e Grades) e ainda os dados dinâmicos resultado de análises (Figura 4.1). Resumidamente, temos que:</span></p>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 89px; list-style-position: outside; list-style-type: disc;">
-<li style="margin-left: 0px" class="rvps92"><span class="rvts22">Nome de visualização é único para cada projeto do TerraMA</span><span class="rvts49">2</span><span class="rvts22">;</span></li>
-<li style="margin-left: 0px" class="rvps92"><span class="rvts22">Uma visualização utiliza um serviço correspondente para publicar um dado qualquer da base de dados no módulo monitoramento web.</span></li>
-<li style="margin-left: 0px" class="rvps92"><span class="rvts22">Um estilo (legenda) pode ser aplicado a cada dado.</span></li>
-<li style="margin-left: 0px" class="rvps92"><span class="rvts22">Um mesmo dado (dinâmico, estático ou análises) pode ser publicado diversas vezes por diferentes visualizações.</span></li>
-<li style="margin-left: 0px" class="rvps92"><span class="rvts22">Uma visualização pode ser de acesso público ou restrito (privado) através de “login” e senha no módulo de monitoramento.</span></li>
+<p class="rvps3"><img width="27" height="18" alt="" style="padding : 1px;" src="lib/NewItem349.png"><span class="rvts6">&nbsp; &nbsp;</span></p>
+<p class="rvps11"><span class="rvts19">Todos os dados estáticos, dinâmicos e resultados de análises podem ser publicados no “</span><a class="rvts45" href="monitoring_module.html">Módulo de Monitoramento</a><span class="rvts19">” na forma de simples visualizações, gráficos, visualizações dinâmicas para realizar uma animação ou </span><a class="rvts42" href="Alertas.html">alertas</a><span class="rvts19">&nbsp;com legendas associadas enviadas por email. O alerta, além de produzir uma visualização específica com serviço associado, também é utilizado para criar notificações de situações críticas apontadas a partir dos dados dinâmicos e análises realizadas. A Figura 4.1 mostra a relação entre os serviços de visualização e alerta. A seguir apresentamos as opções de visualização e alerta.</span></p>
+<p class="rvps11"><span class="rvts19"><br/></span></p>
+<p class="rvps34"><img width="635" height="274" alt="" style="padding : 1px;" src="lib/NewItem348.png"></p>
+<p class="rvps30"><span class="rvts20">Figura 4.1 – </span><span class="rvts21">Esquema de um projeto e relações com os serviços. Note que uma visualização recebe dados estáticos, dinâmicos e análises. O alerta recebe dados dinâmicos e análises e utiliza ambos serviços de visualização e alerta para envio de notificações.</span></p>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<p class="rvps11"><span class="rvts19">As visualizações são utilizadas para definir o estilo de apresentação dos mapas ou gráficos que serão publicados a partir dos dados estáticos (matriciais ou vetoriais), dados dinâmicos (PCD, Ocorrências e Grades) e ainda os dados dinâmicos resultado de análises (Figura 4.1). Resumidamente, temos que:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 71px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps108"><span class="rvts19">Nome de visualização é único para cada projeto do TerraMA</span><span class="rvts35">2</span><span class="rvts19">;</span></li>
+<li style="margin-left: 0px" class="rvps108"><span class="rvts19">Uma visualização utiliza um serviço correspondente para publicar um dado qualquer da base de dados no módulo monitoramento web, seja na forma de mapas ou gráficos.</span></li>
+<li style="margin-left: 0px" class="rvps108"><span class="rvts19">Um estilo (legenda) pode ser aplicado a cada dado.</span></li>
+<li style="margin-left: 0px" class="rvps108"><span class="rvts19">Um ou mais gráficos podem ser definidos a partir de um único dado.</span></li>
+<li style="margin-left: 0px" class="rvps108"><span class="rvts19">Um mesmo dado (dinâmico, estático ou análises) pode ser publicado diversas vezes por diferentes visualizações.</span></li>
+<li style="margin-left: 0px" class="rvps108"><span class="rvts19">Uma visualização pode ser de acesso público ou privado. Se privado será necessário “login” e senha no módulo de monitoramento.</span></li>
 </ul>
-<p class="rvps23"><span class="rvts47"><br/></span></p>
-<p class="rvps23"><span class="rvts22">A Figura 4.2 mostra a área de trabalho do menu </span><span class="rvts38">“</span><img alt="" style="padding : 1px;" src="lib/Menu_view.png"><span class="rvts38">&nbsp;Visualizações” </span><span class="rvts22">com a lista de visualizações disponíveis. Nesta área é possível selecionar uma visualização para fazer alguma edição, criar uma nova visualização ou ainda remover uma existente. Veja a seguir as opções de manipulação.</span></p>
-<p class="rvps38"><img alt="" style="padding : 1px;" src="lib/Fig4_2_web.png"></p>
-<p class="rvps38"><span class="rvts20">Figura 4.2 – </span><span class="rvts21">Módulo de Administração: lista de visualizações.</span></p>
-<p class="rvps22"><a class="rvts37" href="add_views.html">Adição de Visualização</a><span class="rvts36">&nbsp; </span><img alt="" style="padding : 1px;" src="lib/working.jpg"></p>
-<h5 class="rvps41"><span class="rvts0"><span class="rvts51">ADICIONANDO UMA VISUALIZAÇÃO:</span></span></h5>
-<p class="rvps23"><span class="rvts22">Para adicionar uma nova visualização é necessário ter um projeto ativo. No menu de opções selecione “</span><img alt="" style="padding : 1px;" src="lib/Menu_view.png"><span class="rvts22">&nbsp;</span><span class="rvts38">Visualizações</span><span class="rvts22">” para que a lista de visualizações disponíveis seja apresentada na área de trabalho. Clique no botão “ </span><span class="rvts50">+</span><span class="rvts38">&nbsp;</span><span class="rvts22">” para adicionar uma nova visualização. Utilize o botão </span><span class="rvts38">“Salvar”</span><span class="rvts22">&nbsp;para salvar a visualização. Utilize o botão </span><span class="rvts38">“Salvar e executar”</span><span class="rvts22">&nbsp;para salvar a visualização e executar a publicação imediatamente, independente de algum agendamento. Não é permitido nomes de visualizações em duplicidade. Botão </span><span class="rvts38">“Cancelar”</span><span class="rvts22">&nbsp;volta à tela anterior sem salvar a visualização. Detalhes de </span><a class="rvts34" href="add_views.html">como adicionar uma visualização veja aqui</a><span class="rvts22">.</span></p>
-<h5 class="rvps41"><span class="rvts0"><span class="rvts51">EDITANDO UMA VISUALIZAÇÃO:</span></span></h5>
-<p class="rvps12"><span class="rvts23">Para editar uma visualização previamente criada, é necessário que um usuário esteja conectado, o serviço de visualização iniciado e um projeto ativo. No menu de opções selecione “</span><img alt="" style="padding : 1px;" src="lib/Menu_view.png"><span class="rvts24">&nbsp;Visualizações</span><span class="rvts23">” para que a lista disponível seja apresentada na área de trabalho. Clique sobre o nome ou descrição da visualização desejada para abrir as propriedades. Faça as alterações desejadas e utilize o botão </span><span class="rvts24">“Salvar”</span><span class="rvts23">&nbsp;para salvar. Botão </span><span class="rvts24">“Cancelar”</span><span class="rvts23">&nbsp;volta à tela anterior sem salvar alterações. </span></p>
-<h5 class="rvps41"><span class="rvts0"><span class="rvts51">EXECUTANDO UMA VISUALIZAÇÃO:</span></span></h5>
-<p class="rvps12"><span class="rvts23">Para executar uma visualização selecione “</span><img alt="" style="padding : 1px;" src="lib/Menu_view.png"><span class="rvts24">&nbsp;Visualizações</span><span class="rvts23">” no menu de trabalho para que a lista disponível seja apresentada na área de trabalho. Na linha correspondente à visualização desejada clique em </span><span class="rvts23">Executar. Para acompanhar se a visualização foi executada com sucesso clique “</span><img width="17" height="17" alt="" style="padding : 1px;" src="lib/Menu_situacao_atual.png"><span class="rvts23">&nbsp;</span><span class="rvts24">Situação Atual”</span><span class="rvts23">&nbsp;no menu de trabalho. Na edição de uma visualização poderá ainda optar por </span><span class="rvts24">salvar e executar</span><span class="rvts23">&nbsp;a publicação da visualização.</span></p>
-<h5 class="rvps41"><span class="rvts0"><span class="rvts51">ATIVANDO OU DESATIVANDO UMA VISUALIZAÇÃO:</span></span></h5>
-<p class="rvps12"><span class="rvts23">Para ativar ou desativar uma visualização clique em </span><span class="rvts24">“</span><img alt="" style="padding : 1px;" src="lib/Menu_view.png"><span class="rvts24">&nbsp;Visualizações”</span><span class="rvts23">&nbsp;no menu de opções e na área de trabalho clique sobre o botão </span><img width="37" height="21" alt="" style="padding : 1px;" src="lib/Item_lista_ativado.png"><span class="rvts23">(ati</span><span class="rvts24">v</span><span class="rvts23">ado) ou </span><img width="34" height="19" alt="" style="padding : 1px;" src="lib/Item_lista_desativado.png"><span class="rvts23">(desativado) no item correspondente. Visualizações deixam de ser publicadas no </span><span class="rvts24">Módulo de Monitoramento</span><span class="rvts23">&nbsp;na posição desativado. Ao selecionar uma visualização qualquer, na seção “Dado Geral” o botão </span><img width="65" height="21" alt="" style="padding : 1px;" src="lib/Item_ativado.png"><span class="rvts23">&nbsp;tem o mesmo efeito dos botões acima apresentados na lista de visualizações.</span></p>
-<h5 class="rvps41"><span class="rvts0"><span class="rvts51">FILTRANDO ITENS NA LISTA DE VISUALIZAÇÔES:</span></span></h5>
-<p class="rvps12"><span class="rvts23">Para filtrar itens na lista de visualizações clique em </span><span class="rvts24">“</span><img alt="" style="padding : 1px;" src="lib/Menu_view.png"><span class="rvts24">&nbsp;Visualizações”</span><span class="rvts23">&nbsp;no menu de opções. Na área de trabalho no campo texto “Digite para pesquisar” digite o texto desejado. Note que todas as colunas disponíveis são utilizadas no filtro. Utilize o botão “</span><img width="18" height="19" alt="" style="padding : 1px;" src="lib/Botao_lupa.png"><span class="rvts23">&nbsp;Avançado” para apresentar os botões referentes aos tipos de visualizações e escolher os que deverão fazer parte da lista. Por padrão todos os tipos estarão selecionados. O filtro digitado e os botões de escolha do tipo de visualizações são combinados para apresentar os itens da lista.</span></p>
-<h5 class="rvps41"><span class="rvts0"><span class="rvts51">REMOVENDO UMA VISUALIZAÇÃO:</span></span></h5>
-<p class="rvps12"><span class="rvts23">Para remover uma visualização clique em “</span><img alt="" style="padding : 1px;" src="lib/Menu_view.png"><span class="rvts24">&nbsp;Visualizações</span><span class="rvts23">” no menu de opções para que a lista disponível seja apresentada. Na linha correspondente a visualização desejada clique em “</span><span class="rvts24">X</span><span class="rvts23">&nbsp;</span><span class="rvts24">Remover</span><span class="rvts23">”. Clique o botão </span><span class="rvts24">“OK”</span><span class="rvts23">&nbsp;para confirmar remoção.</span></p>
-<p class="rvps31"><span class="rvts24">Nota: </span><span class="rvts23">A visualização removida não pode ser recuperada. No Geoserver o “layer” correspondente também será removido.</span></p>
-<h5 class="rvps41"><span class="rvts0"><span class="rvts51">IMPORTAR UMA VISUALIZAÇÃO:</span></span></h5>
-<p class="rvps12"><span class="rvts23">Para importar uma visualização clique no menu “</span><img width="24" height="24" alt="" style="padding : 1px;" src="lib/Menu_projetos.png"><span class="rvts23">&nbsp;</span><span class="rvts24">Projetos</span><span class="rvts23">” para apresentar a lista de projetos disponíveis na área de trabalho, selecione o botão Importar. Clique em “</span><img width="34" height="29" alt="" style="padding : 1px;" src="lib/Botao_Importar.png"><span class="rvts23">”. Na janela apresentada, localize o diretório onde a visualização está salva. Escolha o arquivo “*.terrama2”, clique em abrir e selecione o projeto para qual deseja importar os dados. Selecione o serviço e clique em importar. Nota: O nome do servidor de dados deve ser único, caso possua algum registro com mesmo nome no projeto para qual a visualização será importada, não será possível realizar a importação.</span></p>
-<h5 class="rvps41"><span class="rvts0"><span class="rvts51">EXPORTAR UMA VISUALIZAÇÃO: &nbsp;</span></span></h5>
-<p class="rvps12"><span class="rvts23">Para exportar uma visualização clique no menu “</span><img width="24" height="24" alt="" style="padding : 1px;" src="lib/Menu_projetos.png"><span class="rvts23">&nbsp;</span><span class="rvts24">Projetos</span><span class="rvts23">” para apresentar a lista de projetos disponíveis na área de trabalho. Na frente do nome do projeto, selecione o botão exportar, clique em “</span><img width="36" height="34" alt="" style="padding : 1px;" src="lib/Botao_Exportar.png"><span class="rvts23">”. Uma janela será apresentada para selecionar que itens do projeto devem ser exportados. O padrão é exportar todo conteúdo, mas se desejar abra os itens do projeto com o botão “ </span><span class="rvts77">+</span><span class="rvts24">&nbsp;</span><span class="rvts23">” e marque ou desmarque o item desejado. Clique o botão </span><span class="rvts24">“Exportar”</span><span class="rvts23">&nbsp;para confirmar exportação dos itens marcados. No caso da exportação de uma visualização todas as dependências associadas (dado dinâmico ou estático, análise e servidores) serão incluídas no arquivo exportado para um documento no formato JSON (Java Script Object Notation).</span></p>
-<p class="rvps12"><span class="rvts59"><br/></span></p>
-<p class="rvps23"><span class="rvts18"><br/></span></p>
+<p class="rvps11"><span class="rvts19">A Figura 4.2 mostra a área de trabalho do menu </span><span class="rvts22">“Visualizações” </span><span class="rvts19">com a lista de visualizações disponíveis. Nesta área é possível selecionar uma visualização para editá-la, criar uma nova ou ainda remover uma existente. Veja a seguir as opções de manipulação.</span></p>
+<p class="rvps12"><img width="472" height="260" alt="" style="padding : 1px;" src="lib/NewItem351.png"></p>
+<p class="rvps55"><span class="rvts20">Figura 4.2 – </span><span class="rvts21">Módulo de Administração: lista de visualizações.</span></p>
+<p class="rvps55"><span class="rvts21"><br/></span></p>
+<h5 class="rvps49"><a name="_Toc42719573"></a><span class="rvts0"><span class="rvts50">ADICIONANDO UMA VISUALIZAÇÃO:</span></span></h5>
+<p class="rvps11"><span class="rvts19">Para adicionar uma nova visualização é necessário ter um projeto ativo. No menu de opções selecione “</span><img width="20" height="12" alt="" style="padding : 1px;" src="lib/NewItem350.png"><span class="rvts19">&nbsp;</span><span class="rvts22">Visualizações</span><span class="rvts19">” para que a lista de visualizações disponíveis seja apresentada na área de trabalho. Clique no botão “ </span><span class="rvts53">+</span><span class="rvts22">&nbsp;</span><span class="rvts19">” para adicionar uma nova visualização. Utilize o botão </span><span class="rvts22">“Salvar”</span><span class="rvts19">&nbsp;para salvar a visualização. Utilize o botão </span><span class="rvts22">“Salvar e executar”</span><span class="rvts19">&nbsp;para salvar a visualização e executar a publicação imediatamente, independente de algum agendamento. Não é permitido nomes de visualizações em duplicidade. Botão </span><span class="rvts22">“Cancelar”</span><span class="rvts19">&nbsp;volta à tela anterior sem salvar a visualização. Detalhes de </span><a class="rvts42" href="add_views.html">como adicionar uma visualização veja aqui</a><span class="rvts19">.</span></p>
 <p class="rvps2"><span class="rvts6"><br/></span></p>
+<h5 class="rvps49"><a name="_Toc42719574"></a><span class="rvts0"><span class="rvts50">EDITANDO UMA VISUALIZAÇÃO:</span></span></h5>
+<p class="rvps11"><span class="rvts19">Para editar uma visualização previamente criada, é necessário que um usuário esteja conectado, o serviço de visualização iniciado e um projeto ativo. No menu de opções selecione “</span><img width="20" height="12" alt="" style="padding : 1px;" src="lib/NewItem366.png"><span class="rvts22">&nbsp;Visualizações</span><span class="rvts19">” para que a lista disponível seja apresentada na área de trabalho. Clique sobre o nome ou descrição da visualização desejada para abrir as propriedades. Faça as alterações desejadas e utilize o botão </span><span class="rvts22">“Salvar”</span><span class="rvts19">&nbsp;para salvar. Botão </span><span class="rvts22">“Cancelar”</span><span class="rvts19">&nbsp;volta à tela anterior sem salvar alterações. </span></p>
+<h5 class="rvps49"><a name="_Toc42719575"></a><span class="rvts0"><span class="rvts50">EXECUTANDO UMA VISUALIZAÇÃO:</span></span></h5>
+<p class="rvps11"><span class="rvts19">Para executar uma visualização selecione “</span><img width="20" height="11" alt="" style="padding : 1px;" src="lib/NewItem365.png"><span class="rvts22">&nbsp;Visualizações</span><span class="rvts19">” no menu de trabalho para que a lista disponível seja apresentada na área de trabalho. Na linha correspondente à visualização desejada clique em </span><img width="14" height="11" alt="" style="padding : 1px;" src="lib/NewItem364.jpg"><span class="rvts19">Executar. Para acompanhar se a visualização foi executada com sucesso clique “</span><img width="12" height="12" alt="" style="padding : 1px;" src="lib/NewItem363.png"><span class="rvts19">&nbsp;</span><span class="rvts22">Situação Atual”</span><span class="rvts19">&nbsp;no menu de trabalho. Na edição de uma visualização poderá ainda optar por </span><span class="rvts22">salvar e executar</span><span class="rvts19">&nbsp;a publicação da visualização.</span></p>
+<h5 class="rvps49"><a name="_Toc42719576"></a><span class="rvts0"><span class="rvts50">ATIVANDO OU DESATIVANDO UMA VISUALIZAÇÃO:</span></span></h5>
+<p class="rvps11"><span class="rvts19">Para ativar ou desativar uma visualização clique em </span><span class="rvts22">“</span><img width="20" height="12" alt="" style="padding : 1px;" src="lib/NewItem362.png"><span class="rvts22">&nbsp;Visualizações”</span><span class="rvts19">&nbsp;no menu de opções e na área de trabalho clique sobre o botão </span><img width="33" height="18" alt="" style="padding : 1px;" src="lib/NewItem361.png"><span class="rvts19">(ati</span><span class="rvts22">v</span><span class="rvts19">ado) ou </span><img width="31" height="18" alt="" style="padding : 1px;" src="lib/NewItem360.png"><span class="rvts19">(desativado) no item correspondente. Visualizações deixam de ser publicadas no </span><span class="rvts22">Módulo de Monitoramento</span><span class="rvts19">&nbsp;na posição desativado. Ao selecionar uma visualização qualquer, na seção “Dado Geral” o botão </span><img width="55" height="18" alt="" style="padding : 1px;" src="lib/NewItem359.png"><span class="rvts19">&nbsp;tem o mesmo efeito dos botões acima apresentados na lista de visualizações.</span></p>
+<h5 class="rvps49"><a name="_Toc42719577"></a><span class="rvts0"><span class="rvts50">FILTRANDO ITENS NA LISTA DE VISUALIZAÇÔES:</span></span></h5>
+<p class="rvps11"><span class="rvts19">Para filtrar itens na lista de visualizações clique em </span><span class="rvts22">“</span><img width="20" height="12" alt="" style="padding : 1px;" src="lib/NewItem358.png"><span class="rvts22">&nbsp;Visualizações”</span><span class="rvts19">&nbsp;no menu de opções. Na área de trabalho no campo texto “Digite para pesquisar” digite o texto desejado. Note que todas as colunas disponíveis são utilizadas no filtro. Utilize o botão “</span><img width="12" height="13" alt="" style="padding : 1px;" src="lib/NewItem357.png"><span class="rvts19">Avançado” para apresentar os botões referentes aos tipos de visualizações e escolher os que deverão fazer parte da lista. Por padrão todos os tipos estarão selecionados. O filtro digitado e os botões de escolha do tipo de visualizações são combinados para apresentar os itens da lista.</span></p>
+<h5 class="rvps49"><a name="_Toc42719578"></a><span class="rvts0"><span class="rvts50">REMOVENDO UMA VISUALIZAÇÃO:</span></span></h5>
+<p class="rvps11"><span class="rvts19">Para remover uma visualização clique em “</span><img width="20" height="12" alt="" style="padding : 1px;" src="lib/NewItem356.png"><span class="rvts22">&nbsp;Visualizações</span><span class="rvts19">” no menu de opções para que a lista disponível seja apresentada. Na linha correspondente a visualização desejada clique em “</span><span class="rvts22">X</span><span class="rvts19">&nbsp;</span><span class="rvts22">Remover</span><span class="rvts19">”. Clique o botão </span><span class="rvts22">“OK”</span><span class="rvts19">&nbsp;para confirmar remoção.</span></p>
+<p class="rvps58"><span class="rvts22">Nota: </span><span class="rvts19">A visualização removida não pode ser recuperada. No Geoserver o “layer” correspondente também será removido.</span></p>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<h5 class="rvps49"><a name="_Toc42719579"></a><span class="rvts0"><span class="rvts50">IMPORTAR UMA VISUALIZAÇÃO:</span></span></h5>
+<p class="rvps11"><span class="rvts19">Para importar uma visualização clique no menu “</span><img width="14" height="14" alt="" style="padding : 1px;" src="lib/NewItem355.png"><span class="rvts19">&nbsp;</span><span class="rvts22">Projetos</span><span class="rvts19">” para apresentar a lista de projetos disponíveis na área de trabalho, selecione o botão Importar. Clique em “</span><img width="30" height="24" alt="" style="padding : 1px;" src="lib/NewItem354.png"><span class="rvts19">”. Na janela apresentada, localize o diretório onde a visualização está salva. Escolha o arquivo “*.terrama2”, clique em abrir e selecione o projeto para qual deseja importar os dados. Selecione o serviço e clique em importar. Nota: O nome do servidor de dados deve ser único, caso possua algum registro com mesmo nome no projeto para qual a visualização será importada, não será possível realizar a importação.</span></p>
+<h5 class="rvps49"><a name="_Toc42719580"></a><span class="rvts0"><span class="rvts50">EXPORTAR UMA VISUALIZAÇÃO: &nbsp;</span></span></h5>
+<p class="rvps11"><span class="rvts19">Para exportar uma visualização clique no menu “</span><img width="14" height="14" alt="" style="padding : 1px;" src="lib/NewItem353.png"><span class="rvts19">&nbsp;</span><span class="rvts22">Projetos</span><span class="rvts19">” para apresentar a lista de projetos disponíveis na área de trabalho. Na frente do nome do projeto, selecione o botão exportar, clique em “</span><img width="36" height="33" alt="" style="padding : 1px;" src="lib/NewItem352.png"><span class="rvts19">”. Uma janela será apresentada para selecionar que itens do projeto devem ser exportados. O padrão é exportar todo conteúdo, mas se desejar abra os itens do projeto com o botão “ </span><span class="rvts53">+</span><span class="rvts22">&nbsp;</span><span class="rvts19">” e marque ou desmarque o item desejado. Clique o botão </span><span class="rvts22">“Exportar”</span><span class="rvts19">&nbsp;para confirmar exportação dos itens marcados. No caso da exportação de uma visualização todas as dependências associadas (dado dinâmico ou estático, análise e servidores) serão incluídas no arquivo exportado para um documento no formato JSON (Java Script Object Notation).</span></p>
+<p class="rvps11"><span class="rvts19"><br/></span></p>
+<p class="rvps11"><span class="rvts6"><br/></span></p>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<p class="rvps11"><span class="rvts6"><br/></span></p>
 <p></p>
 
             </div>
             
-            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2019 by INPE. All Rights Reserved.</div></div>
+            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2020 by INPE. All Rights Reserved.</div></div>
         </div>  <!-- /#topic-content -->
     </article>
 
@@ -256,14 +259,13 @@
   </div>
 
   <!-- Scripts -->
-  <script src="vendors/jquery-3.3.1/jquery.min.js"></script>
-  <script src="vendors/bootstrap-3.4.0/js/bootstrap.min.js"></script>
-  <script src="vendors/fastclick-1.0.6/fastclick.min.js"></script>
+  <script src="vendors/jquery-3.4.1/jquery.min.js"></script>
+  <script src="vendors/bootstrap-3.4.1/js/bootstrap.min.js"></script>
   <script src="vendors/markjs-8.11.1/jquery.mark.min.js"></script>
   <script src="vendors/uri-1.19.1/uri.min.js"></script>
   <script src="vendors/imageMapResizer-1.0.7/imageMapResizer.min.js"></script>
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <script src="vendors/bootstrap-3.4.0/js/ie10-viewport-bug-workaround.js"></script>
+  <script src="vendors/bootstrap-3.4.1/js/ie10-viewport-bug-workaround.js"></script>
   
   <!-- Headroom -->
   <script src="vendors/headroom-0.9.4/headroom.min.js"></script>
@@ -281,8 +283,6 @@
   <!-- Scripts -->
   <script>
     $(function() {
-      // Instanciate FastClick
-      Origami.fastclick(document.body);
       // Create the app
       var app = new Hnd.App();
       // Update translations

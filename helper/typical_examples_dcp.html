@@ -7,13 +7,13 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="generator" content="HelpNDoc Standard Edition 6.0.0.154">
+  <meta name="generator" content="HelpNDoc Standard Edition 6.9.0.577">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="favicon.ico"/>
 
   <title>Exemplo de an&aacute;lise baseado em PCD</title>
   <meta name="description" content="" /> 
-  <meta name="keywords" content="">
+  <meta name="keywords" content="Exemplos">
 
 
 
@@ -28,13 +28,13 @@
   <meta property="og:title" content="Exemplo de an&aacute;lise baseado em PCD" />
   <meta property="og:type" content="article" />
   <meta property="og:description" content="" />
-  <meta property="og:site_name" content="Plataforma de Monitoramento Ambiental TerraMA&sup2;" /> 
+  <meta property="og:site_name" content="Manual da plataforma TerraMA2" /> 
 
   <!-- Bootstrap core CSS -->
-  <link href="vendors/bootstrap-3.4.0/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="vendors/bootstrap-3.4.1/css/bootstrap.min.css" rel="stylesheet"/>
 
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <link href="vendors/bootstrap-3.4.0/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
+  <link href="vendors/bootstrap-3.4.1/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
 
   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
   <!--[if lt IE 9]>
@@ -74,7 +74,7 @@
       <span class="sr-only">Toggle navigation</span>
       <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>        
     </button>
-    <h1>Plataforma de Monitoramento Ambiental TerraMA&sup2;</h1>
+    <h1>Manual da plataforma TerraMA2</h1>
     
   </header>
 
@@ -164,16 +164,16 @@
     <article>
         <div id="topic-content" class="container-fluid" 
 		  data-hnd-id="typical_examples_dcp"
-		  data-hnd-context="45"
+		  data-hnd-context="46"
 		  data-hnd-title="Exemplo de análise baseado em PCD"
 		>
             
                 <div class="navigation">
                     <ol class="breadcrumb">
-                        <li><a href="administration_module.html">M&oacute;dulo de Administra&ccedil;&atilde;o</a></li><li><a href="projects.html">Projetos</a></li><li><a href="analysis.html">An&aacute;lises</a></li><li><a href="typical_examples.html">Exemplos T&iacute;picos</a></li>
+                        <li><a href="administration_module.html">M&oacute;dulo de Administra&ccedil;&atilde;o</a></li><li><a href="Projetos.html">Projetos</a></li><li><a href="Analises.html">An&aacute;lises</a></li><li><a href="ExemplosTipicos.html">Exemplos T&iacute;picos</a></li>
                     </ol>
                     <div class="nav-arrows">
-                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="typical_examples.html" title="Exemplos T&iacute;picos" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="typical_examples_grid.html" title="Exemplo de an&aacute;lise baseado em Grades" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="Operadores.html" title="Operadores" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
+                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="ExemplosTipicos.html" title="Exemplos T&iacute;picos" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="typical_examples_grid.html" title="Exemplo de an&aacute;lise baseado em Grades" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="typical_examples_vector.html" title="Exemplo de an&aacute;lise baseado Processamento Vetorial" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
                     </div>
                 </div> 
             
@@ -185,49 +185,47 @@
             <div class="main-content">
                 
 <p></p>
-<p class="rvps22"><a class="rvts37" href="Operadores.html#lista_op_pcd">Lista de Operadores sobre PCD</a><span class="rvts36">&nbsp; </span><img alt="" style="vertical-align: middle; padding : 1px;" src="lib/lista.jpg"></p>
-<p class="rvps2"><span class="rvts18"><br/></span></p>
-<p class="rvps23"><span class="rvts22">Análises baseadas em PCD utilizam os valores dos atributos (atuais e históricos) para tomada de decisões através de um conjunto de operadores próprios para este tipo de análise. Porém, as PCD´s podem ser utilizadas como um mapa de pontos estáticos que são cruzados com outros dados dinâmicos da mesma forma que uma análise baseada em objetos monitorados. Neste caso, a sobreposição das PCD´s com os dados dinâmicos é realizada com uso dos </span><a class="rvts34" href="OperadoressobreObjetosMonitorado.html">operadores sobre objetos monitorados</a><span class="rvts22">. Todos os operadores foram criados exclusivamente para uso na plataforma, juntamente com os recursos que a linguagem de programação python proporciona.</span></p>
-<p class="rvps23"><span class="rvts22">Os resultados desses operadores são armazenados em variáveis locais do python para serem armazenadas em uma nova tabela de atributos que estará associada a tabela de localização das PCD´s. Nessa nova tabela são armazenados ainda a data/hora toda vez que é realizada a análise.</span></p>
-<p class="rvps23"><span class="rvts22">A seguir apresentamos um exemplo típico da utilização de análise baseada em PCD . Assim, no exemplo abaixo (figura 3.32) considere o seguinte cenário: </span></p>
-<ol style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: decimal;">
-<li value="1" style="margin-left: 0px" class="rvps110"><span class="rvts22">A série de dados dinâmicos do tipo PCD recebe as medidas de precipitação com frequência de 1 hora que serão utilizadas para calcular o valor acumulado no período de 24 horas.</span></li>
-<li value="2" style="margin-left: 0px" class="rvps111"><span class="rvts22">Os dados dinâmicos matriciais com valores de precipitação estimada por satélite serão adquiridos com frequência de 30 minutos, porém os valores destes estão em mm/h (dados “hidro”).</span></li>
-<li value="3" style="margin-left: 0px" class="rvps111"><span class="rvts22">&nbsp;O valor acumulado em 24 horas de precipitação por satélite será calculado para uma área de influência de 3 km em torno de cada PCD.</span></li>
-<li value="4" style="margin-left: 0px" class="rvps111"><span class="rvts22">Ambos valores de precipitação acumulada em 24 horas, medido pela PCD e calculado a partir das imagens de satélite, serão armazenados como resultado para posterior uso.</span></li>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps11"><span class="rvts19">A seguir apresentamos um exemplo típico da utilização de análise baseada em PCD . Assim, no exemplo abaixo (Figura 3.33) considere o seguinte cenário: </span></p>
+<ol style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: decimal;">
+<li value="1" style="margin-left: 0px" class="rvps125"><span class="rvts19">A série de dados dinâmicos do tipo PCD recebe as medidas de precipitação com frequência de 1 hora que serão utilizadas para calcular o valor acumulado no período de 24 horas.</span></li>
+<li value="2" style="margin-left: 0px" class="rvps126"><span class="rvts19">Os dados dinâmicos matriciais com valores de precipitação estimada por satélite serão adquiridos com frequência de 30 minutos, porém os valores destes estão em mm/h (dados “hidro”).</span></li>
+<li value="3" style="margin-left: 0px" class="rvps126"><span class="rvts19">&nbsp;O valor acumulado em 24 horas de precipitação por satélite será calculado para uma área de influência de 3 km em torno de cada PCD.</span></li>
+<li value="4" style="margin-left: 0px" class="rvps126"><span class="rvts19">Ambos valores de precipitação acumulada em 24 horas, medido pela PCD e calculado a partir das imagens de satélite, serão armazenados como resultado para posterior uso.</span></li>
 </ol>
-<p class="rvps2"><span class="rvts11"><br/></span></p>
-<p class="rvps3"><img alt="" style="padding : 1px;" src="lib/Fig3_32_web.png"></p>
-<p class="rvps109"><span class="rvts100">&nbsp;</span><span class="rvts20">Figura 3.32 – </span><span class="rvts21">Exemplo de análise com PCD.</span></p>
-<p class="rvps23"><span class="rvts22">Para uma melhor compreensão do programa de análise do exemplo, vamos analisar as partes do programa da figura.</span></p>
-<p class="rvps113"><span class="rvts93"># Cálculo chuva acum. em 24h de PCD</span></p>
-<p class="rvps113"><span class="rvts103">var1 = </span><span class="rvts101">dcp.history.sum</span><span class="rvts103">(</span><span class="rvts102">“pluvio”</span><span class="rvts95">, “</span><span class="rvts103">24h</span><span class="rvts95">”</span><span class="rvts103">)</span></p>
-<p class="rvps23"><span class="rvts22">Essa linha define uma nova variável denominada de “</span><span class="rvts38">var1</span><span class="rvts22">” que será inicializada com o valor do operador “</span><span class="rvts38">soma</span><span class="rvts22">” aplicado a cada uma das PCD´s. Observe que “</span><span class="rvts38">pluvio</span><span class="rvts22">” é o nome do atributo que contém as informações de chuva horária e deve estar cadastrado em cada PCD.</span></p>
-<p class="rvps113"><span class="rvts93"># Cálculo chuva acum. em 24h satelite</span></p>
-<p class="rvps113"><span class="rvts103">bf1 =&nbsp;</span><span class="rvts94">&nbsp;</span><span class="rvts101">Buffer(BufferType.Out,</span><span class="rvts94">&nbsp;</span><span class="rvts103">3, “km”)</span></p>
-<p class="rvps113"><span class="rvts103">var2 = </span><span class="rvts101">grid.zonal.history.sum</span><span class="rvts103">(</span><span class="rvts102">“hidro”</span><span class="rvts95">, “</span><span class="rvts103">24h</span><span class="rvts95">”</span><span class="rvts103">, 0, bf1)</span></p>
-<p class="rvps23"><span class="rvts22">Essas duas linhas definem o tipo de buffer a ser aplicado a cada PCD. A variável “</span><span class="rvts38">bf1</span><span class="rvts22">” define um buffer de 3 km externo a geometria em questão, no caso em torno dos pontos de cada PCD. A variável “</span><span class="rvts38">var2</span><span class="rvts22">” utiliza a área do buffer de cada PCD para sobrepor a um conjunto de dados matriciais dinâmicos de nome “</span><span class="rvts38">hidro</span><span class="rvts22">” num período de 24 horas passadas a partir da hora atual.</span></p>
-<p class="rvps113"><span class="rvts93"># Adiciona valor a tabela</span></p>
-<p class="rvps113"><span class="rvts101">add_value</span><span class="rvts103">(</span><span class="rvts102">“pcd_24h”</span><span class="rvts95">, </span><span class="rvts103">var1)</span></p>
-<p class="rvps113"><span class="rvts101">add_value</span><span class="rvts103">(</span><span class="rvts102">“sat_24h”</span><span class="rvts95">, </span><span class="rvts103">var2)</span></p>
-<p class="rvps23"><span class="rvts22">Nas duas linhas acima são definidos os nomes dos atributos que serão utilizados para armazenar os resultados das variáveis “</span><span class="rvts38">var1</span><span class="rvts22">” e “</span><span class="rvts38">var2</span><span class="rvts22">”, isto é, nos atributos “</span><span class="rvts38">pcd_24h</span><span class="rvts22">” e “</span><span class="rvts38">sat_24h</span><span class="rvts22">” respectivamente. O nome da tabela que deverá receber os dois atributos é um dos parâmetros definidos para este tipo de análise.</span></p>
-<p class="rvps23"><span class="rvts22">Outro ponto importante a ser observado no exemplo, é a presença de comentários que não tem qualquer significado na execução do programa, apenas para fins de documentação. Use o sinal &nbsp;# &nbsp;para adicionar uma linha de comentário.</span></p>
-<p class="rvps23"><span class="rvts22">Ainda na Figura 3.32 mostra a tabelas envolvidas nesse tipo de análise. A tabela “</span><span class="rvts38">tab_obj</span><span class="rvts22">” mantém a localização de cada PCD da série de dados dinâmico definida. As tabelas “</span><span class="rvts38">pcd_1</span><span class="rvts22">”, “</span><span class="rvts38">pcd_2</span><span class="rvts22">” entre outras armazenam em cada uma os dados coletados de cada PCD. A tabela “</span><span class="rvts38">tab_an_pcds</span><span class="rvts22">” é criada pela análise e armazena os resultados de todas as PCD´s.</span></p>
-<p class="rvps23"><span class="rvts22"><br/></span></p>
-<div class="rvps108"><table width="756" border="0" cellpadding="4" cellspacing="0" style="border-width: 0px; border-spacing: 0px;">
+<p class="rvps86"><span class="rvts36"><br/></span></p>
+<p class="rvps3"><img width="640" height="458" alt="" style="padding : 1px;" src="lib/NewItem323.png"></p>
+<p class="rvps127"><span class="rvts20">Figura 3.33 – </span><span class="rvts21">Exemplo de análise com PCD.</span></p>
+<p class="rvps11"><span class="rvts19">Para uma melhor compreensão do programa de análise do exemplo, vamos analisar as partes do programa da figura.</span></p>
+<p class="rvps118"><span class="rvts78"># Cálculo chuva acum. em 24h de PCD</span></p>
+<p class="rvps118"><span class="rvts41">var1 = </span><span class="rvts85">dcp.history.sum</span><span class="rvts41">(</span><span class="rvts86">“pluvio”</span><span class="rvts80">, “</span><span class="rvts41">24h</span><span class="rvts80">”</span><span class="rvts41">)</span></p>
+<p class="rvps11"><span class="rvts19">Essa linha define uma nova variável denominada de “</span><span class="rvts22">var1</span><span class="rvts19">” que será inicializada com o valor do operador “</span><span class="rvts22">soma</span><span class="rvts19">” aplicado a cada uma das PCD´s. Observe que “</span><span class="rvts22">pluvio</span><span class="rvts19">” é o nome do atributo que contém as informações de chuva horária e deve estar cadastrado em cada PCD.</span></p>
+<p class="rvps118"><span class="rvts78"># Cálculo chuva acum. em 24h satelite</span></p>
+<p class="rvps118"><span class="rvts41">bf1 =&nbsp;</span><span class="rvts79">&nbsp;</span><span class="rvts85">Buffer(BufferType.Out,</span><span class="rvts79">&nbsp;</span><span class="rvts41">3, “km”)</span></p>
+<p class="rvps118"><span class="rvts41">var2 = </span><span class="rvts85">grid.zonal.history.sum</span><span class="rvts41">(</span><span class="rvts86">“hidro”</span><span class="rvts80">, “</span><span class="rvts41">24h</span><span class="rvts80">”</span><span class="rvts41">, 0, bf1)</span></p>
+<p class="rvps11"><span class="rvts19">Essas duas linhas definem o tipo de buffer a ser aplicado a cada PCD. A variável “</span><span class="rvts22">bf1</span><span class="rvts19">” define um buffer de 3 km externo a geometria em questão, no caso em torno dos pontos de cada PCD. A variável “</span><span class="rvts22">var2</span><span class="rvts19">” utiliza a área do buffer de cada PCD para sobrepor a um conjunto de dados matriciais dinâmicos de nome “</span><span class="rvts22">hidro</span><span class="rvts19">” num período de 24 horas passadas a partir da hora atual.</span></p>
+<p class="rvps118"><span class="rvts78"># Adiciona valor a tabela</span></p>
+<p class="rvps118"><span class="rvts85">add_value</span><span class="rvts41">(</span><span class="rvts86">“pcd_24h”</span><span class="rvts80">, </span><span class="rvts41">var1)</span></p>
+<p class="rvps118"><span class="rvts85">add_value</span><span class="rvts41">(</span><span class="rvts86">“sat_24h”</span><span class="rvts80">, </span><span class="rvts41">var2)</span></p>
+<p class="rvps11"><span class="rvts19">Nas duas linhas acima são definidos os nomes dos atributos que serão utilizados para armazenar os resultados das variáveis “</span><span class="rvts22">var1</span><span class="rvts19">” e “</span><span class="rvts22">var2</span><span class="rvts19">”, isto é, nos atributos “</span><span class="rvts22">pcd_24h</span><span class="rvts19">” e “</span><span class="rvts22">sat_24h</span><span class="rvts19">” respectivamente. O nome da tabela que deverá receber os dois atributos é um dos parâmetros definidos para este tipo de análise.</span></p>
+<p class="rvps11"><span class="rvts19">Outro ponto importante a ser observado no exemplo, é a presença de comentários que não tem qualquer significado na execução do programa, apenas para fins de documentação. Use o sinal &nbsp;# &nbsp;para adicionar uma linha de comentário.</span></p>
+<p class="rvps11"><span class="rvts19">Ainda na Figura 3.33 mostra a tabelas envolvidas nesse tipo de análise. A tabela “</span><span class="rvts22">tab_obj</span><span class="rvts19">” mantém a localização de cada PCD da série de dados dinâmico definida. As tabelas “</span><span class="rvts22">pcd_1</span><span class="rvts19">”, “</span><span class="rvts22">pcd_2</span><span class="rvts19">” entre outras armazenam em cada uma os dados coletados de cada PCD. A tabela “</span><span class="rvts22">tab_an_pcds</span><span class="rvts19">” é criada pela análise e armazena os resultados de todas as PCD´s.</span></p>
+<div class="rvps121"><table width="605" border="0" cellpadding="4" cellspacing="0" style="border-width: 0px; border-spacing: 0px;">
 <tr valign="top">
-<td width="76" height="105" valign="top" style="padding: 0px 9px;"><p class="rvps2"><img width="91" height="91" alt="" style="padding : 1px;" src="lib/Logo_Python.png"></p>
+<td width="62" height="84" valign="top" style="padding: 0px 7px;"><p class="rvps2"><img width="55" height="55" alt="" style="padding : 1px;" src="lib/NewItem322.png"></p>
 </td>
-<td width="644" height="105" valign="top" style="padding: 0px 9px;"><p class="rvps107"><span class="rvts22">Para uma maior compreensão da sintaxe da linguagem ou uso de opções avançadas, recomenda-se a leitura do anexo A2, a documentação disponível em português em </span><a class="rvts34" href="https://wiki.python.org.br">https://wiki.python.org.br</a><span class="rvts22">&nbsp;ou site oficial em &nbsp;</span><a class="rvts40" href="https://www.python.org/">https://www.python.org/</a><span class="rvts41">&nbsp;.</span></p>
+<td width="515" height="84" valign="top" style="padding: 0px 7px;"><p class="rvps120"><span class="rvts19">Para uma maior compreensão da sintaxe da linguagem ou uso de opções avançadas, recomenda-se a </span><a class="rvts42" href="python.html">leitura do anexo</a><span class="rvts19">, a documentação disponível em português em </span><a class="rvts42" href="https://wiki.python.org.br">https://wiki.python.org.br</a><span class="rvts19">&nbsp;ou site oficial em &nbsp;</span><a class="rvts43" href="https://www.python.org/">https://www.python.org/</a><span class="rvts44">&nbsp;.</span></p>
 </td>
 </tr>
 </table>
 </div>
+<h3 class="rvps38"><img width="35" height="30" alt="" style="padding : 1px;" src="lib/NewItem347.png"><span class="rvts0"><span class="rvts46">&nbsp; PCD ( </span></span><a href="add_analysis_dcp.html"><img width="13" height="22" alt="" style="padding : 1px;" src="lib/NewItem225.png"></a><span class="rvts0"><span class="rvts46">&nbsp;) </span></span></h3>
+<h3 class="rvps23"><span class="rvts0"><span class="rvts32"><br/></span></span></h3>
 <p></p>
 
             </div>
             
-            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2019 by INPE. All Rights Reserved.</div></div>
+            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2020 by INPE. All Rights Reserved.</div></div>
         </div>  <!-- /#topic-content -->
     </article>
 
@@ -255,14 +253,13 @@
   </div>
 
   <!-- Scripts -->
-  <script src="vendors/jquery-3.3.1/jquery.min.js"></script>
-  <script src="vendors/bootstrap-3.4.0/js/bootstrap.min.js"></script>
-  <script src="vendors/fastclick-1.0.6/fastclick.min.js"></script>
+  <script src="vendors/jquery-3.4.1/jquery.min.js"></script>
+  <script src="vendors/bootstrap-3.4.1/js/bootstrap.min.js"></script>
   <script src="vendors/markjs-8.11.1/jquery.mark.min.js"></script>
   <script src="vendors/uri-1.19.1/uri.min.js"></script>
   <script src="vendors/imageMapResizer-1.0.7/imageMapResizer.min.js"></script>
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <script src="vendors/bootstrap-3.4.0/js/ie10-viewport-bug-workaround.js"></script>
+  <script src="vendors/bootstrap-3.4.1/js/ie10-viewport-bug-workaround.js"></script>
   
   <!-- Headroom -->
   <script src="vendors/headroom-0.9.4/headroom.min.js"></script>
@@ -280,8 +277,6 @@
   <!-- Scripts -->
   <script>
     $(function() {
-      // Instanciate FastClick
-      Origami.fastclick(document.body);
       // Create the app
       var app = new Hnd.App();
       // Update translations
