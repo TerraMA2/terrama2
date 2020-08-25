@@ -327,6 +327,7 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
   transactorDestination->add(newDataSetType->getName(), series.syncDataSet->dataset().get(), {});
 
   scopedTransaction.commit();
+
 }
 
 std::string terrama2::core::DataStoragerTable::getGeometryPropertyName(DataSetPtr dataSet) const

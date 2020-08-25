@@ -174,6 +174,10 @@ DECLARE
     number_of_attributes INTEGER;
 	number_of_affected_rows BIGINT;
 
+    finaltable_last_id_inserted INTEGER;
+    is_dynamictable_info_exists BOOLEAN;
+    pk_output_table TEXT;
+
     query TEXT;
     result RECORD;
 BEGIN
@@ -197,17 +201,21 @@ BEGIN
     -- Getting date_column_from_dynamic_table
     EXECUTE format('SELECT get_date_column_from_dynamic_table(''%s'')', dynamic_table_name_handler) INTO date_column_from_dynamic_table;
 
-    -- Getting last time collected from analysis_metadata
-	  EXECUTE format('SELECT COUNT(*) FROM terrama2.analysis_metadata WHERE key = ''last_analysis'' AND terrama2.analysis_metadata.analysis_id = %s', analysis_id) INTO number_of_rows_metadata;
-
-    EXECUTE format('SELECT MAX(value::TIMESTAMP) FROM terrama2.analysis_metadata WHERE key = ''last_analysis'' AND terrama2.analysis_metadata.analysis_id = %s', analysis_id) INTO last_analysis;
-
     final_table := format('%s_%s', output_table_name, analysis_id);
+
+    EXECUTE format('SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE  table_schema = ''public'' AND table_name = ''%s'')', output_table_name) INTO is_dynamictable_info_exists;
+
+    IF (is_dynamictable_info_exists) THEN
+        EXECUTE 'SELECT get_primary_key($1)' INTO pk_output_table USING output_table_name;
+        EXECUTE format('SELECT last_id FROM (SELECT * FROM public.%s ORDER BY %s DESC LIMIT 1) AS last_data',output_table_name,pk_output_table) INTO finaltable_last_id_inserted;
+    ELSE
+        finaltable_last_id_inserted := 0;
+    END IF;
 
     EXECUTE 'SELECT get_primary_key($1)' INTO pk_static_table USING static_table_name;
     EXECUTE 'SELECT get_primary_key($1)' INTO pk_dynamic_table USING dynamic_table_name_handler;
 
-	  EXECUTE format('SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE  table_schema = ''public'' AND table_name = ''%s'')', final_table) INTO is_table_exists;
+	EXECUTE format('SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE  table_schema = ''public'' AND table_name = ''%s'')', final_table) INTO is_table_exists;
 
     EXECUTE format('SELECT COUNT(*) FROM information_schema.columns WHERE table_name = ''%s'' ', final_table) INTO number_of_columns;
 
@@ -219,12 +227,7 @@ BEGIN
     -- 6 this is the default number of attributes: mo   nitored_id, intersect_id, execution_date, intersection_geom, calculated_area_ha, final_table_id;
 
     IF (is_table_exists AND number_of_columns = number_of_attributes) THEN
-        -- Creating analysis filter
-        IF number_of_rows_metadata > 0 THEN
-            analysis_filter := format(' %s.%s  >  ''%s'' ', dynamic_table_name_handler, date_column_from_dynamic_table, last_analysis);
-        ELSE
-            analysis_filter := '1 = 1';
-        END IF;
+        analysis_filter := format(' %s.%s  >  %s ', dynamic_table_name_handler, pk_dynamic_table, finaltable_last_id_inserted);
 
         date_filter := '1 = 1';
 
@@ -278,7 +281,7 @@ BEGIN
         GET DIAGNOSTICS number_of_affected_rows = ROW_COUNT;
     ELSE
 
-        analysis_filter := '1 = 1';
+        analysis_filter := format(' %s.%s  >  %s ', dynamic_table_name_handler, pk_dynamic_table, finaltable_last_id_inserted);
 
         date_filter := '1 = 1';
 

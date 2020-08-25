@@ -509,8 +509,11 @@ void terrama2::services::analysis::core::AnalysisExecutor::runVectorialProcessin
 
     auto result = analysisOperator->getResultDataSet();
 
+    auto lastId = analysisOperator->getLastId();
+
     context->addAttribute("table_name", te::dt::STRING_TYPE);
     context->addAttribute("affected_rows", te::dt::DOUBLE_TYPE);
+    context->addAttribute("last_id", te::dt::DOUBLE_TYPE);
 
     int currentLine = 0;
 
@@ -520,6 +523,7 @@ void terrama2::services::analysis::core::AnalysisExecutor::runVectorialProcessin
     {
       context->setAnalysisResult(++currentLine, "table_name", result->getString("table_name"));
       context->setAnalysisResult(currentLine, "affected_rows", result->getDouble("affected_rows"));
+      context->setAnalysisResult(currentLine, "last_id", lastId);
 
       affectedRows = result->getDouble("affected_rows");
     }
