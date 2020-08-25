@@ -129,10 +129,10 @@ define([
   /**
    *
    */
-  DataSeriesService.prototype.validateView = async function(tableName, provider, queryBuilder) {
+  DataSeriesService.prototype.validateView = async function(tableName, provider, attributes, queryBuilder) {
     const { BaseService, url } = this;
 
-    const bodyData = { provider, tableName, whereCondition: queryBuilder };
+    const bodyData = { provider, tableName, attributes, whereCondition: queryBuilder };
 
     try {
       const response = await BaseService.$request(`${url}/validateView`, "POST", { data: bodyData });
@@ -167,6 +167,10 @@ define([
   DataSeriesService.prototype.getIcon = function(dataSeries) {
     const dataSeriesTypeName = dataSeries.data_series_semantics.data_series_type_name;
     const { DataSeriesType } = this;
+
+      if(dataSeries.data_series_semantics.code == "GRID-static_gdal"){
+        return `${BASE_URL}images/static-data-series/grid/grid.png`;
+      }
 
     switch(dataSeriesTypeName) {
       case DataSeriesType.ANALYSIS_MONITORED_OBJECT:

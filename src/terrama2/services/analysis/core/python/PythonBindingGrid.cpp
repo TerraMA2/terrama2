@@ -63,7 +63,7 @@ void terrama2::services::analysis::core::python::Grid::registerFunctions()
 #pragma GCC diagnostic ignored "-Wunused-local-typedef"
 
 // // Declaration needed for default parameter restriction
-BOOST_PYTHON_FUNCTION_OVERLOADS(gridSample_overloads, terrama2::services::analysis::core::grid::sample, 1, 2)
+BOOST_PYTHON_FUNCTION_OVERLOADS(gridSample_overloads, terrama2::services::analysis::core::grid::sample, 1, 3)
 
 // closing "-Wunused-local-typedef" pragma
 #pragma GCC diagnostic pop
@@ -81,7 +81,7 @@ void terrama2::services::analysis::core::python::Grid::registerGridFunctions()
   scope gridScope = gridModule;
 
   // export functions inside grid namespace
-  def("sample", terrama2::services::analysis::core::grid::sample, gridSample_overloads(args("dataSeriesName", "band"), "Grid sample operator."));
+  def("sample", terrama2::services::analysis::core::grid::sample, gridSample_overloads(args("dataSeriesName", "band", "date"), "Grid sample operator."));
 }
 
 // pragma to silence python macros warnings

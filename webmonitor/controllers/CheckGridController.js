@@ -19,10 +19,12 @@ var CheckGridController = function(app) {
   var memberFs = require('fs');
   // 'path' module
   var memberPath = require('path');
-  
+
   var Application = require('./../core/Application');
   // WebAdmin host info
   var memberAdminHostInfo = Application.getContextConfig().webadmin;
+
+  const common = require('./../utils/common');
 
   /**
    * Processes the request and returns a response.
@@ -34,7 +36,7 @@ var CheckGridController = function(app) {
    * @inner
    */
   var checkGridFile = function(request, response) {
-    var url = memberAdminHostInfo.protocol + memberAdminHostInfo.host + ":" + memberAdminHostInfo.port + memberAdminHostInfo.basePath + "check-grid?dpi=" + request.body.dpi + "&mask=" + request.body.mask + "&file=" + request.body.file;
+    var url = common.urlResolve(app.locals.INTERNAL_ADMIN_URL, "check-grid?dpi=" + request.body.dpi + "&mask=" + request.body.mask + "&file=" + request.body.file);
 
     if(request.body.date !== undefined)
       url += "." + request.body.date + "&date=" + request.body.date;
@@ -72,7 +74,7 @@ var CheckGridController = function(app) {
    * @inner
    */
   var checkGridFolder = function(request, response) {
-    var url = memberAdminHostInfo.protocol + memberAdminHostInfo.host + ":" + memberAdminHostInfo.port + memberAdminHostInfo.basePath + "check-grid-folder?dpi=" + request.body.dpi;
+    var url = common.urlResolve(app.locals.INTERNAL_ADMIN_URL, "check-grid-folder?dpi=" + request.body.dpi);
 
     memberHttp.get(url, function(resp) {
       var body = '';

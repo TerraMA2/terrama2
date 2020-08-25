@@ -64,7 +64,18 @@ Application.prototype.load = function() {
   _data.metadata.fullName = buffer.name + " " + buffer.version;
 
   // reading TerraMA² instances configuration
-  const settings = require(path.resolve(__dirname, "../config/settings.json"));
+  let settings;
+  if (!fs.existsSync(path.resolve(__dirname, "../config/settings.json"))) {
+    fs.copyFileSync(path.resolve(__dirname, "../config/settings.json.example"), path.resolve(__dirname, "../config/settings.json"), (err) => {
+      if (err){
+        throw err;
+      } else{        
+        console.log('settings.json was created');
+      }      
+    });    
+  }
+   
+  settings = require(path.resolve(__dirname, "../config/settings.json"));
 
   _data.settings = settings;
 
@@ -84,7 +95,18 @@ Application.prototype.load = function() {
   if (_data.settings.webAppId === undefined || _data.settings.webAppId === "")
     setWebAppIdToContext();
 
-  const dbSettings = require(path.resolve(__dirname, '../config/db.json'));
+  let dbSettings;
+  if (!fs.existsSync(path.resolve(__dirname, '../config/db.json'))) {
+    fs.copyFileSync(path.resolve(__dirname, '../config/db.json.example'), path.resolve(__dirname, '../config/db.json'), (err) => {
+      if (err){
+        throw err;
+      } else{
+        console.log('db.json was created');
+      }      
+    });    
+  }
+
+  dbSettings = require(path.resolve(__dirname, '../config/db.json'));
 
   const mode = this.getMode();
 

@@ -140,6 +140,81 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::mem::Da
 
   terrama2::core::DataSetSeries filterDataSetSeries;
   std::unique_ptr<te::sam::rtree::Index<size_t, 8> > rtree;
+
+  //Verify date is compatible
+  bool dateIsCompatible = true;
+  // lastDateTime_  contain the date in the name of File
+  if(this->lastDateTime_ != nullptr){
+  /*
+  * DiscardBefore can be the last file date readed or
+  * can be declared in filter
+  */
+    std::string lastDateTimeString = terrama2::core::TimeUtils::getISOString(this->lastDateTime_);
+    if(filter.discardBefore.get())
+    {
+      std::string discarBeforeString = terrama2::core::TimeUtils::getISOString(filter.discardBefore);
+      if(lastDateTimeString != discarBeforeString)
+      {
+        if((*this->lastDateTime_) > (*filter.discardBefore))
+        {
+          if(filter.discardAfter.get())
+          {
+            std::string discarAfterStringIn = terrama2::core::TimeUtils::getISOString(filter.discardAfter);
+            if(lastDateTimeString != discarAfterStringIn)
+            {
+              if((*this->lastDateTime_) < (*filter.discardAfter))
+              {
+                dateIsCompatible = true;
+              }else
+              {
+                dateIsCompatible = false;
+              }
+            }
+            else
+            {
+              dateIsCompatible = true;
+            }
+          } else
+          {
+            dateIsCompatible = true;
+          }
+        }
+      }
+      else
+      {
+        dateIsCompatible = true;
+      } 
+      
+    } else if(filter.discardAfter.get())
+    {
+      std::string discarAfterString = terrama2::core::TimeUtils::getISOString(filter.discardAfter);
+      if(lastDateTimeString != discarAfterString)
+      {
+        if((*this->lastDateTime_) < (*filter.discardAfter))
+        {
+          dateIsCompatible = true;
+        } else
+        {
+          dateIsCompatible = false;
+        }
+      }
+      else
+      {
+        dateIsCompatible = true;
+      }
+
+    } else
+    {
+      dateIsCompatible = true;
+    }
+  }
+
+  if(!dateIsCompatible)
+  {
+    return;
+  }
+
+
   // Apply filter by static data
   if(filter.dataProvider && filter.dataSeries)
   {
@@ -188,9 +263,9 @@ void terrama2::core::DataAccessorFile::filterDataSet(std::shared_ptr<te::mem::Da
     {
       for(size_t i = begin; i < end; ++i)
       {
-        if(!isValidTimestamp(syncDataSet, i, filter, dateColumn)
-           || !isValidGeometry(syncDataSet, i, filter, geomColumn, filterDataSetSeries, rtree)
+        if(!isValidGeometry(syncDataSet, i, filter, geomColumn, filterDataSetSeries, rtree)
            || !isValidRaster(syncDataSet, i, filter, rasterColumn, filterDataSetSeries, rtree, mutex))
+        //!isValidTimestamp(syncDataSet, i, filter, dateColumn) ||       THIS LINE WILL VERIFY EVERY DATE IN FILE AND IT IS NOT USED FOR WHILE
         {
           std::unique_lock<std::mutex> lock(mutex);
           removeIndexes.insert(i);
@@ -660,7 +735,12 @@ QFileInfoList terrama2::core::DataAccessorFile::getDataFileInfoList(const std::s
 
       // TODO: verify if the uncompressed files matches the mask?
       for(const auto& fileI : fileList)
-        pathSet.insert(fileI.absoluteFilePath());
+      {
+        if (matchUncompressedFile(fileI.absoluteFilePath().toStdString()))
+        {
+          pathSet.insert(fileI.absoluteFilePath());
+        }
+      }
     }
     else
     {
@@ -763,6 +843,13 @@ terrama2::core::DataAccessorFile::readFile(DataSetSeries& series,
   std::string completeBaseName = fileInfo.completeBaseName().toStdString();
 
   std::shared_ptr<te::dt::TimeInstantTZ> thisFileTimestamp = getFileTimestamp(mask, timezone, name);
+
+  if (this->dataSeries_->semantics.code == "GEOMETRIC_OBJECT-ogr" && thisFileTimestamp == nullptr)
+  {
+    auto maskToSHP = QString::fromStdString(mask).replace(".zip", ".shp").toStdString();
+
+    thisFileTimestamp = getFileTimestamp(maskToSHP, timezone, name);
+  }
 
   if(needToOpenConfigFile())
   {
@@ -892,6 +979,16 @@ void terrama2::core::DataAccessorFile::applyFilters(const terrama2::core::Filter
                                     const std::shared_ptr<te::mem::DataSet> &completeDataset,
                                     std::shared_ptr<te::dt::TimeInstantTZ> &lastFileTimestamp) const
 {
+
+ //if ((this->dataSeries_->semantics.code == "GEOMETRIC_OBJECT-ogr" && lastFileTimestamp != nullptr) ||
+          //(this->dataSeries_->semantics.code == "Occurrence-generic" && lastFileTimestamp != nullptr))
+  if(lastFileTimestamp != nullptr)
+  {
+    // TODO:
+    lastDateTime_ = lastFileTimestamp;
+    //return;
+  }
+
   filterDataSet(completeDataset, filter);
 
   //Get last data timestamp and compare with file name timestamp

@@ -4,9 +4,7 @@
     "port": 36001
   },
   "webadmin": {
-    "protocol": "http://",
-    "basePath": "/",
-    "port": 36000,
-    "host": "127.0.0.1"
+    "internal_uri": "http://127.0.0.1:36000",
+    "public_uri": "http://127.0.0.1:36000"
   }
 }

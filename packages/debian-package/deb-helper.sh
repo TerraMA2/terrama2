@@ -68,13 +68,14 @@ License: LGPL-3.0
 EOF
 #
 # Create de Control file
+# version option must be number, (never master, develop ..etc)
 #
 cat <<EOF >> ${DEBNAME}/DEBIAN/control
 Package: ${DEBNAME}
 Maintainer: TerraMA2 Team <terrama2-team@dpi.inpe.br>
 Section: misc
 Priority: optional
-Version: 4.1.0-${TMVERSION}
+Version: 4.1.1-${TMVERSION}
 Architecture: ${DEBARC}
 Description: TerraMA2 Help files, version ${TMVERSION}
 EOF

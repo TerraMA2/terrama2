@@ -27,12 +27,17 @@
             "type": "string",
             "title": "Date/Time property"
           },
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "default": "string"
+          },
           "timestamp_mask": {
             "type": "string",
             "title": "Date/Time mask"
           }
         },
-        "required": ["mask", "timezone", "input_timestamp_property", "timestamp_mask"]
+        "required": ["mask", "timezone", "input_timestamp_property", "type", "timestamp_mask"]
       },
       "form": [
         {
@@ -45,7 +50,7 @@
         },
         {
           "key": "timezone",
-          "htmlClass": "col-md-2",
+          "htmlClass": "col-md-6",
           "type": "select",
           "titleMap": [
             {"name": "-12", "value": "-12"},
@@ -77,11 +82,21 @@
         },
         {
           "key": "input_timestamp_property",
-          "htmlClass": "col-md-6"
+          "htmlClass": "col-md-4"
+        },
+        {
+          "key": "type",
+          "htmlClass": "col-md-2",
+          "type": "select",
+          "titleMap": [
+            {"name": "string", "value": "string"},
+            {"name": "date", "value": "date"}
+          ]
         },
         {
           "key": "timestamp_mask",
-          "htmlClass": "col-md-6"
+          "htmlClass": "col-md-6",
+          "condition": "model.type === 'string'"
         }
       ]
     }

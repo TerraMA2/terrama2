@@ -223,6 +223,8 @@ define([], function() {
               return BASE_URL + "images/view/dynamic_data_series/dcp/large_dcp_view.png";
             case "ANALYSIS_MONITORED_OBJECT":
               return BASE_URL + "images/view/analysis/large_analysis_view.png";
+            case "VECTOR_PROCESSING_OBJECT":
+              return BASE_URL + "images/view/analysis/analysis_vector_processing_view.png";
             default:
               return BASE_URL + "images/view/dynamic_data_series/grid/large_grid_view.png";
           }

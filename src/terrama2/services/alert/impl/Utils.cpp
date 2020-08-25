@@ -77,6 +77,7 @@ std::string terrama2::services::alert::core::monitoredObjectReportText()
          "p{font-family:\"Times New Roman\";}"
          "table, th, td {  border-collapse: collapse;}"
          "th, td {padding: 10px;}"
+         "td {text-align:center;}"
          "</style></head>"
          "<body><h1>%TITLE%</h1><p>%DESCRIPTION%</p>"
          "<hr>%COMPLETE_DATA%<hr>"

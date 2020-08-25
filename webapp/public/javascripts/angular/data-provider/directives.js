@@ -266,6 +266,8 @@ define([], function() {
 
             params.protocol = $scope.dataProvider.protocol;
             params.list = true;
+            params.getWithExtension = false;
+            params.extensionFile = '';
             params.pathname = pathToList;
             params.basePath = $scope.basePath;
 
@@ -285,7 +287,6 @@ define([], function() {
                 }
               }
             }
-
             var request = $http({
               method: "POST",
               url: BASE_URL + "uri/",

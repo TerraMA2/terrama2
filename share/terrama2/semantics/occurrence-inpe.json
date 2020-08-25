@@ -39,45 +39,5 @@
         }
       ]
     }
-  },
-  {
-    "name": "Occurrence – INPE lightning program",
-    "code": "OCCURRENCE-lightning",
-    "driver": "OCCURRENCE-lightning",
-    "type": "OCCURRENCE",
-    "temporality": "DYNAMIC",
-    "format": "CSV",
-    "providers_type_list": ["FILE", "FTP", "HTTP", "HTTPS"],
-    "metadata": {
-      "input_timestamp_property": "Horario (GMT)",
-      "input_geometry_property": "position",
-      "latitude_property": "Latitude",
-      "longitude_property": "Longitude",
-      "timezone": "UTM+00",
-      "srid": "4326",
-      "timestamp_property": "horario_gmt",
-      "geometry_property": "geom"
-    },
-    "collector": true,
-    "gui": {
-      "schema": {
-        "properties": {
-          "mask": {
-            "type": "string",
-            "title": "Mask"
-          }
-        },
-        "required": ["mask"]
-      },
-      "form": [
-        {
-          "key": "mask",
-          "htmlClass": "col-md-6 validate-mask",
-          "validationMessage": {
-            "202": "Invalid mask"
-          }
-        }
-      ]
-    }
   }
 ]

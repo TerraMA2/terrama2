@@ -16,6 +16,7 @@ var GetAttributesTableController = function(app) {
 
   // 'http' module
   var memberHttp = require('http');
+  const common = require('./../utils/common');
   // Url template for the GeoServer 'DescribeFeatureType' request
   var memberDescribeFeatureTypeTemplateURL = "/wms?service=WFS&version=1.0.0&request=DescribeFeatureType&outputFormat=application/json&typename={{LAYER_NAME}}";
   // Url template for the GeoServer 'GetFeature' request
@@ -45,7 +46,7 @@ var GetAttributesTableController = function(app) {
    */
   var getValidProperties = function(layer, geoserverUri, callback) {
 
-    memberHttp.get(geoserverUri + memberDescribeFeatureTypeTemplateURL.replace('{{LAYER_NAME}}', layer), function(resp) {
+    common.getHttpHandler(geoserverUri).get(geoserverUri + memberDescribeFeatureTypeTemplateURL.replace('{{LAYER_NAME}}', layer), function(resp) {
 
       var body = '';
       var fields = [];
@@ -95,7 +96,7 @@ var GetAttributesTableController = function(app) {
       var dateField = null;
       var columnsFilter = request.body['columnsFilter[]'];
       var layerType = request.body['layerData[parent]'];
-      
+
       for(var i = 0, fieldsLength = fields.length; i < fieldsLength; i++) {
         properties += fields[i].name + ",";
 
@@ -109,7 +110,7 @@ var GetAttributesTableController = function(app) {
       var order = fields[request.body['order[0][column]']].name + (request.body['order[0][dir]'] === "desc" ? "+D" : "+A");
 
       properties = (properties !== "" ? properties.substring(0, properties.length - 1) : properties);
-      
+
       if(typeof columnsFilter !== 'undefined' && columnsFilter.length > 0){
         properties = "";
         for(var i = 0; i < columnsFilter.length; i++) {
@@ -140,7 +141,7 @@ var GetAttributesTableController = function(app) {
         url += "&cql_filter=(execution_date='" + request.body.analysisTime + "')";
       }
 
-      memberHttp.get(url, function(resp) {
+      common.getHttpHandler(url).get(url, function(resp) {
         var body = '';
         var fields = [];
 
@@ -173,7 +174,7 @@ var GetAttributesTableController = function(app) {
                           temp.push(propertiesObj[key]);
                           break;
                         }
-                      }                      
+                      }
                     } else{
                       temp.push(val.properties[columnFilter]);
                     }
@@ -185,15 +186,15 @@ var GetAttributesTableController = function(app) {
                         temp.push(val.geometry.type);
                       } else{
                         temp.push("");
-                      } 
-                    }                        
+                      }
+                    }
                   }
                 });
               } else{
                 for(var key in val.properties){
                   temp.push(val.properties[key]);
-                } 
-  
+                }
+
                 if(layerType == "static" && val.geometry != null){
                   temp.push(val.geometry.type);
                 }
@@ -208,11 +209,11 @@ var GetAttributesTableController = function(app) {
           }
 
           if(
-            memberCurrentLayer.id !== request.body.layer || 
-            memberCurrentLayer.search !== request.body['search[value]'] || 
-            parseInt(memberCurrentLayer.numberOfFeatures) < parseInt(body.totalFeatures) || 
-            memberCurrentLayer.timeStart !== request.body.timeStart || 
-            memberCurrentLayer.timeEnd !== request.body.timeEnd || 
+            memberCurrentLayer.id !== request.body.layer ||
+            memberCurrentLayer.search !== request.body['search[value]'] ||
+            parseInt(memberCurrentLayer.numberOfFeatures) < parseInt(body.totalFeatures) ||
+            memberCurrentLayer.timeStart !== request.body.timeStart ||
+            memberCurrentLayer.timeEnd !== request.body.timeEnd ||
             memberCurrentLayer.analysisTime !== request.body.analysisTime
           ) {
             memberCurrentLayer.id = request.body.layer;
@@ -243,7 +244,7 @@ var GetAttributesTableController = function(app) {
     Object.keys(object.properties).forEach(function(property){
       if(!filteredByGeoserver.includes(property)){
         return false;
-      } 
+      }
     });
     return true;
   }
@@ -281,19 +282,21 @@ var GetAttributesTableController = function(app) {
    * @inner
    */
   var getLegend = function(request, response) {
-    memberHttp.get(request.query.geoserverUri + memberGetLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer).replace('{{STYLE_NAME}}', request.query.layer+'_style'), function(resp) {
+    const uri = request.query.geoserverUri;
+
+    common.getHttpHandler(uri).get(uri + memberGetLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer).replace('{{STYLE_NAME}}', request.query.layer+'_style'), function(resp) {
       if(resp.headers['content-type'].startsWith('image')) {
         resp.pipe(response, {
           end: true
         });
       } else {
-        memberHttp.get(request.query.geoserverUri + memberGetLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer).replace('{{STYLE_NAME}}', request.query.layer+'_style_legend'), function(resp) {
+        common.getHttpHandler(uri).get(request.query.geoserverUri + memberGetLegendGraphicTemplateURL.replace('{{LAYER_NAME}}', request.query.layer).replace('{{STYLE_NAME}}', request.query.layer+'_style_legend'), function(resp) {
           if(resp.headers['content-type'].startsWith('image')) {
             resp.pipe(response, {
               end: true
             });
           } else {
-            console.error('Error retriving legend.');  
+            console.error('Error retriving legend.');
           }
         }).on("error", function(e) {
           console.error(e.message);

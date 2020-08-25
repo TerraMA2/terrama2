@@ -40,6 +40,7 @@ namespace terrama2
   {
     class TMIMPLEXPORT DataStoragerTable : public DataStorager
     {
+
       public:
         DataStoragerTable(DataSeriesPtr dataSeries, DataProviderPtr outputDataProvider)
                 : DataStorager(dataSeries, outputDataProvider) {}
@@ -63,6 +64,7 @@ namespace terrama2
         std::shared_ptr<te::da::DataSetType> copyDataSetType(std::shared_ptr<te::da::DataSetType> dataSetType, const std::string& newDataSetName) const;
         std::shared_ptr<te::da::DataSet> updateAttributeNames(std::shared_ptr<te::da::DataSet> dataSet, std::shared_ptr<te::da::DataSetType> dataSetType, DataSetPtr dataset) const;
         virtual std::string driver() const = 0;
+        virtual std::string getStorageOption(DataSetPtr dataSet, DataSeriesPtr dataSetSeries) const;
     };
   }
 }

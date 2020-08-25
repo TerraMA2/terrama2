@@ -1,0 +1,843 @@
+
+
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="generator" content="HelpNDoc Standard Edition 6.9.0.577">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="favicon.ico"/>
+
+  <title>Operadores zonais de Grades</title>
+  <meta name="description" content="" /> 
+  <meta name="keywords" content="">
+
+
+
+  
+
+  <!-- Twitter Card data -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Operadores zonais de Grades">
+  <meta name="twitter:description" content="">
+
+  <!-- Open Graph data -->
+  <meta property="og:title" content="Operadores zonais de Grades" />
+  <meta property="og:type" content="article" />
+  <meta property="og:description" content="" />
+  <meta property="og:site_name" content="Manual da plataforma TerraMA2" /> 
+
+  <!-- Bootstrap core CSS -->
+  <link href="vendors/bootstrap-3.4.1/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+  <link href="vendors/bootstrap-3.4.1/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+      <script src="vendors/html5shiv-3.7.3/html5shiv.min.js"></script>
+      <script src="vendors/respond-1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+  <!-- JsTree styles -->
+  <link href="vendors/jstree-3.3.7/themes/default/style.min.css" rel="stylesheet"/>
+
+  <!-- Hnd styles -->
+  <link href="css/layout.min.css" rel="stylesheet" />
+  <link href="css/effects.min.css" rel="stylesheet" />
+  <link href="css/theme-light-blue.min.css" rel="stylesheet" />
+  <link href="css/print.min.css" rel="stylesheet" media="print" />
+  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded div#main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
+
+  <!-- Content style -->
+  <link href="css/hnd.content.css" rel="stylesheet" />
+
+  
+
+
+
+</head>
+
+<body class="md-nav-expanded">
+
+
+
+  <div id="skip-link">
+    <a href="#main-content" class="element-invisible">Skip to main content</a>
+  </div>
+
+  <header class="headroom">
+    <button class="hnd-toggle btn btn-default">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>        
+    </button>
+    <h1>Manual da plataforma TerraMA2</h1>
+    
+  </header>
+
+  <nav class="md-nav-expanded">
+    <!-- Nav tabs -->
+    <ul class="tab-tabs nav nav-tabs" role="tablist">
+      <li id="nav-close"> 
+        <button class="hnd-toggle btn btn-default">
+          <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+        </button>
+      </li>
+      
+	  
+        <li role="presentation" class="tab active">
+            <a href="#contents" id="tab-contents" aria-controls="contents" role="tab" data-toggle="tab">
+                <i class="glyphicon glyphicon-list"></i>
+                Contents
+            </a>
+        </li>
+      
+        <li role="presentation" class="tab">
+            <a href="#index" id="tab-index" aria-controls="index" role="tab" data-toggle="tab">
+                <i class="glyphicon glyphicon-asterisk"></i>
+                Index
+            </a>
+        </li>
+      
+        <li role="presentation" class="tab">
+            <a href="#search" id="tab-search" aria-controls="search" role="tab" data-toggle="tab">
+                <i class="glyphicon glyphicon-search"></i>
+                Search
+            </a>
+        </li>
+      
+    </ul>  <!-- /Nav tabs -->
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+	  
+      <div role="tabpanel" class="tab-pane active" id="contents">
+        <div id="toc" class="tree-container unselectable"
+            data-url="_toc.json"
+            data-openlvl="1"
+        >
+            
+        </div>
+      </div>  <!-- /contents-->
+      
+      <div role="tabpanel" class="tab-pane" id="index">
+        <div id="keywords" class="tree-container unselectable"
+            data-url="_keywords.json"
+            data-openlvl="1"
+        >
+            
+        </div>
+      </div>  <!-- /index-->
+      
+      <div role="tabpanel" class="tab-pane" id="search">
+        <div class="search-content">
+          <div class="search-input">
+            <form id="search-form">
+              <div class="form-group">
+                <div class="input-group">
+                  <input type="text" class="form-control" id="input-search" name="input-search" placeholder="Search..." />
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                      <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </form>
+          </div>  <!-- /search-input -->
+          <div class="search-result">
+            <div id="search-info"></div>
+            <div class="tree-container unselectable" id="search-tree"></div>
+          </div>  <!-- /search-result -->
+        </div>  <!-- /search-content -->
+      </div>  <!-- /search-->
+      
+    </div>  <!-- /Tab panes -->
+
+  </nav>
+
+  <div id="main">
+
+    <article>
+        <div id="topic-content" class="container-fluid" 
+		  data-hnd-id="OperadoreszonaisdeGrades"
+		  data-hnd-context="58"
+		  data-hnd-title="Operadores zonais de Grades"
+		>
+            
+                <div class="navigation">
+                    <ol class="breadcrumb">
+                        <li><a href="administration_module.html">M&oacute;dulo de Administra&ccedil;&atilde;o</a></li><li><a href="Projetos.html">Projetos</a></li><li><a href="Analises.html">An&aacute;lises</a></li><li><a href="Operadores.html">Operadores</a></li><li><a href="OperadoressobreObjetosMonitorado.html">Operadores sobre Objetos Monitorados</a></li>
+                    </ol>
+                    <div class="nav-arrows">
+                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="OperadoressobreObjetosMonitorado.html" title="Operadores sobre Objetos Monitorados" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="OperadoreszonaisdePCDs.html" title="Operadores zonais de PCDs" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="OperadoressobreGrades.html" title="Operadores sobre Grades" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
+                    </div>
+                </div> 
+            
+
+            <a id="main-content"></a>
+
+            <h2>Operadores zonais de Grades</h2>
+
+            <div class="main-content">
+                
+<p></p>
+<h4 class="rvps78"><img width="31" height="32" alt="" style="padding : 1px;" src="lib/NewItem281.png"></h4>
+<p class="rvps11"><span class="rvts19">Operadores zonais de grades são operadores utilizados para obter estatísticas sobre as fontes de dados matriciais. Consideram os valores dos pontos da grade que interceptam todas as geometrias (pontos, linhas ou polígonos) de um mapa (objetos monitorados) ou a área de influência (buffer) dessas geometrias no tempo atual, passado ou futuro.</span></p>
+<p class="rvps11"><span class="rvts19">Tais operadores utilizam dados dinâmicos matriciais que foram coletados de fontes locais ou remotas, sejam dados de observação ou previsão, ou ainda de que foram produzidos por interpolação de PCDs ou uma análise baseada em grades.</span></p>
+<p class="rvps11"><span class="rvts19">A Figura 3.24a ilustra um polígono sobre um dado matricial e quais pontos (ou “</span><span class="rvts55">pixels</span><span class="rvts19">”) da grade serão considerados pelo operador zonal. Note que uma pequena interseção entre a área do “pixel” e a área do objeto fará com que o valor naquele ponto da grade seja considerado, não sendo necessário incluir o centro do mesmo. Para o mesmo polígono, considerando a área do buffer externo (Figura 3.24b), os pontos da grade que serão considerados são outros.</span></p>
+<p class="rvps11"><span class="rvts19">Os dados matriciais podem representar </span><span class="rvts22">medidas </span><span class="rvts19">do meio ambiente de um parâmetro, precipitação (chuva) por exemplo, que está sendo observado e neste caso são chamados de dados observacionais. Os operadores que trabalham sobre estes dados lidam com os valores atuais (ou mais recente) e seu </span><span class="rvts22">histórico </span><span class="rvts19">imediato. A Figura 3.25 mostra um conjunto de dados obtidos em diferentes horários até o mais recente, que são sobrepostos ao limite de um objeto que está sendo monitorado. Estes operadores estão identificados em grupos como “</span><span class="rvts22">Zonal Histórico</span><span class="rvts19">&nbsp;&lt;sub_tipo&gt;”. &nbsp;Normalmente cada dado (grade) está armazenado em um arquivo com data/hora em que foram coletadas as medidas.</span></p>
+<p class="rvps11"><span class="rvts19"><br/></span></p>
+<p class="rvps33"><img width="638" height="342" alt="" style="padding : 1px;" src="lib/NewItem280.png"></p>
+<p class="rvps30"><span class="rvts20">Figura 3.24 – </span><span class="rvts21">(a) Exemplo dos pontos de uma grade recuperados por um operador zonal que utiliza um polígono (b) Pontos de uma grade recuperados utilizando o buffer externo desse polígono.</span></p>
+<p class="rvps30"><span class="rvts63"><br/></span></p>
+<p class="rvps167"><img width="454" height="345" alt="" style="padding : 1px;" src="lib/NewItem279.png"></p>
+<p class="rvps30"><span class="rvts20">Figura 3.25 </span><span class="rvts21">– Dados históricos de observação sobrepostos ao objeto sob monitoramento. </span></p>
+<p class="rvps11"><span class="rvts19">De outra maneira, dados matriciais podem representar </span><span class="rvts22">estimativas </span><span class="rvts19">do meio ambiente de um parâmetro, precipitação (chuva) por exemplo, que está sendo estimada por meio de modelos matemáticos e neste caso são chamados de dados de </span><span class="rvts22">previsão</span><span class="rvts19">. Os operadores que trabalham sobre estes dados lidam com os valores atuais (ou mais recente) e seu </span><span class="rvts22">futuro </span><span class="rvts19">imediato. A Figura 3.26 mostra um conjunto de dados estimados para diferentes horários, da camada mais atual até um futuro mais recente, que são sobrepostos ao limite de um objeto que está sendo monitorado. Estes operadores estão identificados em grupos como “</span><span class="rvts22">Zonal de Previsão</span><span class="rvts19">&nbsp;&lt;sub_tipo&gt;”. Normalmente os diferentes horários de previsão (camadas) estão armazenados em um único arquivo com data/hora de referência de quando foi executado o modelo e qual é o intervalo de tempo entre cada camada.</span></p>
+<p class="rvps167"><img width="447" height="334" alt="" style="padding : 1px;" src="lib/NewItem278.png"></p>
+<p class="rvps30"><span class="rvts20">Figura 3.26 </span><span class="rvts21">– Dados históricos de observação sobrepostos ao objeto sob monitoramento.</span></p>
+<p class="rvps11"><span class="rvts19">Estes operadores zonais de grade são divididos em oito grupos: </span><a class="rvts45" href="OperadoreszonaisdeGrades.html#_Toc41218059">Zonal</a><span class="rvts19">, </span><a class="rvts45" href="OperadoreszonaisdeGrades.html#_Toc41218060">Zonal Histórico</a><span class="rvts22">, </span><a class="rvts45" href="OperadoreszonaisdeGrades.html#_Toc41218061">Zonal Histórico de Precipitação</a><span class="rvts22">, </span><a class="rvts45" href="OperadoreszonaisdeGrades.html#_Toc41218062">Zonal Histórico Acumulado</a><span class="rvts22">, </span><a class="rvts45" href="OperadoreszonaisdeGrades.html#_Toc41218063">Zonal Histórico por Intervalo</a><span class="rvts22">, </span><a class="rvts45" href="OperadoreszonaisdeGrades.html#_Toc41218064">Zonal de Previsão</a><span class="rvts22">, </span><a class="rvts45" href="OperadoreszonaisdeGrades.html#_Toc41218065">Zonal de Previsão Acumulado</a><span class="rvts19">&nbsp;e </span><a class="rvts45" href="OperadoreszonaisdeGrades.html#_Toc41218066">Zonal de Previsão por Intervalo</a><span class="rvts19">. A descrição de cada tipo a seguir.</span></p>
+<p class="rvps11"><span class="rvts19"><br/></span></p>
+<hr style="height: 1px; color : #000000;  background-color : #000000; border-width : 0px;">
+<h6 class="rvps133"><a name="_Toc41218059"></a><span class="rvts0"><span class="rvts91"><br/></span></span></h6>
+<h6 class="rvps133"><span class="rvts0"><span class="rvts91">1- Zonal</span></span></h6>
+<p class="rvps11"><span class="rvts19">Grupo de operadores que consideram somente o último dado dinâmico matricial (ou mais atual) que intercepta o objeto monitorado ou sua área de influência (buffer).</span></p>
+<p class="rvps137"><span class="rvts44">SINTAXE GERAL:</span></p>
+<p class="rvps152"><span class="rvts19">grid.zonal.&lt;operator&gt;(“&lt;dynamic_data_grid&gt;”, &lt;value&gt;, &lt;begin&gt;, &lt;end&gt;, [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps165"><span class="rvts19">onde: </span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside;">
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">operator</span><span class="rvts19">: count, count_by_value, count_by_range, sum, mean, min, max, median, standard_deviation, variance; </span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">dynamic_data_grid</span><span class="rvts19">: String com o nome da série de dados matriciais de observação.</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">value</span><span class="rvts19">: Valor a ser contado. Utilizado por exemplo para contar classes de um mapa temático matricial (matriz de números inteiros). Utilizado somente para operador “count_by_value”.</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">begin, end</span><span class="rvts19">: Valor inicial e final do intervalo utilizado para contar “pixels”. Utilizado por exemplo para contar pixels dentro de um intervalo de um dado matricial (matriz de reais). Utilizado somente para operador “count_by_range”.</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">band</span><span class="rvts19">: [Opcional] Banda da grade ser utilizada. Parâmetro obrigatório somente se o parâmetro seguinte (buffer) for utilizado. Se não informado será considerado a primeira banda (0).</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">buffer</span><span class="rvts19">: [Opcional] Buffer para ser aplicado ao objeto monitorado. Parâmetro não obrigatório. Ver utilitário Buffer.</span></li>
+</ul>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<p class="rvps11"><span class="rvts19">Segue a descrição de cada operador.</span></p>
+<p class="rvps149"><span class="rvts36">Zonal: </span><span class="rvts54">Contagem</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a quantidade de “pixels” da última matriz (</span><span class="rvts100">ou mais atual) que interceptam o objeto monitorado ou sua área de influência (buffer).</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.count("&lt;dynamic_data_grid&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">buf1 = Buffer() </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.count("hidro", 0, buf1)</span></p>
+<p class="rvps147"><span class="rvts6"><br/></span></p>
+<p class="rvps149"><span class="rvts36">Zonal: </span><span class="rvts54">Contagem por Valor</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a quantidade de “pixels” de um determinado valor da última matriz (ou mais atual) que interceptam o objeto monitorado ou sua área de influência (buffer).</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.count_by_value("&lt;dynamic_data_grid&gt;", &lt;value&gt;, [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps147"><span class="rvts6"><br/></span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts98"># conta valores 5 da primeira camada do dado matricial sobre o buffer do objeto</span></p>
+<p class="rvps140"><span class="rvts6">buf1 = Buffer(BufferType.Level, 400, "m", 200, "m")</span></p>
+<p class="rvps140"><span class="rvts6">x = grid.zonal.count_by_value("uso_solo", 5, 0, buf1) </span></p>
+<p class="rvps140"><span class="rvts98"><br/></span></p>
+<p class="rvps140"><span class="rvts98"># conta valores 3 da segunda camada do dado matricial sem buffer do objeto</span></p>
+<p class="rvps140"><span class="rvts6">x = grid.zonal.count_by_value("uso_solo", 3, 1) </span></p>
+<p class="rvps140"><span class="rvts98"><br/></span></p>
+<p class="rvps140"><span class="rvts98"># conta valores 12 da primeira camada do dado matricial sem buffer do objeto</span></p>
+<p class="rvps140"><span class="rvts6">buf1 = Buffer()</span></p>
+<p class="rvps140"><span class="rvts6">x = grid.zonal.count_by_value("uso_solo", 12, 0, buf1) </span></p>
+<p class="rvps140"><span class="rvts98"># ou</span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.count_by_value("uso_solo", 12)</span></p>
+<p class="rvps147"><span class="rvts6"><br/></span></p>
+<p class="rvps149"><span class="rvts36">Zonal: </span><span class="rvts54">Contagem por intervalo</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a quantidade de “pixels” dentro de um determinado intervalo de valores da última matriz (ou mais atual) que interceptam o objeto monitorado ou sua área de influência (buffer).</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.count_by_range("&lt;dynamic_data_grid&gt;", </span><span class="rvts19">&lt;begin&gt;, &lt;end&gt;</span><span class="rvts41">, [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps147"><span class="rvts6"><br/></span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts98"># conta valores entre 10.5 &nbsp;e 35 da primeira camada do dado matricial sobre o buffer do objeto</span></p>
+<p class="rvps140"><span class="rvts6">buf1 = Buffer(BufferType.Level, 400, "m", 200, "m")</span></p>
+<p class="rvps140"><span class="rvts6">x = grid.zonal.count_by_range("prec", 10.5, 35, 0, buf1) </span></p>
+<p class="rvps140"><span class="rvts98"><br/></span></p>
+<p class="rvps140"><span class="rvts98"># conta valores entre 200 e 1200 da primeira camada do dado matricial sem buffer do objeto</span></p>
+<p class="rvps140"><span class="rvts6">buf1 = Buffer()</span></p>
+<p class="rvps140"><span class="rvts6">x = grid.zonal.count_by_value("prec", 200, 1200, 0, buf1) </span></p>
+<p class="rvps140"><span class="rvts98"># ou</span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.count_by_value("prec", 200, 1200)</span></p>
+<p class="rvps147"><span class="rvts6"><br/></span></p>
+<p class="rvps149"><span class="rvts36">Zonal: </span><span class="rvts54">Soma</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a soma dos valores dentre os “pixels” da última matriz (ou mais atual) que interceptam o objeto monitorado ou sua área de influência (buffer).</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.sum("&lt;dynamic_data_grid&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">x = grid.zonal.sum("hidro", 0)</span></p>
+<p class="rvps140"><span class="rvts6"># &nbsp; ou</span></p>
+<p class="rvps140"><span class="rvts6">x = grid.zonal.sum("hidro")</span></p>
+<p class="rvps139"><span class="rvts6"><br/></span></p>
+<p class="rvps149"><span class="rvts36">Zonal: </span><span class="rvts54">Média</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a média dos valores dentre os “pixels” da última matriz (ou mais atual) que interceptam o objeto monitorado ou sua área de influência (buffer).</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.mean("&lt;dynamic_data_grid&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Level, &nbsp;10, "km", 5, "km")</span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.mean("hidro", 0, b1) </span></p>
+<p class="rvps147"><span class="rvts6"><br/></span></p>
+<p class="rvps149"><span class="rvts36">Zonal: </span><span class="rvts54">Mínimo</span></p>
+<p class="rvps11"><span class="rvts100">Retorna o menor valor dentre os “pixels” da última matriz &nbsp;(ou mais atual) que interceptam o objeto monitorado ou sua área de inf</span><span class="rvts19">luência (buffer).</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.min("&lt;dynamic_data_grid&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out_union, 2, "km") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.min("hidro", 0, b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal: </span><span class="rvts54">Máximo</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o maior valor dentre os “pixels” da última matriz (ou mais atual) que interceptam o objeto monitorado ou sua área de influência (buffer).</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.max("&lt;dynamic_data_grid&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 400, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.max("hidro", 0, b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal: </span><span class="rvts54">Mediana</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a mediana dos valores dentre os “pixels” da última matriz (ou mais atual) que interceptam o objeto monitorado ou sua área de influência (buffer).</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.median("&lt;dynamic_data_grid&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 800, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.median("radar", 0, b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal: </span><span class="rvts54">Desvio Padrão</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o desvio padrão dos valores dentre os “pixels” da última matriz (ou mais atual) que interceptam o objeto monitorado ou sua área de influência (buffer).</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.standard_deviation("&lt;dynamic_data_grid&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 800, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.standard_deviation("radar", 0, b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal: </span><span class="rvts54">Variância</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a variância dos valores dentre os “pixels” da última matriz (ou mais atual) que interceptam o objeto monitorado ou sua área de influência (buffer).</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.variance("&lt;dynamic_data_grid&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.In_diff, 800, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.variance("grade_chuva", 0, b1) </span></p>
+<p class="rvps147"><span class="rvts6"><br/></span></p>
+<hr style="height: 1px; color : #000000;  background-color : #000000; border-width : 0px;">
+<h6 class="rvps133"><a name="_Toc41218060"></a><span class="rvts0"><span class="rvts91"><br/></span></span></h6>
+<h6 class="rvps133"><span class="rvts0"><span class="rvts91">2- Zonal Histórico</span></span></h6>
+<p class="rvps11"><span class="rvts19">Grupo de operadores que consideram os últimos dados dinâmicos matriciais que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">SINTAXE GERAL:</span></p>
+<p class="rvps152"><span class="rvts19">grid.zonal.history.&lt;operator&gt;("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", </span><span class="rvts41">[&lt;band&gt;], [&lt;buffer&gt;]</span><span class="rvts19">)</span><span class="rvts96">&nbsp;</span><span class="rvts41">&nbsp;</span></p>
+<p class="rvps153"><span class="rvts19">onde: </span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside;">
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">operator</span><span class="rvts19">: num, list, sum, mean, min, max, median, standard_deviation, variance;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">dynamic_data_grid</span><span class="rvts19">: String com o nome da série de dados matriciais de observação;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">time</span><span class="rvts19">: String com o intervalo de tempo, a partir da hora atual, para filtrar as grades. Este intervalo será aberto (&lt; x) no valor informado e fechado ( = ) na hora atual. Ver utilitário unidades de tempo;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">band</span><span class="rvts19">: [Opcional] Banda da grade ser utilizada. Parâmetro obrigatório somente se o parâmetro seguinte (buffer) for utilizado. Se não informado será considerado a primeira banda (0). Não utilizar com operador “num e list”;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">buffer</span><span class="rvts19">: [Opcional] Buffer para ser aplicado ao objeto monitorado. Parâmetro não obrigatório. Ver utilitário Buffer.</span></li>
+</ul>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<p class="rvps11"><span class="rvts19">Segue a descrição de cada operador.</span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico: </span><span class="rvts54">Número</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o número de matrizes que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado</span><span class="rvts54">.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.num("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">buf1 = Buffer() </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.num("hidro", "12h", buf1)</span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico: </span><span class="rvts54">Lista</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a lista com data/hora das matrizes que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado</span><span class="rvts54">.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.list("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">buf1 = Buffer() </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.list("hidro", "12h", buf1)</span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico: </span><span class="rvts54">Soma</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a soma dos valores dentre os pixels de todas as matrizes que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.sum("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">x = grid.zonal.history.sum("hidro", "12h", 0) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico: </span><span class="rvts54">Média</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a média dos valores dentre os pixels de todas as matrizes que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.mean("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Level, &nbsp;10, "km", 5, "km") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.mean("hidro", "12h", 0, b1)</span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico: </span><span class="rvts54">Mínimo</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o menor valor dentre os pixels de todas as matrizes que interceptam o o</span><span class="rvts100">bjeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps150"><span class="rvts41">grid.zonal.history.min("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps164"><span class="rvts41"><br/></span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out_union, 2, "km") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.min("hidro", "12h", 0, b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico: </span><span class="rvts54">Máximo</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o maior valor dentre os pixels de todas as matrizes que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.max("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 400, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.max("hidro", "12h", 0, b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico: </span><span class="rvts54">Mediana</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a mediana dos valores dentre os pixels de todas as matrizes que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.median("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 800, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.median("radar", "12h", 0, b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico: </span><span class="rvts54">Desvio Padrão</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o desvio padrão dos valores dentre os pixels de todas as matrizes que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.standard_deviation("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 800, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.standard_deviation("radar", "12h", 0, b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico: </span><span class="rvts54">Variância</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a variância dos valores dentre os pixels de todas as matrizes que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps161"><span class="rvts41">grid.zonal.history.variance("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.In_diff, 800, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.variance("grade_chuva", "12h", 0, b1) </span></p>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<hr style="height: 1px; color : #000000;  background-color : #000000; border-width : 0px;">
+<h6 class="rvps133"><a name="_Toc41218061"></a><span class="rvts0"><span class="rvts91"><br/></span></span></h6>
+<h6 class="rvps133"><span class="rvts0"><span class="rvts91">3- </span></span><span class="rvts0"><span class="rvts103">Zonal Histórico de Precipitação</span></span></h6>
+<p class="rvps11"><span class="rvts19">Grupo de operadores que consideram os últimos dados dinâmicos matriciais (em mm/h de precipitação) que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">SINTAXE GERAL:</span></p>
+<p class="rvps152"><span class="rvts19">grid.zonal.history.prec.&lt;operator&gt;("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", &lt;band&gt;, &lt;buffer&gt;)</span><span class="rvts96">&nbsp;</span><span class="rvts41">&nbsp;</span><span class="rvts19">&nbsp;</span></p>
+<p class="rvps153"><span class="rvts19">onde: </span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside;">
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">operator</span><span class="rvts19">:</span><span class="rvts22">&nbsp;</span><span class="rvts19">sum, mean, median, min, max, standard_deviation, variance;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">dynamic_data_grid</span><span class="rvts19">: String com o nome da série de dados matriciais de observação.</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">time</span><span class="rvts19">: String com o intervalo de tempo, a partir da hora atual, para filtrar as grades. Este intervalo será aberto (&lt; x) no valor informado e fechado ( = ) na hora atual. Ver utilitário unidades de tempo;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">band</span><span class="rvts19">: [Opcional] Banda da grade ser utilizada. Parâmetro obrigatório somente se o parâmetro seguinte (buffer) for utilizado. Se não informado será considerado a primeira banda (0). </span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">buffer</span><span class="rvts19">: [Opcional] Buffer para ser aplicado ao objeto monitorado. Parâmetro não obrigatório. Ver utilitário Buffer.</span></li>
+</ul>
+<p class="rvps11"><span class="rvts19">Segue a descrição de cada operador.</span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico de Precipitação: </span><span class="rvts54">Soma</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a soma dos valores dos últimos dados dinâmicos matriciais (em </span><span class="rvts22">mm/h de precipitação</span><span class="rvts19">) que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.prec.sum("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">x = grid.zonal.history.prec.sum("hidro", "12h") </span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico de Precipitação: </span><span class="rvts54">Média</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a média dos valores dos últimos dados dinâmicos matriciais (em </span><span class="rvts22">mm/h de precipitação</span><span class="rvts100">) que interceptam o objeto monitorado ou sua área de </span><span class="rvts19">influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.prec.mean("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Level, &nbsp;10, "km", 5, "km")</span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.prec.mean("hidro", "12h", 0, b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico de Precipitação: </span><span class="rvts54">Mínimo</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o menor valor dos últimos dados dinâmicos matriciais (em </span><span class="rvts22">mm/h de precipitação</span><span class="rvts19">) que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.prec.min("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out_union, 2, "km") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.prec.min("hidro", "12h", 0, b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico de Precipitação: </span><span class="rvts54">Máximo</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o maior valor dos últimos dados dinâmicos matriciais (em </span><span class="rvts22">mm/h de precipitação</span><span class="rvts19">) que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.prec.max("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 400, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.prec.max("hidro", "12h", 0, b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico de Precipitação: </span><span class="rvts54">Mediana</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a mediana dos valores dos últimos dados dinâmicos matriciais (em </span><span class="rvts22">mm/h de precipitação</span><span class="rvts19">) que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.prec.median("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 800, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.prec.median("radar", "12h", 0, b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico de Precipitação: </span><span class="rvts54">Desvio Padrão</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o desvio padrão dos valores dos últimos dados dinâmicos matriciais (em </span><span class="rvts22">mm/h de precipitação</span><span class="rvts19">) que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.prec.standard_deviation("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 800, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.prec.standard_deviation("radar", "12h", 0, b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico de Precipitação: </span><span class="rvts54">Variância</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a variância dos valores dos últimos dados dinâmicos matriciais (em </span><span class="rvts22">mm/h de precipitação</span><span class="rvts19">) que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.prec.variance("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.In_diff, 800, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.prec.variance("grade_chuva", "12h", 0, b1) </span></p>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<hr style="height: 1px; color : #000000;  background-color : #000000; border-width : 0px;">
+<h6 class="rvps133"><a name="_Toc41218062"></a><span class="rvts0"><span class="rvts91"><br/></span></span></h6>
+<h6 class="rvps133"><span class="rvts0"><span class="rvts91">4- </span></span><span class="rvts0"><span class="rvts103">Zonal Histórico Acumulado</span></span></h6>
+<p class="rvps11"><span class="rvts19">Grupo de operadores que consideram valores acumulados dos últimos dados dinâmicos matriciais que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado. Primeiro é realizada a operação de soma dos pontos da matriz no intervalo de tempo para depois realizar a operação zonal.</span></p>
+<p class="rvps137"><span class="rvts44">SINTAXE GERAL:</span></p>
+<p class="rvps152"><span class="rvts19">grid.zonal.history.accum.&lt;operator&gt;("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", &lt;band&gt;, &lt;buffer&gt;) </span></p>
+<p class="rvps153"><span class="rvts19">onde: </span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside;">
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">operator</span><span class="rvts19">:</span><span class="rvts22">&nbsp;</span><span class="rvts19">sum, mean, min, max, median, standard_deviation, variance;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">dynamic_data_grid</span><span class="rvts19">: String com o nome da série de dados matriciais de observação;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">time</span><span class="rvts19">: String com o intervalo de tempo, a partir da hora atual, para filtrar as grades. Este intervalo será aberto (&lt; x) no valor informado e fechado ( = ) na hora atual. Ver utilitário unidades de tempo;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">band</span><span class="rvts19">: [Opcional] Banda da grade ser utilizada. Parâmetro obrigatório somente se o parâmetro seguinte (buffer) for utilizado. Se não informado será considerado a primeira banda (0). </span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">buffer</span><span class="rvts19">: [Opcional] Buffer para ser aplicado ao objeto monitorado. Parâmetro não obrigatório. Ver utilitário Buffer.</span></li>
+</ul>
+<p class="rvps11"><span class="rvts19">Segue a descrição de cada operador.</span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico Acumulado: </span><span class="rvts54">Soma</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a </span><span class="rvts22">soma da soma acumulada </span><span class="rvts19">dos últimos dados dinâmicos matriciais que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.accum.sum("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">x = grid.zonal.history.accum.sum("hidro", "12h") </span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico Acumulado: </span><span class="rvts54">Média</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a </span><span class="rvts22">média da soma acumulada </span><span class="rvts19">dos últimos dados dinâmicos matriciais que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.accum.mean("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Level, &nbsp;10, "km", 5, "km")</span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.accum.mean("hidro", "12h", 0, b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico Acumulado: </span><span class="rvts54">Mínimo</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a </span><span class="rvts22">menor soma acumulada </span><span class="rvts19">dos últimos dados dinâmicos matriciais que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.accum.min("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out_union, 2, "km") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.accum.min("hidro", "12h", 0, b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico Acumulado: </span><span class="rvts54">Máximo</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a </span><span class="rvts22">maior soma acumulada </span><span class="rvts19">dos últimos dados dinâmicos matriciais que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.accum.max("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 400, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.accum.max("hidro", "12h", 0, b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico Acumulado: </span><span class="rvts54">Mediana</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a </span><span class="rvts22">mediana da soma acumulada </span><span class="rvts19">dos últimos dados dinâmicos matriciais que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.accum.median("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 800, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.accum.median("radar", "12h", 0, b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico Acumulado: </span><span class="rvts54">Desvio Padrão</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o </span><span class="rvts22">desvio padrão da soma acumulada </span><span class="rvts19">dos últimos dados dinâmicos matriciais que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.accum.standard_deviation("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 800, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.accum.standard_deviation("radar", "12h", 0, b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico Acumulado: </span><span class="rvts54">Variância</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a </span><span class="rvts22">variância da soma acumulada </span><span class="rvts19">dos últimos dados dinâmicos matriciais que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.accum.variance("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.In_diff, 800, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.accum.variance("grade_chuva", "12h", 0, b1) </span></p>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<hr style="height: 1px; color : #000000;  background-color : #000000; border-width : 0px;">
+<h6 class="rvps133"><a name="_Toc41218063"></a><span class="rvts0"><span class="rvts91"><br/></span></span></h6>
+<h6 class="rvps133"><span class="rvts0"><span class="rvts91">5- </span></span><span class="rvts0"><span class="rvts103">Zonal Histórico por Intervalo</span></span></h6>
+<p class="rvps11"><span class="rvts19">Grupo de operadores que consideram intervalo de tempo de valores dos últimos dados dinâmicos matriciais que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo inicial e final informado no passado em função da data/hora atual</span><span class="rvts54">.</span><span class="rvts19">&nbsp;</span></p>
+<p class="rvps137"><span class="rvts44">SINTAXE GERAL:</span></p>
+<p class="rvps152"><span class="rvts19">grid.zonal.history.interval.&lt;operator&gt;("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", &lt;band&gt;, &lt;buffer&gt;)</span></p>
+<p class="rvps153"><span class="rvts19">onde: </span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside;">
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">operator</span><span class="rvts19">:</span><span class="rvts22">&nbsp;</span><span class="rvts19">num, list, sum, mean, min, max, median, standard_deviation, variance;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">dynamic_data_grid</span><span class="rvts19">: String com o nome da série de dados matriciais;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">time_begin </span><span class="rvts19">: String inicial (mais antigo) do intervalo de tempo para filtrar as grades. Este valor será aberto (&lt; tempo mais antigo) no tempo informado;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">time_end</span><span class="rvts19">: String final (mais recente) do intervalo de tempo para filtrar as grades. Este valor será fechado ( &lt;= tempo mais recente) no tempo informado;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">band</span><span class="rvts19">: [Opcional] Banda da grade ser utilizada. Parâmetro obrigatório somente se o parâmetro seguinte (buffer) for utilizado. Se não informado será considerado a primeira banda (0);</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">buffer</span><span class="rvts19">: [Opcional] Buffer para ser aplicado ao objeto monitorado. Parâmetro não obrigatório. Ver utilitário Buffer.</span></li>
+</ul>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<p class="rvps11"><span class="rvts19">Segue a descrição de cada operador.</span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico por Intervalo: </span><span class="rvts54">Número</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o número de matrizes no intervalo de tempo que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo inicial e final informado no passado em função da data/hora atual</span><span class="rvts54">.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.interval.num("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">buf1 = Buffer() </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.interval.num("hidro", "12h", "2h", buf1)</span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico por Intervalo: </span><span class="rvts54">Lista</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a lista com data/hora das matrizes no intervalo de tempo que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo inicial e final informado no passado em função da data/hora atual</span><span class="rvts54">.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.interval.list("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">buf1 = Buffer() </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.interval.list("hidro", "12h", "2h", buf1)</span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico por Intervalo: </span><span class="rvts54">Soma</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a soma dos valores dentre os pixels, no intervalo de tempo, das matrizes que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo inicial e final informado no passado em função da data/hora atual.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.interval.sum("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">x = grid.zonal.history.interval.sum("hidro", "12h", "2h", 0) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico por Intervalo: </span><span class="rvts54">Média</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a média dos valores dentre os pixels, no intervalo de tempo, das matrizes que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo inicial e final informado no passado em função da data/hora atual.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.interval.mean("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Level, &nbsp;10, "km", 5, "km") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.interval.mean("hidro", "12h", "2h", 0, b1)</span></p>
+<p class="rvps147"><span class="rvts102"><br/></span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico por Intervalo: </span><span class="rvts54">Mínimo</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o menor valor dentre os pixels, no intervalo de tempo, das matrizes que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo inicial e final informado no passado em função da data/hora atual.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.interval.min("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out_union, 2, "km") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.interval.min("hidro", "12h", "2h", 0, b1) </span></p>
+<p class="rvps147"><span class="rvts6"><br/></span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico por Intervalo: </span><span class="rvts54">Máximo</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o maior valor dentre os pixels, no intervalo de tempo, das matrizes que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo inicial e final informado no passado em função da data/hora atual.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.interval.max("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 400, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.interval.min("hidro", "12h", "2h", 0, b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico por Intervalo: </span><span class="rvts54">Mediana</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a mediana dos valores dentre os pixels, no intervalo de tempo, das matrizes que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo inicial e final informado no passado em função da data/hora atual.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.interval.median("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 800, "m")</span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.interval.median("radar", "12h", "2h", 0, b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico por Intervalo: </span><span class="rvts54">Desvio Padrão</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o desvio padrão dos valores dentre os pixels, no intervalo de tempo, das matrizes que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo inicial e final informado no passado em função da data/hora atual.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.interval.standard_deviation("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 800, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.interval.standard_deviation("radar", "12h", "2h", 0, b1)</span></p>
+<p class="rvps149"><span class="rvts36">Zonal Histórico por Intervalo: </span><span class="rvts54">Variância</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a variância dos valores dentre os pixels, no intervalo de tempo, das matrizes que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo inicial e final informado no passado em função da data/hora atual.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.history.interval.variance("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", [&lt;band&gt;], [&lt;buffer&gt;])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.In_diff, 800, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.history.interval.variance("grade_chuva", "12h", "2h", 0, b1)</span></p>
+<p class="rvps147"><span class="rvts6"><br/></span></p>
+<hr style="height: 1px; color : #000000;  background-color : #000000; border-width : 0px;">
+<h6 class="rvps133"><a name="_Toc41218064"></a><span class="rvts0"><span class="rvts91"><br/></span></span></h6>
+<h6 class="rvps133"><span class="rvts0"><span class="rvts91">6- </span></span><span class="rvts0"><span class="rvts103">Zonal de Previsão</span></span></h6>
+<p class="rvps11"><span class="rvts19">Grupo de operadores que consideram as próximas camadas de dados dinâmicos matriciais de previsão que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps137"><span class="rvts44">SINTAXE GERAL:</span></p>
+<p class="rvps152"><span class="rvts19">grid.zonal.forecast.&lt;operator&gt;("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;buffer&gt;])</span><span class="rvts41">&nbsp;</span><span class="rvts19">&nbsp; &nbsp;</span></p>
+<p class="rvps153"><span class="rvts19">onde: </span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside;">
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">operator</span><span class="rvts19">:</span><span class="rvts22">&nbsp;</span><span class="rvts19">num, list, sum, mean, min, max, median, standard_deviation, variance;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">dynamic_data_grid</span><span class="rvts19">: String com o nome da série de dados matriciais de previsão;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">time</span><span class="rvts19">: String com o intervalo de tempo, a partir da hora atual para o futuro, para filtrar as camadas de previsão. Ver utilitário &nbsp;Unidades de tempo;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">buffer</span><span class="rvts19">: [Opcional] Objeto Buffer para ser aplicado ao objeto monitorado. Ver utilitário Buffer. Não obrigatório. Não utilizar com operador “num e list”.</span></li>
+</ul>
+<p class="rvps11"><span class="rvts19">Segue a descrição de cada operador.</span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão: </span><span class="rvts54">Número</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o número de camadas de previsão que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro</span><span class="rvts54">.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps154"><span class="rvts41">grid.zonal.forecast.num("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer()</span></p>
+<p class="rvps168"><span class="rvts6"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">x = grid.zonal.forecast.num(“Eta15km", “12h”, b1)</span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão: </span><span class="rvts54">Lista</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a lista com data/hora das camadas de previsão que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro</span><span class="rvts54">.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps169"><span class="rvts41">grid.zonal.forecast.list("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts104"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer()</span></p>
+<p class="rvps168"><span class="rvts105"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">x = grid.zonal.forecast.list("Eta15km", "12h", b1)</span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão: </span><span class="rvts54">Soma</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a soma dos valores dentre os pixels das camadas de previsão que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.forecast.sum("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">x = grid.zonal.forecast.sum("Eta15km", "12h") </span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão: </span><span class="rvts54">Média</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a média dos valores dentre os pixels das camadas de previsão que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps11"><span class="rvts19"><br/></span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps169"><span class="rvts41">grid.zonal.forecast.median("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Level, &nbsp;10, "km", 5, "km") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.forecast.mean("Eta15km", "12h", b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão: </span><span class="rvts54">Mínimo</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o menor valor dentre os pixels das camadas de previsão que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.forecast.min("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out_union, 2, "km") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.forecast.min("Eta15km", "12h", b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão: </span><span class="rvts54">Máximo</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o maior valor dentre os pixels das camadas de previsão que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.forecast.max("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 400, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.forecast.max("Eta15km", "12h", b1) </span></p>
+<p class="rvps139"><span class="rvts102"><br/></span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão: </span><span class="rvts54">Mediana</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a mediana dos valores dentre os pixels das camadas de previsão que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.forecast.median("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 800, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.forecast.median("Eta15km", "12h", b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão: </span><span class="rvts54">Desvio Padrão</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o desvio padrão dos valores dentre os pixels das camadas de previsão que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.forecast.standard_deviation("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 800, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.forecast.standard_deviation("Eta15km", "12h", b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão: </span><span class="rvts54">Variância</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a variância dos valores dentre os pixels das camadas de previsão que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.forecast.variance("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.In_diff, 800, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.forecast.variance("Eta15km", "12h", b1) </span></p>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<hr style="height: 1px; color : #000000;  background-color : #000000; border-width : 0px;">
+<h6 class="rvps133"><a name="_Toc41218065"></a><span class="rvts0"><span class="rvts91"><br/></span></span></h6>
+<h6 class="rvps133"><span class="rvts0"><span class="rvts91">7- </span></span><span class="rvts0"><span class="rvts103">Zonal de Previsão Acumulado</span></span></h6>
+<p class="rvps11"><span class="rvts19">Grupo de operadores que consideram as próximas camadas de dados dinâmicos matriciais de previsão acumulado que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro. Primeiro é realizada a operação de soma dos pontos da matriz no intervalo de tempo para depois realizar a operação zonal.</span></p>
+<p class="rvps137"><span class="rvts44">SINTAXE GERAL:</span></p>
+<p class="rvps152"><span class="rvts19">grid.zonal.forecast.accum.&lt;operator&gt;("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", [&lt;buffer&gt;])</span></p>
+<p class="rvps153"><span class="rvts19">onde: </span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside;">
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">operator</span><span class="rvts19">&nbsp;:</span><span class="rvts22">&nbsp;</span><span class="rvts19">count, sum, mean, min, max, median, standard_deviation, variance;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">dynamic_data_grid</span><span class="rvts19">&nbsp;: String com o nome da série de dados matriciais de previsão;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">time </span><span class="rvts19">: String com o intervalo de tempo, a partir da hora atual para o futuro, para filtrar as camadas de previsão. Ver utilitário &nbsp;Unidades de tempo;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">buffer</span><span class="rvts19">&nbsp;: [Opcional] Objeto Buffer para ser aplicado ao objeto monitorado. Ver utilitário Buffer. Não obrigatório.</span></li>
+</ul>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<p class="rvps11"><span class="rvts19">Segue a descrição de cada operador.</span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão Acumulado: </span><span class="rvts54">Contagem</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a quantidade de “pixels” das camadas de previsão acumulado que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.forecast.accum.count("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out_union, 2, "km") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.forecast.accum.count("Eta20km", "12h", b1) </span></p>
+<p class="rvps147"><span class="rvts6"><br/></span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão Acumulado: </span><span class="rvts54">Soma</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a soma dos valores dentre os pixels das camadas de previsão acumulado que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.forecast.accum.sum("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">x = grid.zonal.forecast.accum.sum("Eta20km", "12h") </span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão Acumulado: </span><span class="rvts54">Média</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a média dos valores dentre os pixels das camadas de previsão acumulado que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.forecast.accum.mean("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Level, &nbsp;10, "km", 5, "km")</span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.forecast.accum.mean("Eta20km", "12h", b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão Acumulado: </span><span class="rvts54">Mínimo</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o menor valor dentre os pixels das camadas de previsão acumulado que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.forecast.accum.min("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out_union, 2, "km") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.forecast.accum.min("Eta20km", "12h", b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão Acumulado: </span><span class="rvts54">Máximo</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o maior valor dentre os pixels das camadas de previsão acumulado que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps169"><span class="rvts41">grid.zonal.forecast.accum.max("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 400, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.forecast.accum.max("Eta20km", "12h", b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão Acumulado: </span><span class="rvts54">Mediana</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a mediana dos valores dentre os pixels das camadas de previsão acumulado que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.forecast.accum.median("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 800, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.forecast.accum.median("Eta20km", "12h", b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão Acumulado: </span><span class="rvts54">Desvio Padrão</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o desvio padrão dos valores dentre os pixels das camadas de previsão acumulado que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.forecast.accum.standard_deviation("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 800, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.forecast.accum.standard_deviation("Eta20km", "12h", b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão Acumulado: </span><span class="rvts54">Variância</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a variância dos valores dentre os pixels das camadas de previsão acumulado que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no futuro.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.forecast.accum.variance("&lt;dynamic_data_grid&gt;", "&lt;time&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.In_diff, 800, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.forecast.accum.variance("Eta20km", "12h", b1) </span></p>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<hr style="height: 1px; color : #000000;  background-color : #000000; border-width : 0px;">
+<h6 class="rvps133"><a name="_Toc41218066"></a><span class="rvts0"><span class="rvts91"><br/></span></span></h6>
+<h6 class="rvps133"><span class="rvts0"><span class="rvts91">8- </span></span><span class="rvts0"><span class="rvts103">Zonal de Previsão por Intervalo</span></span></h6>
+<p class="rvps11"><span class="rvts19">Grupo de operadores que consideram intervalo de tempo das próximas camadas de dados dinâmicos matriciais de previsão que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo inicial e final informado no futuro em função da data/hora atual.</span></p>
+<p class="rvps137"><span class="rvts44">SINTAXE GERAL:</span></p>
+<p class="rvps152"><span class="rvts19">grid.zonal.forecast.interval.&lt;operator&gt;("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", [&lt;buffer&gt;])&nbsp;</span><span class="rvts96">&nbsp; &nbsp;</span><span class="rvts19">&nbsp;</span></p>
+<p class="rvps153"><span class="rvts19">onde: </span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside;">
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">operator</span><span class="rvts19">:</span><span class="rvts22">&nbsp;</span><span class="rvts19">num, list, sum, mean, min, max, median, standard_deviation, variance;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">dynamic_data_grid</span><span class="rvts19">: String com o nome da série de dados matriciais de previsão;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">time_begin</span><span class="rvts19">: String inicial (mais próximo da hora atual) do intervalo de tempo para filtrar as camadas de previsão. Este valor será fechado (&lt;= tempo mais próximo) no tempo informado;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">time_end</span><span class="rvts19">: String final (mais recente) do intervalo de tempo para filtrar as camadas de previsão. Este valor será aberto ( &lt; tempo mais distante) no tempo informado;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">buffer</span><span class="rvts19">: [Opcional] Objeto Buffer para ser aplicado ao objeto monitorado. Ver utilitário Buffer. Não obrigatório.</span></li>
+</ul>
+<p class="rvps11"><span class="rvts19">Segue a descrição de cada operador.</span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão por Intervalo: </span><span class="rvts54">Número</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o número de camadas de previsão que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo inicial e final informado no futuro em função da data/hora atual</span><span class="rvts54">.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.forecast.interval.num("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">buf1 = Buffer() </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.forecast.interval.num("Brams15km", "12h", "2h")</span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão por Intervalo: </span><span class="rvts54">Lista</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a lista com data/hora das camadas de previsão que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo inicial e final informado no futuro em função da data/hora atual</span><span class="rvts54">.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.forecast.interval.list("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">buf1 = Buffer() </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.forecast.interval.list(“Brams15km", “12h”, “2h”)</span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão por Intervalo: </span><span class="rvts54">Soma</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a soma dos valores dentre os pixels das camadas de previsão que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo inicial e final informado no futuro em função da data/hora atual.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.forecast.interval.sum("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">x = grid.zonal.forecast.interval.sum("Brams15km", "12h", "2h") </span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão por Intervalo: </span><span class="rvts54">Média</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a média dos valores dentre os pixels das camadas de previsão que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo inicial e final informado no futuro em função da data/hora atual.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.forecast.interval.mean("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Level, &nbsp;10, "km", 5, "km") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.forecast.interval.mean("Brams15km", "12h", "2h", b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão por Intervalo: </span><span class="rvts54">Mínimo</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o menor valor dentre os pixels das camadas de previsão que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo inicial e final informado no futuro em função da data/hora atual.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.forecast.interval.min("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out_union, 2, "km") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.forecast.interval.min("Brams15km", "12h", "2h", b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão por Intervalo: </span><span class="rvts54">Máximo</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o maior valor dentre os pixels das camadas de previsão que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo inicial e final informado no futuro em função da data/hora atual.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.forecast.interval.max("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 400, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.forecast.interval.max("Brams15km", "12h", "2h", b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão por Intervalo: </span><span class="rvts54">Mediana</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a mediana dos valores dentre os pixels das camadas de previsão que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo inicial e final informado no futuro em função da data/hora atual.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.forecast.interval.median("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 800, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.forecast.interval.median("Brams15km", "12h", "2h", b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão por Intervalo: </span><span class="rvts54">Desvio Padrão</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o desvio padrão dos valores dentre os pixels das camadas de previsão que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo inicial e final informado no futuro em função da data/hora atual.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.forecast.interval.standard_deviation("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.Out, 800, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.forecast.interval.standard_deviation("Brams15km", "12h", "2h", b1) </span></p>
+<p class="rvps149"><span class="rvts36">Zonal de Previsão por Intervalo: </span><span class="rvts54">Variância</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a variância dos valores dentre os pixels das camadas de previsão que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo inicial e final informado no futuro em função da data/hora atual.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">grid.zonal.forecast.interval.variance("&lt;dynamic_data_grid&gt;", "&lt;time_begin&gt;", "&lt;time_end&gt;", </span><span class="rvts19">[&lt;buffer&gt;]</span><span class="rvts41">)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">b1 = Buffer(BufferType.In_diff, 800, "m") </span></p>
+<p class="rvps147"><span class="rvts6">x = grid.zonal.forecast.interval.variance("Brams15km", "12h", "2h", b1) </span></p>
+<p class="rvps147"><span class="rvts6"><br/></span></p>
+<p class="rvps147"><span class="rvts6"><br/></span></p>
+<p></p>
+
+            </div>
+            
+            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2020 by INPE. All Rights Reserved.</div></div>
+        </div>  <!-- /#topic-content -->
+    </article>
+
+    <footer></footer>
+
+  </div>  <!-- /#main -->
+
+  <div class="mask" data-toggle="sm-nav-expanded"></div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="hndModal" tabindex="-1" role="dialog" aria-labelledby="hndModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="hndModalLabel"></h4>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary modal-btn-close" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="vendors/jquery-3.4.1/jquery.min.js"></script>
+  <script src="vendors/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+  <script src="vendors/markjs-8.11.1/jquery.mark.min.js"></script>
+  <script src="vendors/uri-1.19.1/uri.min.js"></script>
+  <script src="vendors/imageMapResizer-1.0.7/imageMapResizer.min.js"></script>
+  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+  <script src="vendors/bootstrap-3.4.1/js/ie10-viewport-bug-workaround.js"></script>
+  
+  <!-- Headroom -->
+  <script src="vendors/headroom-0.9.4/headroom.min.js"></script>
+  <script src="vendors/headroom-0.9.4/jquery.headroom.min.js"></script>
+
+  <!-- JsTree -->
+  <script src="vendors/jstree-3.3.7/jstree.min.js"></script>
+
+  <!-- HelpNDoc scripts -->
+  <script src="_translations.js"></script>
+  <script src="js/hndsd.min.js"></script>
+  <script src="js/hndse.min.js"></script>
+  <script src="js/app.min.js"></script>
+
+  <!-- Scripts -->
+  <script>
+    $(function() {
+      // Create the app
+      var app = new Hnd.App();
+      // Update translations
+      hnd_ut(app);
+	  // Instanciate imageMapResizer
+	  imageMapResize();
+	  // Custom JS
+	  
+      // Boot the app
+      app.Boot();
+    });
+  </script>
+
+
+
+</body>
+
+</html>
+

@@ -1,0 +1,532 @@
+
+
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="generator" content="HelpNDoc Standard Edition 6.9.0.577">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="favicon.ico"/>
+
+  <title>Operadores de Ocorr&ecirc;ncias</title>
+  <meta name="description" content="" /> 
+  <meta name="keywords" content="">
+
+
+
+  
+
+  <!-- Twitter Card data -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Operadores de Ocorr&ecirc;ncias">
+  <meta name="twitter:description" content="">
+
+  <!-- Open Graph data -->
+  <meta property="og:title" content="Operadores de Ocorr&ecirc;ncias" />
+  <meta property="og:type" content="article" />
+  <meta property="og:description" content="" />
+  <meta property="og:site_name" content="Manual da plataforma TerraMA2" /> 
+
+  <!-- Bootstrap core CSS -->
+  <link href="vendors/bootstrap-3.4.1/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+  <link href="vendors/bootstrap-3.4.1/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
+
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+      <script src="vendors/html5shiv-3.7.3/html5shiv.min.js"></script>
+      <script src="vendors/respond-1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+  <!-- JsTree styles -->
+  <link href="vendors/jstree-3.3.7/themes/default/style.min.css" rel="stylesheet"/>
+
+  <!-- Hnd styles -->
+  <link href="css/layout.min.css" rel="stylesheet" />
+  <link href="css/effects.min.css" rel="stylesheet" />
+  <link href="css/theme-light-blue.min.css" rel="stylesheet" />
+  <link href="css/print.min.css" rel="stylesheet" media="print" />
+  <style type="text/css">nav { width: 350px} @media screen and (min-width:769px) { body.md-nav-expanded div#main { margin-left: 350px} body.md-nav-expanded header { padding-left: 364px} }</style>
+
+  <!-- Content style -->
+  <link href="css/hnd.content.css" rel="stylesheet" />
+
+  
+
+
+
+</head>
+
+<body class="md-nav-expanded">
+
+
+
+  <div id="skip-link">
+    <a href="#main-content" class="element-invisible">Skip to main content</a>
+  </div>
+
+  <header class="headroom">
+    <button class="hnd-toggle btn btn-default">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>        
+    </button>
+    <h1>Manual da plataforma TerraMA2</h1>
+    
+  </header>
+
+  <nav class="md-nav-expanded">
+    <!-- Nav tabs -->
+    <ul class="tab-tabs nav nav-tabs" role="tablist">
+      <li id="nav-close"> 
+        <button class="hnd-toggle btn btn-default">
+          <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+        </button>
+      </li>
+      
+	  
+        <li role="presentation" class="tab active">
+            <a href="#contents" id="tab-contents" aria-controls="contents" role="tab" data-toggle="tab">
+                <i class="glyphicon glyphicon-list"></i>
+                Contents
+            </a>
+        </li>
+      
+        <li role="presentation" class="tab">
+            <a href="#index" id="tab-index" aria-controls="index" role="tab" data-toggle="tab">
+                <i class="glyphicon glyphicon-asterisk"></i>
+                Index
+            </a>
+        </li>
+      
+        <li role="presentation" class="tab">
+            <a href="#search" id="tab-search" aria-controls="search" role="tab" data-toggle="tab">
+                <i class="glyphicon glyphicon-search"></i>
+                Search
+            </a>
+        </li>
+      
+    </ul>  <!-- /Nav tabs -->
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+	  
+      <div role="tabpanel" class="tab-pane active" id="contents">
+        <div id="toc" class="tree-container unselectable"
+            data-url="_toc.json"
+            data-openlvl="1"
+        >
+            
+        </div>
+      </div>  <!-- /contents-->
+      
+      <div role="tabpanel" class="tab-pane" id="index">
+        <div id="keywords" class="tree-container unselectable"
+            data-url="_keywords.json"
+            data-openlvl="1"
+        >
+            
+        </div>
+      </div>  <!-- /index-->
+      
+      <div role="tabpanel" class="tab-pane" id="search">
+        <div class="search-content">
+          <div class="search-input">
+            <form id="search-form">
+              <div class="form-group">
+                <div class="input-group">
+                  <input type="text" class="form-control" id="input-search" name="input-search" placeholder="Search..." />
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                      <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </form>
+          </div>  <!-- /search-input -->
+          <div class="search-result">
+            <div id="search-info"></div>
+            <div class="tree-container unselectable" id="search-tree"></div>
+          </div>  <!-- /search-result -->
+        </div>  <!-- /search-content -->
+      </div>  <!-- /search-->
+      
+    </div>  <!-- /Tab panes -->
+
+  </nav>
+
+  <div id="main">
+
+    <article>
+        <div id="topic-content" class="container-fluid" 
+		  data-hnd-id="OperadoresdeOcorrencias"
+		  data-hnd-context="56"
+		  data-hnd-title="Operadores de Ocorrências"
+		>
+            
+                <div class="navigation">
+                    <ol class="breadcrumb">
+                        <li><a href="administration_module.html">M&oacute;dulo de Administra&ccedil;&atilde;o</a></li><li><a href="Projetos.html">Projetos</a></li><li><a href="Analises.html">An&aacute;lises</a></li><li><a href="Operadores.html">Operadores</a></li><li><a href="OperadoressobreObjetosMonitorado.html">Operadores sobre Objetos Monitorados</a></li>
+                    </ol>
+                    <div class="nav-arrows">
+                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="OperadoressobreObjetosMonitorado.html" title="Operadores sobre Objetos Monitorados" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="OperadoressobreObjetosMonitorado.html" title="Operadores sobre Objetos Monitorados" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="OperadoreszonaisdePCDs.html" title="Operadores zonais de PCDs" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
+                    </div>
+                </div> 
+            
+
+            <a id="main-content"></a>
+
+            <h2>Operadores de Ocorr&ecirc;ncias</h2>
+
+            <div class="main-content">
+                
+<p></p>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<h4 class="rvps78"><img width="34" height="35" alt="" style="padding : 1px;" src="lib/NewItem273.png"></h4>
+<p class="rvps11"><span class="rvts19">Operadores de ocorrências podem ser zonais quando utilizados para obter estatísticas sobre as fontes de dados do tipo de ocorrências, considerando a localização dos pontos de ocorrências e seus atributos que interceptam as geometrias (pontos, linhas ou polígonos) dos objetos a serem monitorados ou suas áreas de influência (buffer) num intervalo de tempo passado. Também há operadores que não são zonais, mas utilizam atributos comuns das ocorrências e o objeto monitorado para realizar sumarizações, sem necessidade de utilizar operações espaciais.</span></p>
+<p class="rvps11"><span class="rvts19">A Figura 3.20 mostra os pontos de ocorrência em relação a um objeto monitorado na forma de polígono. Ocorrências podem estar dentro do polígono, na área do “buffer” (depende do tipo de utilitário “buffer” utilizado) ou não fazem interseção espacial com o polígono nem o seu “buffer”. Veremos um grupo de operadores onde um segundo “buffer” poderá ser utilizado sobre cada ocorrência para verificar se há pontos de ocorrências sobrepostos e assim considerar como uma única.</span></p>
+<p class="rvps34"><img width="602" height="205" alt="" style="padding : 1px;" src="lib/NewItem272.png"></p>
+<p class="rvps30"><span class="rvts20">Figura 3.20 </span><span class="rvts21">– Diferentes situações de ocorrências em relação a um objeto monitorado.</span></p>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<p class="rvps11"><span class="rvts19">Estes operadores são divididos em quatro grupos: </span><a class="rvts45" href="OperadoresdeOcorrencias.html#_Toc41218049">Sumário</a><span class="rvts19">, </span><a class="rvts45" href="OperadoresdeOcorrencias.html#_Toc41218050">Zonal</a><span class="rvts19">, </span><a class="rvts45" href="OperadoresdeOcorrencias.html#_Toc41218051">Zonal por intervalos</a><span class="rvts19">&nbsp;e </span><a class="rvts45" href="OperadoresdeOcorrencias.html#_Toc41218052">Zonal por agregação</a><span class="rvts19">. A descrição de cada tipo a seguir.</span></p>
+<p class="rvps11"><span class="rvts19"><br/></span></p>
+<h6 class="rvps133"><a name="_Toc41218049"></a><span class="rvts0"><span class="rvts91"><br/></span></span></h6>
+<h6 class="rvps133"><span class="rvts0"><span class="rvts91">1- Sumário (Summary)</span></span></h6>
+<p class="rvps11"><span class="rvts19">Operador que realiza a sumarização de ocorrências no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado. Deve-se indicar um atributo que identifica unicamente os objetos e o mesmo nas ocorrências que são comuns.</span></p>
+<p class="rvps137"><span class="rvts44">SINTAXE GERAL:</span></p>
+<p class="rvps34"><span class="rvts19">occurrence.&lt;operator&gt;("&lt;dynamic_data_occurrence&gt;", "&lt;time&gt;", “&lt;monitored_identifier&gt;”, “&lt;additional_identifier&gt;”, ["&lt;restriction&gt;"])</span><span class="rvts96">&nbsp;</span><span class="rvts97">&nbsp;</span></p>
+<p class="rvps137"><span class="rvts19">onde: </span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside;">
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">operator</span><span class="rvts19">: count</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">dynamic_data_occurrence</span><span class="rvts19">: String com o nome da série de dados de ocorrências; </span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">time</span><span class="rvts19">: String com o intervalo de tempo, a partir da hora atual, para filtrar as ocorrências. Este intervalo será aberto (&lt; x) no valor informado e fechado ( = ) na hora atual. Ver utilitário unidades de tempo;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">monitored_identifier</span><span class="rvts19">: nome do atributo do objeto monitorado que será utilizado para se ligar os dados de ocorrências por outro atributo definido no &lt;additional_identifier&gt;. Utilize um atributo de identifique unicamente cada objeto;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">additional_identifier</span><span class="rvts19">: nome do atributo dos dados dinâmicos de ocorrência que será utilizado para se ligar ao objeto monitorado por outro atributo definido no &lt;monitored_identifier&gt;;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">restriction</span><span class="rvts19">: [Opcional] String com a restrição SQL a ser aplicada sobre atributos do dado dinâmico de ocorrência. Não utilizar se não houver restrição.</span></li>
+</ul>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<p class="rvps11"><span class="rvts19">Segue a descrição de cada operador.</span></p>
+<p class="rvps149"><span class="rvts36">Sumário: </span><span class="rvts54">Contagem</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a quantidade de ocorrências sumarizadas no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps138"><span class="rvts19">occurrence.count("&lt;dynamic_data_occurrence&gt;", "&lt;time&gt;", “&lt;monitored_identifier&gt;”, “&lt;additional_identifier&gt;”, ["&lt;restriction&gt;"])</span><span class="rvts96">&nbsp;</span><span class="rvts97">&nbsp;</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts98"># exemplo </span></p>
+<p class="rvps140"><span class="rvts6">x = occurrence.count("ocorrencias", "1d", "geocodigo", "cod_ibge" "UF = ‘AM’") </span></p>
+<p class="rvps140"><span class="rvts98"><br/></span></p>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<p class="rvps58"><span class="rvts22">Nota: </span><span class="rvts19">Os nomes dos atributos não precisam ser iguais, assim como o tipo também não precisa ser o mesmo, pois o operador faz os ajustes para tipos diferentes. Importante é que o conteúdo seja o mesmo para que haja correspondência.</span></p>
+<hr style="height: 1px; color : #000000;  background-color : #000000; border-width : 0px;">
+<h6 class="rvps133"><a name="_Toc41218050"></a><span class="rvts0"><span class="rvts91"><br/></span></span></h6>
+<h6 class="rvps133"><span class="rvts0"><span class="rvts91">2- Zonal</span></span></h6>
+<p class="rvps11"><span class="rvts19">Grupo de operadores que consideram as ocorrências que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">SINTAXE GERAL:</span></p>
+<p class="rvps34"><span class="rvts19">occurrence.zonal.&lt;operator&gt;("&lt;dynamic_data_occurrence&gt;", "&lt;attribute&gt;", "&lt;time&gt;", [&lt;buffer&gt;], ["&lt;restriction&gt;"])</span><span class="rvts96">&nbsp;</span><span class="rvts97">&nbsp;</span></p>
+<p class="rvps137"><span class="rvts19">onde: </span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside;">
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">operator</span><span class="rvts19">: count, min, max, mean, sum, median, standard_deviation, variance </span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">dynamic_data_occurrence</span><span class="rvts19">: String com o nome da série de dados de ocorrências; </span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">attribute</span><span class="rvts19">: String com o nome do atributo da ocorrência que deve ser utilizado para recuperar algum valor associado a ocorrência. O atributo deve ser do tipo numérico (Ex. Integer, Float, Double, Long). Não usar para operador “count”; </span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">time</span><span class="rvts19">: String com o intervalo de tempo, a partir da hora atual, para filtrar as ocorrências. Este intervalo será aberto (&lt; x) no valor informado e fechado ( = ) na hora atual. Ver utilitário unidades de tempo;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">buffer</span><span class="rvts19">: [Opcional] “Buffer” para ser aplicado ao objeto monitorado. Parâmetro obrigatório somente se o parâmetro seguinte (restriction) for utilizado. Se não declarado será considerada a própria geometria do objeto (no caso do um mapa de polígonos, a própria área do polígono é utilizada). Ver utilitário “buffer” acima;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">restriction</span><span class="rvts19">: [Opcional] String com a restrição SQL a ser aplicada sobre atributos do dado dinâmico de ocorrência. Não utilizar se não houver restrição. Se for utilizada a restrição, obrigatoriamente o parâmetro de buffer acima deve ser declarado, mesmo que o buffer seja nulo.</span></li>
+</ul>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<p class="rvps11"><span class="rvts19">Segue a descrição de cada operador.</span></p>
+<p class="rvps149"><span class="rvts36">Zonal: </span><span class="rvts54">Contagem</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a quantidade de ocorrências que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps138"><span class="rvts19">occurrence.zonal.count("&lt;dynamic_data_occurrence&gt;", "&lt;time&gt;", [&lt;buffer&gt;], ["&lt;restriction&gt;"])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts98"># exemplo com buffer e com restrição</span></p>
+<p class="rvps140"><span class="rvts6">buf1 = Buffer(BufferType.Level, 400, "m", 200, "m")</span></p>
+<p class="rvps140"><span class="rvts6">x = occurrence.zonal.count("ocorrencias", "1d", buf1, "UF = ‘AM’") </span></p>
+<p class="rvps140"><span class="rvts98"><br/></span></p>
+<p class="rvps140"><span class="rvts98"># exemplo sem buffer e sem restrição</span></p>
+<p class="rvps140"><span class="rvts6">x = occurrence.zonal.count("ocorrencias", "1d+")</span></p>
+<p class="rvps140"><span class="rvts98"><br/></span></p>
+<p class="rvps140"><span class="rvts98"># exemplo sem buffer e com restrição</span></p>
+<p class="rvps140"><span class="rvts6">buf1 = Buffer()</span></p>
+<p class="rvps140"><span class="rvts6">x = occurrence.zonal.count("ocorrencias", "1d", buf1, "UF = ‘AM’")</span></p>
+<p class="rvps140"><span class="rvts98"># ou</span></p>
+<p class="rvps140"><span class="rvts6">x = occurrence.zonal.count("ocorrencias", "1d", Buffer(), "UF = ‘AM’")</span></p>
+<p class="rvps149"><span class="rvts36">Zonal: </span><span class="rvts54">Mínimo</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o menor valor do atributo das ocorrências que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps150"><span class="rvts19">occurrence.zonal.min("&lt;dynamic_data_occurrence&gt;", "&lt;attribute&gt;", "&lt;time&gt;", [&lt;buffer&gt;], ["&lt;restriction&gt;"])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts99">buf1 = Buffer()</span></p>
+<p class="rvps140"><span class="rvts99">x = occurrence.zonal.min("foco", "intensidade","1d", &nbsp;buf1, "UF = ‘AM’")</span></p>
+<p class="rvps149"><span class="rvts36">Zonal: </span><span class="rvts54">Máximo</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o maior valor do atributo das ocorrências que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps150"><span class="rvts19">occurrence.zonal.max("&lt;dynamic_data_occurrence&gt;", "&lt;attribute&gt;", "&lt;time&gt;", [&lt;buffer&gt;], ["&lt;restriction&gt;"])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts99">buf1 = Buffer()</span></p>
+<p class="rvps151"><span class="rvts6">x = occurrence.zonal.max("ocorrencias", "Intensidade", "1d", buf1, "UF = ‘AM’")</span></p>
+<p class="rvps149"><span class="rvts36">Zonal: </span><span class="rvts54">Média</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a média dos valores do atributo das ocorrências que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps150"><span class="rvts19">occurrence.zonal.mean("&lt;dynamic_data_occurrence&gt;", "&lt;attribute&gt;", "&lt;time&gt;", [&lt;buffer&gt;], ["&lt;restriction&gt;"])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts99">buf1 = Buffer()</span></p>
+<p class="rvps151"><span class="rvts6">x = occurrence.zonal.mean("ocorrencias", "intensidade", "1d", buf1, "UF = ‘AM’")</span></p>
+<p class="rvps149"><span class="rvts36">Zonal: </span><span class="rvts54">Mediana</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a mediana dos valores do atributo das ocorrências que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps150"><span class="rvts19">occurrence.zonal.median("&lt;dynamic_data_occurrence&gt;", "&lt;attribute&gt;", "&lt;time&gt;", [&lt;buffer&gt;], ["&lt;restriction&gt;"])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts99">buf1 = Buffer()</span></p>
+<p class="rvps151"><span class="rvts6">x = occurrence.zonal.median("ocorrencias", "intensidade", "1d", buf1, "UF = 'AM'")</span></p>
+<p class="rvps149"><span class="rvts36">Zonal: </span><span class="rvts54">Soma</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a soma dos valores do atributo das ocorrências que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps150"><span class="rvts19">occurrence.zonal.sum("&lt;dynamic_data_occurrence&gt;", "&lt;attribute&gt;", "&lt;time&gt;", [&lt;buffer&gt;], ["&lt;restriction&gt;"])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts99">buf1 = Buffer()</span></p>
+<p class="rvps151"><span class="rvts6">x = occurrence.zonal.sum("ocorrencias", "intensidade", "1d", buf1, "UF = 'AM'")</span></p>
+<p class="rvps149"><span class="rvts36">Zonal: </span><span class="rvts54">Desvio Padrão</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o desvio padrão dos valores do atributo das ocorrências que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps150"><span class="rvts19">occurrence.zonal.standard_deviation("&lt;dynamic_data_occurrence&gt;", "&lt;attribute&gt;", "&lt;time&gt;", [&lt;buffer&gt;], ["&lt;restriction&gt;"])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts99">buf1 = Buffer(BufferType.Level, &nbsp;400, “m“, 200, “m”)</span></p>
+<p class="rvps151"><span class="rvts6">x = occurrence.zonal.standard_deviation("ocorrencias", "intensidade", "1d", buf1)</span></p>
+<p class="rvps149"><span class="rvts36">Zonal: </span><span class="rvts54">Variância</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a variância dos valores do atributo das ocorrências que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts19">occurrence.zonal.variance("&lt;dynamic_data_occurrence&gt;", "&lt;attribute&gt;", "&lt;time&gt;", [&lt;buffer&gt;], ["&lt;restriction&gt;"])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">x = occurrence.zonal.variance("ocorrencias", "1d", "Intensidade")</span></p>
+<p class="rvps139"><span class="rvts6"><br/></span></p>
+<hr style="height: 1px; color : #000000;  background-color : #000000; border-width : 0px;">
+<h6 class="rvps133"><a name="_Toc41218051"></a><span class="rvts0"><span class="rvts91"><br/></span></span></h6>
+<h6 class="rvps133"><span class="rvts0"><span class="rvts91">3- Zonal por agregação</span></span></h6>
+<p class="rvps11"><span class="rvts19">Grupo de operadores que consideram as ocorrências agrupadas em torno do mesmo ponto e que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado. Para verificar as ocorrências agrupadas um outro “buffer” nas ocorrências é definido.</span></p>
+<p class="rvps137"><span class="rvts44">SINTAXE GERAL:</span></p>
+<p class="rvps152"><span class="rvts19">occurrence.zonal.aggregation.&lt;operator&gt;("&lt;dynamic_data_occurrence&gt;", "&lt;attribute&gt;", "&lt;time&gt;",aggregationStatistic, aggregationBuffer, [&lt;buffer&gt;], ["&lt;restriction&gt;"])</span></p>
+<p class="rvps153"><span class="rvts19">&nbsp; &nbsp;onde: </span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside;">
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">operator</span><span class="rvts19">: count, min, max, mean, sum, median, standard_deviation, variance </span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts19">dynamic_data_occurrence : String com o nome da série de dados de ocorrências;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts19">&nbsp;</span><span class="rvts22">attribute</span><span class="rvts19">: String com o nome do atributo da ocorrência que deve ser utilizado para recuperar os valores, o atributo deve ser do tipo numérico (Ex. Integer, Float, Double, Long). Não usar para operador “count”; </span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">time</span><span class="rvts19">: String com o intervalo de tempo, a partir da hora atual, para filtrar as ocorrências. Ver utilitário &nbsp;Unidades de tempo;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">aggregationStatistic</span><span class="rvts19">: Tipo de operador estatístico a ser utilizado para selecionar o valor do atributo para as ocorrências agregadas. Não usar para operador “count”;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">aggregationBuffer</span><span class="rvts19">: Buffer para agregação dos pontos de ocorrência. Ver utilitário Buffer;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">buffer</span><span class="rvts19">: [Opcional] “Buffer” para ser aplicado ao objeto monitorado. Parâmetro obrigatório somente se o parâmetro seguinte (restriction) for utilizado. Se não declarado será considerada a própria geometria do objeto (no caso do um mapa de polígonos, a própria área do polígono é utilizada). Ver utilitário “buffer” acima;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">restriction</span><span class="rvts19">: [Opcional] String com a restrição SQL a ser aplicada sobre atributos do dado dinâmico de ocorrência. Não utilizar se não houver restrição. Se for utilizada a restrição, obrigatoriamente o parâmetro de buffer acima deve ser declarado, mesmo que o buffer seja nulo.</span></li>
+</ul>
+<p class="rvps11"><span class="rvts19">Segue a descrição de cada operador.</span></p>
+<p class="rvps149"><span class="rvts36">Zonal por agregação: </span><span class="rvts54">Contagem</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a quantidade de oco</span><span class="rvts100">rrências que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado. Ocorrências agrupadas em torno do mesmo ponto ser</span><span class="rvts19">ão contadas uma única vez.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">occurrence.zonal.aggregation.count("&lt;dynamic_data_occurrence&gt;", "&lt;time&gt;", aggregationBuffer,</span><span class="rvts19">&nbsp;[&lt;buffer&gt;]</span><span class="rvts41">, ["&lt;restriction&gt;"])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts98"># exemplo com buffer na ocorrência e no objeto, e com restrição</span></p>
+<p class="rvps140"><span class="rvts6">buf1 = Buffer(BufferType.Level, 400, "m", 200, "m")</span></p>
+<p class="rvps140"><span class="rvts6">bufaggreg = Buffer(BufferType.Out, &nbsp;200, "m")</span></p>
+<p class="rvps140"><span class="rvts6">x = occurrence.zonal.aggregation.count("foco", "1d", bufaggreg, buf1, "UF = 'AM'")</span><span class="rvts19">&nbsp;</span><span class="rvts6">&nbsp;</span></p>
+<p class="rvps140"><span class="rvts98"><br/></span></p>
+<p class="rvps140"><span class="rvts98"># exemplo sem buffer no objeto, mas com buffer na ocorrência, e sem restrição</span></p>
+<p class="rvps140"><span class="rvts6">bufaggreg = Buffer(BufferType.Out, &nbsp;200, "m")</span></p>
+<p class="rvps140"><span class="rvts6">x = occurrence.zonal.aggregation.count("foco", "1d", bufaggreg)</span></p>
+<p class="rvps140"><span class="rvts98"><br/></span></p>
+<p class="rvps140"><span class="rvts98"># exemplo sem buffer e com restrição</span></p>
+<p class="rvps140"><span class="rvts6">buf1 = Buffer()</span></p>
+<p class="rvps140"><span class="rvts6">x = occurrence.zonal.aggregation.count("foco", "1d", bufaggreg, buf1, "UF = 'AM'")</span></p>
+<p class="rvps140"><span class="rvts98"># ou</span></p>
+<p class="rvps140"><span class="rvts6">x = occurrence.zonal.aggregation.count("foco", "1d", bufaggreg, Buffer(), "UF = 'AM'")</span></p>
+<p class="rvps149"><span class="rvts36">Zonal por agregação: </span><span class="rvts54">Mínimo</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o menor valor do atributo das ocorrências que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado. Ocorrências agrupadas em torno do mesmo ponto terão um único valor obtido por análise estatística (utilitário estatístico).</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">occurrence.zonal.aggregation.min("&lt;dynamic_data_occurrence&gt;", "&lt;attribute&gt;", "&lt;time&gt;",aggregationStatistic, aggregationBuffer,</span><span class="rvts19">&nbsp;[&lt;buffer&gt;]</span><span class="rvts41">, ["&lt;restriction&gt;"])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">bufaggreg = Buffer(BufferType.Out, &nbsp;200, "m")</span></p>
+<p class="rvps151"><span class="rvts6">x = occurrence.zonal.aggregation.min("raios", "Intensidade", "4h", Statistic.min, bufaggreg)</span></p>
+<p class="rvps149"><span class="rvts36">Zonal por agregação: </span><span class="rvts54">Máximo</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o maior valor do atributo das ocorrências</span><span class="rvts100">&nbsp;que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de </span><span class="rvts19">tempo definido entre a data/hora atual e o valor de tempo informado no passado. Ocorrências agrupadas em torno do mesmo ponto terão um único valor obtido por análise estatística (utilitário estatístico).</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">occurrence.zonal.aggregation.max("&lt;dynamic_data_occurrence&gt;", "&lt;attribute&gt;", "&lt;time&gt;",aggregationStatistic, aggregationBuffer,</span><span class="rvts19">&nbsp;[&lt;buffer&gt;]</span><span class="rvts41">, ["&lt;restriction&gt;"])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">bufaggreg = Buffer(BufferType.Out, &nbsp;200, "m")</span></p>
+<p class="rvps88"><span class="rvts6">x = occurrence.zonal.aggregation.max("raios", "Intensidade", "4h", Statistic.max, bufaggreg)</span></p>
+<p class="rvps149"><span class="rvts36">Zonal por agregação: </span><span class="rvts54">Média</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a média dos valores do atributo das ocorrências</span><span class="rvts100">&nbsp;que interceptam o objeto monitorado ou sua á</span><span class="rvts19">rea de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado. Ocorrências agrupadas em torno do mesmo ponto terão um único valor obtido por análise estatística (utilitário estatístico).</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps154"><span class="rvts41">occurrence.zonal.aggregation.mean("&lt;dynamic_data_occurrence&gt;", "&lt;attribute&gt;", "&lt;time&gt;",aggregationStatistic, aggregationBuffer,</span><span class="rvts19">&nbsp;[&lt;buffer&gt;]</span><span class="rvts41">, ["&lt;restriction&gt;"])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts99">buf1 = Buffer()</span></p>
+<p class="rvps147"><span class="rvts6">bufaggreg = Buffer(BufferType.Out, &nbsp;200, "m")</span><span class="rvts19">&nbsp;</span></p>
+<p class="rvps155"><span class="rvts6">x = occurrence.zonal.aggregation.mean("raios", "Intensidade", "1h", Statistic.max, bufaggreg, buf1, "UF = 'AM'")</span></p>
+<p class="rvps149"><span class="rvts36">Zonal por agregação: </span><span class="rvts54">Mediana</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a mediana dos valores do atributo das ocorrências que interceptam o objeto monitorad</span><span class="rvts100">o ou sua área de influê</span><span class="rvts19">ncia (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado. Ocorrências agrupadas em torno do mesmo ponto terão um único valor obtido por análise estatística (utilitário estatístico).</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps156"><span class="rvts41">occurrence.zonal.aggregation.median("&lt;dynamic_data_occurrence&gt;", "&lt;attribute&gt;", "&lt;time&gt;",aggregationStatistic, aggregationBuffer,</span><span class="rvts19">&nbsp;[&lt;buffer&gt;]</span><span class="rvts41">, ["&lt;restriction&gt;"]))</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">bufaggreg = Buffer(BufferType.Out, &nbsp;200, "m")</span></p>
+<p class="rvps88"><span class="rvts6">x = occurrence.zonal.aggregation.median("raios", "Intensidade", "1h", Statistic.max, bufaggreg)</span></p>
+<p class="rvps149"><span class="rvts36">Zonal por agregação: </span><span class="rvts54">Soma</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a soma dos valores do atributo das ocorrências que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado. Ocorrências agrupadas em torno do mesmo ponto terão um único valor obtido por análise estatística (utilitário estatístico).</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">occurrence.zonal.aggregation.sum("&lt;dynamic_data_occurrence&gt;", "&lt;attribute&gt;", "&lt;time&gt;",aggregationStatistic, aggregationBuffer,</span><span class="rvts19">&nbsp;[&lt;buffer&gt;]</span><span class="rvts41">, ["&lt;restriction&gt;"])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts99">buf1 = Buffer()</span></p>
+<p class="rvps147"><span class="rvts6">bufaggreg = Buffer(BufferType.Out, &nbsp;200, "m")</span></p>
+<p class="rvps155"><span class="rvts6">x = occurrence.zonal.aggregation.sum("raios", "Intensidade", "1h", Statistic.max, bufaggreg, buf1, "UF = 'AM'")</span></p>
+<p class="rvps149"><span class="rvts36">Zonal por agregação: </span><span class="rvts54">Desvio Padrão</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o desvio padrão dos valores do atributo das ocorrências que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado. Ocorrências agrupadas em torno do mesmo ponto terão um único valor obtido por análise estatística (utilitário estatístico).</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps157"><span class="rvts41">occurrence.zonal.aggregation.standard_deviation("&lt;dynamic_data_occurrence&gt;", "&lt;attribute&gt;", "&lt;time&gt;",aggregationStatistic, aggregationBuffer,</span><span class="rvts19">&nbsp;[&lt;buffer&gt;]</span><span class="rvts41">, ["&lt;restriction&gt;"])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts99">buf1 = Buffer(BufferType.Level, &nbsp;400, "m", 200, "m")</span></p>
+<p class="rvps147"><span class="rvts6">bufaggreg = Buffer(BufferType.Out, &nbsp;200, "m")</span></p>
+<p class="rvps155"><span class="rvts6">x = occurrence.zonal.aggregation.standard_deviation("raios", "Intensidade", "1h", Statistic.max, bufaggreg, buf1)</span></p>
+<p class="rvps149"><span class="rvts36">Zonal por agregação: </span><span class="rvts54">Variância</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a variância dos valores do atributo das ocorrências que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado. Ocorrências agrupadas em torno do mesmo ponto terão um único valor obtido por análise estatística (utilitário estatístico).</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps158"><span class="rvts41">occurrence.zonal.aggregation.variance("&lt;dynamic_data_occurrence&gt;", "&lt;attribute&gt;", "&lt;time&gt;",aggregationStatistic, aggregationBuffer,</span><span class="rvts19">&nbsp;[&lt;buffer&gt;]</span><span class="rvts41">, ["&lt;restriction&gt;"])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">bufaggreg = Buffer(BufferType.Out, &nbsp;200, "m")</span></p>
+<p class="rvps159"><span class="rvts6">x = occurrence.zonal.aggregation.variance("raios", "Intensidade", "360sec", Statistic.max, bufaggreg)</span></p>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<hr style="height: 1px; color : #000000;  background-color : #000000; border-width : 0px;">
+<h6 class="rvps133"><a name="_Toc41218052"></a><span class="rvts0"><span class="rvts91"><br/></span></span></h6>
+<h6 class="rvps133"><span class="rvts0"><span class="rvts91">4- Zonal por intervalos</span></span></h6>
+<p class="rvps11"><span class="rvts19">Grupo de operadores que consideram as ocorrências que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre dois valores de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">SINTAXE GERAL:</span></p>
+<p class="rvps160"><span class="rvts19">occurrence.zonal.interval.&lt;operator&gt;("&lt;dynamic_data_occurrence&gt;", "&lt;attribute&gt;", "&lt;time_begin&gt;", &nbsp;"&lt;time_end&gt;", [&lt;buffer&gt;], ["&lt;restriction&gt;"])</span><span class="rvts101">&nbsp; </span></p>
+<p class="rvps161"><span class="rvts19">&nbsp;onde: </span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside;">
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">operator</span><span class="rvts19">&nbsp;: count, min, max, mean, median, sum, standard_deviation, variance </span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">dynamic_data_occurrence</span><span class="rvts19">&nbsp;: String com o nome da série de dados de ocorrências; </span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">attribute</span><span class="rvts19">: String com o nome do atributo da ocorrência que deve ser utilizado para recuperar os valores, o atributo deve ser do tipo numérico (Ex. Integer, Float, Double, Long). Não usar para operador “count”; </span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">time_begin</span><span class="rvts19">: String inicial (mais antigo) do intervalo de tempo para filtrar as ocorrências. Este valor será aberto (&lt; tempo mais antigo) no tempo informado;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">time_end</span><span class="rvts19">: String final (mais recente) do intervalo de tempo para filtrar as ocorrências. Este valor será fechado ( &lt;= tempo mais recente) no tempo informado;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">buffer</span><span class="rvts19">: [Opcional] “Buffer” para ser aplicado ao objeto monitorado. Parâmetro obrigatório somente se o parâmetro seguinte (restriction) for utilizado. Se não declarado será considerada a própria geometria do objeto (no caso do um mapa de polígonos, a própria área do polígono é utilizada). Ver utilitário “buffer” acima;</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">restriction</span><span class="rvts19">: [Opcional] String com a restrição SQL a ser aplicada sobre atributos do dado dinâmico de ocorrência. Não utilizar se não houver restrição. Se for utilizada a restrição, obrigatoriamente o parâmetro de buffer acima deve ser declarado, mesmo que o buffer seja nulo.</span></li>
+</ul>
+<p class="rvps11"><span class="rvts19">Segue a descrição de cada operador.</span></p>
+<p class="rvps149"><span class="rvts36">Zonal por intervalo: </span><span class="rvts54">Contagem</span></p>
+<p class="rvps11"><span class="rvts100">Retorna a quantidade de ocorrências que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo inicial e final informado no passado em funç</span><span class="rvts19">ão da data/hora atual.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts19">occurrence.zonal.interval.count("&lt;dynamic_data_occurrence&gt;", "&lt;time_begin&gt;", &nbsp;"&lt;time_end&gt;", [&lt;buffer&gt;], ["&lt;restriction&gt;"])</span></p>
+<p class="rvps152"><span class="rvts36"><br/></span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts98"># exemplo com buffer e com restrição</span></p>
+<p class="rvps140"><span class="rvts6">buf1 = Buffer(BufferType.Level, 400, "m", 200, "m")</span></p>
+<p class="rvps140"><span class="rvts6">x = </span><span class="rvts99">occurrence.zonal.interval.count("ocorrencias", "2d", "1d", buf1, "UF = 'AM'")</span><span class="rvts19">&nbsp;</span><span class="rvts6">&nbsp;</span></p>
+<p class="rvps140"><span class="rvts98"><br/></span></p>
+<p class="rvps140"><span class="rvts98"># exemplo sem buffer e sem restrição</span></p>
+<p class="rvps140"><span class="rvts6">x = </span><span class="rvts99">occurrence.zonal.interval.count("ocorrencias", "2d", "1d")</span></p>
+<p class="rvps140"><span class="rvts98"><br/></span></p>
+<p class="rvps140"><span class="rvts98"># exemplo sem buffer e com restrição</span></p>
+<p class="rvps140"><span class="rvts6">buf1 = Buffer()</span></p>
+<p class="rvps140"><span class="rvts6">x = </span><span class="rvts99">occurrence.zonal.interval.count("ocorrencias", "2d", "1d", buf1, "UF = 'AM'")</span></p>
+<p class="rvps140"><span class="rvts98"># ou</span></p>
+<p class="rvps140"><span class="rvts6">x = </span><span class="rvts99">occurrence.zonal.interval.count("ocorrencias", "2d", "1d", Buffer(), "UF = 'AM'")</span></p>
+<p class="rvps139"><span class="rvts99"><br/></span></p>
+<p class="rvps149"><span class="rvts36">Zonal por intervalo: </span><span class="rvts54">Mínimo</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o menor valor do atributo das ocorrências que int</span><span class="rvts100">erceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definid</span><span class="rvts19">o entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">occurrence.zonal.interval.min("&lt;dynamic_data_occurrence&gt;", "&lt;attribute&gt;", "&lt;time_begin&gt;", &nbsp;"&lt;time_end&gt;",</span><span class="rvts19">&nbsp;[&lt;buffer&gt;]</span><span class="rvts41">, ["&lt;restriction&gt;"])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts99">buf1 = Buffer()</span></p>
+<p class="rvps151"><span class="rvts6">x = occurrence.zonal.interval.min("raios", "Intensidade", "4h", "1h", buf1, "UF = 'AM'")</span></p>
+<p class="rvps149"><span class="rvts36">Zonal por intervalo: </span><span class="rvts54">Máximo</span></p>
+<p class="rvps11"><span class="rvts100">Retorna o maior valor do atributo das ocorrências que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido e</span><span class="rvts19">ntre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">occurrence.zonal.interval.max("&lt;dynamic_data_occurrence&gt;", "&lt;attribute&gt;", "&lt;time_begin&gt;", &nbsp;"&lt;time_end&gt;",</span><span class="rvts19">&nbsp;[&lt;buffer&gt;]</span><span class="rvts41">, ["&lt;restriction&gt;"])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts99">buf1 = Buffer()</span></p>
+<p class="rvps151"><span class="rvts6">x = occurrence.zonal.interval.max("raios", "Intensidade", "4h", "1h", buf1, "UF = 'AM'")</span></p>
+<p class="rvps149"><span class="rvts36">Zonal por intervalo: </span><span class="rvts54">Média</span></p>
+<p class="rvps11"><span class="rvts100">Retorna a média dos valores do atributo das ocorrências que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido e</span><span class="rvts19">ntre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">occurrence.zonal.interval.mean("&lt;dynamic_data_occurrence&gt;", "&lt;attribute&gt;", "&lt;time_begin&gt;", &nbsp;"&lt;time_end&gt;",</span><span class="rvts19">&nbsp;[&lt;buffer&gt;]</span><span class="rvts41">, ["&lt;restriction&gt;"])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts99">buf1 = Buffer()</span></p>
+<p class="rvps151"><span class="rvts6">x = occurrence.zonal.interval.mean("raios", "Intensidade", "4h", "1h", buf1, "UF = 'AM'")</span></p>
+<p class="rvps149"><span class="rvts36">Zonal por intervalo: </span><span class="rvts54">Mediana</span></p>
+<p class="rvps11"><span class="rvts100">Retorna a mediana dos valores do atributo das ocorrências que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo defi</span><span class="rvts19">nido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">occurrence.zonal.interval.median("&lt;dynamic_data_occurrence&gt;", "&lt;attribute&gt;", "&lt;time_begin&gt;", &nbsp;"&lt;time_end&gt;",</span><span class="rvts19">&nbsp;[&lt;buffer&gt;]</span><span class="rvts41">, ["&lt;restriction&gt;"])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts99">buf1 = Buffer()</span></p>
+<p class="rvps151"><span class="rvts6">x = occurrence.zonal.interval.median("raios", "Intensidade", "4h", "1h", buf1, "UF = 'AM'")</span></p>
+<p class="rvps149"><span class="rvts36">Zonal por intervalo: </span><span class="rvts54">Soma</span></p>
+<p class="rvps11"><span class="rvts100">Retorna a soma dos valores do atributo das ocorrências que interceptam o objeto monitorado ou sua área de influência (buffer) no intervalo de tempo</span><span class="rvts19">&nbsp;definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">occurrence.zonal.interval.sum(“&lt;dynamic_data_occurrence&gt;”,“&lt;time_begin&gt;”, “&lt;time_end&gt;”, “&lt;attribute&gt;”,</span><span class="rvts19">&nbsp;[&lt;buffer&gt;]</span><span class="rvts41">, “&lt;restriction&gt;”)</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts99">buf1 = Buffer()</span></p>
+<p class="rvps151"><span class="rvts6">x = occurrence.zonal.interval.sum("raios", "Intensidade", "4h", "1h", buf1, "UF = 'AM'")</span></p>
+<p class="rvps149"><span class="rvts36">Zonal por intervalo: </span><span class="rvts54">Desvio Padrão</span></p>
+<p class="rvps11"><span class="rvts19">Retorna o desvio padrão dos valores &nbsp;do atributo das ocorrências que interceptam o objeto monitorado ou sua a</span><span class="rvts100">́rea de </span><span class="rvts19">influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">occurrence.zonal.interval.standard_deviation("&lt;dynamic_data_occurrence&gt;", "&lt;attribute&gt;", "&lt;time_begin&gt;", &nbsp;"&lt;time_end&gt;",</span><span class="rvts19">&nbsp;[&lt;buffer&gt;]</span><span class="rvts41">, ["&lt;restriction&gt;"])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts99">buf1 = Buffer(BufferType.Level, &nbsp;400, "m", 200, "m")</span></p>
+<p class="rvps140"><span class="rvts99">x = occurrence.zonal.interval.standard_deviation("raios", "Intensidade", "4h", "1h", buf1)</span></p>
+<p class="rvps149"><span class="rvts36">Zonal por intervalo: </span><span class="rvts54">Variância</span></p>
+<p class="rvps11"><span class="rvts19">Retorna a variância dos valores do atributo das ocorrências que interceptam o o</span><span class="rvts100">bjeto monitorado ou sua área de influência (buffer) no intervalo de tempo definido entre a data/hora atual e o valor de tempo informado no passado.</span></p>
+<p class="rvps137"><span class="rvts44">Sintaxe:</span></p>
+<p class="rvps152"><span class="rvts41">occurrence.zonal.interval.variance("&lt;dynamic_data_occurrence&gt;", "&lt;attribute&gt;", "&lt;time_begin&gt;", &nbsp;"&lt;time_end&gt;",</span><span class="rvts19">&nbsp;[&lt;buffer&gt;]</span><span class="rvts41">, ["&lt;restriction&gt;"])</span></p>
+<p class="rvps139"><span class="rvts94">Exemplo</span><span class="rvts92">:</span><span class="rvts92"> &nbsp; &nbsp; &nbsp; &nbsp;</span><span class="rvts6">x = occurrence.zonal.interval.variance("raios", "Intensidade", "360s", "48s")</span></p>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<p class="rvps11"><span class="rvts6"><br/></span></p>
+<p></p>
+
+            </div>
+            
+            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2020 by INPE. All Rights Reserved.</div></div>
+        </div>  <!-- /#topic-content -->
+    </article>
+
+    <footer></footer>
+
+  </div>  <!-- /#main -->
+
+  <div class="mask" data-toggle="sm-nav-expanded"></div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="hndModal" tabindex="-1" role="dialog" aria-labelledby="hndModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="hndModalLabel"></h4>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary modal-btn-close" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="vendors/jquery-3.4.1/jquery.min.js"></script>
+  <script src="vendors/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+  <script src="vendors/markjs-8.11.1/jquery.mark.min.js"></script>
+  <script src="vendors/uri-1.19.1/uri.min.js"></script>
+  <script src="vendors/imageMapResizer-1.0.7/imageMapResizer.min.js"></script>
+  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+  <script src="vendors/bootstrap-3.4.1/js/ie10-viewport-bug-workaround.js"></script>
+  
+  <!-- Headroom -->
+  <script src="vendors/headroom-0.9.4/headroom.min.js"></script>
+  <script src="vendors/headroom-0.9.4/jquery.headroom.min.js"></script>
+
+  <!-- JsTree -->
+  <script src="vendors/jstree-3.3.7/jstree.min.js"></script>
+
+  <!-- HelpNDoc scripts -->
+  <script src="_translations.js"></script>
+  <script src="js/hndsd.min.js"></script>
+  <script src="js/hndse.min.js"></script>
+  <script src="js/app.min.js"></script>
+
+  <!-- Scripts -->
+  <script>
+    $(function() {
+      // Create the app
+      var app = new Hnd.App();
+      // Update translations
+      hnd_ut(app);
+	  // Instanciate imageMapResizer
+	  imageMapResize();
+	  // Custom JS
+	  
+      // Boot the app
+      app.Boot();
+    });
+  </script>
+
+
+
+</body>
+
+</html>
+

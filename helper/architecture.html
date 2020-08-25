@@ -7,7 +7,7 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="generator" content="HelpNDoc Standard Edition 6.0.0.154">
+  <meta name="generator" content="HelpNDoc Standard Edition 6.9.0.577">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="favicon.ico"/>
 
@@ -28,13 +28,13 @@
   <meta property="og:title" content="Arquitetura da Plataforma" />
   <meta property="og:type" content="article" />
   <meta property="og:description" content="" />
-  <meta property="og:site_name" content="Plataforma de Monitoramento Ambiental TerraMA&sup2;" /> 
+  <meta property="og:site_name" content="Manual da plataforma TerraMA2" /> 
 
   <!-- Bootstrap core CSS -->
-  <link href="vendors/bootstrap-3.4.0/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="vendors/bootstrap-3.4.1/css/bootstrap.min.css" rel="stylesheet"/>
 
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <link href="vendors/bootstrap-3.4.0/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
+  <link href="vendors/bootstrap-3.4.1/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
 
   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
   <!--[if lt IE 9]>
@@ -74,7 +74,7 @@
       <span class="sr-only">Toggle navigation</span>
       <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>        
     </button>
-    <h1>Plataforma de Monitoramento Ambiental TerraMA&sup2;</h1>
+    <h1>Manual da plataforma TerraMA2</h1>
     
   </header>
 
@@ -164,7 +164,7 @@
     <article>
         <div id="topic-content" class="container-fluid" 
 		  data-hnd-id="architecture"
-		  data-hnd-context="7"
+		  data-hnd-context="9"
 		  data-hnd-title="Arquitetura da Plataforma"
 		>
             
@@ -173,7 +173,7 @@
                         <li><a href="introduction.html">Introdu&ccedil;&atilde;o</a></li>
                     </ol>
                     <div class="nav-arrows">
-                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="introduction.html" title="Introdu&ccedil;&atilde;o" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="whats_new.html" title="O que h&aacute; de novo ? " role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="data_formats.html" title="Dados e Formatos" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
+                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="introduction.html" title="Introdu&ccedil;&atilde;o" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="whats_new.html" title="O que h&aacute; de novo ?" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="data_formats.html" title="Dados e Formatos" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
                     </div>
                 </div> 
             
@@ -185,26 +185,28 @@
             <div class="main-content">
                 
 <p></p>
-<p class="rvps9"><span class="rvts18">A </span><span class="rvts22">plataforma está baseada no conceito de serviços que aceitam uma ou mais requisições e retornam um ou mais resultados com base em tarefas definidas pelo usuário para coletar, analisar, visualizar, criar novos dados e alertar de situações extremas. Uma interface web é utilizada para administrar os serviços e definir tais tarefas serão executados por projetos de monitoramento (Figura 1.2). Esta interface web é identificada como </span><span class="rvts18">“</span><a class="rvts29" href="administration_module.html">Módulo de Administração</a><span class="rvts18">”.</span></p>
-<p class="rvps9"><span class="rvts18">Projetos </span><span class="rvts22">são administrados por usuários onde são definidos dados dinâmicos e estáticos através de servidores de dados. Análises são definidas fazendo uso de dados estáticos e dinâmicos que são processados com operadores espaciais da plataforma e uma linguagem de programação de fácil utilização. Tais análises produzem novos dados dinâmicos para serem reutilizados. A visualização dos dados é definida para dados estáticos, dinâmicos e análises. O alerta é definido a partir de dados dinâmicos que foram coletados ou resultados de análises que produzem notificações para serem enviadas a usuários</span><span class="rvts18">.</span></p>
-<p class="rvps9"><span class="rvts18">Uma segunda interface web é utilizada pelo usuário final que terá acesso aos dados por uma interface gráfica. Esta interface web é identificada como “</span><a class="rvts29" href="monitoring_module.html">Módulo de Monitoramento</a><span class="rvts18">” responsável por apresentar todos dados estáticos, dinâmicos, resultados de análises, alertas e dados tabulares associados.</span></p>
-<p class="rvps9"><span class="rvts18"><br/></span></p>
-<p class="rvps16"><img alt="" style="padding : 1px;" src="lib/Fig1_2Web.png"></p>
-<p class="rvps17"><span class="rvts20">Figura 1.2 </span><span class="rvts21">– Arquitetura da Plataforma.</span></p>
-<p class="rvps9"><span class="rvts18">Cada serviço realiza um conjunto de tarefas de forma independente, local ou distribuída em diferentes computadores, mas que se comunicam para dar sequência a novos processamentos. Os serviços disponíveis são:</span></p>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
-<li class="rvps10"><span class="rvts19">Serviço de Coleta : </span><span class="rvts18">Responsável pela coleta dos dados ambientais disponibilizados por servidores de dados, buscando periodicamente tais dados. Caso sejam encontrados, tais dados são baixados e incluídos na base de dados do projeto. Os tipos de servidores de dados e sua localização são definidos através da interface web do módulo de administração. Um serviço de coleta pode ser executado localmente ou remotamente em diferentes máquinas. Veja como utilizar um serviço de </span><a class="rvts30" href="add_dynamic_data.html">coleta para obter dados dinâmicos</a><span class="rvts18">.</span></li>
-<li class="rvps10"><span class="rvts19">Serviço de Interpolação:</span><span class="rvts18">&nbsp;Responsável pela criação de dados dinâmicos matriciais como resultado de interpolação dos dados de PCD ou ocorrências coletados, produzindo novos dados matriciais dinâmicos. Um serviço de interpolação pode ser executado localmente ou remotamente em diferentes máquinas. Veja como utilizar um serviço de interpolação para criar novos dados dinâmicos matriciais.</span></li>
-<li class="rvps10"><span class="rvts19">Serviço de Análise</span><span class="rvts18">&nbsp;: Responsável pelo cruzamento entre dos dados ambientais (hidrometeorológicos) e dados estáticos. Uma análise configurada produzirá novos dados dinâmicos, seja geográficos ou tabulares. Os modelos de análises são desenvolvidas com a linguagem de programação Python. Um serviço de análise pode ser executado localmente ou remotamente em diferentes máquinas. Veja como </span><a class="rvts30" href="analysis.html">utilizar um serviço de análise para criar novos dados dinâmicos pela interseção espacial entre dados dinâmicos e estáticos</a><span class="rvts18">.</span></li>
-<li class="rvps10"><span class="rvts19">Serviço de Visualização</span><span class="rvts18">&nbsp;: Responsável por publicar dados estáticos, dinâmicos ou resultados &nbsp;de análises no módulo de monitoramento. O serviço utiliza o Geoserver para criar as camadas a serem publicadas, juntamente com o estilo a ser apresentado. Um serviço de visualização pode ser executado localmente ou remotamente em diferentes máquinas. Veja como utilizar um </span><a class="rvts30" href="views.html">serviço de visualização para publicar todos os dados no módulo de monitoramento.</a></li>
-<li class="rvps10"><span class="rvts19">Serviço de Alerta</span><span class="rvts18">&nbsp;: Responsável pelo envio de mensagens e relatórios contendo informações a respeito das alterações nos níveis de risco detectados pelo serviço de análise. Os usuários devem se cadastrar como observadores das análises para receberem os relatórios de alteração, enviados através de correio eletrônico. Um serviço de alerta pode ser executado localmente ou remotamente em diferentes máquinas. Veja como utilizar um </span><a class="rvts30" href="alerts.html">serviço de alerta para enviar notificações aos usuários</a><span class="rvts18">.</span></li>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<p class="rvps17"><span class="rvts23">A plataforma está baseada no conceito de serviços que aceitam uma ou mais requisições e retornam um ou mais resultados com base em tarefas definidas pelo usuário para coletar, analisar, visualizar, criar dados e alertar de situações extremas. Uma interface web é utilizada para administrar os serviços e definir tais tarefas serão executados por projetos de monitoramento (Figura 1.2). Esta interface web é identificada como “</span><span class="rvts27">Módulo de Administração</span><span class="rvts23">”.</span></p>
+<p class="rvps17"><span class="rvts23">Projetos são administrados por usuários onde são definidos dados dinâmicos e estáticos através de servidores de dados. Análises são definidas fazendo uso de dados estáticos e dinâmicos que são processados com operadores espaciais da plataforma e uma linguagem de programação de fácil utilização. Tais análises produzem novos dados dinâmicos para serem reutilizados. A visualização dos dados é definida para dados estáticos, dinâmicos e análises. O alerta é definido a partir de dados dinâmicos que foram coletados ou resultados de análises que produzem notificações para serem enviadas a usuários por email.</span></p>
+<p class="rvps17"><span class="rvts23">Uma segunda interface web é utilizada pelo usuário final que terá acesso aos dados por uma interface gráfica. Esta interface web é identificada como “</span><span class="rvts27">Módulo de Monitoramento</span><span class="rvts23">” responsável por apresentar todos dados estáticos, dinâmicos, resultados de análises, alertas, gráficos e dados tabulares associados (ver Capítulo 5).</span></p>
+<p class="rvps17"><span class="rvts23"><br/></span></p>
+<p class="rvps22"><img width="635" height="683" alt="" style="padding : 1px;" src="lib/NewItem.png"></p>
+<p class="rvps20"><span class="rvts28">Figura 1.2 </span><span class="rvts29">– Arquitetura da Plataforma.</span></p>
+<p class="rvps17"><span class="rvts23">Cada serviço realiza um conjunto de tarefas de forma independente, local ou distribuída em diferentes computadores, mas que se comunicam para dar sequência a novos processamentos. Os serviços disponíveis são:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 43px; list-style-position: outside;">
+<li style="margin-left: 0px" class="rvps21"><span class="rvts27">Serviço de Coleta : </span><span class="rvts23">Responsável pela coleta dos dados ambientais disponibilizados por servidores de dados, buscando periodicamente tais dados. Caso sejam encontrados, tais dados são baixados e integrados na base de dados do projeto do usuário. Os tipos de servidores de dados e sua localização são definidos através da interface web do módulo de administração. Um serviço de coleta pode ser executado localmente ou remotamente em diferentes máquinas. No Capítulo 2 veja como utilizar um serviço de coleta para obter dados dinâmicos.</span></li>
+<li style="margin-left: 0px" class="rvps21"><span class="rvts27">Serviço de Interpolação:</span><span class="rvts23">&nbsp;Responsável pela criação de dados dinâmicos matriciais como resultado de interpolação dos dados de PCD, produzindo novos dados matriciais dinâmicos. Um serviço de interpolação pode ser executado localmente ou remotamente em diferentes máquinas. No Capítulo 3 veja como utilizar um serviço de interpolação para criar dados dinâmicos matriciais.</span></li>
+<li style="margin-left: 0px" class="rvps21"><span class="rvts27">Serviço de Análise</span><span class="rvts23">&nbsp;: Responsável pelo cruzamento entre dos dados ambientais (hidrometeorológicos) e dados estáticos. Uma análise configurada produzirá novos dados dinâmicos, seja geográficos ou tabulares. Os modelos de análises são desenvolvidos com a linguagem de programação Python ou em interfaces padronizadas. Um serviço de análise pode ser executado localmente ou remotamente em diferentes máquinas. No Capítulo 3 veja como utilizar um serviço de análise para criar dados dinâmicos pela interseção espacial entre dados dinâmicos e estáticos.</span></li>
+<li style="margin-left: 0px" class="rvps21"><span class="rvts27">Serviço de Visualização</span><span class="rvts23">&nbsp;: Responsável por publicar dados estáticos, dinâmicos ou resultados &nbsp;de análises no módulo de monitoramento. O serviço utiliza o Geoserver para criar as camadas a serem publicadas, juntamente com o estilo a ser apresentado. Um serviço de visualização pode ser executado localmente ou remotamente em diferentes máquinas. No Capítulo 4 veja como utilizar um serviço de visualização para publicar todos os dados no módulo de monitoramento.</span></li>
+<li style="margin-left: 0px" class="rvps21"><span class="rvts27">Serviço de Alerta</span><span class="rvts23">&nbsp;: Responsável pelo envio de mensagens e relatórios contendo informações a respeito das alterações nos níveis de risco detectados pelo serviço de análise. Os usuários devem se cadastrar como observadores das análises para receberem os relatórios de alteração, enviados através de correio eletrônico. Um serviço de alerta pode ser executado localmente ou remotamente em diferentes máquinas. No Capítulo 4 veja como utilizar um serviço de alerta para enviar notificações aos usuários.</span></li>
 </ul>
-<p class="rvps9"><span class="rvts18">A Figura 1.2 mostra ainda como diferentes dados podem estar disponíveis em uma base de dados de um projeto. Note que há dados dinâmicos que são adquiridos pelo serviço de coleta, dados dinâmicos que são gerados pela plataforma como resultado de análises ou interpolações e dados dinâmicos disponíveis por outras tecnologias como radares, satélites ou outros bancos de dados que estão localmente na mesma rede de computadores onde está a plataforma TerraMA². Parte dos dados dinâmicos coletados, como dados de PCD´s e ocorrências, devem ser armazenados em um banco espacial PostgreSQL+PostGIS. Um banco de dados de nome “terrama2” é definido para armazenar todas as tabelas de metadados além de poder armazenar parte dos dados que serão utilizados.</span></p>
+<p class="rvps17"><span class="rvts23">A Figura 1.2 mostra ainda como diferentes dados podem estar disponíveis em uma base de dados de um projeto. Note que há dados dinâmicos que são adquiridos pelo serviço de coleta, dados dinâmicos que são gerados pela plataforma como resultado de análises ou interpolações e dados dinâmicos disponíveis por outras tecnologias como radares, satélites ou outros bancos de dados disponíveis para a plataforma TerraMA². Parte dos dados dinâmicos coletados, como dados de PCD´s e ocorrências, devem ser armazenados em um banco espacial PostgreSQL+PostGIS, já outros dados como arquivos matriciais são armazenadas em servidores de arquivos locais. Um banco de dados de nome “terrama2” é definido na instalação e um esquema “terrama2” para armazenar todas as tabelas de metadados. Outros dados em outros esquemas do mesmo banco do TerraMA</span><span class="rvts30">2</span><span class="rvts23">&nbsp;podem ser armazenados.</span></p>
+<p class="rvps17"><span class="rvts31"><br/></span></p>
 <p></p>
 
             </div>
             
-            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2019 by INPE. All Rights Reserved.</div></div>
+            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2020 by INPE. All Rights Reserved.</div></div>
         </div>  <!-- /#topic-content -->
     </article>
 
@@ -232,14 +234,13 @@
   </div>
 
   <!-- Scripts -->
-  <script src="vendors/jquery-3.3.1/jquery.min.js"></script>
-  <script src="vendors/bootstrap-3.4.0/js/bootstrap.min.js"></script>
-  <script src="vendors/fastclick-1.0.6/fastclick.min.js"></script>
+  <script src="vendors/jquery-3.4.1/jquery.min.js"></script>
+  <script src="vendors/bootstrap-3.4.1/js/bootstrap.min.js"></script>
   <script src="vendors/markjs-8.11.1/jquery.mark.min.js"></script>
   <script src="vendors/uri-1.19.1/uri.min.js"></script>
   <script src="vendors/imageMapResizer-1.0.7/imageMapResizer.min.js"></script>
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <script src="vendors/bootstrap-3.4.0/js/ie10-viewport-bug-workaround.js"></script>
+  <script src="vendors/bootstrap-3.4.1/js/ie10-viewport-bug-workaround.js"></script>
   
   <!-- Headroom -->
   <script src="vendors/headroom-0.9.4/headroom.min.js"></script>
@@ -257,8 +258,6 @@
   <!-- Scripts -->
   <script>
     $(function() {
-      // Instanciate FastClick
-      Origami.fastclick(document.body);
       // Create the app
       var app = new Hnd.App();
       // Update translations

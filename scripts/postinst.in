@@ -44,7 +44,7 @@ printf "Post-installation script...\n"
 
   ${INSTALL_COMMAND} install
   valid $? "Unable to install NodeJs dependencies."
-
+  
   npm run grunt
   valid $? "Error executing grunt."
 

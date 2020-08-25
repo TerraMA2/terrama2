@@ -86,7 +86,7 @@ define(
       classes += disabled ? " layer disabled-content" : " layer"
 
       let showCog = parent=='template'?"style='display:none'":'';
-      return `<li data-layerid="${id}" data-parentid="${parent}" title="${title}" id="${id.replace(':', '')}" class="${classes}" style="${style}">
+      return `<li data-layerid="${id}" data-parentid="${parent}" data-container="body" data-toggle="popover" data-content="${title}" id="${id.replace(':', '')}" class="${classes}" style="${style}">
                 <div class="sidebar-subitem-text">
                   <div class="checkbox">
                     <label>
@@ -117,7 +117,7 @@ define(
      * @memberof LayerExplorer
      * @inner
      */
-    var addLayersFromMap = function(id, parent, appendAtTheEnd, classes, style) {
+    var addLayersFromMap = function(id, parent, appendAtTheEnd, classes, style, description = '') {
       appendAtTheEnd = (appendAtTheEnd !== null && appendAtTheEnd !== undefined) ? appendAtTheEnd : false;
       classes = (classes !== null && classes !== undefined) ? classes : '';
       style = (style !== null && style !== undefined) ? style : '';
@@ -128,7 +128,7 @@ define(
         data['classes'] = classes;
         data['style'] = style;
 
-        var elem = buildLayersFromMap(data, parent);
+        var elem = buildLayersFromMap(data, parent, description);
 
         if(parent === 'terrama2-layerexplorer') {
           if(appendAtTheEnd) $('#' + parent).append(elem);
@@ -172,7 +172,7 @@ define(
      * @memberof LayerExplorer
      * @inner
      */
-    var buildLayersFromMap = function(layer, parent) {
+    var buildLayersFromMap = function(layer, parent, description = '') {
       var elem = "";
       if(layer.getLayers) {
         var sublayersElem = '',
@@ -188,7 +188,7 @@ define(
           elem = createLayerGroup(layer.get('id'), layer.get('name'), parent, sublayersElem, layer['classes'], layer['style']);
       } else {
         if(!$("#" + layer.get('id').replace(':', '')).length)
-          elem = createLayer(layer.get('id'), layer.get('name'), layer.get('title'), parent, layer.get('visible'), layer.get('disabled'), layer['classes'], layer['style']);
+          elem = createLayer(layer.get('id'), layer.get('name'), description, parent, layer.get('visible'), layer.get('disabled'), layer['classes'], layer['style']);
       }
 
       return elem;

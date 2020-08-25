@@ -14,7 +14,8 @@ const view = {
 
 module.exports = {
   up: async function (queryInterface, /*Sequelize*/) {
-    const { db } = Application.getContextConfig();
+    const settings = Application.getContextConfig();
+    const db = settings.db;
     const { database, host, password, username, port } = db;
 
     await queryInterface.bulkInsert({ schema: 'terrama2', tableName: 'service_instances'}, [view]);
@@ -39,7 +40,7 @@ module.exports = {
     const metadata = {
       key: 'maps_server',
       service_instance_id: id,
-      value: 'http://admin:geoserver@localhost:8080/geoserver'
+      value: `http://admin:geoserver@localhost:8080/geoserver`
     }
 
     return queryInterface.bulkInsert({ schema: 'terrama2', tableName: 'service_metadata' }, [metadata]);

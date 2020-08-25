@@ -1,6 +1,7 @@
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var request = require('request');
+const common = require('./../utils/common');
 
 var setupPassport = function(app) {
   app.use(passport.initialize());
@@ -25,7 +26,7 @@ var setupPassport = function(app) {
     },
     function(username, password, done) {
       var options = {
-        url: app.locals.ADMIN_URL + 'login/remote',
+        url: common.urlResolve(app.locals.INTERNAL_ADMIN_URL, '/login/remote'),
         form: {
           username: username,
           password: password

@@ -2,12 +2,16 @@ define([],()=> {
   class AttributesComponent {
     constructor(i18n, dataProviderService, $timeout) {
       this.saveBtnTitle=i18n.__("Save")
+      this.attributeNameLabel = i18n.__("Attribute Name")
+      this.aliasLabel = i18n.__("Alias")
+      this.visibleLabel = i18n.__("Visible")
       this.dataProviderService=dataProviderService
       this.$timeout=$timeout
       this.onListColumns()
     }
 
     onListColumns(){
+      
       this.$timeout(()=>{
         this.model = [];
         
@@ -16,19 +20,29 @@ define([],()=> {
 
         const {tableName, provider, dataProviderService} = this
 
+        var table = "";
+        var isView = false;
+        if(this.dataserie.semantics.code == "STATIC_DATA-VIEW-postgis" && $("#view_name").val() != undefined){
+          table = $("#view_name").val();
+          isView = true;
+        }else{
+          table = tableName
+        }
+
         $.ajax({
           url: BASE_URL + 'api/datasetidByDataSerie',
           type: "GET",
           async: false,
           data: {
             dataProviderid: dataProviderid,
-            dataSerieTableName: tableName
+            dataSerieTableName: table,
+            isView:isView
           }
         }).done(function(response){ 
 
           if(typeof response !== 'undefined' && typeof response[0] !== 'undefined'){
             var dataSetid = response[0].data_set_id;
-            
+
             $.ajax({
               url: BASE_URL + 'api/attributesByDataSerie',
               type: "GET",
@@ -93,9 +107,9 @@ define([],()=> {
             <table class="table table-hover">
               <thead>
                 <tr>
-                  <th class="col-md-2">Attribute name</th>
-                  <th class="col-md-1">Visible</th>
-                  <th class="col-md-9">Alias</th>
+                  <th class="col-md-2">{{ $ctrl.attributeNameLabel }}</th>
+                  <th class="col-md-1">{{ $ctrl.visibleLabel }}</th>
+                  <th class="col-md-9">{{ $ctrl.aliasLabel }}</th>
                 </tr>
               </thead>
               <tbody>

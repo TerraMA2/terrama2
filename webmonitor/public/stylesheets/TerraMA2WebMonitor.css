@@ -362,7 +362,7 @@ img[src=""] {
 .map-tool-button {
   padding: 3px;
   max-height: 350px;
-  background-color: rgba(0, 0, 0, .4)
+  background-color: rgba(255, 255, 255, .4)
 }
 
 .slider-content>div {
@@ -573,6 +573,10 @@ img[src=""] {
   height: 29px
 }
 
+#feature-info-box {
+  height: 50vh !important;
+}
+
 #feature-info-box,
 #map-info-box {
   width: 100%!important;
@@ -599,17 +603,6 @@ img[src=""] {
 
 .cursor-pointer {
   cursor: pointer!important
-}
-
-.ol-control,
-.ol-control:hover,
-.ol-overlaycontainer,
-.ol-overlaycontainer:hover,
-.ol-unselectable,
-.ol-unselectable:hover,
-.ol-zoom,
-.ol-zoom:hover {
-  background-color: rgba(0, 0, 0, .4)!important
 }
 
 #table-div {
@@ -681,7 +674,7 @@ img[src=""] {
   position: absolute;
   width: 320px;
   height: 480px;
-  right: 300px
+  right: 400px
 }
 
 #layer-toolbox,
@@ -890,15 +883,11 @@ img[src=""] {
   margin: 0 auto;
   text-align: justify;
   font-size: 18px;
+  height: 500px !important;
 }
 
 .ui-dialog {
-  width: 50% !important;
-  height: calc(100% - 80px) !important;
-  bottom: 50px;
   overflow: hidden;
-  top: 20px !important;
-  margin: 0 auto;
   z-index: 99999 !important;
 }
 
@@ -1369,13 +1358,13 @@ img[src=""] {
   top: unset;
   left: unset;
   right: 15px !important;
-  bottom: 15px !important;
+  bottom: 60px !important;
   position: fixed !important
 }
 
-.ol-attribution {
+/* .ol-attribution {
   display: none !important;
-}
+} */
 
 .ol-rotate {
   display: none !important;

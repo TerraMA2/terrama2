@@ -111,6 +111,8 @@ int terrama2::services::analysis::core::grid::zonal::history::numImpl(const std:
     filter.discardBefore = context->getTimeFromString(dateDiscardBefore);
     filter.discardAfter = context->getTimeFromString(dateDiscardAfter);
 
+    filter.isPythonAnalysis = true;
+
     int count = 0;
     auto datasets = dataSeries->datasetList;
     for(const auto& dataset : datasets)
@@ -226,6 +228,8 @@ boost::python::list terrama2::services::analysis::core::grid::zonal::history::li
     filter.discardBefore = context->getTimeFromString(dateDiscardBefore);
     filter.discardAfter = context->getTimeFromString(dateDiscardAfter);
 
+    filter.isPythonAnalysis = true;
+
     auto seriesList = context->getSeriesMap(dataSeries->id, filter);
     for(const auto& pair : seriesList)
     {
@@ -324,6 +328,8 @@ double terrama2::services::analysis::core::grid::zonal::history::operatorImpl(te
   terrama2::core::Filter filter;
   filter.discardBefore = context->getTimeFromString(dateDiscardBefore);
   filter.discardAfter = context->getTimeFromString(dateDiscardAfter);
+
+  filter.isPythonAnalysis = true;
 
   return terrama2::services::analysis::core::grid::zonal::operatorImpl(statisticOperation, dataSeriesName, filter, band, buffer, context, cache);
 }

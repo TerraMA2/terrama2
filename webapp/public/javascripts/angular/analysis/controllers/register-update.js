@@ -350,6 +350,7 @@ define([], function() {
 
             if (analysisDs.type === Globals.enums.AnalysisDataSeriesType.ADDITIONAL_DATA_TYPE) {
               var dataSeriesTemporality = analysisDs.dataSeries.data_series_semantics.temporality == 'DYNAMIC' ? 'dynamic' : 'static';
+              
               if (dataSeriesTemporality == 'dynamic')
                 ds.isDynamic = true;
               else
@@ -993,6 +994,49 @@ define([], function() {
         self.onMetadataFormatClick = function(format) {
           self.analysis.metadata.INFLUENCE_RADIUS_UNIT = format;
         };
+        self.charCount = function(str, letter){
+          var letter_Count = 0;
+          for (var position = 0; position < str.length; position++) 
+          {
+            if (str.charAt(position) == letter) 
+              {
+              letter_Count += 1;
+              }
+          }
+          return letter_Count;
+        }
+
+        self.clauseCount = function(main_str, sub_str){
+          main_str = main_str.toUpperCase() +  '';
+          sub_str += '';
+      
+          if (sub_str.length <= 0) 
+          {
+              return main_str.length + 1;
+          }
+      
+          var subStr = sub_str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          return (main_str.match(new RegExp(subStr, 'gi')) || []).length;
+        }
+
+        self.queryIsValid = function(query){
+            if (self.charCount(query, '(') == self.charCount(query, ')')){
+              var clauseAnd = self.clauseCount(query, 'AND');
+              var clauseOr = self.clauseCount(query, 'OR');
+              // var clauseCount = clauseAnd + clauseOr;
+
+              // if (clauseCount !== (self.charCount(query, '(') - 1)){
+              //   return false;
+              // }
+
+              return true;
+            }
+            return false;
+        }
+
+        self.teste = function(){
+          console.log("teste ok");
+        }
 
         /**
          * It prepares analysis object to send via API
@@ -1014,12 +1058,25 @@ define([], function() {
            */
           var errMessageEmptyFields = i18n.__("There are invalid fields on form");
 
+          if(self.semanticsSelected == "Vector Processing"){
+            var queryResult = ""
+            try{
+              queryResult = $("#sql-result").val();
+            }catch(err){
+              queryResult ="";
+            }
+            
+            if (!self.queryIsValid(queryResult) && queryResult !== ""){
+              $scope.forms.scriptForm.$invalid = true;
+              errMessageEmptyFields = i18n.__("Query result is invalid!");
+            }
+          }
+
           var scheduleForm = angular.element('form[name="scheduleForm"]').scope().scheduleForm;
           if ($scope.forms.generalDataForm.$invalid ||
               $scope.forms.storagerDataForm.$invalid ||
               $scope.forms.storagerForm.$invalid ||
               scheduleForm.$invalid ||
-              $scope.forms.targetDataSeriesForm.$invalid ||
               $scope.forms.scriptForm.$invalid) {
             throw new Error(errMessageEmptyFields);
           }
@@ -1050,7 +1107,6 @@ define([], function() {
             };
 
             var expression, message;
-
             if (typeId === AnalysisService.types.GRID) {
               expression = "return";
               message = "Grid analysis script must end with 'return' statement";
@@ -1156,6 +1212,9 @@ define([], function() {
 
           // preparing data to send
           var analysisToSend = Object.assign({}, self.analysis);
+          if(self.semanticsSelected == "Vector Processing"){
+            analysisToSend.script = queryResult.replace(/'/g, "\\'");
+          }
 
           // setting target data series metadata (monitored object, dcp..)
           if (typeId !== Globals.enums.AnalysisType.GRID) {
@@ -1199,7 +1258,7 @@ define([], function() {
             case "minutes":
             case "hours":
               scheduleValues.frequency_unit = scheduleValues.scheduleHandler;
-              scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? moment(scheduleValues.frequency_start_time).utc().format("HH:mm:ssZ") : "";
+              scheduleValues.frequency_start_time = scheduleValues.frequency_start_time ? moment(scheduleValues.frequency_start_time).format("HH:mm:ss") : "";
               break;
             case "weeks":
             case "monthly":
@@ -1257,24 +1316,25 @@ define([], function() {
 
         // save function
         self.save = function(shouldRun) {
+          debugger;
           try {
             var objectToSend = self.$prepare(shouldRun);
-
+            
             if (self.isUpdating && !hasProjectPermission){
               return MessageBoxService.danger(i18n.__("Permission"), i18n.__("You can not edit this analysis. He belongs to a protected project!"));
             }
-
+            
             if (!canSave){
               return MessageBoxService.danger(i18n.__("Analysis"), i18n.__(serviceOfflineMessage));
             }
-
+            
             var performOperation = function() {
               /**
                * Target object request (update/insert)
                * @type {angular.IPromise<any>}
                */
               var request;
-
+              
               if (self.isUpdating) { request = AnalysisService.update(config.analysis.id, objectToSend); }
               else { request = AnalysisService.create(objectToSend); }
 

@@ -7,7 +7,7 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="generator" content="HelpNDoc Standard Edition 5.7.0.575">
+  <meta name="generator" content="HelpNDoc Standard Edition 6.9.0.577">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="favicon.ico"/>
 
@@ -16,6 +16,8 @@
   <meta name="keywords" content="">
 
 
+
+  
 
   <!-- Twitter Card data -->
   <meta name="twitter:card" content="summary">
@@ -26,22 +28,22 @@
   <meta property="og:title" content="Principais SRID" />
   <meta property="og:type" content="article" />
   <meta property="og:description" content="" />
-  <meta property="og:site_name" content="Plataforma de Monitoramento Ambiental TerraMA&sup2;" /> 
+  <meta property="og:site_name" content="Manual da plataforma TerraMA2" /> 
 
   <!-- Bootstrap core CSS -->
-  <link href="vendors/bootstrap-3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="vendors/bootstrap-3.4.1/css/bootstrap.min.css" rel="stylesheet"/>
 
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <link href="vendors/bootstrap-3.3.6/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
+  <link href="vendors/bootstrap-3.4.1/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
 
   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
   <!--[if lt IE 9]>
-      <script src="vendors/html5shiv-3.7.2/html5shiv.min.js"></script>
+      <script src="vendors/html5shiv-3.7.3/html5shiv.min.js"></script>
       <script src="vendors/respond-1.4.2/respond.min.js"></script>
     <![endif]-->
 
   <!-- JsTree styles -->
-  <link href="vendors/jstree-3.3.2/themes/default/style.min.css" rel="stylesheet"/>
+  <link href="vendors/jstree-3.3.7/themes/default/style.min.css" rel="stylesheet"/>
 
   <!-- Hnd styles -->
   <link href="css/layout.min.css" rel="stylesheet" />
@@ -72,7 +74,7 @@
       <span class="sr-only">Toggle navigation</span>
       <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>        
     </button>
-    <h1>Plataforma de Monitoramento Ambiental TerraMA&sup2;</h1>
+    <h1>Manual da plataforma TerraMA2</h1>
     
   </header>
 
@@ -162,16 +164,16 @@
     <article>
         <div id="topic-content" class="container-fluid" 
 		  data-hnd-id="PrincipaisSRID"
-		  data-hnd-context="49"
+		  data-hnd-context="7"
 		  data-hnd-title="Principais SRID"
 		>
             
                 <div class="navigation">
                     <ol class="breadcrumb">
-                        <li><a href="Anexos.html">Anexos</a></li>
+                        <li><a href="attachments.html">Anexos</a></li>
                     </ol>
                     <div class="nav-arrows">
-                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="Anexos.html" title="Anexos" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="Anexos.html" title="Anexos" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="UmpoucodePython.html" title="Um pouco de Python" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
+                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="attachments.html" title="Anexos" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="attachments.html" title="Anexos" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="python.html" title="Um pouco de Python" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
                     </div>
                 </div> 
             
@@ -183,285 +185,284 @@
             <div class="main-content">
                 
 <p></p>
-<h2 class="rvps177"><span class="rvts0"><span class="rvts136">A.1 – Principais SRID</span></span></h2>
-<p class="rvps37"><span class="rvts22">Quando trabalhamos em qualquer aplicativo SIG, uma tarefa padrão é determinar o </span><span class="rvts38">Sistema de Referência de Coordenadas</span><span class="rvts22"> nos projetos, arquivos raster, arquivos vetoriais, banco de dados, entre outros. Nem sempre esta tarefa é fácil, pois são necessários em algumas situações definir o elipsóide, o fuso, o hemisfério e outro parâmetros.</span></p>
-<p class="rvps37"><span class="rvts22">Para organizar essa informação no sistema, o Grupo de Pesquisa Petrolífera Européia – </span><span class="rvts38">European Petroleum Survey Group (EPSG)</span><span class="rvts22">, sistematizou todos os Sistemas de Referência de Coordenadas (SRC) do planeta por códigos, os chamados </span><span class="rvts38">Códigos EPSG</span><span class="rvts22">. Isso significa que uma projeção de qualquer lugar do mundo pode ser identificada através do padrão EPSG. Por exemplo, o Código </span><span class="rvts38">EPSG: 4674</span><span class="rvts46">&nbsp;</span><span class="rvts22">indica para qualquer pessoa que dados vetoriais ou matriciais foram reprojetados para o </span><span class="rvts38">Sistema de Coordenadas Geográficas SIRGAS 2000</span><span class="rvts22"> (ou &nbsp;GCS_SIRGAS2000 – Geographic Coordinate System, SIRGAS 2000 Datum).</span></p>
-<p class="rvps37"><span class="rvts46"><br/></span></p>
-<h3 class="rvps163"><span class="rvts0"><span class="rvts127">Códigos EPSG Nacionais</span></span></h3>
-<p class="rvps37"><span class="rvts22">Os códigos EPSG facilitam a troca entre projeções. A lista dos&nbsp;códigos mais utilizados no Brasil está organizada na tabela abaixo.</span></p>
-<div class="rvps178"><table width="649" border="1" cellpadding="0" cellspacing="-1" style="border-width: 0px; border-collapse: collapse;">
+<p class="rvps11"><span class="rvts19">Quando trabalhamos em qualquer aplicativo SIG, uma tarefa padrão é determinar o </span><span class="rvts22">Sistema de Referência de Coordenadas</span><span class="rvts19">&nbsp;nos projetos, arquivos raster, arquivos vetoriais, banco de dados, entre outros. Nem sempre esta tarefa é fácil, pois são necessários em algumas situações definir o elipsóide, o fuso, o hemisfério e outro parâmetros.</span></p>
+<p class="rvps11"><span class="rvts19">Para organizar essa informação no sistema, o Grupo de Pesquisa Petrolífera Européia – </span><span class="rvts22">European Petroleum Survey Group (EPSG)</span><span class="rvts19">, sistematizou todos os Sistemas de Referência de Coordenadas (SRC) do planeta por códigos, os chamados </span><span class="rvts22">Códigos EPSG</span><span class="rvts19">. Isso significa que uma projeção de qualquer lugar do mundo pode ser identificada através do padrão EPSG. Por exemplo, o Código </span><span class="rvts22">EPSG: 4674</span><span class="rvts36">&nbsp;</span><span class="rvts19">indica para qualquer pessoa que dados vetoriais ou matriciais foram reprojetados para o </span><span class="rvts22">Sistema de Coordenadas Geográficas SIRGAS 2000</span><span class="rvts19">&nbsp;(ou &nbsp;GCS_SIRGAS2000 – Geographic Coordinate System, SIRGAS 2000 Datum).</span></p>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<h3 class="rvps23"><span class="rvts0"><span class="rvts32">Códigos EPSG Nacionais</span></span></h3>
+<p class="rvps11"><span class="rvts19">Os códigos EPSG facilitam a troca entre projeções. A lista dos&nbsp;códigos mais utilizados no Brasil está organizada na tabela abaixo.</span></p>
+<div class="rvps180"><table width="519" border="1" cellpadding="0" cellspacing="-1" style="border-width: 0px; border-collapse: collapse;">
 <tr valign="top">
-<td width="274" height="19" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px;"><p class="rvps3"><span class="rvts115">CÓDIGO EPSG</span></p>
+<td width="219" height="15" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px;"><p class="rvps3"><span class="rvts63">CÓDIGO EPSG</span></p>
 </td>
-<td width="374" height="19" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-left: none;"><p class="rvps2"><span class="rvts115">PROJEÇÃO/DATUM</span></p>
+<td width="299" height="15" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-left: none;"><p class="rvps2"><span class="rvts63">PROJEÇÃO/DATUM</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px;"><p class="rvps3"><span class="rvts6">4225</span></p>
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px;"><p class="rvps3"><span class="rvts6">4225</span></p>
 </td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">GCS Corrego Alegre</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">4618</span></p>
-</td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">GCS SAD69</span></p>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">GCS Corrego Alegre</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">4674</span></p>
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">4618</span></p>
 </td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">GCS SIRGAS 2000</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">4326</span></p>
-</td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">GCS WGS84</span></p>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">GCS SAD69</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">22521</span></p>
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">4674</span></p>
 </td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">Corrego Alegre / UTM zone 21S</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">22522</span></p>
-</td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">Corrego Alegre / UTM zone 22S</span></p>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">GCS SIRGAS 2000</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">22523</span></p>
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">4326</span></p>
 </td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">Corrego Alegre / UTM zone 23S</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">22524</span></p>
-</td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">Corrego Alegre / UTM zone 24S</span></p>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">GCS WGS84</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">22525</span></p>
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">22521</span></p>
 </td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">Corrego Alegre / UTM zone 25S</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">29168</span></p>
-</td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SAD69 / UTM zone 18N</span></p>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">Corrego Alegre / UTM zone 21S</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">29188</span></p>
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">22522</span></p>
 </td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SAD69 / UTM zone 18S</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">29169</span></p>
-</td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SAD69 / UTM zone 19N</span></p>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">Corrego Alegre / UTM zone 22S</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">29189</span></p>
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">22523</span></p>
 </td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SAD69 / UTM zone 19S</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">29170</span></p>
-</td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SAD69 / UTM zone 20N</span></p>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">Corrego Alegre / UTM zone 23S</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">29190</span></p>
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">22524</span></p>
 </td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SAD69 / UTM zone 20S</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">29191</span></p>
-</td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SAD69 / UTM zone 21S</span></p>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">Corrego Alegre / UTM zone 24S</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">29192</span></p>
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">22525</span></p>
 </td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SAD69 / UTM zone 22S</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">29193</span></p>
-</td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SAD69 / UTM zone 23S</span></p>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">Corrego Alegre / UTM zone 25S</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">29194</span></p>
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">29168</span></p>
 </td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SAD69 / UTM zone 24S</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">29195</span></p>
-</td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SAD69 / UTM zone 25S</span></p>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SAD69 / UTM zone 18N</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">31972</span></p>
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">29188</span></p>
 </td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SIRGAS 2000 / UTM zone 18N</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">31978</span></p>
-</td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SIRGAS 2000 / UTM zone 18S</span></p>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SAD69 / UTM zone 18S</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">31973</span></p>
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">29169</span></p>
 </td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SIRGAS 2000 / UTM zone 19N</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">31979</span></p>
-</td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SIRGAS 2000 / UTM zone 19S</span></p>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SAD69 / UTM zone 19N</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">31974</span></p>
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">29189</span></p>
 </td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SIRGAS 2000 / UTM zone 20N</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">31980</span></p>
-</td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SIRGAS 2000 / UTM zone 20S</span></p>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SAD69 / UTM zone 19S</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">31981</span></p>
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">29170</span></p>
 </td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SIRGAS 2000 / UTM zone 21S</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">31982</span></p>
-</td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SIRGAS 2000 / UTM zone 22S</span></p>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SAD69 / UTM zone 20N</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">31983</span></p>
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">29190</span></p>
 </td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SIRGAS 2000 / UTM zone 23S</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">31984</span></p>
-</td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SIRGAS 2000 / UTM zone 24S</span></p>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SAD69 / UTM zone 20S</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">31985</span></p>
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">29191</span></p>
 </td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SIRGAS 2000 / UTM zone 25S</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">32618</span></p>
-</td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">WGS 84 / UTM zone 18N</span></p>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SAD69 / UTM zone 21S</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">32718</span></p>
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">29192</span></p>
 </td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">WGS 84 / UTM zone 18S</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">32619</span></p>
-</td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">WGS 84 / UTM zone 19N</span></p>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SAD69 / UTM zone 22S</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">32719</span></p>
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">29193</span></p>
 </td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">WGS 84 / UTM zone 19S</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">32620</span></p>
-</td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">WGS 84 / UTM zone 20N</span></p>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SAD69 / UTM zone 23S</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">32720</span></p>
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">29194</span></p>
 </td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">WGS 84 / UTM zone 20S</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">32721</span></p>
-</td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">WGS 84 / UTM zone 21S</span></p>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SAD69 / UTM zone 24S</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">32722</span></p>
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">29195</span></p>
 </td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">WGS 84 / UTM zone 22S</span></p>
-</td>
-</tr>
-<tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">32723</span></p>
-</td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">WGS 84 / UTM zone 23S</span></p>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SAD69 / UTM zone 25S</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="150" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">32724</span></p>
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">31972</span></p>
 </td>
-<td width="243" height="25" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">WGS 84 / UTM zone 24S</span></p>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SIRGAS 2000 / UTM zone 18N</span></p>
 </td>
 </tr>
 <tr valign="top">
-<td width="150" height="26" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">32725</span></p>
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">31978</span></p>
 </td>
-<td width="243" height="26" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">WGS 84 / UTM zone 25S</span></p>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SIRGAS 2000 / UTM zone 18S</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">31973</span></p>
+</td>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SIRGAS 2000 / UTM zone 19N</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">31979</span></p>
+</td>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SIRGAS 2000 / UTM zone 19S</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">31974</span></p>
+</td>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SIRGAS 2000 / UTM zone 20N</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">31980</span></p>
+</td>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SIRGAS 2000 / UTM zone 20S</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">31981</span></p>
+</td>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SIRGAS 2000 / UTM zone 21S</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">31982</span></p>
+</td>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SIRGAS 2000 / UTM zone 22S</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">31983</span></p>
+</td>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SIRGAS 2000 / UTM zone 23S</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">31984</span></p>
+</td>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SIRGAS 2000 / UTM zone 24S</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">31985</span></p>
+</td>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">SIRGAS 2000 / UTM zone 25S</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">32618</span></p>
+</td>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">WGS 84 / UTM zone 18N</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">32718</span></p>
+</td>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">WGS 84 / UTM zone 18S</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">32619</span></p>
+</td>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">WGS 84 / UTM zone 19N</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">32719</span></p>
+</td>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">WGS 84 / UTM zone 19S</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">32620</span></p>
+</td>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">WGS 84 / UTM zone 20N</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">32720</span></p>
+</td>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">WGS 84 / UTM zone 20S</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">32721</span></p>
+</td>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">WGS 84 / UTM zone 21S</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">32722</span></p>
+</td>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">WGS 84 / UTM zone 22S</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">32723</span></p>
+</td>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">WGS 84 / UTM zone 23S</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="120" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">32724</span></p>
+</td>
+<td width="194" height="20" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">WGS 84 / UTM zone 24S</span></p>
+</td>
+</tr>
+<tr valign="top">
+<td width="120" height="21" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps3"><span class="rvts6">32725</span></p>
+</td>
+<td width="194" height="21" valign="middle" style="border-width : 1px; border-color: #000000; border-style: solid; padding: 0px; border-top: none;"><p class="rvps2"><span class="rvts6">WGS 84 / UTM zone 25S</span></p>
 </td>
 </tr>
 </table>
 </div>
-<h3 class="rvps163"><span class="rvts0"><span class="rvts127">Notas</span></span></h3>
-<p class="rvps37"><span class="rvts22">1 – Atenção para projetos em áreas situadas no extremo norte do país: se o local de interesse está situado acima da Linha do Equador, utilize o código EPSG orientado para o Hemisfério Norte.</span></p>
-<p class="rvps37"><span class="rvts22">2 – Em alguns aplicativos SIG, você pode encontrar a palavra </span><span class="rvts38">deprecated</span><span class="rvts22"> (obsoleto) ao lado do Sistema de Coordenadas. Isso significa que a projeção escolhida é antiga e deve ser evitada. Exemplo: Em vez de utilizar a projeção obsoleta </span><span class="rvts38">EPSG:29182</span><span class="rvts22"> para a projeção/Datum </span><span class="rvts38">SAD 1969 UTM Zone 22 S,</span><span class="rvts46">&nbsp;</span><span class="rvts22">utilize ó código EPSG catalogado na lista – </span><span class="rvts38">EPSG:29192</span><span class="rvts22">. Todos os códigos do Brasil marcados como obsoletos não estão na lista e devem ser evitados.</span></p>
-<p class="rvps37"><span class="rvts46"><br/></span></p>
-<p class="rvps37"><span class="rvts46"><br/></span></p>
-<p class="rvps37"><span class="rvts6"><br/></span></p>
-<p class="rvps37"><span class="rvts6"><br/></span></p>
+<h3 class="rvps23"><span class="rvts0"><span class="rvts32">Notas</span></span></h3>
+<p class="rvps11"><span class="rvts19">1 – Atenção para projetos em áreas situadas no extremo norte do país: se o local de interesse está situado acima da Linha do Equador, utilize o código EPSG orientado para o Hemisfério Norte.</span></p>
+<p class="rvps11"><span class="rvts19">2 – Em alguns aplicativos SIG, você pode encontrar a palavra </span><span class="rvts22">deprecated</span><span class="rvts19">&nbsp;(obsoleto) ao lado do Sistema de Coordenadas. Isso significa que a projeção escolhida é antiga e deve ser evitada. Exemplo: Em vez de utilizar a projeção obsoleta </span><span class="rvts22">EPSG:29182</span><span class="rvts19">&nbsp;para a projeção/Datum </span><span class="rvts22">SAD 1969 UTM Zone 22 S,</span><span class="rvts36">&nbsp;</span><span class="rvts19">utilize ó código EPSG catalogado na lista – </span><span class="rvts22">EPSG:29192</span><span class="rvts19">. Todos os códigos do Brasil marcados como obsoletos não estão na lista e devem ser evitados.</span></p>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<p class="rvps11"><span class="rvts6"><br/></span></p>
 <p></p>
 
             </div>
             
-            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2018 by INPE. All Rights Reserved.</div></div>
+            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2020 by INPE. All Rights Reserved.</div></div>
         </div>  <!-- /#topic-content -->
     </article>
 
@@ -489,20 +490,20 @@
   </div>
 
   <!-- Scripts -->
-  <script src="vendors/jquery-1.11.3/jquery.min.js"></script>
-  <script src="vendors/bootstrap-3.3.6/js/bootstrap.min.js"></script>
-  <script src="vendors/fastclick-1.0.6/fastclick.min.js"></script>
-  <script src="vendors/markjs-8.8.3/jquery.mark.min.js"></script>
-  <script src="vendors/uri-1.18.9/uri.min.js"></script>
+  <script src="vendors/jquery-3.4.1/jquery.min.js"></script>
+  <script src="vendors/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+  <script src="vendors/markjs-8.11.1/jquery.mark.min.js"></script>
+  <script src="vendors/uri-1.19.1/uri.min.js"></script>
+  <script src="vendors/imageMapResizer-1.0.7/imageMapResizer.min.js"></script>
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <script src="vendors/bootstrap-3.3.6/js/ie10-viewport-bug-workaround.js"></script>
+  <script src="vendors/bootstrap-3.4.1/js/ie10-viewport-bug-workaround.js"></script>
   
   <!-- Headroom -->
-  <script src="vendors/headroom-0.9.3/headroom.min.js"></script>
-  <script src="vendors/headroom-0.9.3/jquery.headroom.min.js"></script>
+  <script src="vendors/headroom-0.9.4/headroom.min.js"></script>
+  <script src="vendors/headroom-0.9.4/jquery.headroom.min.js"></script>
 
   <!-- JsTree -->
-  <script src="vendors/jstree-3.3.2/jstree.min.js"></script>
+  <script src="vendors/jstree-3.3.7/jstree.min.js"></script>
 
   <!-- HelpNDoc scripts -->
   <script src="_translations.js"></script>
@@ -513,12 +514,12 @@
   <!-- Scripts -->
   <script>
     $(function() {
-      // Instanciate FastClick
-      Origami.fastclick(document.body);
       // Create the app
       var app = new Hnd.App();
       // Update translations
       hnd_ut(app);
+	  // Instanciate imageMapResizer
+	  imageMapResize();
 	  // Custom JS
 	  
       // Boot the app

@@ -58,6 +58,7 @@
 #include <QJsonParseError>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <boost/format.hpp>
 
 std::unique_ptr<te::dt::Property> terrama2::core::DataStoragerTable::copyProperty(te::dt::Property* property) const
 {
@@ -85,9 +86,7 @@ std::unique_ptr<te::dt::Property> terrama2::core::DataStoragerTable::copyPropert
           throw DataStoragerException() << ErrorDescription(errMsg);
         }
 
-        return std::unique_ptr<te::dt::Property>(new te::dt::StringProperty(name,
-                                                                            stringProperty->getSubType(),
-                                                                            stringProperty->size()));
+        return std::unique_ptr<te::dt::Property>(new te::dt::StringProperty(name, te::dt::STRING, 0));
       }
     case te::dt::DATETIME_TYPE:
       {
@@ -256,6 +255,9 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
   series.syncDataSet->setDataSet(updateAttributeNames(series.syncDataSet->dataset(), datasetType, outputDataSet));
 
   std::shared_ptr<te::da::DataSetType> newDataSetType;
+
+  std::string storageOption = getStorageOption(outputDataSet, dataSeries_);
+
   if (!transactorDestination->dataSetExists(destinationDataSetName))
   {
     // create and save datasettype in the datasource destination
@@ -303,6 +305,11 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
   }
   else
   {
+    if (storageOption == "replace") {
+      boost::format query("TRUNCATE TABLE " + destinationDataSetName);
+
+      transactorDestination->execute(query.str());
+    }
     newDataSetType = transactorDestination->getDataSetType(destinationDataSetName);
   }
 
@@ -320,6 +327,7 @@ void terrama2::core::DataStoragerTable::store(DataSetSeries series, DataSetPtr o
   transactorDestination->add(newDataSetType->getName(), series.syncDataSet->dataset().get(), {});
 
   scopedTransaction.commit();
+
 }
 
 std::string terrama2::core::DataStoragerTable::getGeometryPropertyName(DataSetPtr dataSet) const
@@ -348,3 +356,14 @@ bool terrama2::core::DataStoragerTable::isPropertyEqual(te::dt::Property* newPro
 
   return true;
 }
+
+std::string terrama2::core::DataStoragerTable::getStorageOption(terrama2::core::DataSetPtr dataSet, terrama2::core::DataSeriesPtr dataSeries) const {
+  std::string storageOption = "append";
+  try {
+    storageOption = getProperty(dataSet, dataSeries_, "storage_option", false);
+  } catch (UndefinedTagException&) {
+    // StorageOption is an optional parameter: Default = append
+  }
+  return storageOption;
+}
+

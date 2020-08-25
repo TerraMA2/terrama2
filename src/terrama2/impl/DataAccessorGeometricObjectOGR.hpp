@@ -68,6 +68,8 @@ namespace terrama2
         }
         static DataAccessorType dataAccessorType(){ return "GEOMETRIC_OBJECT-ogr"; }
 
+        virtual bool matchUncompressedFile(const std::string& filePath) const override;
+
         // Doc in base class
         virtual std::string dataSourceType() const override;
         // Doc in base class
@@ -75,7 +77,10 @@ namespace terrama2
 
         virtual std::string getTimestampMask(DataSetPtr dataSet, bool logErrors = false) const;
 
+        virtual std::string getDateType(DataSetPtr dataSet, bool logErrors = false) const;
+
         virtual void adapt(DataSetPtr dataset, std::shared_ptr<te::da::DataSetTypeConverter> converter) const override;
+
         virtual void addColumns(std::shared_ptr<te::da::DataSetTypeConverter> converter, const std::shared_ptr<te::da::DataSetType>& datasetType) const override;
 
         virtual bool isValidColumn(const std::string /*columnName*/) const { return true; }
@@ -98,7 +103,8 @@ namespace terrama2
                                                        const std::vector<std::size_t>& indexes,
                                                        int /*dstType*/,
                                                        const std::string& timezone,
-                                                       const std::string& timestampMask);
+                                                       const std::string& timestampMask,
+                                                       const std::string& dataType);
     };
   }
 }

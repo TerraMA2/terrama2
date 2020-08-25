@@ -45,6 +45,7 @@ var ViewsRetriever = function(app) {
                 }
 
                 var viewObject = view.toObject();
+                viewObject.description = view.view.description;
                 viewsObjects.push(viewObject);
               }
 

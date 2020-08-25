@@ -1,196 +1,220 @@
-# TerraMA² - Build and Generate Package in Linux
+# TerraMA² build instructions on Ubuntu 16.04
 
-## Dependencies that require manual installation on Linux
+Use the following script to build it automatically: [terrama2-ubuntu-16-04-config.sh](install/terrama2-ubuntu-16-04-config.sh).
+
+## Dependencies
 
 First of all make sure that your machine has the following installed requirements, before proceeding:
-* Git (call in shell command line):
-```
-sudo apt-get install git
-```
-* Build-Essentials (call in shell command line):
-```
-sudo apt-get install build-essential
-```
-* [CMake (preferably version 3.0.2)](https://cmake.org/download/) or call in shell command line:
-```
-sudo apt-get install cmake-gui
+
+```bash
+sudo apt-get install -y curl libcurl3-dev doxygen git build-essential unzip locales supervisor libpython2.7-dev libproj-dev libgeos++-dev libssl-dev libxerces-c-dev screen graphviz gnutls-bin gsasl libgsasl7 libghc-gsasl-dev libgnutls-dev zlib1g-dev debhelper devscripts ssh openssh-server libpq-dev openjdk-8-jdk python-psycopg2
 ```
 
-## Build and Install TerraLib
+### Installing CMake
 
-You should build and install TerraLib package required by TerraMA², according to the link below:
- - [Build and install TerraLib Package](http://www.dpi.inpe.br/terralib5/wiki/doku.php?id=wiki:documentation:devguide#downloading_the_source_code_and_building_instructions).
-
-## Cloning TerraMA² Repository
-
-1.1. Open the shell command line.
-
-1.2. Make a new folder to host TerraMA² source code:
-```
-mkdir -p /home/USER/mydevel/terrama2/codebase
+```bash
+wget -c https://github.com/Kitware/CMake/releases/download/v3.11.4/cmake-3.11.4-Linux-x86_64.sh
+sudo chmod +x cmake-3.11.4-Linux-x86_64.sh
+sudo ./cmake-3.11.4-Linux-x86_64.sh --skip-license --exclude-subdir --prefix=/usr/local
+rm -f cmake-3.11.4-Linux-x86_64.sh
 ```
 
-1.3. Change the current directory to that new folder:
-```
-cd /home/USER/mydevel/terrama2/codebase
+### Installing PostgreSQL
+
+```bash
+sudo touch /etc/apt/sources.list.d/pgdg.list
+sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install -y postgresql-11-postgis-2.5 postgis postgresql-server-dev-11 pgadmin4
 ```
 
-1.4. Make a local copy of TerraMA² repository:
-```
-git clone https://github.com/terrama2/terrama2.git .
-```
+### Installing Nodejs
 
-1.5. Then change to the branch you want to build, if necessary:
-```
-git checkout -b master origin/master
+```bash
+curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+sudo apt-get -y install nodejs
 ```
 
-We will assume that the codebase (all the source tree) is located at: `/home/USER/mydevel/terrama2/codebase`
+### Installing QtCreator
 
-## Building dependencies on Linux
-
-To compile TerraMA² from a fresh git clone you'll need:
-
-- libcurl3-dev
-- libpython2.7-dev
-- libproj-dev
-- libgeos++-dev
-- libxerces-c-dev
-- screen
-- postgresql-9.3-postgis-2.1
-
-All can be installed with the command:
-
-Ubuntu 14.04
-```
-sudo apt-get install curl libcurl3-dev libpython2.7-dev libproj-dev libgeos++-dev libxerces-c-dev screen postgresql-9.3-postgis-2.1
+```bash
+sudo apt-get -y install qtcreator
 ```
 
-Ubuntu 16.04
-```
-sudo apt-get install curl libcurl3-dev libpython2.7-dev libproj-dev libgeos++-dev libxerces-c-dev screen postgresql-9.5-postgis-2.2
-````
+### Installing VSCode
 
-We also need the VMime and Quazip library, as the ubuntu version is outdated we should use the [VMime](https://github.com/kisli/vmime/archive/v0.9.2.tar.gz) source version and the [Quazip](https://github.com/stachenov/quazip/archive/0.7.6.tar.gz) source version.
-
-### NodeJs
-
-The NodeJs can be installed with the commands:
-```
-curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
-sudo apt-get install -y nodejs
+```bash
+curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+sudo install -o root -g root -m 644 microsoft.gpg /etc/apt/trusted.gpg.d/
+sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
+rm -f microsoft.gpg
+sudo apt-get install code
 ```
 
-## Build Instructions
+## Creating TerraMA² directories
 
-After choosing the right branch or tag to work on, make sure you have all the third-party library dependencies needed before trying to build TerraMA².
-
-The `build/cmake` folder contains a CMake project for building TerraMA².
-
-You should use at least CMake version 2.8.12. Older versions than this may not work properly.
-
-### Development Environment
-
-1.1. Open a Command Prompt (Shell).
-
-1.2. Create a folder out of the TerraMA² source tree to generate the build system, for example:
-```
-cd /home/USER/mydevel/terrama2
-mkdir build-release
-cd build-release
-```
-**Note:** for the sake of simplicity create this directory in the same level as the source tree (as showned above).
-
-1.3. For Linux systems you must choose the build configuration:
-```
-cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE:STRING="Release" -DCMAKE_INSTALL_PREFIX:PATH="/home/USER/myinstall/terrama2" -DCMAKE_PREFIX_PATH:PATH="/home/USER/mylibs;/home/USER/mylibs/terralib5/lib/cmake" ../codebase/build/cmake
+```bash
+mkdir -p /home/$USER/mydevel/terrama2
+mkdir -p /home/$USER/mydevel/terrama2/build
+mkdir -p /home/$USER/mydevel/terrama2/3rdparty
+mkdir -p /home/$USER/mydevel/terrama2/mylibs
+mkdir -p /home/$USER/mydevel/terrama2/codebase
 ```
 
-1.4. Building (with 4 process in parallel):
-```
-make -j 4
+## Building Terralib
+
+You must build and install Terralib package required by TerraMA². Follow the next steps to do so. For more information access this link: [Build and install TerraLib Package](http://www.dpi.inpe.br/terralib5/wiki/doku.php?id=wiki:documentation:devguide#downloading_the_source_code_and_building_instructions).
+
+### Creating directories
+
+Create Terralib directories inside terrama2 folder.
+
+```bash
+mkdir -p /home/$USER/mydevel/terrama2/terralib
+mkdir -p /home/$USER/mydevel/terrama2/terralib/build
+mkdir -p /home/$USER/mydevel/terrama2/terralib/3rdparty
+mkdir -p /home/$USER/mydevel/terrama2/terralib/mylibs
+mkdir -p /home/$USER/mydevel/terrama2/terralib/codebase
 ```
 
-1.5. Installing:
-```
-make install
+### Cloning Terralib codebase
+
+Clone the source code inside codebase folder.
+
+```bash
+cd /home/$USER/mydevel/terrama2/terralib/codebase
+GIT_SSL_NO_VERIFY=false git clone -o upstream -b 5.4.5 https://gitlab.dpi.inpe.br/terralib/terralib.git .
 ```
 
-1.6. Uninstalling:
-```
-make uninstall
+### Download and compile Terralib dependencies
+
+```bash
+cd /home/$USER/mydevel/terrama2/terralib/3rdparty
+wget -c http://www.dpi.inpe.br/terralib5-devel/3rdparty/src/terralib-3rdparty-linux-ubuntu-16.04.tar.gz TERRALIB_DEPENDENCIES_DIR="/home/$USER/mydevel/terrama2/mylibs" /home/$USER/mydevel/terrama2/terralib/codebase/install/install-3rdparty-linux-ubuntu-16.04.sh
 ```
 
-**Notes:**
+### Compiling Terralib
 
-- Some Linux flavours with different versions of GNU gcc and Boost will need more parameters such as:
-```
-  -DCMAKE_INCLUDE_PATH:PATH="/usr/local;/opt/include"
-  -DCMAKE_LIBRARY_PATH:PATH="/usr/local;/opt/lib"
-  -DCMAKE_PROGRAM_PATH:PATH="/usr/local/bin;/opt/bin"
-  -DBOOST_ROOT:PATH="/opt/boost"
-```
+```bash
+cd /home/$USER/mydevel/terrama2/terralib/build
+cmake -G "CodeBlocks - Unix Makefiles" \
+	-DCMAKE_PREFIX_PATH:PATH="/home/$USER/mydevel/terrama2/mylibs" \
+	-DTERRALIB_BUILD_AS_DEV:BOOL="ON" \
+	-DTERRALIB_BUILD_EXAMPLES_ENABLED:BOOL="OFF" \
+	-DTERRALIB_BUILD_UNITTEST_ENABLED:BOOL="OFF" /home/$USER/mydevel/terrama2/terralib/build/cmake
 
-- Boost can also be indicated by *BOOST_INCLUDEDIR*:
-```
-  -DBOOST_INCLUDEDIR:PATH="/usr/local/include"
+make -j $(($(nproc)/2))
 ```
 
-- The parameter -lpthread must be informed only if your Boost was not built as a shared library:
-```
-  -DCMAKE_CXX_FLAGS:STRING="-lpthread"
+## Building TerraMA²
+
+### Cloning TerraMA² codebase
+
+```bash
+git clone -b master -o upstream https://github.com/TerraMA2/terrama2.git /home/$USER/mydevel/terrama2/codebase
 ```
 
-- For building with Qt5 you can provide the *Qt5_DIR* variable as:
-```
-  -DQt5_DIR:PATH="/usr/local/lib/cmake/Qt5"
+### TerraMA² dependencies
+
+```bash
+wget -c http://www.dpi.inpe.br/jenkins-data/terradocs/terrama2-3rdparty.zip
+unzip terrama2-3rdparty.zip
 ```
 
-- For generating a debug version set *CMAKE_BUILD_TYPE* as:
-```
-  -DCMAKE_BUILD_TYPE:STRING="Debug"
+### Compiling TerraMA²
+
+```bash
+cd /home/$USER/mydevel/terrama2/build
+
+cmake -G "CodeBlocks - Unix Makefiles" \
+	-DCMAKE_PREFIX_PATH:PATH="/home/$USER/mydevel/terrama2/mylibs" \
+	-DCMAKE_BUILD_TYPE:STRING="Debug" \
+	-DCMAKE_SKIP_BUILD_RPATH:BOOL="OFF" \
+	-DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL="OFF" \
+	-DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL="ON" \
+	-DCMAKE_PREFIX_PATH:PATH="/home/$USER/mydevel/terrama2/mylibs" \
+	-Dterralib_DIR:PATH="/home/$USER/mydevel/terrama2/terralib/build" \
+	-DBoost_INCLUDE_DIR="/home/$USER/mydevel/terrama2/mylibs/include" \
+	-DQUAZIP_INCLUDE_DIR="/home/$USER/mydevel/terrama2/3rdparty/quazip-install/include/quazip" \
+	-DQUAZIP_LIBRARIES="/home/$USER/mydevel/terrama2/3rdparty/quazip-install/lib/libquazip.so" \
+	-DQUAZIP_LIBRARY_DIR="/home/$USER/mydevel/terrama2/3rdparty/quazip-install/lib" \
+	-DQUAZIP_ZLIB_INCLUDE_DIR="/home/$USER/mydevel/terrama2/3rdparty/quazip-install/include" \
+	-DVMIME_INCLUDE_DIR="/home/$USER/mydevel/terrama2/3rdparty/vmime-install/include" \
+	-DVMIME_LIBRARY="/home/$USER/mydevel/terrama2/3rdparty/vmime-install/lib/libvmime.so" \
+	-DVMIME_LIBRARY_DIR="/home/$USER/mydevel/terrama2/3rdparty/vmime-install/lib" /home/$USER/mydevel/terrama2/codebase/build/cmake
+
+make -j $(($(nproc)/2))
 ```
 
-### Package
+## Webapp
 
-1.1 Change the current directory to that folder:
-```
-cd /home/USER/mydevel/terrama2/codebase/packages/deb-package
-```
+### Running npm
 
-1.2. In the shell command line, call the script *deb-terrama2.sh* to build and generate automatically the TerraMA² package:
-```
-./deb-terrama2.sh
+```bash
+cd /home/$USER/mydevel/terrama2/codebase/webapp/
+npm install
 ```
 
-**Note:** the script will assume that you installed terralib (and dependencies) at `/opt/terralib/5.4.2`.
+### Running grunt
 
-1.3. When finished the generated package will be located in the `build-package` folder in the same directory as your codebase.
-
-1.4. To install TerraMA² debian package in the shell command line change the current directory to the `build-package` folder and run the following command:
-```
-sudo dpkg -i TerraMA2-4.1.0-release-linux-x64-Ubuntu-16.04.deb
+```bash
+cd /home/$USER/mydevel/terrama2/codebase/webapp/
+grunt
 ```
 
-### Quick Notes for Developers
+### Copying configuration files
 
-- For Linux, you can set the following variable:
-```
-export LD_LIBRARY_PATH=/home/USER/mylibs/lib
-```
-
-- If you want to use `QtCreator` on Linux you can install it through the following command:
-```
-sudo apt-get install qtcreator
-```
-When using `QtCreator` use the CodeBlock Generator to avoid conflicts:
-```
-cmake -G "CodeBlocks - Unix Makefiles"...
+```bash
+cd /home/$USER/mydevel/terrama2/codebase/webapp/config
+cp db.json.example db.json
+cp settings.json.example settings.json
 ```
 
+## Configuring Webcomponents
 
-## Reporting Bugs
+### Running npm
 
-Any problem should be reported to `terrama2-team@dpi.inpe.br`.
+```bash
+cd /home/$USER/mydevel/terrama2/codebase/webcomponents/
+npm install
+```
 
-For more information on TerraMA², please, visit its main web page at: http://www.dpi.inpe.br/terrama2.
+### Running grunt
+
+```bash
+cd /home/$USER/mydevel/terrama2/codebase/webcomponents/
+grunt
+```
+
+## Configuring Webmonitor
+
+### Running npm
+
+```bash
+cd /home/$USER/mydevel/terrama2/codebase/webmonitor/
+npm install
+```
+
+### Running grunt
+
+```bash
+cd /home/$USER/mydevel/terrama2/codebase/webmonitor/
+grunt
+```
+
+### Copying configuration files
+
+```bash
+cd /home/$USER/mydevel/terrama2/codebase/webmonitor/config
+cp -r sample_instances instances/
+```
+
+## Installing Geoserver
+
+```bash
+cd /home/${USER}
+wget -c https://ufpr.dl.sourceforge.net/project/geoserver/GeoServer/2.12.5/geoserver-2.12.5-bin.zip
+unzip geoserver-2.12.5-bin.zip
+rm -f geoserver-2.12.5-bin.zip
+```
