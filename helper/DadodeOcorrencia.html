@@ -7,15 +7,17 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="generator" content="HelpNDoc Standard Edition 5.7.0.575">
+  <meta name="generator" content="HelpNDoc Standard Edition 6.9.0.577">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="favicon.ico"/>
 
   <title>Dado de Ocorr&ecirc;ncia</title>
   <meta name="description" content="" /> 
-  <meta name="keywords" content="">
+  <meta name="keywords" content="Dado de Ocorr&ecirc;ncia">
 
 
+
+  
 
   <!-- Twitter Card data -->
   <meta name="twitter:card" content="summary">
@@ -26,22 +28,22 @@
   <meta property="og:title" content="Dado de Ocorr&ecirc;ncia" />
   <meta property="og:type" content="article" />
   <meta property="og:description" content="" />
-  <meta property="og:site_name" content="Plataforma de Monitoramento Ambiental TerraMA&sup2;" /> 
+  <meta property="og:site_name" content="Manual da plataforma TerraMA2" /> 
 
   <!-- Bootstrap core CSS -->
-  <link href="vendors/bootstrap-3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="vendors/bootstrap-3.4.1/css/bootstrap.min.css" rel="stylesheet"/>
 
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <link href="vendors/bootstrap-3.3.6/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
+  <link href="vendors/bootstrap-3.4.1/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
 
   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
   <!--[if lt IE 9]>
-      <script src="vendors/html5shiv-3.7.2/html5shiv.min.js"></script>
+      <script src="vendors/html5shiv-3.7.3/html5shiv.min.js"></script>
       <script src="vendors/respond-1.4.2/respond.min.js"></script>
     <![endif]-->
 
   <!-- JsTree styles -->
-  <link href="vendors/jstree-3.3.2/themes/default/style.min.css" rel="stylesheet"/>
+  <link href="vendors/jstree-3.3.7/themes/default/style.min.css" rel="stylesheet"/>
 
   <!-- Hnd styles -->
   <link href="css/layout.min.css" rel="stylesheet" />
@@ -72,7 +74,7 @@
       <span class="sr-only">Toggle navigation</span>
       <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>        
     </button>
-    <h1>Plataforma de Monitoramento Ambiental TerraMA&sup2;</h1>
+    <h1>Manual da plataforma TerraMA2</h1>
     
   </header>
 
@@ -162,16 +164,16 @@
     <article>
         <div id="topic-content" class="container-fluid" 
 		  data-hnd-id="DadodeOcorrencia"
-		  data-hnd-context="48"
+		  data-hnd-context="36"
 		  data-hnd-title="Dado de Ocorrência"
 		>
             
                 <div class="navigation">
                     <ol class="breadcrumb">
-                        <li><a href="administration_module.html">M&oacute;dulo de Administra&ccedil;&atilde;o</a></li><li><a href="Projetos.html">Projetos</a></li><li><a href="dynamic_data.html">Dados Din&acirc;micos</a></li><li><a href="add_dynamic_data.html">Adicionar Dado Din&acirc;mico</a></li>
+                        <li><a href="administration_module.html">M&oacute;dulo de Administra&ccedil;&atilde;o</a></li><li><a href="Projetos.html">Projetos</a></li><li><a href="dynamic_data.html">Dados Din&acirc;micos</a></li><li><a href="AdicionarDadoDinamico.html">Adicionar Dado Din&acirc;mico</a></li>
                     </ol>
                     <div class="nav-arrows">
-                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="add_dynamic_data.html" title="Adicionar Dado Din&acirc;mico" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="add_dynamic_data_dcp.html" title="Dado de PCD" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="Interpolacao.html" title="Interpola&ccedil;&atilde;o" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
+                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="AdicionarDadoDinamico.html" title="Adicionar Dado Din&acirc;mico" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="add_dynamic_data_dcp.html" title="Dado de PCD" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="Interpolacao.html" title="Interpola&ccedil;&atilde;o" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
                     </div>
                 </div> 
             
@@ -183,143 +185,139 @@
             <div class="main-content">
                 
 <p></p>
-<h3 class="rvps18"><span class="rvts0"><span class="rvts31">SÉRIE DE DADOS DE OCORRÊNCIAS &nbsp;</span></span><img alt="" style="padding : 1px;" src="lib/DD_ocorrencia_17x24.png"></h3>
-<p class="rvps37"><span class="rvts22">Os dados dinâmicos do tipo Ocorrências podem ser oriundos de diversas fontes como apresentado no Capítulo 1. Para facilitar o seu uso foi incluído a leitura desses dados nos seguintes formatos:</span></p>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 130px; list-style-position: outside; list-style-type: disc;">
-<li style="margin-left: 0px" class="rvps70"><span class="rvts38">Ocorrência - Prog. de Queimadas / INPE</span><span class="rvts22">: arquivos ASCII de pontos com uma sintaxe específica do projeto de Queimadas do INPE.</span></li>
-<li style="margin-left: 0px" class="rvps70"><span class="rvts38">Ocorrência – Prog. de Raios / INPE</span><span class="rvts22">: arquivos ASCII de pontos com uma sintaxe específica do projeto do ELAT/INPE.</span></li>
-<li style="margin-left: 0px" class="rvps70"><span class="rvts38">Ocorrência – CSV customizável</span><span class="rvts22">: arquivos ASCII de pontos com uma sintaxe configurável para qualquer arquivo texto.</span></li>
-<li style="margin-left: 0px" class="rvps70"><span class="rvts38">Ocorrência - PostGIS</span><span class="rvts22">: esta opção requer que os dados de pontos de ocorrência estejam em uma tabela de um sistema gerenciador de banco de dados PostgreSQL + PostGIS. </span></li>
-<li style="margin-left: 0px" class="rvps70"><span class="rvts38">Arquivos Vetoriais (ESRI Shapefile)</span><span class="rvts22">: Arquivos no formato Shape-File podem armazenar dados de ocorrência. O dado pode ser de geometrias de pontos, linhas ou polígonos e cada geometria tem de ter um atributo com a data e hora em que foi criado. Nos nomes dos arquivos também deve ter a máscara com a data e hora de criação.</span></li>
-<li style="margin-left: 0px" class="rvps70"><span class="rvts38">Evento de Queimada (ESRI Shapefile)</span><span class="rvts22">: Dados do projeto de queimadas do INPE no formato Shape-File podem ser utilizados como dados dinâmicos de ocorrências. A diferença da opção acima é que neste alguns parâmetros já são pré-definidos por ser específico desse projeto.</span></li>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<h4 class="rvps78"><img width="23" height="33" alt="" style="padding : 1px;" src="lib/NewItem211.png"></h4>
+<p class="rvps11"><span class="rvts19">Os dados dinâmicos do tipo Ocorrências podem ser oriundos de </span><a class="rvts42" href="data_formats.html#_Toc523062716">diversas fontes como apresentado acima</a><span class="rvts19">. Para facilitar o seu uso foi incluído a leitura desses dados nos seguintes formatos:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 104px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps87"><span class="rvts22">Ocorrência - Prog. de Queimadas / INPE</span><span class="rvts19">: arquivos ASCII de pontos com uma sintaxe específica do projeto de Queimadas do INPE.</span></li>
+<li style="margin-left: 0px" class="rvps87"><span class="rvts22">Ocorrência – Prog. de Raios / INPE</span><span class="rvts19">: arquivos ASCII de pontos com uma sintaxe específica do projeto do ELAT/INPE.</span></li>
+<li style="margin-left: 0px" class="rvps87"><span class="rvts22">Ocorrência – CSV customizável</span><span class="rvts19">: arquivos ASCII de pontos com uma sintaxe configurável para qualquer arquivo texto.</span></li>
+<li style="margin-left: 0px" class="rvps87"><span class="rvts22">Ocorrência - PostGIS</span><span class="rvts19">: esta opção requer que os dados de pontos de ocorrência estejam em uma tabela de um sistema gerenciador de banco de dados PostgreSQL + PostGIS. </span></li>
+<li style="margin-left: 0px" class="rvps87"><span class="rvts22">Arquivos Vetoriais (ESRI Shapefile)</span><span class="rvts19">: Arquivos no formato Shape-File podem armazenar dados de ocorrência. O dado pode ser de geometrias de pontos, linhas ou polígonos e cada geometria tem de ter um atributo com a data e hora em que foi criado. Nos nomes dos arquivos também deve ter a máscara com a data e hora de criação.</span></li>
+<li style="margin-left: 0px" class="rvps87"><span class="rvts22">Evento de Queimada (ESRI Shapefile)</span><span class="rvts19">: Dados do projeto de queimadas do INPE no formato Shape-File podem ser utilizados como dados dinâmicos de ocorrências. A diferença da opção acima é que aqui alguns parâmetros já são pré-definidos por ser específico desse projeto.</span></li>
 </ul>
-<p class="rvps70"><span class="rvts22"><br/></span></p>
-<p class="rvps10"><span class="rvts18">A plataforma pode utilizar o dado disponível no servidor de banco de dados, neste caso, os parâmetros na aba “</span><span class="rvts19">Armazenar</span><span class="rvts18">” não devem ser preenchidos. Caso queira transferir os dados de ocorrência entre servidores preencha os parâmetros na aba “</span><span class="rvts19">Armazenar</span><span class="rvts18">”.</span></p>
-<p class="rvps2"><span class="rvts11"><br/></span></p>
-<p class="rvps7"><a class="rvts67" href="DirectAccess.html">Veja acesso direto de outros projetos &nbsp;</a><a href="DirectAccess.html"><img alt="" style="padding : 1px;" src="lib/working.jpg"></a></p>
-<p class="rvps2"><span class="rvts66"><br/></span></p>
-<p class="rvps2"><span class="rvts11"><br/></span></p>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 0px; list-style-position: inside; list-style-type: disc;">
-<li class="rvps54"><span class="rvts0"><span class="rvts32">ADICIONANDO DADO DINÂMICO - OCORRÊNCIA:</span></span></li>
-</ul></ul></ul></ul>
-<p class="rvps37"><span class="rvts22">Para adicionar um novo dado dinâmico do tipo Ocorrência é necessário ter um projeto ativo. No menu de opções selecione </span><span class="rvts38">“</span><img width="21" height="21" alt="" style="padding : 1px;" src="lib/Menu_dado_dinamico.jpg"><span class="rvts38"> Dados Dinâmicos”</span><span class="rvts22"> para que a lista de dados disponíveis seja apresentada na área de trabalho. Clique no botão “ </span><span class="rvts53">+</span><span class="rvts38"> </span><span class="rvts22">“ para adicionar novo dado. Preencha os dados para formato escolhido e utilize o botão </span><span class="rvts38">“Salvar”</span><span class="rvts22"> para salvar o dado dinâmico. Não é permitido nomes de dados em duplicidade. Botão </span><span class="rvts38">“Cancelar”</span><span class="rvts22"> volta à tela anterior sem salvar o dado. A Figura 2.20 mostra a área de trabalho para adicionar novo dado dinâmico. Detalhes de cada campo a seguir.</span></p>
-<p class="rvps21"><img alt="" style="padding : 1px;" src="lib/Fig2_20_web.PNG"></p>
-<p class="rvps38"><span class="rvts20">Figura 2.20 – </span><span class="rvts21">Módulo de Administração: Adição de dado dinâmico - Ocorrência</span></p>
-<p class="rvps65"><span class="rvts11"><br/></span></p>
-<p class="rvps56"><span class="rvts63">Registro de Dado Dinâmico - Geral:</span></p>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: disc;">
-<li style="margin-left: 0px" class="rvps57"><span class="rvts38">Formato</span><span class="rvts22">: Escolha o tipo entre “Ocorrência - Prog. de Queimadas / INPE”, “Ocorrência – Prog. de Raios / INPE”, “Ocorrência – PostGIS” ou “Ocorrência – CSV customizável”, para dados de ocorrências. Dependendo do tipo escolhido alguns parâmetros específicos serão apresentados para preenchimento. IMPORTANTE: Uma vez escolhido não pode ser alterado, a menos que saia da edição e retorne.</span></li>
-<li style="margin-left: 0px" class="rvps57"><span class="rvts38">Nome</span><span class="rvts22">: Defina o nome do dado dinâmico (campo obrigatório para passar para os demais itens). O tamanho máximo do nome é de 100 caracteres. Não é permitido nomes duplicados.</span></li>
-<li style="margin-left: 0px" class="rvps57"><span class="rvts38">Descrição</span><span class="rvts22">: Campo não obrigatório para descrição do dado dinâmico. O tamanho máximo da senha é de 250 caracteres.</span></li>
-<li style="margin-left: 0px" class="rvps57"><span class="rvts38">Servidor de Dados</span><span class="rvts22">: Escolha o servidor de onde serão coletados ou apenas acessado os dados. Se na forma de arquivos remotos a serem transferidos escolha servidores do tipo FTP ou HTTP/HTTPS. Se na forma de arquivos locais a serem coletados escolha servidores do tipo ARQUIVO. Se tabelas em bancos de dados locais escolha servidores do tipo PostGIS.</span></li>
-<li style="margin-left: 0px" class="rvps57"><span class="rvts38">Ativo</span><span class="rvts22">: Botão ativo permite coletar o dado dinâmico em questão e que está associado ao servidor escolhido acima. Botão desmarcado nenhuma coleta será realizada.</span></li>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<h5 class="rvps49"><a name="_Toc523062775"></a><span class="rvts0"><span class="rvts50">ADICIONANDO DADO DINÂMICO - OCORRÊNCIA:</span></span></h5>
+<p class="rvps11"><span class="rvts19">Para adicionar um novo dado dinâmico do tipo Ocorrência é necessário ter um projeto ativo. No menu de opções selecione </span><span class="rvts22">“</span><img width="15" height="15" alt="" style="padding : 1px;" src="lib/NewItem210.jpg"><span class="rvts22">&nbsp;Dados Dinâmicos”</span><span class="rvts19">&nbsp;para que a lista de dados disponíveis seja apresentada na área de trabalho. Clique no botão “ </span><span class="rvts53">+</span><span class="rvts22">&nbsp;</span><span class="rvts19">“ para adicionar novo dado. Preencha os dados para formato escolhido e utilize o botão </span><span class="rvts22">“Salvar”</span><span class="rvts19">&nbsp;para salvar o dado dinâmico. Não é permitido nomes de dados em duplicidade. Botão </span><span class="rvts22">“Cancelar”</span><span class="rvts19">&nbsp;volta à tela anterior sem salvar o dado. A Figura 2.21 mostra a área de trabalho para adicionar novo dado dinâmico. Detalhes de cada campo a seguir.</span></p>
+<p class="rvps27"><img width="652" height="358" alt="" style="padding : 1px;" src="lib/NewItem209.png"></p>
+<p class="rvps55"><span class="rvts20">Figura 2.21 – </span><span class="rvts21">Módulo de Administração: Adição de dado dinâmico – Ocorrência</span></p>
+<p class="rvps56"><span class="rvts54">Registro de Dado Dinâmico - Geral:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Formato</span><span class="rvts19">: Escolha o tipo entre “Ocorrência - Prog. de Queimadas / INPE”, “Ocorrência – Prog. de Raios / INPE”, “Ocorrência – PostGIS” ou “Ocorrência – CSV customizável”, para dados de ocorrências. Dependendo do tipo escolhido alguns parâmetros específicos serão apresentados para preenchimento. IMPORTANTE: Uma vez escolhido não pode ser alterado, a menos que saia da edição e retorne.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Nome</span><span class="rvts19">: Defina o nome do dado dinâmico (campo obrigatório para passar para os demais itens). O tamanho máximo do nome é de 100 caracteres. Não é permitido nomes duplicados.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Descrição</span><span class="rvts19">: Campo não obrigatório para descrição do dado dinâmico. O tamanho máximo da senha é de 250 caracteres.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Servidor de Dados</span><span class="rvts19">: Escolha o servidor de onde serão coletados ou apenas acessado os dados. Se na forma de arquivos remotos a serem transferidos escolha servidores do tipo FTP ou HTTP/HTTPS. Se na forma de arquivos locais a serem coletados escolha servidores do tipo ARQUIVO. Se tabelas em bancos de dados locais escolha servidores do tipo PostGIS.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Ativo</span><span class="rvts19">: Botão ativo permite coletar o dado dinâmico em questão e que está associado ao servidor escolhido acima. Botão desmarcado nenhuma coleta será realizada.</span></li>
 </ul>
-<p class="rvps56"><span class="rvts63">Registro de Dado Dinâmico - Parâmetros:</span></p>
-<p class="rvps37"><span class="rvts22">Utilize os parâmetros dessa aba para informar a máscara dos arquivos que serão coletados ou uma tabela de banco de dados que contém os dados de ocorrência.</span></p>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: disc;">
-<li style="margin-left: 0px" class="rvps59"><span class="rvts38">Máscara</span><span class="rvts22">: Máscara do nome dos arquivos a serem coletados. Esta máscara utiliza partes constantes para capturar prefixos utilizados nos nomes dos arquivos e sequências especiais para indicar ao sistema como interpretar informações de data e hora contidas nos nomes dos arquivos. Utilize %YYYY para anos de 4 dígitos, %YY para anos de 2 dígitos, %MM para mês, %DD para dia, %hh para hora,%mm para minutos e %ss para segundos. Caracteres que não mudam podem ser mantidos ou substituídos por * (asterisco). Se os arquivos estiverem em sub-diretórios definido a partir do caminho informado na definição do servidor, acrescente estes subdiretórios na frente da máscara (por exemplo: &nbsp;</span><span class="rvts65">queimadas/goes13/FOCOS_Q%YYYY%MM%DD_%hh%mm%ss.txt</span><span class="rvts22"> ).</span></li>
-<li style="margin-left: 0px" class="rvps59"><span class="rvts38">Fuso Horário </span><span class="rvts64">(somente para formato CSV)</span><span class="rvts22">: Fuso horário do local onde o dado dinâmico foi gerado. Esse parâmetro garante que as datas e horas dos dados coletados se mantenham consistentes com a base de dados. Dados em horário GMT devem utilizar o valor &nbsp;0.</span></li>
-<li style="margin-left: 0px" class="rvps58"><span class="rvts38">Projeção (SRID) </span><span class="rvts64">(somente para formato CVS)</span><span class="rvts22">: Valor numérico dos parâmetros de projeção e datum dos dados a serem coletados. Veja os principais valores utilizados no anexo A1.</span></li>
+<p class="rvps56"><span class="rvts54">Registro de Dado Dinâmico - Parâmetros:</span></p>
+<p class="rvps11"><span class="rvts19">Utilize os parâmetros dessa aba para informar a máscara dos arquivos que serão coletados ou uma tabela de banco de dados que contém os dados de ocorrência.</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps72"><span class="rvts22">Máscara</span><span class="rvts19">: Máscara do nome dos arquivos a serem coletados. Esta máscara utiliza partes constantes para capturar prefixos utilizados nos nomes dos arquivos e sequências especiais para indicar ao sistema como interpretar informações de data e hora contidas nos nomes dos arquivos. Para data com </span><span class="rvts22">ano, mês e dia</span><span class="rvts19">&nbsp;utilize </span><span class="rvts22">%YYYY</span><span class="rvts19">&nbsp;para anos de 4 dígitos ou </span><span class="rvts22">%YY</span><span class="rvts19">&nbsp;para anos de 2 dígitos, </span><span class="rvts22">%MM</span><span class="rvts19">&nbsp;para mês e </span><span class="rvts22">%DD</span><span class="rvts19">&nbsp;para dia. Para data com </span><span class="rvts22">ano e dia juliano</span><span class="rvts19">&nbsp;utilize </span><span class="rvts22">%YYYY</span><span class="rvts19">&nbsp;para anos de 4 dígitos ou </span><span class="rvts22">%YY</span><span class="rvts19">&nbsp;para anos de 2 dígitos e </span><span class="rvts22">%JJJ</span><span class="rvts19">&nbsp;para o dia juliano. Para valores de hora utilize </span><span class="rvts22">%hh</span><span class="rvts19">&nbsp;para hora, </span><span class="rvts22">%mm</span><span class="rvts19">&nbsp;para minutos e </span><span class="rvts22">%ss</span><span class="rvts19">&nbsp;para segundos. Caracteres que não mudam podem ser mantidos ou substituídos por * (asterisco). Se os arquivos estiverem em sub-diretórios definido a partir do caminho informado na definição do servidor, acrescente estes subdiretórios na frente da máscara (por exemplo: &nbsp;</span><span class="rvts55">queimadas/goes13/FOCOS_Q%YYYY%MM%DD_%hh%mm%ss.txt</span><span class="rvts19">&nbsp;). Mais detalhes </span><a class="rvts42" href="masc_dynamic_data.html">veja aqui</a><span class="rvts19">.</span></li>
 </ul>
-<p class="rvps62"><span class="rvts38">NOTA</span><span class="rvts22">: Para os dados de ocorrência de focos de queimadas e de descargas elétricas do INPE são assumidos que o valor de Fuso horário é igual a 0 (horário GMT) e Projeção SRID igual a 4326 (Latitude/Longitude em WGS84).</span></p>
-<p class="rvps37"><span class="rvts22">Para dados de ocorrência que estão disponíveis em um sistema gerenciador de banco de dados PostgreSQL + PostGIS, deve fornecer o nome da tabela uma vez que o servidor foi definido na aba “Geral”, o atributo da tabela que contém a data e hora, e ainda o atributo que contém a coluna geométrica.</span></p>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: disc;">
-<li style="margin-left: 0px" class="rvps63"><span class="rvts38">Nome da Tabela</span><span class="rvts22">: Digite ou escolha o nome da tabela que contém os dados de ocorrência.</span></li>
-<li style="margin-left: 0px" class="rvps63"><span class="rvts38">Propriedade de tempo</span><span class="rvts22">: Digite o nome do atributo da tabela que contém os dados de data e hora das ocorrências. Esse atributo deve ser do tipo “timestamp” com “timezome”.</span></li>
-<li style="margin-left: 0px" class="rvps63"><span class="rvts38">Propriedade geométrica</span><span class="rvts22">: Digite o nome do atributo da tabela que contém os dados de geometria das ocorrências. Esse atributo deve ser do tipo “POINT”.</span></li>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Fuso Horário </span><span class="rvts61">(somente para formato CSV)</span><span class="rvts19">: Fuso horário do local onde o dado dinâmico foi gerado. Esse parâmetro garante que as datas e horas dos dados coletados se mantenham consistentes com a base de dados. Dados em horário GMT devem utilizar o valor &nbsp;0.</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">Projeção (SRID) </span><span class="rvts61">(somente para formato CVS)</span><span class="rvts19">: Valor numérico dos parâmetros de projeção e datum dos dados a serem coletados. Veja os principais valores utilizados no anexo A1.</span></li>
 </ul>
-<p class="rvps56"><span class="rvts63">Registro de Dado Dinâmico – Formato do CSV:</span></p>
-<p class="rvps37"><span class="rvts22">Esta aba somente será apresentada quando o formato do dado dinâmico escolhido na aba Geral for a opção “</span><span class="rvts38">Ocorrência – CSV customizável</span><span class="rvts22">”. Esta opção permite que seja configurado a leitura de arquivos CSV com diferentes configurações internas, portanto, antes de iniciar esta aba tenha em mãos uma cópia de um arquivo que será lido. Basicamente é solicitado quantas linhas de cabeçalho e qual delas identifica os atributos, se a maioria dos atributos foram de um tipo (inteiro, real ou texto) poderá converter todos de uma única vez e aqueles atributos diferente de todos devem ser configurados numa lista. Veja a seguir a manipulação dos campos dessa aba.</span></p>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: disc;">
-<li style="margin-left: 0px" class="rvps57"><span class="rvts38">Número de Linhas do cabeçalho</span><span class="rvts22">: Digite o número de linhas que o arquivo CSV tem.</span></li>
-<li style="margin-left: 0px" class="rvps57"><span class="rvts38">Linha com nome dos atributos</span><span class="rvts22">: Digite o número da linha que contém o cabeçalho.</span></li>
-<li style="margin-left: 0px" class="rvps57"><span class="rvts38">Converter todos</span><span class="rvts22">: Utilize esta opção para converter todos atributos para um tipo padrão. Aqueles campos que forem diferentes do tipo padrão deverão ser incluídos na “Lista de Atributo a diferenciar”. Caso não marque esta opção, somente os atributos fornecidos pela lista serão lidos e inseridos no banco.</span></li>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: circle;">
-<li style="margin-left: 0px" class="rvps64"><span class="rvts38">Tipo padrão</span><span class="rvts22">: Escolha uma das opções entre “</span><span class="rvts38">Ponto flutuante</span><span class="rvts22">” para números reais, “</span><span class="rvts38">Inteiro</span><span class="rvts22">” para inteiro ou “</span><span class="rvts38">Texto</span><span class="rvts22">” para conjunto de caracteres.</span></li>
+<p class="rvps73"><span class="rvts22">NOTA</span><span class="rvts19">: Para os dados de ocorrência de focos de queimadas e de descargas elétricas do INPE são assumidos que o valor de Fuso horário é igual a 0 (horário GMT) e Projeção SRID igual a 4326 (Latitude/Longitude em WGS84).</span></p>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<p class="rvps11"><span class="rvts19">Para dados de ocorrência que estão disponíveis em um sistema gerenciador de banco de dados PostgreSQL + PostGIS, deve fornecer o nome da tabela uma vez que o servidor foi definido na aba “Geral”, o atributo da tabela que contém a data e hora, e ainda o atributo que contém a coluna geométrica.</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps74"><span class="rvts22">Nome da Tabela</span><span class="rvts19">: Digite ou escolha o nome da tabela que contém os dados de ocorrência.</span></li>
+<li style="margin-left: 0px" class="rvps74"><span class="rvts22">Propriedade de tempo</span><span class="rvts19">: Digite o nome do atributo da tabela que contém os dados de data e hora das ocorrências. Esse atributo deve ser do tipo “timestamp” com “timezome”.</span></li>
+<li style="margin-left: 0px" class="rvps74"><span class="rvts22">Propriedade geométrica</span><span class="rvts19">: Digite o nome do atributo da tabela que contém os dados de geometria das ocorrências. Esse atributo deve ser do tipo “POINT”.</span></li>
 </ul>
-<li style="margin-left: 0px" class="rvps57"><span class="rvts38">Atributos a Serem Convertidos</span><span class="rvts22">: Uma lista deverá ser criada exclusivamente para aqueles atributos diferentes do tipo padrão escolhido acima. É obrigatório a definição do atributo que identifica a data e hora. Utilize o botão “Adicionar” para incluir um item na lista. Utilize o botão “Remover” em um item da lista para removê-lo.</span></li>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: circle;">
-<li style="margin-left: 0px" class="rvps64"><span class="rvts38">Tipo</span><span class="rvts22">: Escolha uma das opções entre “</span><span class="rvts38">Ponto (Geometria)</span><span class="rvts22">” para definir os atributos que definem a geometria dos pontos, “</span><span class="rvts38">Ponto flutuante</span><span class="rvts22">” para números reais, “</span><span class="rvts38">Inteiro</span><span class="rvts22">” para inteiro, “</span><span class="rvts38">Texto</span><span class="rvts22">” para conjunto de caracteres ou “</span><span class="rvts38">Data</span><span class="rvts22">” para o campo com a data e hora em que foi realizada a ocorrência. É obrigatório a inclusão nessa lista de um campo do tipo “Data” e uma do tipo “Ponto (Geometria)”.</span></li>
-<li style="margin-left: 0px" class="rvps68"><span class="rvts38">Nome do atributo: </span><span class="rvts22">Informe o nome do atributo que será lido.</span></li>
-<li style="margin-left: 0px" class="rvps71"><span class="rvts38">Latitude </span><span class="rvts64">(somente para tipo Ponto (Geometria))</span><span class="rvts22">: Indique o nome de uma coluna que informa o valor de latitude (em graus decimais) ou coordenada Y em metros.</span></li>
-<li style="margin-left: 0px" class="rvps71"><span class="rvts38">Longitude </span><span class="rvts64">(somente para tipo Ponto (Geometria))</span><span class="rvts22">: Indique o nome de uma coluna que informa o valor de longitude (em graus decimais) ou coordenada X em metros.</span></li>
-<li style="margin-left: 0px" class="rvps68"><span class="rvts38">Formato </span><span class="rvts64">(somente para tipo “Data”)</span><span class="rvts38">: </span><span class="rvts22">Informe a máscara da data/hora a ser lida. Utilizar %YYYY para anos de 4 dígitos, %YY para anos de 2 dígitos, %MM para mês, %DD para dia, %hh para hora,%mm para minutos e %ss para segundos. Caracteres que não mudam podem ser mantidos ou substituídos por * (asterisco).</span></li>
-<li style="margin-left: 0px" class="rvps68"><span class="rvts38">Pseudônimo: </span><span class="rvts22">Informe o nome do atributo a ser criado na tabela de dados. Utilize nome simples, sem acentuações ou caracteres especiais e em letras minúsculas.</span></li>
+<p class="rvps56"><span class="rvts54">Registro de Dado Dinâmico – Formato do CSV:</span></p>
+<p class="rvps11"><span class="rvts19">Esta aba somente será apresentada quando o formato do dado dinâmico escolhido na aba Geral for a opção “</span><span class="rvts22">Ocorrência – CSV customizável</span><span class="rvts19">”. Esta opção permite que seja configurado a leitura de arquivos CSV com diferentes configurações internas, portanto, antes de iniciar esta aba tenha em mãos uma cópia de um arquivo que será lido. Basicamente é solicitado quantas linhas de cabeçalho e qual delas identifica os atributos, se a maioria dos atributos foram de um tipo (inteiro, real ou texto) poderá converter todos de uma única vez e aqueles atributos diferente de todos devem ser configurados numa lista. Nesta lista, obrigatoriamente, um atributo com a data/hora das ocorrências, e um segundo com localização das ocorrências definida obrigatoriamente por um par de atributos (longitude e latitude) devem ser configurados. Veja a seguir a manipulação dos campos dessa aba.</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Número de Linhas do cabeçalho</span><span class="rvts19">: Digite o número de linhas que o arquivo CSV tem.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Linha com nome dos atributos</span><span class="rvts19">: Digite o número da linha que contém o cabeçalho.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Converter todos</span><span class="rvts19">: Utilize esta opção para converter todos atributos para um tipo padrão. Aqueles campos que forem diferentes do tipo padrão deverão ser incluídos na “Atributos a Serem Convertidos”. Caso não marque esta opção, somente os atributos fornecidos pela lista serão lidos e inseridos no banco.</span></li>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: circle;">
+<li style="margin-left: 0px" class="rvps75"><span class="rvts22">Tipo padrão</span><span class="rvts19">: Escolha uma das opções entre “</span><span class="rvts22">Ponto flutuante</span><span class="rvts19">” para números reais, “</span><span class="rvts22">Inteiro</span><span class="rvts19">” para inteiro ou “</span><span class="rvts22">Texto</span><span class="rvts19">” para conjunto de caracteres.</span></li>
 </ul>
-<li style="margin-left: 0px" class="rvps57"><span class="rvts38"> “Adicionar”</span><span class="rvts22">: Clique para incluir o item na lista.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Atributos a Serem Convertidos</span><span class="rvts19">: Uma lista deverá ser criada exclusivamente para aqueles atributos diferentes do tipo padrão escolhido acima. É obrigatório configurar o atributo que identifica a data e hora das ocorrências, assim como os atributos que definem a geometria do pondo de ocorrência, disponíveis na lista. Utilize o botão “Adicionar” para incluir outros itens na lista. Utilize o botão “Remover” em um item da lista para removê-lo.</span></li>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: circle;">
+<li style="margin-left: 0px" class="rvps75"><span class="rvts22">Tipo</span><span class="rvts19">: Escolha uma das opções entre “</span><span class="rvts22">Ponto (Geometria)</span><span class="rvts19">” para definir o par de atributos que definem a geometria das ocorrências, “</span><span class="rvts22">Ponto flutuante</span><span class="rvts19">” para números reais, “</span><span class="rvts22">Inteiro</span><span class="rvts19">” para inteiro, “</span><span class="rvts22">Texto</span><span class="rvts19">” para conjunto de caracteres ou “</span><span class="rvts22">Data</span><span class="rvts19">” para o campo com a data e hora em que foi realizada a ocorrência.</span></li>
+<li style="margin-left: 0px" class="rvps84"><span class="rvts22">Nome do atributo: </span><span class="rvts19">Informe o nome do atributo que será lido. Para o atributo do tipo “Data” obrigatório, os valores no arquivo CSV podem estar num único atributo ou em mais do que um atributo. Neste último caso os nomes dos atributos devem ser informados e separados por vírgulas.</span></li>
+<li style="margin-left: 0px" class="rvps88"><span class="rvts22">Latitude </span><span class="rvts61">(somente para tipo Ponto (Geometria))</span><span class="rvts19">: Indique o nome de uma coluna que informa o valor de latitude (em graus decimais) ou coordenada Y em metros.</span></li>
+<li style="margin-left: 0px" class="rvps88"><span class="rvts22">Longitude </span><span class="rvts61">(somente para tipo Ponto (Geometria))</span><span class="rvts19">: Indique o nome de uma coluna que informa o valor de longitude (em graus decimais) ou coordenada X em metros.</span></li>
+<li style="margin-left: 0px" class="rvps84"><span class="rvts22">Formato </span><span class="rvts61">(somente para tipo “Data”)</span><span class="rvts22">: </span><span class="rvts19">Informe a máscara da data/hora a ser lida. Para data com </span><span class="rvts22">ano, mês e dia</span><span class="rvts19">&nbsp;utilize </span><span class="rvts22">%YYYY</span><span class="rvts19">&nbsp;para anos de 4 dígitos ou </span><span class="rvts22">%YY</span><span class="rvts19">&nbsp;para anos de 2 dígitos, </span><span class="rvts22">%MM</span><span class="rvts19">&nbsp;para mês e </span><span class="rvts22">%DD</span><span class="rvts19">&nbsp;para dia. Para data com </span><span class="rvts22">ano e dia juliano</span><span class="rvts19">&nbsp;utilize </span><span class="rvts22">%YYYY</span><span class="rvts19">&nbsp;para anos de 4 dígitos ou </span><span class="rvts22">%YY</span><span class="rvts19">&nbsp;para anos de 2 dígitos e </span><span class="rvts22">%JJJ</span><span class="rvts19">&nbsp;para o dia juliano. Para valores de hora utilize </span><span class="rvts22">%hh</span><span class="rvts19">&nbsp;para hora, </span><span class="rvts22">%mm</span><span class="rvts19">&nbsp;para minutos e </span><span class="rvts22">%ss</span><span class="rvts19">&nbsp;para segundos.</span></li>
+<li style="margin-left: 0px" class="rvps84"><span class="rvts22">Pseudônimo: </span><span class="rvts19">Informe o nome do atributo a ser criado na tabela de dados. Utilize nome simples, sem acentuações ou caracteres especiais e em letras minúsculas.</span></li>
 </ul>
-<p class="rvps56"><span class="rvts63">Registro de Dado Dinâmico – Armazenar </span><img width="22" height="22" alt="" style="padding : 1px;" src="lib/Item_ABA_adicionar.png"><span class="rvts63">:</span></p>
-<p class="rvps37"><span class="rvts22">Utilize os parâmetros dessa aba quando necessário armazenar os dados coletados de servidores remotos ou quando deseja-se converter para um formato diferente em servidor local. A plataforma pode utilizar o dado disponível no servidor de banco de dados, neste caso, os parâmetros na aba “Armazenar” não devem ser preenchidos.</span></p>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: disc;">
-<li style="margin-left: 0px" class="rvps57"><span class="rvts38">Formato de saída</span><span class="rvts22">: Escolha o formato de saída. Para dados dinâmicos de ocorrência escolha “Ocorrência PostGIS”.</span></li>
-<li style="margin-left: 0px" class="rvps57"><span class="rvts38">Armazenar Dados</span><span class="rvts22">: Servidor de dados que irá armazenar dados coletados. Se formato acima for “Ocorrência PostGIS” somente servidores PostGIS estarão disponíveis.</span></li>
-<li style="margin-left: 0px" class="rvps57"><span class="rvts38">Serviço</span><span class="rvts22">: Escolha o serviço de coleta a ser utilizado.</span></li>
-<li style="margin-left: 0px" class="rvps57"><span class="rvts38">Nome da tabela </span><span class="rvts64">(somente para formato de saída “Ocorrência PostGIS”)</span><span class="rvts22">: Forneça um nome da tabela para armazenar as ocorrências coletadas.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">&nbsp;“Adicionar”</span><span class="rvts19">: Clique para incluir o item na lista.</span></li>
 </ul>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: disc;">
-<li style="margin-left: 0px" class="rvps57"><span class="rvts38">Propriedade de tempo </span><span class="rvts64">(somente para formato de saída “Ocorrência PostGIS”)</span><span class="rvts22">: Nome da coluna para armazenar a data/hora da ocorrência. Será criada uma coluna do tipo “timestamp com timezone”</span></li>
-<li style="margin-left: 0px" class="rvps58"><span class="rvts38">Propriedade geométrica </span><span class="rvts64">(somente para formato de saída “Ocorrência PostGIS”)</span><span class="rvts22">: Nome da coluna para armazenar a geometria dos pontos de ocorrência. Será criado um atributo com geometria do tipo “POINT”.</span></li>
+<p class="rvps56"><span class="rvts54">Registro de Dado Dinâmico – Armazenar </span><img width="13" height="13" alt="" style="padding : 1px;" src="lib/NewItem208.png"><span class="rvts54">:</span></p>
+<p class="rvps11"><span class="rvts19">Utilize os parâmetros dessa aba quando necessário armazenar os dados coletados de servidores remotos ou quando deseja-se converter para um formato diferente em servidor local. A plataforma pode utilizar o dado disponível no servidor de banco de dados, neste caso, os parâmetros na aba “Armazenar” não devem ser preenchidos.</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Formato de saída</span><span class="rvts19">: Escolha o formato de saída. Para dados dinâmicos de ocorrência escolha “Ocorrência PostGIS”.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Armazenar Dados</span><span class="rvts19">: Servidor de dados que irá armazenar dados coletados. Se formato acima for “Ocorrência PostGIS” somente servidores PostGIS estarão disponíveis.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Serviço</span><span class="rvts19">: Escolha o serviço de coleta a ser utilizado.</span></li>
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Nome da tabela </span><span class="rvts61">(somente para formato de saída “Ocorrência PostGIS”)</span><span class="rvts19">: Forneça um nome da tabela para armazenar as ocorrências coletadas.</span></li>
 </ul>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: disc;">
-<li style="margin-left: 0px" class="rvps63"><span class="rvts38">Armazenar </span><img width="17" height="17" alt="" style="padding : 1px;" src="lib/Item_ABA_adicionar.png"><span class="rvts38"> - Agendamento: </span><span class="rvts22">Nesta seção o usuário deve definir quando será executada a coleta e o armazenamento se houver.</span></li>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: circle;">
-<li style="margin-left: 0px" class="rvps64"><span class="rvts38">Tipo</span><span class="rvts22">: Escolha tipo “Manual” ou “Agendamento”. Se opção “Manual” a coleta e armazenamento só será realizada se o usuário utilizar o botão “Salvar e executar” ou ainda na lista de dados dinâmicos o botão “</span><img width="23" height="18" alt="" style="padding : 1px;" src="lib/Botao_Executar.jpg"><span class="rvts22"> Executar” do item desejado. Se opção “Agendamento” preencha os campos abaixo.</span></li>
-<li style="margin-left: 0px" class="rvps64"><span class="rvts38">Unidade de tempo </span><span class="rvts64">(somente se Tipo for “Agendamento”)</span><span class="rvts22">: Escolha um item entre “Segundos, Minutos, Horas e Semanalmente”.</span></li>
-<li style="margin-left: 0px" class="rvps64"><span class="rvts38">Frequência </span><span class="rvts64">(somente se Unidade de tempo for “Segundos, Minutos ou Horas”)</span><span class="rvts22">: Digite um valor de um número inteiro.</span></li>
-<li style="margin-left: 0px" class="rvps64"><span class="rvts38">Tempo Inicial </span><img width="17" height="17" alt="" style="padding : 1px;" src="lib/Item_Calendario.jpg"><span class="rvts38"> </span><span class="rvts64">(somente se Unidade de tempo for Segundos, Minutos ou Horas)</span><span class="rvts22">: Clique no campo para escolher o valor de hora, minuto e segundo que será utilizado como referência para executada a coleta e armazenamento do dado dinâmico.</span></li>
-<li style="margin-left: 0px" class="rvps64"><span class="rvts38">Agendamento </span><span class="rvts64">(somente se Unidade de tempo for “Semanalmente”)</span><span class="rvts22">: escolha uma das opções entre “Domingo, Segunda-feira, Terça-feira, Quarta-feira, Quinta-Feira, Sexta-feira e Sábado”</span></li>
-<li style="margin-left: 0px" class="rvps64"><span class="rvts38">Hora </span><img width="17" height="17" alt="" style="padding : 1px;" src="lib/Item_Calendario.jpg"><span class="rvts64"> (somente se Unidade de tempo for Semanalmente)</span><span class="rvts22">: clique no campo para escolher o valor de hora, minuto e segundo que será executada a coleta e armazenamento do dado dinâmico.</span></li>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps57"><span class="rvts22">Propriedade de tempo </span><span class="rvts61">(somente para formato de saída “Ocorrência PostGIS”)</span><span class="rvts19">: Nome da coluna para armazenar a data/hora da ocorrência. Será criada uma coluna do tipo “timestamp com timezone”</span></li>
+<li style="margin-left: 0px" class="rvps71"><span class="rvts22">Propriedade geométrica </span><span class="rvts61">(somente para formato de saída “Ocorrência PostGIS”)</span><span class="rvts19">: Nome da coluna para armazenar a geometria dos pontos de ocorrência. Será criado um atributo com geometria do tipo “POINT”.</span></li>
+</ul>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps74"><span class="rvts22">Armazenar </span><img width="13" height="13" alt="" style="padding : 1px;" src="lib/NewItem207.png"><span class="rvts22">&nbsp;- Agendamento: </span><span class="rvts19">Nesta seção o usuário deve definir quando será executada a coleta e o armazenamento se houver.</span></li>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: circle;">
+<li style="margin-left: 0px" class="rvps75"><span class="rvts22">Tipo</span><span class="rvts19">: Escolha tipo “Manual” ou “Agendamento”. Se opção “Manual” a coleta e armazenamento só será realizada se o usuário utilizar o botão “Salvar e executar” ou ainda na lista de dados dinâmicos o botão “</span><img width="14" height="11" alt="" style="padding : 1px;" src="lib/NewItem206.jpg"><span class="rvts19">&nbsp;Executar” do item desejado. Se opção “Agendamento” preencha os campos abaixo.</span></li>
+<li style="margin-left: 0px" class="rvps75"><span class="rvts22">Unidade de tempo </span><span class="rvts61">(somente se Tipo for “Agendamento”)</span><span class="rvts19">: Escolha um item entre “Segundos, Minutos, Horas e Semanalmente”.</span></li>
+<li style="margin-left: 0px" class="rvps75"><span class="rvts22">Frequência </span><span class="rvts61">(somente se Unidade de tempo for “Segundos, Minutos ou Horas”)</span><span class="rvts19">: Digite um valor de um número inteiro.</span></li>
+<li style="margin-left: 0px" class="rvps75"><span class="rvts22">Tempo Inicial </span><img width="13" height="13" alt="" style="padding : 1px;" src="lib/NewItem205.jpg"><span class="rvts22">&nbsp;</span><span class="rvts61">(somente se Unidade de tempo for Segundos, Minutos ou Horas)</span><span class="rvts19">: Clique no campo para escolher o valor de hora, minuto e segundo que será utilizado como referência para executada a coleta e armazenamento do dado dinâmico.</span></li>
+<li style="margin-left: 0px" class="rvps75"><span class="rvts22">Agendamento </span><span class="rvts61">(somente se Unidade de tempo for “Semanalmente”)</span><span class="rvts19">: escolha uma das opções entre “Domingo, Segunda-feira, Terça-feira, Quarta-feira, Quinta-Feira, Sexta-feira e Sábado”</span></li>
+<li style="margin-left: 0px" class="rvps75"><span class="rvts22">Hora </span><img width="13" height="13" alt="" style="padding : 1px;" src="lib/NewItem204.jpg"><span class="rvts61">&nbsp;(somente se Unidade de tempo for Semanalmente)</span><span class="rvts19">: clique no campo para escolher o valor de hora, minuto e segundo que será executada a coleta e armazenamento do dado dinâmico.</span></li>
 </ul></ul>
-<p class="rvps56"><span class="rvts63">Registro de Dado Dinâmico – Filtrar </span><img width="17" height="17" alt="" style="padding : 1px;" src="lib/Item_ABA_adicionar.png"><span class="rvts63">:</span></p>
-<p class="rvps37"><span class="rvts22">Utilize os parâmetros dessa aba para limitar o período (início e fim) da coleta de um dado em servidor ou executar um recorte na área do dado e ser coletado.</span></p>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: disc;">
-<li style="margin-left: 0px" class="rvps63"><span class="rvts38">Filtrar </span><img width="17" height="17" alt="" style="padding : 1px;" src="lib/Item_ABA_adicionar.png"><span class="rvts38"> - Data (horário local): </span><span class="rvts22">Nessa seção o usuário pode definir uma data/hora inicial e final para coletar dados.</span></li>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: circle;">
-<li style="margin-left: 0px" class="rvps64"><span class="rvts38">Ignorar dados anteriores a </span><img width="17" height="17" alt="" style="padding : 1px;" src="lib/Item_Calendario.jpg"><span class="rvts38"> </span><span class="rvts22">: Clique no campo para escolher a data e hora que será utilizado como referência para não coletar dados dinâmicos anteriores a escolha.</span></li>
-<li style="margin-left: 0px" class="rvps64"><span class="rvts38">Ignorar dados após </span><img width="17" height="17" alt="" style="padding : 1px;" src="lib/Item_Calendario.jpg"><span class="rvts38"> </span><span class="rvts22">: Clique no campo para escolher a data e hora que será utilizado como referência para não coletar dados dinâmicos posterior a escolha. Deixe em branco este campo se desejar coletar os dados de forma contínua.</span></li>
+<p class="rvps56"><span class="rvts54">Registro de Dado Dinâmico – Filtrar </span><img width="13" height="13" alt="" style="padding : 1px;" src="lib/NewItem203.png"><span class="rvts54">:</span></p>
+<p class="rvps11"><span class="rvts19">Utilize os parâmetros dessa aba para limitar o período (início e fim) da coleta de um dado em servidor ou executar um recorte na área do dado e ser coletado.</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps79"><span class="rvts27">Filtrar </span><img width="13" height="13" alt="" style="padding : 1px;" src="lib/NewItem419.png"><span class="rvts27">&nbsp;- Data (horário GMT): </span><span class="rvts23">Nessa seção o usuário pode definir uma data/hora inicial e final para coletar dados. O valor digitado refere-se ao </span><span class="rvts27">horário GMT </span><span class="rvts23">em ambos os campos. </span></li>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: circle;">
+<li style="margin-left: 0px" class="rvps80"><span class="rvts27">Ignorar dados anteriores a </span><img width="13" height="13" alt="" style="padding : 1px;" src="lib/NewItem418.jpg"><span class="rvts27">&nbsp;</span><span class="rvts23">: Clique no campo para escolher a data e hora que será utilizado como referência para não coletar dados dinâmicos anteriores a escolha. O início da coleta será na data/hora maior e igual ao valor digitado. Os mais arquivos disponíveis também serão coletados na primeira vez que for executada a coleta até a data/hora informada em “Ignorar dados após” ou se não informado até quando existir arquivos disponíveis. Ao coletar o último dado o sistema armazena a data/hora do mesmo para que na próxima coleta não repita a coleta. A próxima tentativa de coleta será realizada em função do agendamento definido acima. Note que não será possível coletar dados anteriores a data/hora informada nesse campo, portanto, não terá efeito caso altere este valor após a primeira coleta.</span></li>
+<li style="margin-left: 0px" class="rvps80"><span class="rvts27">Ignorar dados após </span><img width="13" height="13" alt="" style="padding : 1px;" src="lib/NewItem417.jpg"><span class="rvts27">&nbsp;</span><span class="rvts23">: Clique no campo para escolher a data e hora que será utilizado como referência para não coletar dados dinâmicos posterior a escolha. Deixe em branco este campo se desejar coletar os dados de forma contínua. Se informado a data/hora final serão coletados os dados menores e iguais ao valor.</span></li>
 </ul></ul>
-<p class="rvps62"><span class="rvts38">DICA</span><span class="rvts22">: O servidor de dados pode ter um volume grande de dados históricos disponível na pasta onde será coletado os dados, portanto, se for definir um novo dado dinâmico que interessa somente a partir da data/hora atual, utilize o filtro para “Ignorar dados anteriores a”.</span></p>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: disc;">
-<li style="margin-left: 0px" class="rvps63"><span class="rvts38">Filtrar </span><img width="17" height="17" alt="" style="padding : 1px;" src="lib/Item_ABA_adicionar.png"><span class="rvts38"> - Área: </span><span class="rvts22">Nessa seção o usuário deve definir um recorte espacial nos dados dinâmicos de Ocorrência para armazenar somente os pontos que estiverem dentro uma área de interesse.</span></li>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: circle;">
-<li style="margin-left: 0px" class="rvps64"><span class="rvts38">Selecionar o tipo de filtro por área</span><span class="rvts22">: Por padrão a opção “Não filtrar” não aplica nenhum recorte aos dados. Escolha “Filtrar por limites” ou “Filtrar por dado estático”. Para “Filtrar por limites” defina um as coordenadas de dois pontos, sendo o primeiro (mín) inferior esquerdo e o segundo (max) superior direito. Para “Filtrar por dado estático” cadastre previamente um dado estático vetorial com um ou mais polígonos que serão utilizados para recortar a(s) área(s) de interesse.</span></li>
-<li style="margin-left: 0px" class="rvps64"><span class="rvts38">X min </span><span class="rvts64">(somente para “Filtrar por limites”)</span><span class="rvts22">: Digite o valor mais a esquerda da área a recortar. Valor depende do sistema de projeção utilizado.</span></li>
-<li style="margin-left: 0px" class="rvps64"><span class="rvts38">Y min </span><span class="rvts64">(somente para “Filtrar por limites”)</span><span class="rvts22">: Digite o valor mais abaixo da área a recortar. Valor depende do sistema de projeção utilizado.</span></li>
-<li style="margin-left: 0px" class="rvps64"><span class="rvts38">X max </span><span class="rvts64">(somente para “Filtrar por limites”)</span><span class="rvts22">: Digite o valor mais à direita da área a recortar. Valor depende do sistema de projeção utilizado.</span></li>
-<li style="margin-left: 0px" class="rvps64"><span class="rvts38">Y max </span><span class="rvts64">(somente para “Filtrar por limites”)</span><span class="rvts22">: Digite o valor ponto mais acima da área a recortar. Valor depende do sistema de projeção utilizado.</span></li>
-<li style="margin-left: 0px" class="rvps64"><span class="rvts38">Projeção SRID </span><span class="rvts64">(somente para “Filtrar por limites”)</span><span class="rvts22">: Valor numérico dos parâmetros de projeção e datum a ser utilizado pelo par de coordenadas acima. Veja os principais valores utilizados no anexo A1.</span></li>
+<p class="rvps73"><span class="rvts22">DICA</span><span class="rvts19">: O servidor de dados pode ter um volume grande de dados históricos disponível na pasta onde será coletado os dados, portanto, se for definir um novo dado dinâmico que interessa somente a partir da data/hora atual, utilize o filtro para “Ignorar dados anteriores a”.</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps74"><span class="rvts22">Filtrar </span><img width="13" height="13" alt="" style="padding : 1px;" src="lib/NewItem199.png"><span class="rvts22">&nbsp;- Área: </span><span class="rvts19">Nessa seção o usuário deve definir um recorte espacial nos dados dinâmicos de Ocorrência para armazenar somente os pontos que estiverem dentro uma área de interesse.</span></li>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: circle;">
+<li style="margin-left: 0px" class="rvps75"><span class="rvts22">Selecionar o tipo de filtro por área</span><span class="rvts19">: Por padrão a opção “Não filtrar” não aplica nenhum recorte aos dados. Escolha “Filtrar por limites” ou “Filtrar por dado estático”. Para “Filtrar por limites” defina um as coordenadas de dois pontos, sendo o primeiro (mín) inferior esquerdo e o segundo (max) superior direito. Para “Filtrar por dado estático” cadastre previamente um dado estático vetorial com um ou mais polígonos que serão utilizados para recortar a(s) área(s) de interesse.</span></li>
+<li style="margin-left: 0px" class="rvps75"><span class="rvts22">X min </span><span class="rvts61">(somente para “Filtrar por limites”)</span><span class="rvts19">: Digite o valor mais a esquerda da área a recortar. Valor depende do sistema de projeção utilizado.</span></li>
+<li style="margin-left: 0px" class="rvps75"><span class="rvts22">Y min </span><span class="rvts61">(somente para “Filtrar por limites”)</span><span class="rvts19">: Digite o valor mais abaixo da área a recortar. Valor depende do sistema de projeção utilizado.</span></li>
+<li style="margin-left: 0px" class="rvps75"><span class="rvts22">X max </span><span class="rvts61">(somente para “Filtrar por limites”)</span><span class="rvts19">: Digite o valor mais à direita da área a recortar. Valor depende do sistema de projeção utilizado.</span></li>
+<li style="margin-left: 0px" class="rvps75"><span class="rvts22">Y max </span><span class="rvts61">(somente para “Filtrar por limites”)</span><span class="rvts19">: Digite o valor ponto mais acima da área a recortar. Valor depende do sistema de projeção utilizado.</span></li>
+<li style="margin-left: 0px" class="rvps75"><span class="rvts22">Projeção SRID </span><span class="rvts61">(somente para “Filtrar por limites”)</span><span class="rvts19">: Valor numérico dos parâmetros de projeção e datum a ser utilizado pelo par de coordenadas acima. Veja os principais valores utilizados no anexo A1.</span></li>
 </ul></ul>
-<p class="rvps62"><span class="rvts38">Exemplo</span><span class="rvts22">: Para sistemas de coordenadas geográficas utilize os valores em graus decimais (-23.43, –45.22) para longitude e latitude, e para sistema de coordenadas projetados utilize os valores em metros (345455.32, 7455432.43).</span></p>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: circle;">
-<li style="margin-left: 0px" class="rvps64"><span class="rvts38">Séries de Dados </span><span class="rvts64">(somente para Filtrar por dado estático)</span><span class="rvts22">: Escolha o mapa que contém um dado estático vetorial de polígonos que deverão incluir os pontos de ocorrências internos ao(s) polígono(s).</span></li>
+<p class="rvps73"><span class="rvts22">Exemplo</span><span class="rvts19">: Para sistemas de coordenadas geográficas utilize os valores em graus decimais (-23.43, –45.22) para longitude e latitude, e para sistema de coordenadas projetados utilize os valores em metros (345455.32, 7455432.43).</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: circle;">
+<li style="margin-left: 0px" class="rvps75"><span class="rvts22">Séries de Dados </span><span class="rvts61">(somente para Filtrar por dado estático)</span><span class="rvts19">: Escolha o mapa que contém um dado estático vetorial de polígonos que deverão incluir os pontos de ocorrências internos ao(s) polígono(s).</span></li>
 </ul></ul>
-<p class="rvps37"><span class="rvts46"><br/></span></p>
-<p class="rvps56"><span class="rvts63">Registro de Dado Dinâmico – Interseção </span><img width="17" height="17" alt="" style="padding : 1px;" src="lib/Item_ABA_adicionar.png"><span class="rvts63">:</span></p>
-<p class="rvps37"><span class="rvts22">Além dos atributos que normalmente serão coletados de cada série de dados dinâmicos de ocorrências, durante a coleta é possível adicionar novos atributos aos pontos resultantes da interseção espacial com um dado estático vetorial de polígonos ou matricial, assim como um dado dinâmico matricial, seja de observação ou previsão numérica. Neste caso, o valor do pixel da grade será incluído como mais um atributo dos pontos coletados.</span></p>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: disc;">
-<li style="margin-left: 0px" class="rvps63"><span class="rvts72">+</span><span class="rvts38"> : </span><span class="rvts22">Clique no botão para adicionar um plano de interseção. Uma janela será apresentada para escolher qual dado estático ou dinâmico será utilizado.</span></li>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: circle;">
-<li style="margin-left: 0px" class="rvps64"><img width="19" height="15" alt="" style="padding : 1px;" src="lib/Botao_Executar.jpg"><span class="rvts38"> Dado Estático</span><span class="rvts22">: Clique para abrir a lista de dados estáticos a escolher. Note que uma vez escolhido o mesmo será retirado dessa lista. A lista de dados escolhidos fica disponível na área de trabalho.</span></li>
-<li style="margin-left: 0px" class="rvps64"><img width="19" height="15" alt="" style="padding : 1px;" src="lib/Botao_Executar.jpg"><span class="rvts38"> Dado Dinâmico</span><span class="rvts22">: Clique para abrir a lista de dados dinâmicos a escolher. Note que uma vez escolhido o mesmo será retirado dessa lista. A lista de dados escolhidos fica disponível na área de trabalho.</span></li>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<p class="rvps56"><span class="rvts54">Registro de Dado Dinâmico – Interseção </span><img width="13" height="13" alt="" style="padding : 1px;" src="lib/NewItem198.png"><span class="rvts54">:</span></p>
+<p class="rvps11"><span class="rvts19">Além dos atributos que normalmente serão coletados de cada série de dados dinâmicos de ocorrências, durante a coleta é possível adicionar novos atributos aos pontos resultantes da interseção espacial com um dado estático vetorial de polígonos ou matricial, assim como um dado dinâmico matricial, seja de observação ou previsão numérica. Neste caso, o valor do pixel da grade será incluído como mais um atributo dos pontos coletados.</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps74"><span class="rvts66">+</span><span class="rvts22">&nbsp;: </span><span class="rvts19">Clique no botão para adicionar um plano de interseção. Uma janela será apresentada para escolher qual dado estático ou dinâmico será utilizado.</span></li>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: circle;">
+<li style="margin-left: 0px" class="rvps75"><span class="rvts67">⮧</span><span class="rvts22">&nbsp;Dado Estático</span><span class="rvts19">: Clique para abrir a lista de dados estáticos a escolher. Note que uma vez escolhido o mesmo será retirado dessa lista. A lista de dados escolhidos fica disponível na área de trabalho.</span></li>
+<li style="margin-left: 0px" class="rvps75"><span class="rvts67">⮧</span><span class="rvts22">&nbsp;Dado Dinâmico</span><span class="rvts19">: Clique para abrir a lista de dados dinâmicos a escolher. Note que uma vez escolhido o mesmo será retirado dessa lista. A lista de dados escolhidos fica disponível na área de trabalho.</span></li>
 </ul></ul>
-<p class="rvps37"><span class="rvts22">Após selecionar um dado dinâmico matricial é necessário informar qual ou quais bandas (ou camadas) devem ser utilizadas para cruzar com a localização das ocorrências. Mesmo que o dado matricial tenha apenas uma banda deve ser informado a de número 0. Se um dado estático vetorial com geometria de polígonos for selecionado, pode-se escolher um ou mais atributos para ser atribuído as ocorrências. Clique no botão “Atributos” de cada dado dinâmico ou estático para informar os campos a seguir:</span></p>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: disc;">
-<li style="margin-left: 0px" class="rvps63"><span class="rvts38">Selecione Atributos </span><span class="rvts65">(se dado dinâmico matricial)</span><span class="rvts38">: </span><span class="rvts22">Clique no botão para informar quais bandas (ou camadas) serão utilizadas para recuperar o valor do “pixel”. Lembre-se que as bandas são numeradas a partir da banda zero (0).</span></li>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: circle;">
-<li style="margin-left: 0px" class="rvps64"><span class="rvts38">Banda</span><span class="rvts22">: Digite o número da banda ou utilize o botão </span><img alt="" style="padding : 1px;" src="lib/Botao_setas.png"><span class="rvts22"> para escolher o valor. Clique em </span><span class="rvts53">+</span><span class="rvts22"> para cada valor de banda digitado. A lista de dados escolhidos fica disponível na área de trabalho.</span></li>
+<p class="rvps11"><span class="rvts19">Após selecionar um dado dinâmico matricial é necessário informar qual ou quais bandas (ou camadas) devem ser utilizadas para cruzar com a localização das ocorrências. Mesmo que o dado matricial tenha apenas uma banda deve ser informado a de número 0. Se um dado estático vetorial com geometria de polígonos for selecionado, pode-se escolher um ou mais atributos para ser atribuído as ocorrências. Clique no botão “Atributos” de cada dado dinâmico ou estático para informar os campos a seguir:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps74"><span class="rvts22">Selecione Atributos </span><span class="rvts55">(se dado dinâmico matricial)</span><span class="rvts22">: </span><span class="rvts19">Clique no botão para informar quais bandas (ou camadas) serão utilizadas para recuperar o valor do “pixel”. Lembre-se que as bandas são numeradas a partir da banda zero (0).</span></li>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: circle;">
+<li style="margin-left: 0px" class="rvps75"><span class="rvts22">Banda</span><span class="rvts19">: Digite o número da banda ou utilize o botão </span><img width="27" height="15" alt="" style="padding : 1px;" src="lib/NewItem197.png"><span class="rvts19">para escolher o valor. Clique em </span><span class="rvts53">+</span><span class="rvts19">&nbsp;para cada valor de banda digitado. A lista de dados escolhidos fica disponível na área de trabalho.</span></li>
 </ul>
-<li style="margin-left: 0px" class="rvps63"><span class="rvts38">Selecione Atributos </span><span class="rvts65">(se dado estático)</span><span class="rvts38">: </span><span class="rvts22">Clique no botão para informar quais atributos do mapa de polígonos serão utilizadas para agregar informações as ocorrências. Lembre-se que as bandas são numeradas a partir da banda zero (0).</span></li>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 60px; list-style-position: outside; list-style-type: circle;">
-<li style="margin-left: 0px" class="rvps64"><span class="rvts38">Atributos</span><span class="rvts22">: Clique no campo em branco para escolher os atributos do dado estático que serão utilizadas para adicionar atributos as ocorrências.</span></li>
-<li style="margin-left: 0px" class="rvps64"><span class="rvts38">Pseudônimo</span><span class="rvts22">: Se desejado altere o conteúdo desse campo que inicialmente carrega o conteúdo escolhido acima. Será o conteúdo do pseudônimo a ser utilizado para o nome dos atributos a serem criados na tabela de ocorrências.</span></li>
+<li style="margin-left: 0px" class="rvps74"><span class="rvts22">Selecione Atributos </span><span class="rvts55">(se dado estático)</span><span class="rvts22">: </span><span class="rvts19">Clique no botão para informar quais atributos do mapa de polígonos serão utilizadas para agregar informações as ocorrências. Lembre-se que as bandas são numeradas a partir da banda zero (0).</span></li>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: circle;">
+<li style="margin-left: 0px" class="rvps75"><span class="rvts22">Atributos</span><span class="rvts19">: Clique no campo em branco para escolher os atributos do dado estático que serão utilizadas para adicionar atributos as ocorrências.</span></li>
+<li style="margin-left: 0px" class="rvps75"><span class="rvts22">Pseudônimo</span><span class="rvts19">: Se desejado altere o conteúdo desse campo que inicialmente carrega o conteúdo escolhido acima. Será o conteúdo do pseudônimo a ser utilizado para o nome dos atributos a serem criados na tabela de ocorrências.</span></li>
 </ul></ul>
-<p class="rvps37"><span class="rvts46"><br/></span></p>
-<p class="rvps37"><span class="rvts6"><br/></span></p>
+<p class="rvps11"><span class="rvts36"><br/></span></p>
+<p class="rvps11"><span class="rvts6"><br/></span></p>
 <p></p>
 
             </div>
             
-            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2018 by INPE. All Rights Reserved.</div></div>
+            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2020 by INPE. All Rights Reserved.</div></div>
         </div>  <!-- /#topic-content -->
     </article>
 
@@ -347,20 +345,20 @@
   </div>
 
   <!-- Scripts -->
-  <script src="vendors/jquery-1.11.3/jquery.min.js"></script>
-  <script src="vendors/bootstrap-3.3.6/js/bootstrap.min.js"></script>
-  <script src="vendors/fastclick-1.0.6/fastclick.min.js"></script>
-  <script src="vendors/markjs-8.8.3/jquery.mark.min.js"></script>
-  <script src="vendors/uri-1.18.9/uri.min.js"></script>
+  <script src="vendors/jquery-3.4.1/jquery.min.js"></script>
+  <script src="vendors/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+  <script src="vendors/markjs-8.11.1/jquery.mark.min.js"></script>
+  <script src="vendors/uri-1.19.1/uri.min.js"></script>
+  <script src="vendors/imageMapResizer-1.0.7/imageMapResizer.min.js"></script>
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <script src="vendors/bootstrap-3.3.6/js/ie10-viewport-bug-workaround.js"></script>
+  <script src="vendors/bootstrap-3.4.1/js/ie10-viewport-bug-workaround.js"></script>
   
   <!-- Headroom -->
-  <script src="vendors/headroom-0.9.3/headroom.min.js"></script>
-  <script src="vendors/headroom-0.9.3/jquery.headroom.min.js"></script>
+  <script src="vendors/headroom-0.9.4/headroom.min.js"></script>
+  <script src="vendors/headroom-0.9.4/jquery.headroom.min.js"></script>
 
   <!-- JsTree -->
-  <script src="vendors/jstree-3.3.2/jstree.min.js"></script>
+  <script src="vendors/jstree-3.3.7/jstree.min.js"></script>
 
   <!-- HelpNDoc scripts -->
   <script src="_translations.js"></script>
@@ -371,12 +369,12 @@
   <!-- Scripts -->
   <script>
     $(function() {
-      // Instanciate FastClick
-      Origami.fastclick(document.body);
       // Create the app
       var app = new Hnd.App();
       // Update translations
       hnd_ut(app);
+	  // Instanciate imageMapResizer
+	  imageMapResize();
 	  // Custom JS
 	  
       // Boot the app
