@@ -7,7 +7,7 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="generator" content="HelpNDoc Standard Edition 5.7.0.575">
+  <meta name="generator" content="HelpNDoc Standard Edition 6.9.0.577">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="favicon.ico"/>
 
@@ -16,6 +16,8 @@
   <meta name="keywords" content="">
 
 
+
+  
 
   <!-- Twitter Card data -->
   <meta name="twitter:card" content="summary">
@@ -26,22 +28,22 @@
   <meta property="og:title" content="Interpola&ccedil;&atilde;o" />
   <meta property="og:type" content="article" />
   <meta property="og:description" content="" />
-  <meta property="og:site_name" content="Plataforma de Monitoramento Ambiental TerraMA&sup2;" /> 
+  <meta property="og:site_name" content="Manual da plataforma TerraMA2" /> 
 
   <!-- Bootstrap core CSS -->
-  <link href="vendors/bootstrap-3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="vendors/bootstrap-3.4.1/css/bootstrap.min.css" rel="stylesheet"/>
 
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <link href="vendors/bootstrap-3.3.6/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
+  <link href="vendors/bootstrap-3.4.1/css/ie10-viewport-bug-workaround.css" rel="stylesheet"/>
 
   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
   <!--[if lt IE 9]>
-      <script src="vendors/html5shiv-3.7.2/html5shiv.min.js"></script>
+      <script src="vendors/html5shiv-3.7.3/html5shiv.min.js"></script>
       <script src="vendors/respond-1.4.2/respond.min.js"></script>
     <![endif]-->
 
   <!-- JsTree styles -->
-  <link href="vendors/jstree-3.3.2/themes/default/style.min.css" rel="stylesheet"/>
+  <link href="vendors/jstree-3.3.7/themes/default/style.min.css" rel="stylesheet"/>
 
   <!-- Hnd styles -->
   <link href="css/layout.min.css" rel="stylesheet" />
@@ -72,7 +74,7 @@
       <span class="sr-only">Toggle navigation</span>
       <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>        
     </button>
-    <h1>Plataforma de Monitoramento Ambiental TerraMA&sup2;</h1>
+    <h1>Manual da plataforma TerraMA2</h1>
     
   </header>
 
@@ -162,16 +164,16 @@
     <article>
         <div id="topic-content" class="container-fluid" 
 		  data-hnd-id="Interpolacao"
-		  data-hnd-context="47"
+		  data-hnd-context="32"
 		  data-hnd-title="Interpolação"
 		>
             
                 <div class="navigation">
                     <ol class="breadcrumb">
-                        <li><a href="administration_module.html">M&oacute;dulo de Administra&ccedil;&atilde;o</a></li><li><a href="Projetos.html">Projetos</a></li><li><a href="dynamic_data.html">Dados Din&acirc;micos</a></li><li><a href="add_dynamic_data.html">Adicionar Dado Din&acirc;mico</a></li>
+                        <li><a href="administration_module.html">M&oacute;dulo de Administra&ccedil;&atilde;o</a></li><li><a href="Projetos.html">Projetos</a></li><li><a href="dynamic_data.html">Dados Din&acirc;micos</a></li>
                     </ol>
                     <div class="nav-arrows">
-                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="add_dynamic_data.html" title="Adicionar Dado Din&acirc;mico" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="DadodeOcorrencia.html" title="Dado de Ocorr&ecirc;ncia" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="DirectAccess.html" title="Acesso Direto" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
+                        <div class="btn-group btn-group-xs" role="group"><a class="btn btn-default" href="dynamic_data.html" title="Dados Din&acirc;micos" role="button"><span class="glyphicon glyphicon-menu-up" aria-hidden="true"></span></a><a class="btn btn-default" href="DadodeOcorrencia.html" title="Dado de Ocorr&ecirc;ncia" role="button"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a><a class="btn btn-default" href="direct_access.html" title="Acesso Direto" role="button"><span class="glyphicon glyphicon-menu-right" aria-hidden="true"></span></a></div>
                     </div>
                 </div> 
             
@@ -183,71 +185,81 @@
             <div class="main-content">
                 
 <p></p>
-<h3 class="rvps18"><span class="rvts0"><span class="rvts31">RESULTADOS DE INTERPOLAÇÕES &nbsp;</span></span></h3>
-<p class="rvps37"><span class="rvts22">Os dados dinâmicos do tipo PCD podem ser interpolados para criar novos dados dinâmicos matriciais. O usuário pode escolher o interpolador a ser utilizado, o tamanho da área a ser coberta pelo dado matricial e a resolução da grade. Um intervalo de tempo é utilizado para busca do dado de cada PCD mais próximo do horário de execução da interpolação.</span></p>
-<p class="rvps37"><span class="rvts6"><br/></span></p>
-<h5 class="rvps41"><span class="rvts0"><span class="rvts50">ADICIONANDO DADO DINÂMICO - INTERPOLAÇÃO:</span></span></h5>
-<p class="rvps9"><span class="rvts22">Para adicionar um novo dado dinâmico do tipo Interpolação é necessário ter um projeto ativo. No menu de opções selecione “</span><img width="20" height="20" alt="" style="padding : 1px;" src="lib/Menu_dado_dinamico.jpg"><span class="rvts6"> </span><span class="rvts38">Dados Dinâmicos</span><span class="rvts22">” para que a lista de dados disponíveis seja apresentada na área de trabalho. Clique no botão </span><span class="rvts38">“Interpolar“ </span><span class="rvts22">referente a série de dados de PCD. Defina os parâmetros de interpolação e utilize o botão </span><span class="rvts38">“Salvar”</span><span class="rvts22"> para salvar o dado dinâmico por interpolação. Não é permitido nomes de dados em duplicidade. Botão </span><span class="rvts38">“Cancelar”</span><span class="rvts22"> volta à tela anterior sem salvar o dado. A Figura 2.21 mostra a área de trabalho para adicionar nova interpolação. Detalhes de cada campo a seguir.</span></p>
-<p class="rvps21"><img alt="" style="padding : 1px;" src="lib/Fig2_21_web.PNG"></p>
-<p class="rvps38"><span class="rvts69">Figura 2.21 – </span><span class="rvts62">Módulo de Administração: Adição de dado dinâmico - Resultado de Interpolação</span></p>
-<p class="rvps38"><span class="rvts6"><br/></span></p>
-<p class="rvps65"><span class="rvts73">Registro de Interpolação - Geral:</span></p>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
-<li class="rvps72"><span class="rvts19">Série de Dados para Interpolar</span><span class="rvts18">: Campo informado qual a fonte de dados utilizada para criar as grades resultantes da interpolação. IMPORTANTE: Esta fonte de dados deve ter coletado dados previamente.</span></li>
-<li class="rvps72"><span class="rvts19">Nome</span><span class="rvts18">: Defina o nome do dado dinâmico (campo obrigatório para passar para os demais itens). O tamanho máximo do nome é de 100 caracteres. Não é permitido nomes duplicados. DICA: use nomes que indiquem a fonte de origem e atributo a ser escolhido em "Parâmetros"</span></li>
-<li class="rvps72"><span class="rvts19">Descrição</span><span class="rvts18">: Campo não obrigatório para descrição do dado dinâmico. O tamanho máximo da senha é de 250 caracteres.</span></li>
-<li class="rvps72"><span class="rvts19">Ativo</span><span class="rvts18">: Botão ativo permite coletar o dado dinâmico em questão e que está associado ao servidor escolhido acima. Botão desmarcado nenhuma coleta será realizada.</span></li>
+<p class="rvps2"><span class="rvts6"><br/></span></p>
+<h3 class="rvps100"><img width="32" height="33" alt="" style="padding : 1px;" src="lib/NewItem219.png"></h3>
+<p class="rvps17"><span class="rvts23">Os dados dinâmicos do tipo PCD podem ser interpolados para criar novos dados dinâmicos matriciais. O usuário pode escolher o interpolador a ser utilizado, o tamanho da área a ser coberta pelo dado matricial e a resolução da grade. Um intervalo de tempo é utilizado para busca do dado de cada PCD mais próximo do horário de execução da interpolação.</span></p>
+<p class="rvps17"><span class="rvts47"><br/></span></p>
+<h5 class="rvps49"><a name="_Toc523062777"></a><span class="rvts0"><span class="rvts50">ADICIONANDO DADO DINÂMICO - INTERPOLAÇÃO:</span></span></h5>
+<p class="rvps89"><span class="rvts19">Para adicionar um novo dado dinâmico do tipo Interpolação é necessário ter um projeto ativo. No menu de opções selecione “</span><span class="rvts6">&nbsp;</span><img width="15" height="15" alt="" style="padding : 1px;" src="lib/NewItem218.jpg"><span class="rvts6">&nbsp;</span><span class="rvts22">Dados Dinâmicos</span><span class="rvts19">” para que a lista de dados disponíveis seja apresentada na área de trabalho. Clique no botão </span><span class="rvts22">“Interpolar“ </span><span class="rvts19">referente a série de dados de PCD. Defina os parâmetros de interpolação e utilize o botão </span><span class="rvts22">“Salvar”</span><span class="rvts19">&nbsp;para salvar o dado dinâmico por interpolação. Não é permitido nomes de dados em duplicidade. Botão </span><span class="rvts22">“Cancelar”</span><span class="rvts19">&nbsp;volta à tela anterior sem salvar o dado. A Figura 2.22 mostra a área de trabalho para adicionar nova interpolação. Detalhes de cada campo a seguir.</span></p>
+<p class="rvps89"><span class="rvts19"><br/></span></p>
+<p class="rvps90"><img width="580" height="314" alt="" style="padding : 1px;" src="lib/NewItem217.png"></p>
+<p class="rvps90"><span class="rvts20">Figura 2.22 – </span><span class="rvts21">Módulo de Administração: Adição de dado dinâmico - Resultado de Interpolação</span></p>
+<p class="rvps90"><span class="rvts21"><br/></span></p>
+<p class="rvps91"><span class="rvts54">Registro de Interpolação - Geral:</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 32px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps92"><span class="rvts22">Série de Dados para Interpolar</span><span class="rvts19">: Campo informado qual a fonte de dados utilizada para criar as grades resultantes da interpolação. IMPORTANTE: Esta fonte de dados deve ter coletado dados previamente.</span></li>
+<li style="margin-left: 0px" class="rvps92"><span class="rvts22">Nome</span><span class="rvts19">: Defina o nome da interpolação (campo obrigatório para passar para os demais itens). O tamanho máximo do nome é de 100 caracteres. Não é permitido nomes duplicados. DICA: use nomes que indiquem a fonte de origem e atributo a ser escolhido em "Parâmetros"</span></li>
+<li style="margin-left: 0px" class="rvps92"><span class="rvts22">Descrição</span><span class="rvts19">: Campo não obrigatório para descrição do dado dinâmico. O tamanho máximo da senha é de 250 caracteres.</span></li>
+<li style="margin-left: 0px" class="rvps92"><span class="rvts22">Ativo</span><span class="rvts19">: Botão ativo permite executar a interpolação em questão. Botão desmarcado não executa a interpolação, a não ser que o usuário execute manualmente.</span></li>
 </ul>
-<p class="rvps65"><span class="rvts73">Registro de Interpolação - Parâmetros:</span></p>
-<p class="rvps9"><span class="rvts18">Utilize os parâmetros dessa aba para informar a estratégia de interpolação e área de cobertura da grade de saída.</span></p>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
-<li class="rvps74"><span class="rvts19">Parâmetros - Estratégia: </span><span class="rvts18">Nessa seção o usuário pode definir os parâmetros do interpolador e atributo da série de PCD a ser utilizado.</span></li>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
-<li class="rvps74"><span class="rvts19">Estratégia de Interpolação </span><span class="rvts18">: Clique no campo para escolher o interpolador. Opções são "</span><span class="rvts19">Vizinho mais próximo</span><span class="rvts18">", "</span><span class="rvts19">Vizinho médio</span><span class="rvts18">" ou "</span><span class="rvts19">Vizinho médio ponderado</span><span class="rvts18">".</span></li>
-<li class="rvps74"><span class="rvts19">Atributo da interpolação </span><span class="rvts74">(somente para série de dados dinâmicos do tipo “PCD”)</span><span class="rvts18">: Digite o atributo da PCD a ser utilizado.</span></li>
-<li class="rvps74"><span class="rvts19">Número de Vizinhos </span><span class="rvts18">: Digite o número de vizinhos a ser utilizado para os cálculos.</span></li>
-<li class="rvps74"><span class="rvts19">Fator de Potência </span><span class="rvts74">(somente se interpolador for “Vizinho médio ponderado”)</span><span class="rvts18">: Digite a potência do interpolador.</span></li>
-</ul></ul>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
-<li class="rvps74"><span class="rvts19">Parâmetros - Área: </span><span class="rvts18">Nessa seção o usuário deve definir a área de cobertura da grade de saída.</span></li>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
-<li class="rvps74"><span class="rvts19">X min</span><span class="rvts18">: Digite o valor mais a esquerda da área da grade de saída. Valor depende do sistema de projeção utilizado.</span></li>
-<li class="rvps74"><span class="rvts19">Y min</span><span class="rvts18">: Digite o valor mais abaixo da área da grade de saída. Valor depende do sistema de projeção utilizado.</span></li>
-<li class="rvps74"><span class="rvts19">X max</span><span class="rvts18">: Digite o valor mais à direita da área da grade de saída. Valor depende do sistema de projeção utilizado.</span></li>
-<li class="rvps74"><span class="rvts19">Y max</span><span class="rvts18">: Digite o valor ponto mais à cima da área da grade de saída. Valor depende do sistema de projeção utilizado.</span></li>
-<li class="rvps74"><span class="rvts19">Resolução X</span><span class="rvts18">: Digite o valor da resolução na direção X. Valor depende do sistema de projeção utilizado.</span></li>
-<li class="rvps74"><span class="rvts19">Resolução Y</span><span class="rvts18">: Digite o valor da resolução na direção Y. Valor depende do sistema de projeção utilizado.</span></li>
-<li class="rvps74"><span class="rvts19">Projeção (SRID)</span><span class="rvts18">: Valor numérico dos parâmetros de projeção e datum a ser utilizado pelo par de coordenadas e resolução acima.</span></li>
-</ul></ul>
-<p class="rvps73"><span class="rvts19">Exemplo</span><span class="rvts18">: Para sistemas de coordenadas geográficas utilize o valores em graus decimais (-23.43, –45.22) para longitude e latitude, e para sistema de coordenadas projetados utilize os valores em metros (345455.32, 7455432.43).</span></p>
-<p class="rvps65"><span class="rvts73">Registro de Interpolação – Armazenar:</span></p>
-<p class="rvps9"><span class="rvts18">Utilize os parâmetros dessa aba para definir onde e como armazenar os dados matriciais dinâmicos resultado da interpolação.</span></p>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
-<li class="rvps72"><span class="rvts19">Formato de saída</span><span class="rvts18">: Escolha o formato de saída. Opção disponível “Matriz – GeoTiff”.</span></li>
-<li class="rvps72"><span class="rvts19">Armazenar Dados</span><span class="rvts18">: Servidor de dados (tipo ARQUIVO) que irá armazenar dados processados.</span></li>
-<li class="rvps72"><span class="rvts19">Serviço</span><span class="rvts18">: Escolha o serviço de interpolação a ser utilizado.</span></li>
-<li class="rvps75"><span class="rvts19">Máscara</span><span class="rvts18">: Máscara do nome dos arquivos a serem armazenados. Utilize %YYYY para anos de 4 dígitos, %YY para anos de 2 dígitos, %MM para mês, %DD para dia, %hh para hora,%mm para minutos e %ss para segundos.</span></li>
-<li class="rvps72"><span class="rvts19">Fuso Horário</span><span class="rvts18">: Fuso horário do dado dinâmico a ser armazenado. Esse parâmetro garante que as datas e horas dos dados criados se mantenham consistentes com a base de dados. Dados em horário GMT devem utilizar o valor 0.</span></li>
-<li class="rvps10"><span class="rvts19">Projeção (SRID)</span><span class="rvts18">: Valor numérico dos parâmetros de projeção e datum dos dados a serem armazenados.</span></li>
+<p class="rvps91"><span class="rvts54">Registro de Interpolação – Parâmetros:</span></p>
+<p class="rvps89"><span class="rvts19">Utilize os parâmetros dessa aba para informar a estratégia de interpolação e área de cobertura da grade de saída e o atributo da PCD.</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 32px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps93"><span class="rvts22">Estratégia</span><span class="rvts19">.</span></li>
 </ul>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 40px; list-style-position: outside; list-style-type: disc;">
-<li class="rvps74"><span class="rvts19">Armazenar - Agendamento: </span><span class="rvts18">Nessa sessão o usuário deve definir quando será executada a interpolação.</span></li>
-</ul>
-<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 24px; list-style-position: outside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 48px; list-style-position: outside; list-style-type: circle;">
-<li style="margin-left: 0px" class="rvps76"><span class="rvts19">Tipo</span><span class="rvts18">: Escolha tipo “</span><span class="rvts19">Manual</span><span class="rvts18">”, “</span><span class="rvts19">Agendamento</span><span class="rvts18">”, “</span><span class="rvts19">Reprocessamento de dados históricos</span><span class="rvts18">”, ou “</span><span class="rvts19">Automático</span><span class="rvts18">”. Se Manual a execução da interpolação só será realizada se o usuário utilizar o botão </span><img width="14" height="11" alt="" src="https://lh3.googleusercontent.com/G2YN88JbzJmZejEgAQ4RhmxsvpehRoBRMdCXsIaRicsROfgQvIudPZ76kjTauIiUaOdp90b1UP2-Kt1cTaNbU5ZtqVlHumCEMekpz0DYDl6qEDpZu4L6PHZrh8QjOgl0LvXr3gn9VIzvOqFBzA"><span class="rvts18">Executar no item da lista de dados dinâmicos que desejar, ou ainda em “Salvar e executar” da interpolação aberta. Se “Agendamento” ou “Reprocessamento de dados históricos” preencha os campos abaixo. Se “Automático” dependerá da chegada de novos dados dinâmicos.</span></li>
-<li style="margin-left: 0px" class="rvps76"><span class="rvts19">Data Inicial </span><img alt="" style="padding : 1px;" src="lib/calendario28x28.png"><span class="rvts74">(somente se Tipo for “Reprocessamento de dados históricos”)</span><span class="rvts18">: Clique no campo para escolher a data e hora que será utilizada para início do reprocessamento.</span></li>
-<li style="margin-left: 0px" class="rvps76"><span class="rvts19">Data Final </span><img alt="" style="padding : 1px;" src="lib/calendario28x28.png"><span class="rvts74">(somente se Tipo for “Reprocessamento de dados históricos”)</span><span class="rvts18">: Clique no campo para escolher a data e hora que será utilizada para fim do reprocessamento.</span></li>
-<li style="margin-left: 0px" class="rvps76"><span class="rvts19">Unidade de tempo</span><span class="rvts18">: Escolha um item entre “Segundos, Minutos, Horas e Semanalmente”.</span></li>
-<li style="margin-left: 0px" class="rvps76"><span class="rvts19">Frequência </span><span class="rvts74">(somente se Unidade de tempo for Segundos, Minutos, Horas)</span><span class="rvts18">: Digite um valor de um número inteiro.</span></li>
-<li style="margin-left: 0px" class="rvps76"><span class="rvts19">Tempo Inicial </span><img alt="" style="padding : 1px;" src="lib/calendario28x28.png"><span class="rvts74">(somente se Unidade de tempo for Segundos, Minutos, Horas)</span><span class="rvts18">: Clique no campo para escolher o valor de hora, minuto e segundo que será utilizado como referência para executar a análise.</span></li>
-<li style="margin-left: 0px" class="rvps76"><span class="rvts19">Agendamento </span><span class="rvts74">(somente se Unidade de tempo for Semanalmente)</span><span class="rvts18">: escolha uma das opções entre “Domingo, Segunda-feira, Terça-feira, Quarta-feira, Quinta-Feira, Sexta-feira e Sábado”</span></li>
-<li style="margin-left: 0px" class="rvps76"><span class="rvts19">Hora </span><span class="rvts74">(somente se Unidade de tempo for Semanalmente)</span><span class="rvts18">: clique no campo para escolher o valor de hora, minuto e segundo que será executada para iniciar a análise.</span></li>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 32px; list-style-position: outside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 32px; list-style-position: outside; list-style-type: circle;">
+<li style="margin-left: 0px" class="rvps94"><span class="rvts22">Estratégia de Interpolação </span><span class="rvts19">: Clique no campo para escolher o interpolador. Opções são "</span><span class="rvts22">Vizinho mais próximo</span><span class="rvts19">", "</span><span class="rvts22">Vizinho médio</span><span class="rvts19">" ou "</span><span class="rvts22">Vizinho médio ponderado</span><span class="rvts19">".</span></li>
+<li style="margin-left: 0px" class="rvps94"><span class="rvts22">Atributo da interpolação</span><span class="rvts19">: Digite o atributo da PCD a ser utilizado.</span></li>
+<li style="margin-left: 0px" class="rvps94"><span class="rvts22">Número de Vizinhos </span><span class="rvts19">: Digite o número de vizinhos a ser utilizado para os cálculos.</span></li>
+<li style="margin-left: 0px" class="rvps94"><span class="rvts22">Fator de Potência </span><span class="rvts61">(somente se interpolador for “Vizinho médio ponderado”)</span><span class="rvts19">: Digite a potência do interpolador.</span></li>
+<li style="margin-left: 0px" class="rvps94"><span class="rvts22">Unidade de tempo</span><span class="rvts19">: Escolha a unidade.</span></li>
+<li style="margin-left: 0px" class="rvps94"><span class="rvts22">Valor de tempo</span><span class="rvts19">: Digite o valor.</span></li>
 </ul></ul>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 32px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps93"><span class="rvts22">Área: </span><span class="rvts19">Nessa seção o usuário deve definir a área de cobertura da grade de saída.</span></li>
+</ul>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 32px; list-style-position: outside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 32px; list-style-position: outside; list-style-type: circle;">
+<li style="margin-left: 0px" class="rvps94"><span class="rvts22">X min</span><span class="rvts19">: Digite o valor mais à esquerda da área da grade de saída. Valor depende do sistema de projeção utilizado.</span></li>
+<li style="margin-left: 0px" class="rvps94"><span class="rvts22">Y min</span><span class="rvts19">: Digite o valor mais abaixo da área da grade de saída. Valor depende do sistema de projeção utilizado.</span></li>
+<li style="margin-left: 0px" class="rvps94"><span class="rvts22">X max</span><span class="rvts19">: Digite o valor mais à direita da área da grade de saída. Valor depende do sistema de projeção utilizado.</span></li>
+<li style="margin-left: 0px" class="rvps94"><span class="rvts22">Y max</span><span class="rvts19">: Digite o valor ponto mais à cima da área da grade de saída. Valor depende do sistema de projeção utilizado.</span></li>
+<li style="margin-left: 0px" class="rvps94"><span class="rvts22">Resolução X</span><span class="rvts19">: Digite o valor da resolução na direção X. Valor depende do sistema de projeção utilizado.</span></li>
+<li style="margin-left: 0px" class="rvps94"><span class="rvts22">Resolução Y</span><span class="rvts19">: Digite o valor da resolução na direção Y. Valor depende do sistema de projeção utilizado.</span></li>
+<li style="margin-left: 0px" class="rvps94"><span class="rvts22">Projeção (SRID)</span><span class="rvts19">: Valor numérico dos parâmetros de projeção e datum a ser utilizado pelo par de coordenadas e resolução acima. Veja os principais valores utilizados no anexo A1.</span></li>
+</ul></ul>
+<p class="rvps95"><span class="rvts22">Exemplo</span><span class="rvts19">: Para sistemas de coordenadas geográficas utilize o valores em graus decimais (-23.43, –45.22) para longitude e latitude, e para sistema de coordenadas projetados utilize os valores em metros (345455.32, 7455432.43).</span></p>
+<p class="rvps2"><span class="rvts36"><br/></span></p>
+<p class="rvps2"><span class="rvts36"><br/></span></p>
+<p class="rvps91"><span class="rvts54">Registro de Interpolação – Armazenar:</span></p>
+<p class="rvps89"><span class="rvts19">Utilize os parâmetros dessa aba para definir onde e como armazenar os dados matriciais dinâmicos resultado da interpolação.</span></p>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 32px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps92"><span class="rvts22">Formato de saída</span><span class="rvts19">: Escolha o formato de saída. Opção disponível “Matriz – GeoTiff”.</span></li>
+<li style="margin-left: 0px" class="rvps92"><span class="rvts22">Armazenar Dados</span><span class="rvts19">: Servidor de dados (tipo ARQUIVO) que irá armazenar dados processados.</span></li>
+<li style="margin-left: 0px" class="rvps92"><span class="rvts22">Serviço</span><span class="rvts19">: Escolha o serviço de interpolação a ser utilizado.</span></li>
+<li style="margin-left: 0px" class="rvps96"><span class="rvts22">Máscara</span><span class="rvts19">: Máscara do nome dos arquivos a serem armazenados. Utilize %YYYY para anos de 4 dígitos, %YY para anos de 2 dígitos, %MM para mês, %DD para dia, %hh para hora,%mm para minutos e %ss para segundos.</span></li>
+<li style="margin-left: 0px" class="rvps92"><span class="rvts22">Fuso Horário</span><span class="rvts19">: Fuso horário do dado dinâmico a ser armazenado. Esse parâmetro garante que as datas e horas dos dados criados se mantenham consistentes com a base de dados. Dados em horário GMT devem utilizar o valor 0.</span></li>
+<li style="margin-left: 0px" class="rvps97"><span class="rvts22">Projeção (SRID)</span><span class="rvts19">: Valor numérico dos parâmetros de projeção e datum dos dados a serem armazenados.</span></li>
+</ul>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 32px; list-style-position: outside; list-style-type: disc;">
+<li style="margin-left: 0px" class="rvps93"><span class="rvts22">Armazenar - Agendamento: </span><span class="rvts19">Nessa sessão o usuário deve definir quando será executada a interpolação.</span></li>
+</ul>
+<ul style="text-indent: 0px; padding: 0; margin: 0 0 0 19px; list-style-position: outside; list-style-type: disc;"><ul style="text-indent: 0px; padding: 0; margin: 0 0 0 39px; list-style-position: outside; list-style-type: circle;">
+<li style="margin-left: 0px" class="rvps98"><span class="rvts22">Tipo</span><span class="rvts19">: Escolha tipo “</span><span class="rvts22">Manual</span><span class="rvts19">”, “</span><span class="rvts22">Agendamento</span><span class="rvts19">”, “</span><span class="rvts22">Reprocessamento de dados históricos</span><span class="rvts19">”, ou “</span><span class="rvts22">Automático</span><span class="rvts19">”. Se Manual a execução da interpolação só será realizada se o usuário utilizar o botão </span><img width="10" height="10" alt="" style="padding : 1px;" src="lib/NewItem216.png"><span class="rvts19">Executar no item da lista de dados dinâmicos que desejar, ou ainda em “Salvar e executar” da interpolação aberta. Se “Agendamento” ou “Reprocessamento de dados históricos” preencha os campos abaixo. Se “Automático” dependerá da chegada de novos dados dinâmicos.</span></li>
+<li style="margin-left: 0px" class="rvps98"><span class="rvts22">Data Inicial &nbsp;</span><img width="14" height="14" alt="" style="padding : 1px;" src="lib/NewItem215.png"><span class="rvts22">&nbsp;</span><span class="rvts61">(somente se Tipo for “Reprocessamento de dados históricos”)</span><span class="rvts19">: Clique no campo para escolher a data e hora que será utilizada para início do reprocessamento.</span></li>
+<li style="margin-left: 0px" class="rvps98"><span class="rvts22">Data Final &nbsp;</span><img width="14" height="14" alt="" style="padding : 1px;" src="lib/NewItem214.png"><span class="rvts22">&nbsp;</span><span class="rvts61">(somente se Tipo for “Reprocessamento de dados históricos”)</span><span class="rvts19">: Clique no campo para escolher a data e hora que será utilizada para fim do reprocessamento.</span></li>
+<li style="margin-left: 0px" class="rvps98"><span class="rvts22">Unidade de tempo</span><span class="rvts19">: Escolha um item entre “Segundos, Minutos, Horas e Semanalmente”.</span></li>
+<li style="margin-left: 0px" class="rvps98"><span class="rvts22">Frequência </span><span class="rvts61">(somente se Unidade de tempo for Segundos, Minutos, Horas)</span><span class="rvts19">: Digite um valor de um número inteiro.</span></li>
+<li style="margin-left: 0px" class="rvps98"><span class="rvts22">Tempo Inicial &nbsp;</span><img width="14" height="14" alt="" style="padding : 1px;" src="lib/NewItem213.png"><span class="rvts22">&nbsp;</span><span class="rvts61">(somente se Unidade de tempo for Segundos, Minutos, Horas)</span><span class="rvts19">: Clique no campo para escolher o valor de hora, minuto e segundo que será utilizado como referência para executar a análise.</span></li>
+<li style="margin-left: 0px" class="rvps98"><span class="rvts22">Agendamento </span><span class="rvts61">(somente se Unidade de tempo for Semanalmente)</span><span class="rvts19">: escolha uma das opções entre “Domingo, Segunda-feira, Terça-feira, Quarta-feira, Quinta-Feira, Sexta-feira e Sábado”</span></li>
+<li style="margin-left: 0px" class="rvps98"><span class="rvts22">Hora </span><img width="14" height="14" alt="" style="padding : 1px;" src="lib/NewItem212.png"><span class="rvts61">&nbsp;(somente se Unidade de tempo for Semanalmente)</span><span class="rvts19">: clique no campo para escolher o valor de hora, minuto e segundo que será executada para iniciar a análise.</span></li>
+</ul></ul>
+<p class="rvps99"><span class="rvts19"><br/></span></p>
+<p class="rvps99"><span class="rvts6"><br/></span></p>
 <p></p>
 
             </div>
             
-            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2018 by INPE. All Rights Reserved.</div></div>
+            <div id="topic_footer"><div id="topic_footer_content">Copyright &copy; 2020 by INPE. All Rights Reserved.</div></div>
         </div>  <!-- /#topic-content -->
     </article>
 
@@ -275,20 +287,20 @@
   </div>
 
   <!-- Scripts -->
-  <script src="vendors/jquery-1.11.3/jquery.min.js"></script>
-  <script src="vendors/bootstrap-3.3.6/js/bootstrap.min.js"></script>
-  <script src="vendors/fastclick-1.0.6/fastclick.min.js"></script>
-  <script src="vendors/markjs-8.8.3/jquery.mark.min.js"></script>
-  <script src="vendors/uri-1.18.9/uri.min.js"></script>
+  <script src="vendors/jquery-3.4.1/jquery.min.js"></script>
+  <script src="vendors/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+  <script src="vendors/markjs-8.11.1/jquery.mark.min.js"></script>
+  <script src="vendors/uri-1.19.1/uri.min.js"></script>
+  <script src="vendors/imageMapResizer-1.0.7/imageMapResizer.min.js"></script>
   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <script src="vendors/bootstrap-3.3.6/js/ie10-viewport-bug-workaround.js"></script>
+  <script src="vendors/bootstrap-3.4.1/js/ie10-viewport-bug-workaround.js"></script>
   
   <!-- Headroom -->
-  <script src="vendors/headroom-0.9.3/headroom.min.js"></script>
-  <script src="vendors/headroom-0.9.3/jquery.headroom.min.js"></script>
+  <script src="vendors/headroom-0.9.4/headroom.min.js"></script>
+  <script src="vendors/headroom-0.9.4/jquery.headroom.min.js"></script>
 
   <!-- JsTree -->
-  <script src="vendors/jstree-3.3.2/jstree.min.js"></script>
+  <script src="vendors/jstree-3.3.7/jstree.min.js"></script>
 
   <!-- HelpNDoc scripts -->
   <script src="_translations.js"></script>
@@ -299,12 +311,12 @@
   <!-- Scripts -->
   <script>
     $(function() {
-      // Instanciate FastClick
-      Origami.fastclick(document.body);
       // Create the app
       var app = new Hnd.App();
       // Update translations
       hnd_ut(app);
+	  // Instanciate imageMapResizer
+	  imageMapResize();
 	  // Custom JS
 	  
       // Boot the app
