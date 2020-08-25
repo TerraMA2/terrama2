@@ -38,6 +38,9 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
+//Terralib
+#include <terralib/datatype/TimeInstant.h>
+
 // Qt
 #include <string>
 #include <QDate>
@@ -45,6 +48,8 @@
 #include <QObject>
 #include <QRegExp>
 #include <QStringList>
+
+#include <time.h>
 
 // TODO: This method is being call for every check of the mask, this should only be called once to avoid a costy operation.
 std::string terrama2::core::terramaMask2Regex(const std::string& mask)
@@ -180,6 +185,167 @@ std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::getFileTimestamp(const st
   }
 
   return timeStamp;
+}
+
+int terrama2::core::getMaxDay(int month, int year) {
+    if(month == 0 || month == 2 || month == 4 || month == 6 || month == 7 || month == 9 || month == 11)
+        return 31;
+    else if(month == 3 || month == 5 || month == 8 || month == 10)
+        return 30;
+    else {
+        if(year % 4 == 0) {
+            if(year % 100 == 0) {
+                if(year % 400 == 0)
+                    return 29;
+                return 28;
+            }
+            return 29;
+        }
+        return 28;
+    }
+}
+
+std::shared_ptr<te::dt::TimeInstantTZ> terrama2::core::gridSampleVerifyMask(std::string mask, std::shared_ptr<te::dt::TimeInstantTZ> actualDate)
+{
+    std::shared_ptr<te::dt::TimeInstantTZ> dateReturn;
+    auto temp = QString::fromStdString(mask);
+    auto list = temp.split("%", QString::SkipEmptyParts);
+
+    time_t theTime = time(NULL);
+    struct tm *aTime = localtime(&theTime);
+
+    int day = aTime->tm_mday;
+    int month = aTime->tm_mon + 1; // Month is 0 - 11, add 1 to get a jan-dec 1-12 concept
+    int year = aTime->tm_year + 1900; // Year is # years since 1900
+    
+    std::vector<std::string> options;
+    options.push_back("YYYY");
+    options.push_back("MM");
+    options.push_back("DD");
+    options.push_back("hh");
+    options.push_back("mm");
+    options.push_back("ss");
+    
+    int optIndice = 0;
+
+    std::map<std::string, std::string> mapDate;
+    
+    for(int i = 0; i < list.size(); ++i)
+    {
+      auto& parts = list[i];
+      auto listParts = parts.split("$", QString::SkipEmptyParts);
+
+      auto& part = listParts[0];
+      std::string partStr = part.toUtf8().constData();
+
+      auto& partContent = listParts[1];
+      std::string partContentStr = partContent.toUtf8().constData();
+
+      for(int y=optIndice; y < options.size(); ++y)
+      {
+        if(partStr.compare(options[y]) == 0)
+        {
+          switch (y) {
+            case 0:
+              mapDate.insert({"year", partContentStr});
+              break;
+            case 1:
+              mapDate.insert({"month", partContentStr});
+              break;
+            case 2:
+              mapDate.insert({"day", partContentStr});
+              break;
+            case 3:
+              mapDate.insert({"hour", partContentStr});
+              break;
+            case 4:
+              mapDate.insert({"minute", partContentStr});
+              break;
+            case 5:
+              mapDate.insert({"second", partContentStr});
+              break;
+            default:
+              std::cout << "DEFAULT" << std::endl;
+           }
+
+          optIndice++;
+          if((i+1) == list.size())
+          {
+            continue;
+          }
+          break;
+        }
+        else
+        {
+          int yearAux = 0;
+          int monthAux = 0;
+          switch (y) {
+            case 0:
+              mapDate.insert({"year", std::to_string(year)});
+              break;
+            case 1:
+              if(month < 10)
+              {
+                mapDate.insert({"month", "0"+std::to_string(month)});
+              }
+              else
+              {
+                mapDate.insert({"month", std::to_string(month)});
+              }
+              break;
+            case 2:
+              yearAux = std::stoi(mapDate.find("year")->second);
+              monthAux = std::stoi(mapDate.find("month")->second) - 1;
+              day = getMaxDay(monthAux,yearAux);
+              mapDate.insert({"day", std::to_string(day)});
+              break;
+            case 3:
+              mapDate.insert({"hour", "00"});
+              break;
+            case 4:
+              mapDate.insert({"minute", "00"});
+              break;
+            case 5:
+              mapDate.insert({"second", "00"});
+              break;
+            default:
+              std::cout << "DEFAULT" << std::endl;
+           }
+          optIndice++;
+        }
+      }
+    }
+    
+    if(!mapDate.empty())
+    {
+
+      auto mapyear = mapDate.find("year");
+      auto mapmonth = mapDate.find("month");
+      auto mapday = mapDate.find("day");
+      auto maphour = mapDate.find("hour");
+      auto mapminute = mapDate.find("minute");
+      auto mapsecond = mapDate.find("second");
+
+      std::string finalDate = mapyear->second+"-";
+      finalDate = finalDate + mapmonth->second+"-";
+      finalDate = finalDate + mapday->second;
+      finalDate = finalDate + "T";
+      finalDate = finalDate + maphour->second+":";
+      finalDate = finalDate + mapminute->second+":";
+      finalDate = finalDate + mapsecond->second;
+      finalDate = finalDate + "-00";
+
+      dateReturn = terrama2::core::TimeUtils::stringToTimestamp(finalDate, terrama2::core::TimeUtils::webgui_timefacet);
+
+      return dateReturn;
+    }
+    else
+    {
+      QString errMsg = QObject::tr("The mask don't have the minimal needed parameters of a date!");
+      TERRAMA2_LOG_ERROR() << errMsg;
+      throw terrama2::core::UtilityException() << ErrorDescription(errMsg);  
+    }
+    return nullptr;
 }
 
 bool terrama2::core::isValidDataSetName(const std::string& mask,

@@ -31,6 +31,7 @@
 #include "../ContextManager.hpp"
 #include "../../../../core/data-model/DataSetGrid.hpp"
 #include "../../../../core/utility/Logger.hpp"
+#include "../../../../core/utility/FilterUtils.hpp"
 #include "../utility/Utils.hpp"
 #include "../utility/Verify.hpp"
 #include "../GridContext.hpp"
@@ -59,12 +60,12 @@ double terrama2::services::analysis::core::grid::getValue(std::shared_ptr<te::rs
     return value;
 }
 
-double terrama2::services::analysis::core::grid::sample(const std::string& dataSeriesName, size_t bandIdx)
+double terrama2::services::analysis::core::grid::sample(const std::string& dataSeriesName, size_t bandIdx, const std::string& date)
 {
   OperatorCache cache;
   terrama2::services::analysis::core::python::readInfoFromDict(cache);
   auto& contextManager = ContextManager::getInstance();
-  auto analysis = cache.analysisPtr;
+  auto analysis = cache.analysisPtr;  
 
   try
   {
@@ -113,12 +114,24 @@ double terrama2::services::analysis::core::grid::sample(const std::string& dataS
     {
       auto startTime = context->getStartTime();
 
-      filter.discardAfter = startTime;
+      if(date.compare("") != 0)
+      {
+        filter.discardAfter = terrama2::core::gridSampleVerifyMask(date, context->getStartTime());
+      }
+      else
+      {
+        filter.discardAfter = startTime;
+      }
+
       filter.lastValues = std::make_shared<std::size_t>(1);
       filter.isReprocessingHistoricalData = true;
     }
     else
     {
+      if(date.compare("") != 0)
+      {
+        filter.discardAfter = terrama2::core::gridSampleVerifyMask(date, context->getStartTime());
+      }
       filter.lastValues = std::make_shared<size_t>(1);
     }
 

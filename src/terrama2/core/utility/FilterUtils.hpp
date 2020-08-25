@@ -121,6 +121,10 @@ namespace terrama2
      * @return Regex style mask 
      */
     TMCOREEXPORT std::string terramaMask2Regex(const std::string& mask);
+
+    TMCOREEXPORT std::shared_ptr<te::dt::TimeInstantTZ> gridSampleVerifyMask(std::string mask, std::shared_ptr<te::dt::TimeInstantTZ> actualDate);
+
+    TMCOREEXPORT int getMaxDay(int month, int year);
   } // end namespace core
 }   // end namespace terrama2
 
