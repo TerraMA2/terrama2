@@ -5,9 +5,8 @@ const Application = require('./../core/Application')
 
 module.exports = {
   up: async function (queryInterface, /*Sequelize*/) {
-    const { db } = Application.getContextConfig();
-    const { database, host, password, username, port } = db;
-
+    const settings = Application.getContextConfig();
+    const { database, host, password, username, port } = settings.db;
     const collector = {
       name: "Local Collector",
       description: "Local service for Collect",
@@ -15,6 +14,12 @@ module.exports = {
       pathToBinary: "terrama2_service",
       numberOfThreads: 0,
       service_type_id: ServiceType.COLLECTOR
+    }
+
+    if (settings.services) {
+      collector.host = settings.services.analysis.host;
+      collector.sshPort = settings.services.analysis.sshPort;
+      collector.sshUser = settings.services.analysis.sshUser;
     }
 
     await queryInterface.bulkInsert({ schema: 'terrama2', tableName: 'service_instances'}, [collector]);

@@ -3,19 +3,24 @@
 const { ServiceType } = require('../core/Enums');
 const Application = require('./../core/Application')
 
-const alert = {
-  name: "Local Alert",
-  description: "Local service for Alert",
-  port: 6546,
-  pathToBinary: "terrama2_service",
-  numberOfThreads: 0,
-  service_type_id: ServiceType.ALERT
-}
-
 module.exports = {
   up: async function (queryInterface, /*Sequelize*/) {
-    const { db } = Application.getContextConfig();
-    const { database, host, password, username, port } = db;
+    const settings = Application.getContextConfig();
+    const { database, host, password, username, port } = settings.db;
+    const alert = {
+      name: "Local Alert",
+      description: "Local service for Alert",
+      port: 6546,
+      pathToBinary: "terrama2_service",
+      numberOfThreads: 0,
+      service_type_id: ServiceType.ALERT
+    }
+
+    if (settings.services) {
+      alert.host = settings.services.alert.host;
+      alert.sshPort = settings.services.alert.sshPort;
+      alert.sshUser = settings.services.alert.sshUser;
+    }
 
     await queryInterface.bulkInsert({ schema: 'terrama2', tableName: 'service_instances'}, [alert]);
 
