@@ -3,19 +3,24 @@
 const { ServiceType } = require('../core/Enums');
 const Application = require('./../core/Application')
 
-const interpolator = {
-  name: "Local Interpolator",
-  description: "Local service for Interpolator",
-  port: 6547,
-  pathToBinary: "terrama2_service",
-  numberOfThreads: 0,
-  service_type_id: ServiceType.INTERPOLATION
-}
-
 module.exports = {
   up: async function (queryInterface, /*Sequelize*/) {
-    const { db } = Application.getContextConfig();
-    const { database, host, password, username, port } = db;
+    const settings = Application.getContextConfig();
+    const { database, host, password, username, port } = settings.db;
+    const interpolator = {
+      name: "Local Interpolator",
+      description: "Local service for Interpolator",
+      port: 6547,
+      pathToBinary: "terrama2_service",
+      numberOfThreads: 0,
+      service_type_id: ServiceType.INTERPOLATION
+    }
+
+    if (settings.services) {
+      interpolator.host = settings.services.interpolator.host;
+      interpolator.sshPort = settings.services.interpolator.sshPort;
+      interpolator.sshUser = settings.services.interpolator.sshUser;
+    }
 
     await queryInterface.bulkInsert({ schema: 'terrama2', tableName: 'service_instances'}, [interpolator]);
 

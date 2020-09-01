@@ -3,20 +3,26 @@
 const { ServiceType } = require('../core/Enums');
 const Application = require('./../core/Application')
 
-const view = {
-  name: "Local View",
-  description: "Local service for view",
-  port: 6545,
-  pathToBinary: "terrama2_service",
-  numberOfThreads: 0,
-  service_type_id: ServiceType.VIEW
-}
-
 module.exports = {
   up: async function (queryInterface, /*Sequelize*/) {
     const settings = Application.getContextConfig();
-    const db = settings.db;
-    const { database, host, password, username, port } = db;
+    const { database, host, password, username, port } = settings.db;
+    const view = {
+      name: "Local View",
+      description: "Local service for view",
+      port: 6545,
+      pathToBinary: "terrama2_service",
+      numberOfThreads: 0,
+      service_type_id: ServiceType.VIEW
+    }
+
+    let geoserver = null;
+    if (settings.services) {
+      view.host = settings.services.view.host;
+      view.sshPort = settings.services.view.sshPort;
+      view.sshUser = settings.services.view.sshUser;
+      geoserver = settings.services.view.geoserver;
+    }
 
     await queryInterface.bulkInsert({ schema: 'terrama2', tableName: 'service_instances'}, [view]);
 
@@ -37,10 +43,15 @@ module.exports = {
 
     await queryInterface.bulkInsert({ schema: 'terrama2', tableName: 'logs' }, [log]);
 
+    let value = `http://admin:geoserver@localhost:8080/geoserver`;
+    if (geoserver) {
+      value = geoserver
+    }
+
     const metadata = {
       key: 'maps_server',
       service_instance_id: id,
-      value: `http://admin:geoserver@localhost:8080/geoserver`
+      value
     }
 
     return queryInterface.bulkInsert({ schema: 'terrama2', tableName: 'service_metadata' }, [metadata]);
