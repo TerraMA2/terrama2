@@ -98,6 +98,8 @@ std::vector<double> terrama2::services::analysis::core::grid::history::sample(co
     filter.discardBefore = context->getTimeFromString(dateFilterBegin);
     filter.discardAfter = context->getTimeFromString(dateFilterEnd);
 
+    filter.isPythonAnalysis = true;
+
     auto datasets = dataSeries->datasetList;
     for(const auto& dataset : datasets)
     {
