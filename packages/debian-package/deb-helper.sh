@@ -29,11 +29,11 @@
 #  $ ./deb-helper.sh
 #
 
-export TMVERSION=develop
-export DEBNAME=terrama2-doc-${TMVERSION}
+export TMVERSION=beta
+export DEBNAME=terrama2-doc-4.1.2-${TMVERSION}
 export DEBARC=amd64
 export HELPER_FOLDER=`pwd`/../../helper
-export TM_FOLDER=opt/terrama2/${TMVERSION}
+export TM_FOLDER=opt/terrama2/4.1.2-${TMVERSION}
 
 #
 # Create folders
@@ -74,9 +74,9 @@ Package: ${DEBNAME}
 Maintainer: TerraMA2 Team <terrama2-team@dpi.inpe.br>
 Section: misc
 Priority: optional
-Version: 4.1.1-${TMVERSION}
+Version: 4.1.2-${TMVERSION}
 Architecture: ${DEBARC}
-Description: TerraMA2 Help files, version ${TMVERSION}
+Description: TerraMA2 Help files, version 4.1.2-${TMVERSION}
 EOF
 #
 # Copy folder to be installed
