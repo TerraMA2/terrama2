@@ -131,15 +131,15 @@ To switch to one of the branches listed above, use the checkout command and crea
 $ git checkout -b <local_branch_name> <remote_branch_name without this part "remotes/">
 ```
 
-In order to switch to branch *b4.1.1* you can use the following command:
+In order to switch to branch *develop* you can use the following command:
 ```
-$ git checkout -b b4.1.1 origin/b4.1.1*
+$ git checkout -b develop origin/b4.1.2*
 ```
 
 
 ## Tags
 
-Also there are tags which usually are originated from a release branch. For instance, tag *b4.1.1* will be originated from branch *b4.1.1*.
+Also there are tags which usually are originated from a release branch. For instance, tag *b4.1.2* will be originated from branch *b4.1.2*.
 
 To check all tags available, use:
 ```
@@ -151,9 +151,9 @@ If you want to checkout a specific version given by a tag and create a local bra
 $ git checkout -b <local_branch_tag_name> <one_of_tag_name_listed>
 ```
 
-For instance, to checkout *b4.1.1* you can enter the following command:
+For instance, to checkout *b4.1.2* you can enter the following command:
 ```
-$ git checkout -b vb4.1.1  vb4.1.1
+$ git checkout -b vb4.1.2  vb4.1.2
 ```
 
 ## Build Instructions
