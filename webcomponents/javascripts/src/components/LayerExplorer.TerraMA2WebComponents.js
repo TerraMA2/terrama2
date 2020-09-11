@@ -85,15 +85,15 @@ define(
     var createLayer = function(id, name, title, parent, visible, disabled, classes, style) {
       classes += disabled ? " layer disabled-content" : " layer"
 
-      let showCog = parent=='template'?"style='display:none'":'';
+      let showCog = parent=='template' || parent=='extra-layers'?"style='display:none'":'';
       return `<li data-layerid="${id}" data-parentid="${parent}" data-container="body" data-toggle="popover" data-content="${title}" id="${id.replace(':', '')}" class="${classes}" style="${style}">
                 <div class="sidebar-subitem-text">
                   <div class="checkbox">
-                    <label>
-                      <input type="checkbox" ${visible?"checked":""} />
-                      ${name}
-                    </label>
-                  </div>
+                        <label>
+                            <input type="checkbox" ${visible?"checked":""} />
+                            ${name}
+                        </label>
+                    </div>
                 </div>
                 <div ${showCog} class="sidebar-subitem-icon">
                   <div class="dropdown dropdown-layer-tools">
