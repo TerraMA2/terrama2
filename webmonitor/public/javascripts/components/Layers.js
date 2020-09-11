@@ -30,7 +30,7 @@ define(
       var layersToReturn = [];
 
       for(var i = 0, layersLength = memberAllLayers.length; i < layersLength; i++)
-        if(memberAllLayers[i].projectId == projectId || (includeTemplates && memberAllLayers[i].parent === "template") || (includeCustomLayers && memberAllLayers[i].custom))
+        if(memberAllLayers[i].projectId == projectId || (includeTemplates && memberAllLayers[i].parent === "template" && memberAllLayers[i].parent === "extra-layers") || (includeCustomLayers && memberAllLayers[i].custom))
           layersToReturn.push($.extend({}, memberAllLayers[i]));
 
       return layersToReturn;
@@ -199,7 +199,7 @@ define(
           var spanIcon = `
             <span class='terrama2-layer-tools terrama2-datepicker-icon' data-i18n='[title]Layer Tools'>
               ${currentLayer.subLayers && currentLayer.subLayers.length > 0 ? '<i class="fa chevron-right">' : ''}
-              ${(allLayers[i].parent != 'custom' && allLayers[i].parent != 'template' ? " <i class='glyphicon glyphicon-resize-full'></i>" : "")}<i class='fa fa-gear'></i>
+              ${(allLayers[i].parent != 'custom' && allLayers[i].parent != 'extra-layers' && allLayers[i].parent != 'template' ? " <i class='glyphicon glyphicon-resize-full'></i>" : "")}<i class='fa fa-gear'></i>
             </span>`;
 
           let subLayerItems = '';
@@ -250,7 +250,7 @@ define(
           if(TerraMA2WebComponents.MapDisplay.addImageWMSLayer(layerId, layerName, layerName, uriGeoServer + '/ows', serverType, false, false, "terrama2-layerexplorer", { version: "1.1.0" })) {
             TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerId, parent, null, "treeview unsortable terrama2-truncate-text sidebar-subitem", null, descriptionReduced);
 
-            if(parent != 'custom' && parent != 'template') {
+            if(parent != 'custom' && parent != 'extra-layers' && parent != 'template') {
               getLayerCapabilities(uriGeoServer, workspace, data[i].nameId, layerId, parent, false);
             }
           }

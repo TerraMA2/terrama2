@@ -158,7 +158,7 @@ define(
         var visibleLayers = [];
 
         for(var i = 1, allVisibleLayersLength = allVisibleLayers.length; i < allVisibleLayersLength; i++) {
-          if(allVisibleLayers[i].parent !== "custom" && allVisibleLayers[i].parent !== "template")
+          if(allVisibleLayers[i].parent !== "custom" && allVisibleLayers[i].parent !== "extra-layers" && allVisibleLayers[i].parent !== "template")
             visibleLayers.push(allVisibleLayers[i]);
         }
 

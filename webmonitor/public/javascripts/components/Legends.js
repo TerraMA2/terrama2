@@ -18,7 +18,7 @@ define(
         var layerName = layerObject.name;
         var layerType = layerObject.parent;
 
-        if(layerType !== "template" && layerType !== "custom") {
+        if(layerType !== "extra-layers" && layerType !== "template" && layerType !== "custom") {
           var layerData = null;
 
           for(var j = 0, allLayersLength = allLayers.length; j < allLayersLength; j++) {

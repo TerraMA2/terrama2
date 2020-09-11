@@ -44,7 +44,7 @@ define(
         var layerName = layerObject.name;
         var layerType = layerObject.parent;
 
-        if(layerType !== "template" && layerType !== "custom") {
+        if(layerType !== "extra-layers" && layerType !== "template" && layerType !== "custom") {
           $('#getAttributes > select').append($('<option></option>').attr('value', layerId).text(layerName));
           if(!showButton) showButton = true;
         }

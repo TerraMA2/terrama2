@@ -930,6 +930,10 @@ define(
         $(this).addClass("fa fa-map");
       });
 
+      $("#extra-layers > .group-name > .sidebar-item-text").find("div").each(function() {
+        $(this).addClass("fa fa-map");
+      });
+
       $("#custom > .group-name > .sidebar-item-text").find("div").each(function() {
         $(this).addClass("fa fa-link");
       });
@@ -999,6 +1003,19 @@ define(
         Layers.addLayer(layerObject);
       }
 
+      const extraLayerGroup = USER_CONFIG.extraLayerGroup;
+      if (extraLayerGroup) {
+        if(TerraMA2WebComponents.MapDisplay.addLayerGroup("extra-layers", extraLayerGroup, "terrama2-layerexplorer")) {
+          TerraMA2WebComponents.LayerExplorer.addLayersFromMap("extra-layers", "terrama2-layerexplorer", null, "treeview unsortable", null);
+          var layerObject = Layers.createLayerObject({
+            layers: ["extra-layers"],
+            name: extraLayerGroup,
+            description: null
+          });
+          Layers.addLayer(layerObject);
+        }
+      }
+
       if(TerraMA2WebComponents.MapDisplay.addLayerGroup("static", "Static data", "terrama2-layerexplorer")) {
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("static", "terrama2-layerexplorer", null, "treeview unsortable", null);
         var layerObject = Layers.createLayerObject({
@@ -1064,17 +1081,51 @@ define(
         Layers.addLayer(layerObject);
         LayerStatus.addLayerStatusIcon("gebco_08_grid");
       }
+
       var sentinelURL = "https://b.s2maps-tiles.eu/wms?";
       if(TerraMA2WebComponents.MapDisplay.addTileWMSLayer("s2cloudless", "Sentinel 2", "Sentinel 2", sentinelURL, "mapserver", false, false, "terrama2-layerexplorer", { version: "1.1.1", format: "image/jpeg" }, "Sentinel-2 cloudless - <a href='https://s2maps.eu'>https://s2maps.eu</a> by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2017 & 2018)")){
         TerraMA2WebComponents.LayerExplorer.addLayersFromMap("s2cloudless", "template", null, "treeview unsortable terrama2-truncate-text sidebar-subitem template", null);
         var layerObject = Layers.createLayerObject({
           layers: ["s2cloudless"],
-          name: "Senrinel 2",
+          name: "Sentinel 2",
           type: "template",
           description: null
         });
         Layers.addLayer(layerObject);
         LayerStatus.addLayerStatusIcon("s2cloudless");
+      }
+
+      var cbersUrl = "http://brazildatacube.dpi.inpe.br/bdc/geoserver/bdc_brmosaic/wms?";
+      if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer("cbers_full_resolution_tiles", "BDC - CBERS4/WFI", "BDC - CBERS4/WFI", cbersUrl, "mapserver", false, false, "terrama2-layerexplorer", {version: "1.1.1", format: "image/png"}, "")) {
+        TerraMA2WebComponents.LayerExplorer.addLayersFromMap("cbers_full_resolution_tiles", "template", null, "treeview unsortable terrama2-truncate-text sidebar-subitem template", null);
+        var layerObject = Layers.createLayerObject({
+          layers: ["cbers_full_resolution_tiles"],
+          name: "BDC - CBERS4/WFI",
+          type: "template",
+          description: null
+        });
+        Layers.addLayer(layerObject);
+        LayerStatus.addLayerStatusIcon("cbers_full_resolution_tiles");
+      }
+
+      var userConfigExtraLayers = USER_CONFIG.extraLayers;
+      if (extraLayerGroup && userConfigExtraLayers && userConfigExtraLayers.length > 0) {
+        userConfigExtraLayers.forEach((userConfigExtraLayer) => {
+          var url = userConfigExtraLayer.url;
+          var name = userConfigExtraLayer.name;
+          var layerName = userConfigExtraLayer.layerName;
+          if (TerraMA2WebComponents.MapDisplay.addTileWMSLayer(layerName, name, name, url, "mapserver", false, false, "terrama2-layerexplorer", {version: "1.1.1", format: "image/png"}, "")) {
+            TerraMA2WebComponents.LayerExplorer.addLayersFromMap(layerName, "extra-layers", null, "treeview unsortable terrama2-truncate-text sidebar-subitem extra-layers", null);
+            var layerObject = Layers.createLayerObject({
+              layers: [layerName],
+              name: name,
+              type: "extra-layers",
+              description: null
+            });
+            Layers.addLayer(layerObject);
+            LayerStatus.addLayerStatusIcon(layerName);
+          }
+        });
       }
 
       addTreeviewMenuClass();
