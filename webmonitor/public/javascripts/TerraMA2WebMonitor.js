@@ -411,13 +411,6 @@ define(
 
         if(viewsData.initialRequest) {
           Layers.fillLayersData();
-          const userLayers = USER_CONFIG.selectedLayers;
-          for (let i = 0; i < userLayers.length; i++) {
-            const layer = userLayers[i];
-            if (!$("li[title='"+layer+"'] input").is(':checked')){
-              $("li[title='"+layer+"'] input").trigger('click');
-            }
-          }
 
           var defaultProject = USER_CONFIG.project;
           if (defaultProject){
@@ -581,6 +574,15 @@ define(
                 layerId: data.layerId
               }
             };
+
+            const userLayers = USER_CONFIG.selectedLayers;
+            for (let i = 0; i < userLayers.length; i++) {
+              const layer = userLayers[i];
+              $('li.parent_li').data("layerid");
+              if (!$("li[title='"+layer+"'] input").is(':checked')){
+                $("li[title='"+layer+"'] input").trigger('click');
+              }
+            }
 
             const zoomToLayer = USER_CONFIG.zoomToLayer;
             if (layerCapabilities[layerIndex].title == zoomToLayer) {
