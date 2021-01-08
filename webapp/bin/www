@@ -171,7 +171,7 @@ load('sockets').into(io);
     .then(async () => {
       try {
         const applicationPath = path.join(__dirname, './../..');
-        child_process.execSync(`python ${applicationPath}/share/terrama2/scripts/update_database.py ${applicationPath} ${Application.getMode()}`);
+        child_process.execSync(`python2.7 ${applicationPath}/share/terrama2/scripts/update_database.py ${applicationPath} ${Application.getMode()}`);
 
         // loading terrama2 data
         await DataManager.load();
