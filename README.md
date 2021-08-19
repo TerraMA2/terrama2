@@ -15,7 +15,7 @@ It takes advantage of the datasets available on the Internet to have access to r
 
 Besides that, it provides support for building models to several application domains through scriptable languages.
 
-The computational platform is based on a service-oriented architecture, which is open and provides the technological infrastructure required to develop and implement operating systems to monitor early warnings of environmental risks.
+The computational platform is based on a service-oriented architecture, which is open and provides the technological infrastructure required to b4.1.2-dev and implement operating systems to monitor early warnings of environmental risks.
 
 
 ## Source Code Instructions
@@ -133,7 +133,7 @@ $ git checkout -b <local_branch_name> <remote_branch_name without this part "rem
 
 In order to switch to branch *develop* you can use the following command:
 ```
-$ git checkout -b develop origin/b4.1.2*
+$ git checkout -b b4.1.2-dev origin/b4.1.2*
 ```
 
 
