@@ -33,7 +33,7 @@
 
 export UBUNTUVERSION=`lsb_release -rs`
 
-export TMVERSION=b4.1.2-dev
+export TMVERSION=4.1.2-dev
 export DEBNAME=terrama2-gtest
 export DEBVERSION=1.8.0
 export DEBARC=amd64
