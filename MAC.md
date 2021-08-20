@@ -48,7 +48,7 @@ We will assume that the codebase (all the source tree) is located at: `/Users/US
 
 We have prepared a special bash script for building and installing the dependencies on Mac OS. This script can be found in TerraMA² source tree under *install* folder. Follow the steps below:
 
-1.1. Download the third-party libraries source used by the b4.1.2ment team:
+1.1. Download the third-party libraries source used by the development team:
   - [quazip-0.7.3.tar.gz](https://sourceforge.net/projects/quazip/files/latest/download).
   - [vv0.9.2.tar.gz](https://github.com/kisli/vmime/archive/v0.9.2.tar.gz).
   
