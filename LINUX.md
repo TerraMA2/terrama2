@@ -112,7 +112,7 @@ make -j $(($(nproc)/2))
 ### Cloning TerraMA² codebase
 
 ```bash
-git clone -b b4.1.2-dev -o upstream https://github.com/TerraMA2/terrama2.git /home/$USER/mydevel/terrama2/codebase
+git clone -b b4.1.2 -o upstream https://github.com/TerraMA2/terrama2.git /home/$USER/mydevel/terrama2/codebase
 ```
 
 ### TerraMA² dependencies

@@ -29,7 +29,7 @@
 #  $ ./deb-helper.sh
 #
 
-export TMVERSION=4.1.2-dev
+export TMVERSION=4.1.2
 export DEBNAME=terrama2-doc-${TMVERSION}
 export DEBARC=amd64
 export HELPER_FOLDER=`pwd`/../../helper
@@ -74,7 +74,7 @@ Package: ${DEBNAME}
 Maintainer: TerraMA2 Team <terrama2-team@dpi.inpe.br>
 Section: misc
 Priority: optional
-Version: 4.1.2-${TMVERSION}
+Version: ${TMVERSION}
 Architecture: ${DEBARC}
 Description: TerraMA2 Help files, version ${TMVERSION}
 EOF

@@ -4,7 +4,7 @@
   "defaultFilePathList": [
     "/home/<USER>/terrama2"
   ],
-  "defaultExecutablePath": "/opt/terrama2/develop/bin",
+  "defaultExecutablePath": "/opt/terrama2/4.1.2/bin",
   "defaultExecutableName": "terrama2_service",
   "disablePDF": true,
   "debug": true,
